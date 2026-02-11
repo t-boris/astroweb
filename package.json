@@ -1,0 +1,15 @@
+{
+  "name": "astroweb",
+  "private": true,
+  "workspaces": [
+    "web",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "firebase emulators:start",
+    "dev:web": "npm run dev --workspace=web",
+    "build:web": "npm run build --workspace=web",
+    "build:functions": "npm run build --workspace=functions",
+    "deploy": "npm run build:web && firebase deploy"
+  }
+}

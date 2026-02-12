@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 4 of 7 (Profile UI & Geocoding)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Completed 04-01-PLAN.md
+Last activity: 2026-02-12 — Completed 04-03-PLAN.md
 
-Progress: █████████░ 48%
+Progress: ██████████░ 52%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 2.0 min
-- Total execution time: 20 min
+- Total plans completed: 11
+- Average duration: 1.9 min
+- Total execution time: 21 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: █████████░ 48%
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
-| 4 - Profile UI | 1/3 | 2 min | 2 min |
+| 4 - Profile UI | 2/3 | 3 min | 1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (3 min), 03-02 (2 min), 03-03 (1 min), 04-01 (2 min)
+- Last 5 plans: 03-02 (2 min), 03-03 (1 min), 04-01 (2 min), 04-03 (1 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -73,6 +73,8 @@ Recent decisions affecting current work:
 - 04-01: listProfiles wrapper unwraps backend { profiles } envelope to return clean Profile[]
 - 04-01: Controlled AlertDialog (open/onOpenChange) for programmatic delete flow
 - 04-01: API client pattern: typed httpsCallable wrappers in web/src/api/ with no error handling
+- 04-03: FirebaseError not-found detection via err.message.includes('not-found') for 404 vs generic errors
+- 04-03: Controlled AlertDialog with deleting state disables buttons during async delete
 
 ### Deferred Issues
 
@@ -85,5 +87,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 04-01-PLAN.md
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None

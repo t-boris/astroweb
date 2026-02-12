@@ -8,6 +8,7 @@ import { getChart } from "@/api/charts";
 import NatalChart from "@/components/chart/NatalChart";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
 import { AspectsTable } from "@/components/chart/AspectsTable";
+import { InterpretationView } from "@/components/chart/InterpretationView";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -272,10 +273,8 @@ export default function ProfileDetail() {
 
           <TabsContent value="interpretation">
             <Card>
-              <CardContent className="py-6">
-                <p className="text-muted-foreground text-center">
-                  {t("tabs.interpretationPlaceholder")}
-                </p>
+              <CardContent className="pt-6">
+                <InterpretationView chart={chartData} />
               </CardContent>
             </Card>
           </TabsContent>

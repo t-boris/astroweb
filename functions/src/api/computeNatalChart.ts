@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { computeNatalChart as computeChart } from "../astro/chart";
 import * as profileService from "../services/profile";
 import * as chartService from "../services/chart";
@@ -30,6 +31,8 @@ export const computeNatalChart = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Invalid house system");
   }
 
+  logger.info("computeNatalChart called", { profileId, houseSystem });
+
   try {
     // ---- Ownership check ----
     const profile = await profileService.getProfileById(profileId);
@@ -54,6 +57,7 @@ export const computeNatalChart = onCall(async (request) => {
 
     const cached = await chartService.findCachedChart(profileId, inputHash);
     if (cached) {
+      logger.info("computeNatalChart cache hit", { profileId, cached: true });
       return cached.result;
     }
 
@@ -78,6 +82,7 @@ export const computeNatalChart = onCall(async (request) => {
     if (error instanceof HttpsError) {
       throw error;
     }
+    logger.error("computeNatalChart failed", { profileId, error: (error as Error).message });
     throw new HttpsError("internal", "Failed to compute chart");
   }
 });

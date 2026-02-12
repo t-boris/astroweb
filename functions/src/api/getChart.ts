@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { computeNatalChart } from "../astro/chart";
 import * as profileService from "../services/profile";
 import * as chartService from "../services/chart";
@@ -32,6 +33,8 @@ export const getChart = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Invalid house system");
   }
 
+  logger.info("getChart called", { profileId });
+
   try {
     // ---- Ownership check ----
     const profile = await profileService.getProfileById(profileId);
@@ -57,6 +60,7 @@ export const getChart = onCall(async (request) => {
     // 1. Check cache
     const cached = await chartService.findCachedChart(profileId, inputHash);
     if (cached) {
+      logger.info("getChart result", { profileId, cached: true });
       return { cached: true, chart: cached.result };
     }
 
@@ -75,12 +79,14 @@ export const getChart = onCall(async (request) => {
     await chartService.storeChart(profileId, inputHash, result);
 
     // 4. Return with cached: false
+    logger.info("getChart result", { profileId, cached: false });
     return { cached: false, chart: result };
   } catch (error) {
     // Re-throw HttpsError as-is
     if (error instanceof HttpsError) {
       throw error;
     }
+    logger.error("getChart failed", { profileId, error: (error as Error).message });
     throw new HttpsError("internal", "Failed to compute chart");
   }
 });

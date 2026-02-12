@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { validateUpdateProfilePayload } from "../validation/profile";
 import * as profileService from "../services/profile";
 import { getTimezoneFromCoords } from "../utils/timezone";
@@ -19,6 +20,8 @@ export const updateProfile = onCall(async (request) => {
   if (errors.length > 0) {
     throw new HttpsError("invalid-argument", errors[0].message);
   }
+
+  logger.info("updateProfile called", { profileId: data.profileId });
 
   try {
     // Ownership check: fetch profile first
@@ -54,6 +57,7 @@ export const updateProfile = onCall(async (request) => {
     if (error instanceof HttpsError) {
       throw error;
     }
+    logger.error("updateProfile failed", { profileId: data.profileId, error: (error as Error).message });
     throw new HttpsError("internal", "An unexpected error occurred");
   }
 });

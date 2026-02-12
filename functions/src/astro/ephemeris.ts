@@ -1,4 +1,5 @@
 import { set_ephe_path, calc_ut, julday, houses, constants } from 'sweph';
+import { logger } from 'firebase-functions/v2';
 import { CALC_FLAGS } from './constants';
 
 // Initialize Moshier ephemeris once at module load (no data files needed)
@@ -65,10 +66,7 @@ export function computeHouseCusps(
 ): HouseCuspsResult {
   // Warn about Placidus limitations at high latitudes
   if (system === 'P' && (lat > 66 || lat < -66)) {
-    console.warn(
-      `Placidus house system may produce invalid results at latitude ${lat}. ` +
-      `Consider using Whole Sign ('W') for polar latitudes.`
-    );
+    logger.warn("Placidus house system may produce invalid results at high latitude", { lat, system });
   }
 
   const result = houses(jd, lat, lng, system as 'P' | 'W');

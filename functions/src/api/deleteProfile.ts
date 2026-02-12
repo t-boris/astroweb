@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as profileService from "../services/profile";
 
 export const deleteProfile = onCall(async (request) => {
@@ -19,6 +20,8 @@ export const deleteProfile = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "ownerDeviceId is required");
   }
 
+  logger.info("deleteProfile called", { profileId: data.profileId });
+
   try {
     // Ownership check: fetch profile first
     const existing = await profileService.getProfileById(data.profileId);
@@ -37,6 +40,7 @@ export const deleteProfile = onCall(async (request) => {
     if (error instanceof HttpsError) {
       throw error;
     }
+    logger.error("deleteProfile failed", { profileId: data.profileId, error: (error as Error).message });
     throw new HttpsError("internal", "An unexpected error occurred");
   }
 });

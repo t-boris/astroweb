@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { logger } from 'firebase-functions/v2';
 import { BODIES } from './constants';
 import { calcPlanetPosition, computeJulianDay } from './ephemeris';
 import { longitudeToZodiac } from './zodiac';
@@ -70,10 +71,7 @@ export function computeNatalChart(input: ComputeChartInput): ChartResult {
     houses = calculateHouses(jd, input.lat, input.lng, input.houseSystem);
   } catch (err) {
     // Placidus at extreme latitudes may fail; fall back to Whole Sign
-    console.warn(
-      `House calculation failed for ${input.houseSystem}, falling back to whole-sign:`,
-      err
-    );
+    logger.warn("Placidus failed, falling back to whole-sign", { lat: input.lat, lng: input.lng });
     houses = calculateHouses(jd, input.lat, input.lng, 'whole-sign');
   }
 

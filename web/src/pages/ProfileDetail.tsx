@@ -225,7 +225,7 @@ export default function ProfileDetail() {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button asChild>
           <Link to={`/profile/${id}/edit`}>{t("profile.detail.edit")}</Link>
         </Button>
@@ -256,11 +256,11 @@ export default function ProfileDetail() {
       )}
       {chartData && (
         <Tabs defaultValue="chart" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="chart">{t("tabs.chart")}</TabsTrigger>
-            <TabsTrigger value="planets">{t("tabs.planets")}</TabsTrigger>
-            <TabsTrigger value="aspects">{t("tabs.aspects")}</TabsTrigger>
-            <TabsTrigger value="interpretation">{t("tabs.interpretation")}</TabsTrigger>
+          <TabsList className="flex w-full overflow-x-auto scrollbar-hidden">
+            <TabsTrigger value="chart" className="flex-1 min-w-fit">{t("tabs.chart")}</TabsTrigger>
+            <TabsTrigger value="planets" className="flex-1 min-w-fit">{t("tabs.planets")}</TabsTrigger>
+            <TabsTrigger value="aspects" className="flex-1 min-w-fit">{t("tabs.aspects")}</TabsTrigger>
+            <TabsTrigger value="interpretation" className="flex-1 min-w-fit">{t("tabs.interpretation")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chart">

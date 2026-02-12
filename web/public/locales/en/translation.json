@@ -34,7 +34,8 @@
       "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
       "deleteConfirmAction": "Delete",
       "deleteConfirmCancel": "Cancel",
-      "chartPlaceholder": "Chart visualization coming in Phase 5."
+      "chartLoading": "Computing natal chart...",
+      "chartError": "Could not load chart. Please try again."
     },
     "form": {
       "name": "Name",

@@ -34,7 +34,8 @@
       "deleteConfirmMessage": "Вы уверены, что хотите удалить \"{{name}}\"? Это действие нельзя отменить.",
       "deleteConfirmAction": "Удалить",
       "deleteConfirmCancel": "Отмена",
-      "chartPlaceholder": "Визуализация карты появится в Фазе 5."
+      "chartLoading": "Вычисление натальной карты...",
+      "chartError": "Не удалось загрузить карту. Попробуйте снова."
     },
     "form": {
       "name": "Имя",

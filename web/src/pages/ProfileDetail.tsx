@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { getProfile, deleteProfile } from "@/api/profiles";
+import { getChart } from "@/api/charts";
+import NatalChart from "@/components/chart/NatalChart";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Profile } from "@/types";
+import type { Profile, ChartResult } from "@/types";
 
 export default function ProfileDetail() {
   const { id } = useParams();
@@ -32,6 +34,9 @@ export default function ProfileDetail() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<ChartResult | null>(null);
+  const [chartLoading, setChartLoading] = useState(true);
+  const [chartError, setChartError] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -49,6 +54,16 @@ export default function ProfileDetail() {
         const data = await getProfile(id, deviceId);
         if (!cancelled) {
           setProfile(data);
+        }
+
+        // Fetch chart data after profile loads
+        try {
+          const { chart } = await getChart(id, deviceId);
+          if (!cancelled) setChartData(chart);
+        } catch {
+          if (!cancelled) setChartError("chartLoadError");
+        } finally {
+          if (!cancelled) setChartLoading(false);
         }
       } catch (err) {
         if (!cancelled) {
@@ -207,14 +222,18 @@ export default function ProfileDetail() {
         </Button>
       </div>
 
-      {/* Phase 5: Chart wheel, planets table, aspects table, interpretations */}
-      <Card>
-        <CardContent className="py-6">
-          <p className="text-muted-foreground text-center">
-            {t("profile.detail.chartPlaceholder")}
-          </p>
-        </CardContent>
-      </Card>
+      {/* Chart Visualization */}
+      {chartLoading && (
+        <p className="text-muted-foreground text-center">
+          {t("profile.detail.chartLoading")}
+        </p>
+      )}
+      {chartError && (
+        <p className="text-destructive text-center">
+          {t("profile.detail.chartError")}
+        </p>
+      )}
+      {chartData && <NatalChart chart={chartData} />}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog

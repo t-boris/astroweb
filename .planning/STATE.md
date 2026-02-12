@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 6 of 7 (Data Tables & Interpretations)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Completed 06-01-PLAN.md
+Last activity: 2026-02-12 — Completed 06-02-PLAN.md
 
-Progress: ████████████░░ 76%
+Progress: █████████████░ 81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 2.3 min
-- Total execution time: 37 min
+- Total execution time: 39 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: ████████████░░ 76%
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
 | 4 - Profile UI | 3/3 | 7 min | 2.3 min |
 | 5 - Chart Viz | 3/3 | 10 min | 3.3 min |
-| 6 - Data Tables | 1/3 | 2 min | 2 min |
+| 6 - Data Tables | 2/3 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (4 min), 05-02 (2 min), 05-03 (4 min), 06-01 (2 min)
+- Last 5 plans: 05-02 (2 min), 05-03 (4 min), 06-01 (2 min), 06-02 (2 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -94,6 +94,7 @@ Recent decisions affecting current work:
 - 05-03: Reveal animation timing: ~2.8s total, zodiac first, aspect lines last
 - 05-03: Continuous glow-pulse (3s) on planets, shimmer (4s) on zodiac ring border
 - 06-01: Exactness displayed as inline progress bar + percentage for visual scanning
+- 06-02: Default tab is Chart — chart wheel is the primary view users see first
 
 ### Deferred Issues
 
@@ -106,5 +107,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 06-01-PLAN.md (1 of 3 in Phase 6)
+Stopped at: Completed 06-02-PLAN.md (2 of 3 in Phase 6)
 Resume file: None

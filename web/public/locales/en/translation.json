@@ -97,5 +97,79 @@
       "exactness": "Exactness"
     }
   },
+  "interpretation": {
+    "sun": {
+      "aries": { "title": "Sun in Aries", "text": "Your core identity is driven by courage, initiative, and a pioneering spirit. You lead with action, thrive on challenges, and express yourself boldly. Independence is essential to your sense of self." },
+      "taurus": { "title": "Sun in Taurus", "text": "Your core identity is rooted in stability, patience, and sensory appreciation. You build lasting foundations, value security, and express yourself through determination and quiet strength." },
+      "gemini": { "title": "Sun in Gemini", "text": "Your core identity thrives on communication, curiosity, and mental agility. You connect with the world through ideas, adapt easily to new situations, and express yourself with wit and versatility." },
+      "cancer": { "title": "Sun in Cancer", "text": "Your core identity is shaped by deep emotional sensitivity and nurturing instincts. You protect those you love fiercely, find strength in family bonds, and express yourself through care and intuition." },
+      "leo": { "title": "Sun in Leo", "text": "Your core identity radiates warmth, creativity, and natural leadership. You express yourself with confidence and generosity, thrive in the spotlight, and inspire others through your passionate self-expression." },
+      "virgo": { "title": "Sun in Virgo", "text": "Your core identity is defined by analytical precision, service to others, and practical wisdom. You improve everything you touch, express yourself through competence, and find purpose in meaningful work." },
+      "libra": { "title": "Sun in Libra", "text": "Your core identity seeks harmony, beauty, and balanced relationships. You express yourself through diplomacy and aesthetic sensibility, and find meaning in creating fairness and connection between people." },
+      "scorpio": { "title": "Sun in Scorpio", "text": "Your core identity is driven by emotional depth, transformative power, and unwavering determination. You see beneath the surface, express yourself with intensity, and possess remarkable resilience through life's challenges." },
+      "sagittarius": { "title": "Sun in Sagittarius", "text": "Your core identity is fueled by a quest for truth, adventure, and philosophical understanding. You express yourself with optimism and enthusiasm, and find purpose in expanding horizons through travel and learning." },
+      "capricorn": { "title": "Sun in Capricorn", "text": "Your core identity is built on ambition, discipline, and long-term vision. You express yourself through achievement and responsibility, and find fulfillment in building structures that stand the test of time." },
+      "aquarius": { "title": "Sun in Aquarius", "text": "Your core identity is shaped by originality, humanitarian vision, and intellectual independence. You express yourself through innovation and progressive ideals, and find purpose in contributing to collective progress." },
+      "pisces": { "title": "Sun in Pisces", "text": "Your core identity flows through compassion, imagination, and spiritual sensitivity. You express yourself through empathy and creative vision, and find meaning in transcending ordinary boundaries of experience." }
+    },
+    "moon": {
+      "aries": { "title": "Moon in Aries", "text": "Your emotional nature is fiery and impulsive. You process feelings quickly and need excitement and action to feel alive. Emotional independence matters deeply to you." },
+      "taurus": { "title": "Moon in Taurus", "text": "Your emotional nature craves security and sensory comfort. You process feelings slowly and steadily, finding peace in routine, nature, and physical pleasures." },
+      "gemini": { "title": "Moon in Gemini", "text": "Your emotional nature is restless and intellectually driven. You process feelings through conversation and mental activity, and need variety and stimulation to feel emotionally balanced." },
+      "cancer": { "title": "Moon in Cancer", "text": "Your emotional nature is deeply nurturing and intuitive. You feel everything intensely, draw strength from home and family, and have powerful instincts for caring for others." },
+      "leo": { "title": "Moon in Leo", "text": "Your emotional nature is warm, dramatic, and expressive. You need recognition and appreciation to feel emotionally secure, and process feelings through creative self-expression and generosity." },
+      "virgo": { "title": "Moon in Virgo", "text": "Your emotional nature is analytical and service-oriented. You process feelings through practical action and problem-solving, finding emotional comfort in order, routine, and being useful." },
+      "libra": { "title": "Moon in Libra", "text": "Your emotional nature seeks harmony and partnership. You process feelings through relationships and aesthetic experiences, and need balance and beauty in your emotional environment." },
+      "scorpio": { "title": "Moon in Scorpio", "text": "Your emotional nature is intensely deep and transformative. You feel with extraordinary power, process emotions through investigation and introspection, and form bonds of unwavering loyalty." },
+      "sagittarius": { "title": "Moon in Sagittarius", "text": "Your emotional nature is optimistic and freedom-seeking. You process feelings through adventure, philosophy, and humor, and need space and new experiences to feel emotionally alive." },
+      "capricorn": { "title": "Moon in Capricorn", "text": "Your emotional nature is reserved and self-reliant. You process feelings through achievement and practical responsibility, finding emotional security in structure and long-term goals." },
+      "aquarius": { "title": "Moon in Aquarius", "text": "Your emotional nature is independent and unconventional. You process feelings through intellectual detachment and social idealism, and need freedom and authenticity in emotional connections." },
+      "pisces": { "title": "Moon in Pisces", "text": "Your emotional nature is deeply empathic and imaginative. You absorb the feelings of those around you, process emotions through creativity and spirituality, and need periods of solitude to recharge." }
+    },
+    "ascendant": {
+      "aries": { "title": "Aries Rising", "text": "You project an energetic, direct, and assertive first impression. Others see you as confident and action-oriented. Your approach to life is head-first and pioneering." },
+      "taurus": { "title": "Taurus Rising", "text": "You project a calm, steady, and grounded first impression. Others see you as reliable and composed. Your approach to life is deliberate and sensory-rich." },
+      "gemini": { "title": "Gemini Rising", "text": "You project a quick-witted, curious, and adaptable first impression. Others see you as communicative and youthful. Your approach to life is through gathering and sharing information." },
+      "cancer": { "title": "Cancer Rising", "text": "You project a warm, protective, and approachable first impression. Others see you as caring and emotionally attuned. Your approach to life is guided by instinct and emotional intelligence." },
+      "leo": { "title": "Leo Rising", "text": "You project a radiant, confident, and magnetic first impression. Others see you as charismatic and commanding. Your approach to life is creative, generous, and heart-centered." },
+      "virgo": { "title": "Virgo Rising", "text": "You project a thoughtful, composed, and capable first impression. Others see you as intelligent and detail-oriented. Your approach to life is analytical and improvement-focused." },
+      "libra": { "title": "Libra Rising", "text": "You project a charming, graceful, and diplomatic first impression. Others see you as attractive and socially skilled. Your approach to life prioritizes harmony and fair relationships." },
+      "scorpio": { "title": "Scorpio Rising", "text": "You project an intense, magnetic, and perceptive first impression. Others sense your depth and emotional power. Your approach to life is investigative and transformative." },
+      "sagittarius": { "title": "Sagittarius Rising", "text": "You project an enthusiastic, open, and adventurous first impression. Others see you as optimistic and philosophical. Your approach to life is expansive and truth-seeking." },
+      "capricorn": { "title": "Capricorn Rising", "text": "You project a serious, capable, and ambitious first impression. Others see you as mature and authoritative. Your approach to life is strategic and goal-oriented." },
+      "aquarius": { "title": "Aquarius Rising", "text": "You project an original, independent, and forward-thinking first impression. Others see you as unique and intellectually stimulating. Your approach to life is unconventional and community-minded." },
+      "pisces": { "title": "Pisces Rising", "text": "You project a gentle, dreamy, and compassionate first impression. Others sense your empathy and spiritual depth. Your approach to life is intuitive and creatively fluid." }
+    },
+    "midheaven": {
+      "aries": { "title": "Midheaven in Aries", "text": "Your career path calls for leadership, entrepreneurship, and independent action. You are driven to be first and to forge new paths in your professional life." },
+      "taurus": { "title": "Midheaven in Taurus", "text": "Your career path calls for building lasting value and financial stability. You excel in fields that combine beauty, craftsmanship, and patient accumulation of resources." },
+      "gemini": { "title": "Midheaven in Gemini", "text": "Your career path calls for communication, versatility, and intellectual engagement. You thrive in roles that involve writing, teaching, media, or connecting people and ideas." },
+      "cancer": { "title": "Midheaven in Cancer", "text": "Your career path calls for nurturing, protecting, and creating emotional safety. You excel in roles that involve caring for others, building homes, or preserving traditions." },
+      "leo": { "title": "Midheaven in Leo", "text": "Your career path calls for creative expression and visible leadership. You thrive in roles where your personal vision and warmth can inspire and entertain others." },
+      "virgo": { "title": "Midheaven in Virgo", "text": "Your career path calls for precision, service, and practical problem-solving. You excel in roles that require analytical skill, attention to detail, and genuine helpfulness." },
+      "libra": { "title": "Midheaven in Libra", "text": "Your career path calls for diplomacy, aesthetic creation, and partnership. You thrive in roles that involve justice, design, counseling, or bringing people together." },
+      "scorpio": { "title": "Midheaven in Scorpio", "text": "Your career path calls for depth, research, and transformative work. You excel in roles that involve investigation, psychology, finance, or guiding others through profound change." },
+      "sagittarius": { "title": "Midheaven in Sagittarius", "text": "Your career path calls for expansion, teaching, and cross-cultural engagement. You thrive in roles that involve travel, higher education, publishing, or inspiring big-picture thinking." },
+      "capricorn": { "title": "Midheaven in Capricorn", "text": "Your career path calls for authority, structure, and long-term planning. You excel in roles that require strategic vision, management expertise, and building enduring institutions." },
+      "aquarius": { "title": "Midheaven in Aquarius", "text": "Your career path calls for innovation, social progress, and technological vision. You thrive in roles that involve science, activism, technology, or reimagining how systems work." },
+      "pisces": { "title": "Midheaven in Pisces", "text": "Your career path calls for creativity, healing, and spiritual service. You excel in roles that involve art, music, healthcare, or helping others connect with something greater than themselves." }
+    },
+    "aspects": {
+      "conjunction": { "title": "Conjunction", "text": "A powerful merging of planetary energies -- these forces blend and amplify each other, creating a concentrated focus in your chart." },
+      "opposition": { "title": "Opposition", "text": "A dynamic tension between opposing forces -- this aspect calls for balance and integration of two very different energies in your life." },
+      "trine": { "title": "Trine", "text": "A harmonious flow of energy -- these planets support each other naturally, bringing ease, talent, and grace in the areas they govern." },
+      "square": { "title": "Square", "text": "A challenging dynamic that drives growth -- this aspect creates friction that pushes you to develop strength and resilience through effort." },
+      "sextile": { "title": "Sextile", "text": "An opportunity aspect -- these planets offer supportive connections that activate when you take initiative and make conscious effort." }
+    },
+    "categories": {
+      "sun": "Core Identity",
+      "moon": "Emotional Nature",
+      "ascendant": "Rising Sign",
+      "midheaven": "Career & Public Image",
+      "aspect": "Key Aspects"
+    },
+    "topAspectsTitle": "Top Aspects",
+    "aspectBetween": "{{a}} {{type}} {{b}} ({{orb}}\u00b0 orb)"
+  },
   "language": { "en": "English", "ru": "Russian" }
 }

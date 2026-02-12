@@ -1,6 +1,8 @@
 import { CHART_LAYOUT } from "./utils/constants";
 import ZodiacRing from "./ZodiacRing";
 import HouseCusps from "./HouseCusps";
+import AspectLines from "./AspectLines";
+import PlanetMarkers from "./PlanetMarkers";
 import type { ChartResult } from "@/types";
 
 export default function NatalChart({ chart }: { chart: ChartResult }) {
@@ -51,8 +53,18 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
           mc={chart.houses.mc}
         />
 
-        {/* Planet markers will be added in 05-02 */}
-        {/* Aspect lines will be added in 05-02 */}
+        {/* Aspect lines (inside wheel, behind planets) */}
+        <AspectLines
+          aspects={chart.aspects}
+          points={chart.points}
+          ascDegree={ascDegree}
+        />
+
+        {/* Planet markers (on top of aspect lines) */}
+        <PlanetMarkers
+          points={chart.points}
+          ascDegree={ascDegree}
+        />
       </svg>
     </div>
   );

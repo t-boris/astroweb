@@ -32,7 +32,7 @@ None
 
 Plans:
 - [x] 01-01: Firebase project initialization + monorepo structure (Hosting, Functions, Firestore, Emulators)
-- [ ] 01-02: React + Vite + TypeScript + shadcn/ui + Tailwind scaffold
+- [x] 01-02: React + Vite + TypeScript + shadcn/ui + Tailwind scaffold
 - [ ] 01-03: Routing (react-router) + i18n (react-i18next) + shared TypeScript types/interfaces
 
 ### Phase 2: Profile Backend & Data Layer
@@ -111,7 +111,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Foundation & Firebase Setup | 1/3 | In progress | - |
+| 1. Foundation & Firebase Setup | 2/3 | In progress | - |
 | 2. Profile Backend & Data Layer | 0/3 | Not started | - |
 | 3. Astro Computation Engine | 0/3 | Not started | - |
 | 4. Profile UI & Geocoding | 0/3 | Not started | - |

@@ -66,7 +66,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Home page + profile list (fetch from API, display name/date/place, delete action)
+- [x] 04-01: Home page + profile list (fetch from API, display name/date/place, delete action)
 - [ ] 04-02: Create/Edit profile form (validation, time unknown toggle, timezone/coords preview)
 - [ ] 04-03: Geocoding integration (Nominatim place search → lat/lng + timezone) + profile detail page shell
 
@@ -114,7 +114,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | 1. Foundation & Firebase Setup | 3/3 | Complete | 2026-02-12 |
 | 2. Profile Backend & Data Layer | 3/3 | Complete | 2026-02-12 |
 | 3. Astro Computation Engine | 3/3 | Complete | 2026-02-12 |
-| 4. Profile UI & Geocoding | 0/3 | Not started | - |
+| 4. Profile UI & Geocoding | 1/3 | In progress | - |
 | 5. Chart Visualization | 0/3 | Not started | - |
 | 6. Data Tables & Interpretations | 0/3 | Not started | - |
 | 7. Testing & Production Readiness | 0/3 | Not started | - |

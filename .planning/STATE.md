@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 3 complete — ready for Phase 4
+**Current focus:** Phase 4 in progress — profile UI and geocoding
 
 ## Current Position
 
-Phase: 3 of 7 (Astro Computation Engine)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-12 — Completed 03-03-PLAN.md
+Phase: 4 of 7 (Profile UI & Geocoding)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 04-01-PLAN.md
 
-Progress: ████████░░ 43%
+Progress: █████████░ 48%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 2.0 min
-- Total execution time: 18 min
+- Total execution time: 20 min
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: ████████░░ 43%
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
+| 4 - Profile UI | 1/3 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (2 min), 03-01 (3 min), 03-02 (2 min), 03-03 (1 min)
+- Last 5 plans: 03-01 (3 min), 03-02 (2 min), 03-03 (1 min), 04-01 (2 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - 03-03: computeNatalChart returns raw ChartResult; getChart wraps with { cached, chart }
 - 03-03: Both endpoints share identical validation and ownership check patterns
 - 03-03: Cache check before compute in both endpoints avoids redundant ephemeris calls
+- 04-01: listProfiles wrapper unwraps backend { profiles } envelope to return clean Profile[]
+- 04-01: Controlled AlertDialog (open/onOpenChange) for programmatic delete flow
+- 04-01: API client pattern: typed httpsCallable wrappers in web/src/api/ with no error handling
 
 ### Deferred Issues
 
@@ -81,5 +85,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 03-03-PLAN.md (Phase 3 complete)
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

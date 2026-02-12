@@ -81,6 +81,14 @@
       "sign": "Sign",
       "degree": "Degree",
       "house": "House"
+    },
+    "aspects": {
+      "title": "Aspects",
+      "bodyA": "Planet",
+      "type": "Aspect",
+      "bodyB": "Planet",
+      "orb": "Orb",
+      "exactness": "Exactness"
     }
   },
   "language": { "en": "English", "ru": "Russian" }

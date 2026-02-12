@@ -171,5 +171,17 @@
     "topAspectsTitle": "Top Aspects",
     "aspectBetween": "{{a}} {{type}} {{b}} ({{orb}}\u00b0 orb)"
   },
+  "errors": {
+    "networkError": "Connection failed. Please check your internet and try again.",
+    "profileNotFound": "Profile not found. It may have been deleted.",
+    "permissionDenied": "You don't have access to this profile.",
+    "chartComputeFailed": "Chart computation failed. Please try again.",
+    "chartLoadFailed": "Failed to load chart. Please try again.",
+    "profileListFailed": "Failed to load profiles. Please try again.",
+    "profileSaveFailed": "Failed to save profile. Please try again.",
+    "profileDeleteFailed": "Failed to delete profile. Please try again.",
+    "unknownError": "Something went wrong. Please try again.",
+    "retry": "Try Again"
+  },
   "language": { "en": "English", "ru": "Russian" }
 }

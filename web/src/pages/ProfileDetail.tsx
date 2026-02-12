@@ -46,15 +46,26 @@ export default function ProfileDetail() {
   const [chartData, setChartData] = useState<ChartResult | null>(null);
   const [chartLoading, setChartLoading] = useState(true);
   const [chartError, setChartError] = useState<string | null>(null);
+  const [chartRetryCount, setChartRetryCount] = useState(0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  function getErrorMessage(err: unknown, fallbackKey: string): string {
+    if (err instanceof FirebaseError) {
+      if (err.message.includes("not-found")) return t("errors.profileNotFound");
+      if (err.message.includes("permission-denied")) return t("errors.permissionDenied");
+      if (err.message.includes("invalid-argument")) return t("errors.profileSaveFailed");
+    }
+    return t(fallbackKey);
+  }
+
+  // Fetch profile
   useEffect(() => {
     let cancelled = false;
 
     async function fetchProfile() {
       if (!id) {
-        setError("notFound");
+        setError(t("errors.profileNotFound"));
         setLoading(false);
         return;
       }
@@ -64,25 +75,15 @@ export default function ProfileDetail() {
         if (!cancelled) {
           setProfile(data);
         }
-
-        // Fetch chart data after profile loads
-        try {
-          const { chart } = await getChart(id, deviceId);
-          if (!cancelled) setChartData(chart);
-        } catch {
-          if (!cancelled) setChartError("chartLoadError");
-        } finally {
-          if (!cancelled) setChartLoading(false);
-        }
       } catch (err) {
         if (!cancelled) {
           if (
             err instanceof FirebaseError &&
             err.message.includes("not-found")
           ) {
-            setError("notFound");
+            setError(t("errors.profileNotFound"));
           } else {
-            setError("generic");
+            setError(getErrorMessage(err, "errors.unknownError"));
           }
         }
       } finally {
@@ -97,7 +98,34 @@ export default function ProfileDetail() {
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, deviceId]);
+
+  // Fetch chart (after profile loads, or on chart retry)
+  useEffect(() => {
+    if (!profile || !id) return;
+    let cancelled = false;
+
+    async function fetchChart() {
+      setChartLoading(true);
+      setChartError(null);
+      try {
+        const { chart } = await getChart(id!, deviceId);
+        if (!cancelled) setChartData(chart);
+      } catch {
+        if (!cancelled) setChartError(t("errors.chartLoadFailed"));
+      } finally {
+        if (!cancelled) setChartLoading(false);
+      }
+    }
+
+    fetchChart();
+
+    return () => {
+      cancelled = true;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile, id, deviceId, chartRetryCount]);
 
   async function handleDelete() {
     if (!id) return;
@@ -107,11 +135,7 @@ export default function ProfileDetail() {
       await deleteProfile(id, deviceId);
       navigate("/");
     } catch (err) {
-      if (err instanceof FirebaseError) {
-        setError(err.message);
-      } else {
-        setError("generic");
-      }
+      setError(getErrorMessage(err, "errors.profileDeleteFailed"));
       setShowDeleteDialog(false);
       setDeleting(false);
     }
@@ -129,29 +153,14 @@ export default function ProfileDetail() {
     );
   }
 
-  // Not found state
-  if (error === "notFound") {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">
-          {t("profile.detail.title")}
-        </h1>
-        <p className="text-destructive">{t("profile.detail.notFound")}</p>
-        <Button variant="outline" asChild>
-          <Link to="/">{t("profile.detail.back")}</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  // Generic error state
+  // Error state (covers not-found and generic errors)
   if (error) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold tracking-tight">
           {t("profile.detail.title")}
         </h1>
-        <p className="text-destructive">{t("common.error")}</p>
+        <p className="text-destructive">{error}</p>
         <Button variant="outline" asChild>
           <Link to="/">{t("profile.detail.back")}</Link>
         </Button>
@@ -238,9 +247,12 @@ export default function ProfileDetail() {
         </p>
       )}
       {chartError && (
-        <p className="text-destructive text-center">
-          {t("profile.detail.chartError")}
-        </p>
+        <div className="text-center space-y-2">
+          <p className="text-destructive">{chartError}</p>
+          <Button variant="outline" size="sm" onClick={() => { setChartError(null); setChartLoading(true); setChartRetryCount(c => c + 1); }}>
+            {t("errors.retry")}
+          </Button>
+        </div>
       )}
       {chartData && (
         <Tabs defaultValue="chart" className="w-full">

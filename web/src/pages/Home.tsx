@@ -32,6 +32,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  function getErrorMessage(err: unknown, fallbackKey: string): string {
+    if (err instanceof FirebaseError) {
+      if (err.message.includes("not-found")) return t("errors.profileNotFound");
+      if (err.message.includes("permission-denied")) return t("errors.permissionDenied");
+      if (err.message.includes("invalid-argument")) return t("errors.profileSaveFailed");
+    }
+    return t(fallbackKey);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -44,11 +54,7 @@ export default function Home() {
         }
       } catch (err) {
         if (!cancelled) {
-          if (err instanceof FirebaseError) {
-            setError(err.message);
-          } else {
-            setError(t("home.error"));
-          }
+          setError(getErrorMessage(err, "errors.profileListFailed"));
         }
       } finally {
         if (!cancelled) {
@@ -62,7 +68,8 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [deviceId, t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId, retryCount]);
 
   const profileToDelete = profiles.find((p) => p.id === deletingId);
 
@@ -73,11 +80,7 @@ export default function Home() {
       await deleteProfile(deletingId, deviceId);
       setProfiles((prev) => prev.filter((p) => p.id !== deletingId));
     } catch (err) {
-      if (err instanceof FirebaseError) {
-        setError(err.message);
-      } else {
-        setError(t("home.error"));
-      }
+      setError(getErrorMessage(err, "errors.profileDeleteFailed"));
     } finally {
       setDeletingId(null);
     }
@@ -104,6 +107,9 @@ export default function Home() {
       <div className="space-y-6">
         <h1 className="text-3xl font-bold tracking-tight">{t("home.title")}</h1>
         <p className="text-destructive">{error}</p>
+        <Button variant="outline" onClick={() => { setError(null); setLoading(true); setRetryCount(c => c + 1); }}>
+          {t("errors.retry")}
+        </Button>
       </div>
     );
   }

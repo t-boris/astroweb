@@ -28,6 +28,16 @@ export default function ProfileCreate() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadRetryCount, setLoadRetryCount] = useState(0);
+
+  function getErrorMessage(err: unknown, fallbackKey: string): string {
+    if (err instanceof FirebaseError) {
+      if (err.message.includes("not-found")) return t("errors.profileNotFound");
+      if (err.message.includes("permission-denied")) return t("errors.permissionDenied");
+      if (err.message.includes("invalid-argument")) return t("errors.profileSaveFailed");
+    }
+    return t(fallbackKey);
+  }
 
   // Load profile data for edit mode
   useEffect(() => {
@@ -47,9 +57,7 @@ export default function ProfileCreate() {
         setLng(profile.lng);
       } catch (err) {
         if (cancelled) return;
-        const msg =
-          err instanceof FirebaseError ? err.message : t("common.error");
-        setLoadError(msg);
+        setLoadError(getErrorMessage(err, "errors.unknownError"));
       }
     }
 
@@ -57,7 +65,8 @@ export default function ProfileCreate() {
     return () => {
       cancelled = true;
     };
-  }, [isEdit, id, deviceId, t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, id, deviceId, loadRetryCount]);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -119,10 +128,7 @@ export default function ProfileCreate() {
         navigate(`/profile/${result.id}`);
       }
     } catch (err) {
-      const msg =
-        err instanceof FirebaseError
-          ? err.message
-          : t("profile.validation.saveFailed");
+      const msg = getErrorMessage(err, "errors.profileSaveFailed");
       setErrors({ form: msg });
     } finally {
       setSaving(false);
@@ -155,9 +161,14 @@ export default function ProfileCreate() {
     return (
       <div className="space-y-4">
         <p className="text-destructive">{loadError}</p>
-        <Link to="/" className="text-primary hover:underline">
-          {t("profile.create.back")}
-        </Link>
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" onClick={() => { setLoadError(null); setLoadRetryCount(c => c + 1); }}>
+            {t("errors.retry")}
+          </Button>
+          <Link to="/" className="text-primary hover:underline">
+            {t("profile.create.back")}
+          </Link>
+        </div>
       </div>
     );
   }

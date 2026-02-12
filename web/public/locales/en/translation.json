@@ -65,5 +65,14 @@
     "timeUnknown": "Time unknown"
   },
   "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "An error occurred" },
+  "chart": {
+    "aspects": {
+      "conjunction": "Conjunction",
+      "opposition": "Opposition",
+      "trine": "Trine",
+      "square": "Square",
+      "sextile": "Sextile"
+    }
+  },
   "language": { "en": "English", "ru": "Russian" }
 }

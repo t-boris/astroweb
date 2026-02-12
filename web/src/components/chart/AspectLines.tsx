@@ -7,9 +7,16 @@ interface AspectLinesProps {
   aspects: ChartAspect[];
   points: ChartPoint[];
   ascDegree: number;
+  hoveredPlanet: string | null;
+  hoveredPlanetAspects: Set<string> | null;
 }
 
-export default function AspectLines({ aspects, points, ascDegree }: AspectLinesProps) {
+export default function AspectLines({
+  aspects,
+  points,
+  ascDegree,
+  hoveredPlanet,
+}: AspectLinesProps) {
   const { cx, cy, aspectRadius } = CHART_LAYOUT;
 
   const lines = useMemo(() => {
@@ -50,22 +57,45 @@ export default function AspectLines({ aspects, points, ascDegree }: AspectLinesP
 
   return (
     <g className="aspect-lines">
-      {lines.map((line) => (
-        <line
-          key={line.key}
-          x1={line.x1}
-          y1={line.y1}
-          x2={line.x2}
-          y2={line.y2}
-          stroke={line.stroke}
-          strokeWidth={line.strokeWidth}
-          strokeOpacity={line.strokeOpacity}
-          filter="url(#line-glow)"
-          data-aspect-type={line.type}
-          data-aspect-a={line.a}
-          data-aspect-b={line.b}
-        />
-      ))}
+      {lines.map((line) => {
+        // Hover opacity logic
+        let opacity: number;
+        let strokeWidth = line.strokeWidth;
+        let strokeOpacity = line.strokeOpacity;
+
+        if (hoveredPlanet) {
+          const connectsToHovered =
+            line.a === hoveredPlanet || line.b === hoveredPlanet;
+          if (connectsToHovered) {
+            opacity = 1;
+            strokeWidth += 0.5;
+            strokeOpacity = Math.min(strokeOpacity + 0.2, 1);
+          } else {
+            opacity = 0.05;
+          }
+        } else {
+          opacity = 1;
+        }
+
+        return (
+          <line
+            key={line.key}
+            x1={line.x1}
+            y1={line.y1}
+            x2={line.x2}
+            y2={line.y2}
+            stroke={line.stroke}
+            strokeWidth={strokeWidth}
+            strokeOpacity={strokeOpacity}
+            filter="url(#line-glow)"
+            className="transition-opacity duration-200"
+            style={{ opacity }}
+            data-aspect-type={line.type}
+            data-aspect-a={line.a}
+            data-aspect-b={line.b}
+          />
+        );
+      })}
     </g>
   );
 }

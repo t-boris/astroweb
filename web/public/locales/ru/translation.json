@@ -65,5 +65,14 @@
     "timeUnknown": "Время неизвестно"
   },
   "common": { "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить", "loading": "Загрузка...", "error": "Произошла ошибка" },
+  "chart": {
+    "aspects": {
+      "conjunction": "Соединение",
+      "opposition": "Оппозиция",
+      "trine": "Тригон",
+      "square": "Квадратура",
+      "sextile": "Секстиль"
+    }
+  },
   "language": { "en": "Английский", "ru": "Русский" }
 }

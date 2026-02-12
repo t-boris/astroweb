@@ -6,6 +6,9 @@ import type { ChartPoint } from "@/types";
 interface PlanetMarkersProps {
   points: ChartPoint[];
   ascDegree: number;
+  hoveredPlanet: string | null;
+  hoveredPlanetAspects: Set<string> | null;
+  onPlanetHover: (body: string | null) => void;
 }
 
 interface PlacedPlanet {
@@ -66,7 +69,13 @@ function resolvePlanetCollisions(
   return placed;
 }
 
-export default function PlanetMarkers({ points, ascDegree }: PlanetMarkersProps) {
+export default function PlanetMarkers({
+  points,
+  ascDegree,
+  hoveredPlanet,
+  hoveredPlanetAspects,
+  onPlanetHover,
+}: PlanetMarkersProps) {
   const { cx, cy, planetRadius } = CHART_LAYOUT;
 
   const placedPlanets = useMemo(
@@ -91,11 +100,29 @@ export default function PlanetMarkers({ points, ascDegree }: PlanetMarkersProps)
           ? polarToCartesian(cx, cy, planetRadius, placed.svgAngle)
           : null;
 
+        // Hover opacity logic
+        let opacity = 1;
+        if (hoveredPlanet) {
+          if (
+            placed.body === hoveredPlanet ||
+            hoveredPlanetAspects?.has(placed.body)
+          ) {
+            opacity = 1;
+          } else {
+            opacity = 0.15;
+          }
+        }
+
+        const isHovered = placed.body === hoveredPlanet;
+
         return (
           <g
             key={placed.body}
-            className="planet-group"
+            className="planet-group transition-opacity duration-200"
             data-planet={placed.body}
+            style={{ opacity }}
+            onPointerEnter={() => onPlanetHover(placed.body)}
+            onPointerLeave={() => onPlanetHover(null)}
           >
             {/* Leader line connecting offset planet to true ecliptic position */}
             {placed.hasLeader && truePos && (
@@ -113,11 +140,12 @@ export default function PlanetMarkers({ points, ascDegree }: PlanetMarkersProps)
             <text
               x={pos.x}
               y={pos.y}
-              fontSize={22}
+              fontSize={isHovered ? 26 : 22}
               textAnchor="middle"
               dominantBaseline="central"
               fill="white"
               filter="url(#glow)"
+              className="transition-[font-size] duration-200"
             >
               {glyph}
             </text>

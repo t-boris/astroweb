@@ -1,17 +1,49 @@
+import { useMemo, useRef, useState } from "react";
 import { CHART_LAYOUT } from "./utils/constants";
 import ZodiacRing from "./ZodiacRing";
 import HouseCusps from "./HouseCusps";
 import AspectLines from "./AspectLines";
 import PlanetMarkers from "./PlanetMarkers";
+import ChartTooltip from "./ChartTooltip";
+import AspectFilters from "./AspectFilters";
 import type { ChartResult } from "@/types";
 
 export default function NatalChart({ chart }: { chart: ChartResult }) {
   const { size, cx, cy, outerRadius } = CHART_LAYOUT;
   const ascDegree = chart.houses.asc ?? 0;
 
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null);
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(
+    new Set(["conjunction", "opposition", "trine", "square", "sextile"]),
+  );
+
+  const hoveredPlanetAspects = useMemo(() => {
+    if (!hoveredPlanet) return null;
+    return new Set(
+      chart.aspects
+        .filter((a) => a.a === hoveredPlanet || a.b === hoveredPlanet)
+        .flatMap((a) => [a.a, a.b]),
+    );
+  }, [hoveredPlanet, chart.aspects]);
+
+  const filteredAspects = useMemo(() => {
+    return chart.aspects.filter((a) => activeFilters.has(a.type));
+  }, [chart.aspects, activeFilters]);
+
+  function toggleFilter(type: string) {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
+  }
+
   return (
     <div className="relative w-full max-w-[600px] mx-auto">
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${size} ${size}`}
         className="w-full h-auto"
         role="img"
@@ -55,17 +87,37 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
 
         {/* Aspect lines (inside wheel, behind planets) */}
         <AspectLines
-          aspects={chart.aspects}
+          aspects={filteredAspects}
           points={chart.points}
           ascDegree={ascDegree}
+          hoveredPlanet={hoveredPlanet}
+          hoveredPlanetAspects={hoveredPlanetAspects}
         />
 
         {/* Planet markers (on top of aspect lines) */}
         <PlanetMarkers
           points={chart.points}
           ascDegree={ascDegree}
+          hoveredPlanet={hoveredPlanet}
+          hoveredPlanetAspects={hoveredPlanetAspects}
+          onPlanetHover={setHoveredPlanet}
         />
       </svg>
+
+      {/* Tooltip overlay (HTML, outside SVG) */}
+      {hoveredPlanet && (
+        <ChartTooltip
+          planet={chart.points.find((p) => p.body === hoveredPlanet)!}
+          aspects={chart.aspects.filter(
+            (a) => a.a === hoveredPlanet || a.b === hoveredPlanet,
+          )}
+          svgRef={svgRef}
+          ascDegree={ascDegree}
+        />
+      )}
+
+      {/* Aspect type filter toggles */}
+      <AspectFilters activeFilters={activeFilters} onToggle={toggleFilter} />
     </div>
   );
 }

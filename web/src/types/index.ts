@@ -63,3 +63,30 @@ export interface ChartResult {
   houses: ChartHouses;
   aspects: ChartAspect[];
 }
+
+export interface UpdateProfilePayload {
+  ownerDeviceId: string;
+  name?: string;
+  birthDate?: string;
+  birthTime?: string | null;
+  timeUnknown?: boolean;
+  birthPlace?: string;
+  lat?: number;
+  lng?: number;
+  timezone?: string;
+}
+
+export interface ChartDocument {
+  id: string;
+  profileId: string;
+  type: "natal"; // Future: "synastry", "transit"
+  computedAt: string; // ISO 8601
+  inputHash: string; // Hash of computation inputs (for cache hit)
+  result: ChartResult;
+}
+
+export interface ApiError {
+  code: string; // Machine-readable: "INVALID_PAYLOAD", "NOT_FOUND", "FORBIDDEN"
+  message: string; // Human-readable description
+  field?: string; // Which field failed validation (optional)
+}

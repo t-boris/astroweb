@@ -1,0 +1,12 @@
+{
+  "app": { "title": "AstroWeb", "description": "Natal Astrology Charts" },
+  "nav": { "home": "Home", "createProfile": "Create Profile" },
+  "home": { "title": "Profiles", "createProfile": "Create Profile", "noProfiles": "No profiles yet. Create your first one!" },
+  "profile": {
+    "create": { "title": "Create Profile", "back": "Back" },
+    "edit": { "title": "Edit Profile" },
+    "detail": { "title": "Profile", "placeholder": "Chart and details coming soon." }
+  },
+  "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "An error occurred" },
+  "language": { "en": "English", "ru": "Russian" }
+}

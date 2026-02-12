@@ -18,7 +18,7 @@ None
 - [x] **Phase 2: Profile Backend & Data Layer** — Firestore schema, Cloud Functions CRUD, deviceId ownership, security rules
 - [x] **Phase 3: Astro Computation Engine** — Swiss Ephemeris integration, natal chart computation, aspects, caching
 - [x] **Phase 4: Profile UI & Geocoding** — Profile list, create/edit form, geocoding, profile detail shell
-- [ ] **Phase 5: Chart Visualization** — SVG chart wheel, planet placement, aspect lines, hover interactions, filters
+- [x] **Phase 5: Chart Visualization** — SVG chart wheel, planet placement, aspect lines, hover interactions, filters
 - [ ] **Phase 6: Data Tables & Interpretations** — Planets/aspects tables, tabbed view, rule-based interpretations
 - [ ] **Phase 7: Testing & Production Readiness** — Unit/snapshot tests, rate limiting, error handling, responsive polish
 
@@ -78,8 +78,8 @@ Plans:
 
 Plans:
 - [x] 05-01: SVG chart wheel base — zodiac ring (12 sign sectors with glyphs) + house cusp lines
-- [ ] 05-02: Planet placement on wheel (glyph icons at correct degrees) + aspect lines inside circle
-- [ ] 05-03: Hover interactions (highlight planet's aspects + tooltip) + aspect type filter toggles
+- [x] 05-02: Planet placement on wheel (glyph icons at correct degrees) + aspect lines inside circle
+- [x] 05-03: Hover interactions (highlight planet's aspects + tooltip) + aspect type filter toggles
 
 ### Phase 6: Data Tables & Interpretations
 **Goal**: Complete profile detail view with planets/aspects tables and rule-based text interpretations
@@ -115,6 +115,6 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | 2. Profile Backend & Data Layer | 3/3 | Complete | 2026-02-12 |
 | 3. Astro Computation Engine | 3/3 | Complete | 2026-02-12 |
 | 4. Profile UI & Geocoding | 3/3 | Complete | 2026-02-12 |
-| 5. Chart Visualization | 2/3 | In progress | - |
+| 5. Chart Visualization | 3/3 | Complete | 2026-02-12 |
 | 6. Data Tables & Interpretations | 0/3 | Not started | - |
 | 7. Testing & Production Readiness | 0/3 | Not started | - |

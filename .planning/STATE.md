@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 5 in progress — Chart Visualization
+**Current focus:** Phase 5 complete — Chart Visualization. Ready for Phase 6.
 
 ## Current Position
 
 Phase: 5 of 7 (Chart Visualization)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Completed 05-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-12 — Completed 05-03-PLAN.md
 
-Progress: █████████░ 67%
+Progress: ██████████░ 71%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 2.2 min
-- Total execution time: 31 min
+- Total plans completed: 15
+- Average duration: 2.3 min
+- Total execution time: 35 min
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: █████████░ 67%
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
 | 4 - Profile UI | 3/3 | 7 min | 2.3 min |
-| 5 - Chart Viz | 2/3 | 6 min | 3 min |
+| 5 - Chart Viz | 3/3 | 10 min | 3.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (4 min), 04-03 (1 min), 05-01 (4 min), 05-02 (2 min)
+- Last 5 plans: 04-03 (1 min), 05-01 (4 min), 05-02 (2 min), 05-03 (4 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -88,6 +88,10 @@ Recent decisions affecting current work:
 - 05-02: Collision avoidance: 8-deg min separation, 30-unit radial offset for clustered planets
 - 05-02: Aspect line visibility scales with exactness: strokeWidth 1-2, opacity 0.3-0.7
 - 05-02: Body-to-longitude lookup map for O(1) aspect endpoint resolution
+- 05-03: Hover overrides animation: when hoveredPlanet is non-null, skip animation styles, use direct opacity
+- 05-03: ChartTooltip uses getScreenCTM() for SVG-to-screen coordinate conversion
+- 05-03: Reveal animation timing: ~2.8s total, zodiac first, aspect lines last
+- 05-03: Continuous glow-pulse (3s) on planets, shimmer (4s) on zodiac ring border
 
 ### Deferred Issues
 
@@ -100,5 +104,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 05-02-PLAN.md (Phase 5, plan 2 of 3)
+Stopped at: Completed 05-03-PLAN.md (Phase 5 complete, 3 of 3)
 Resume file: None

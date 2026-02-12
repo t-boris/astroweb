@@ -28,7 +28,8 @@ export function AspectsTable({ aspects }: AspectsTableProps) {
   );
 
   return (
-    <Table>
+    <div className="overflow-x-auto">
+    <Table className="min-w-[500px]">
       <TableHeader>
         <TableRow>
           <TableHead>{t("tables.aspects.bodyA")}</TableHead>
@@ -78,5 +79,6 @@ export function AspectsTable({ aspects }: AspectsTableProps) {
         })}
       </TableBody>
     </Table>
+    </div>
   );
 }

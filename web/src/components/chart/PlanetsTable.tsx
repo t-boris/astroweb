@@ -23,7 +23,8 @@ export function PlanetsTable({ points }: PlanetsTableProps) {
   const { t } = useTranslation();
 
   return (
-    <Table>
+    <div className="overflow-x-auto">
+    <Table className="min-w-[400px]">
       <TableHeader>
         <TableRow>
           <TableHead>{t("tables.planets.body")}</TableHead>
@@ -56,5 +57,6 @@ export function PlanetsTable({ points }: PlanetsTableProps) {
         })}
       </TableBody>
     </Table>
+    </div>
   );
 }

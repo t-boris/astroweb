@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 2 — Profile Backend & Data Layer
+**Current focus:** Phase 3 — Astro Computation Engine
 
 ## Current Position
 
-Phase: 2 of 7 (Profile Backend & Data Layer)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Completed 02-02-PLAN.md
+Phase: 3 of 7 (Astro Computation Engine)
+Plan: Not started
+Status: Ready to research
+Last activity: 2026-02-12 — Phase 2 complete, starting Phase 3 research
 
 Progress: █████░░░░░ 29%
 

@@ -1,9 +1,8 @@
 // Cloud Functions Gen 2 — required for Node.js 22 runtime
-import { onCall } from "firebase-functions/v2/https";
 import { initializeApp } from "firebase-admin/app";
 
 initializeApp();
 
-export const hello = onCall(() => {
-  return { message: "Hello from AstroWeb!" };
-});
+export { createProfile } from "./api/createProfile";
+export { listProfiles } from "./api/listProfiles";
+export { getProfile } from "./api/getProfile";

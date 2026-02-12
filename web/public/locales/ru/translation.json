@@ -1,11 +1,25 @@
 {
   "app": { "title": "AstroWeb", "description": "Натальные астрологические карты" },
   "nav": { "home": "Главная", "createProfile": "Создать профиль" },
-  "home": { "title": "Профили", "createProfile": "Создать профиль", "noProfiles": "Пока нет профилей. Создайте первый!" },
+  "home": {
+    "title": "Профили",
+    "createProfile": "Создать профиль",
+    "noProfiles": "Пока нет профилей. Создайте первый!",
+    "loading": "Загрузка профилей...",
+    "error": "Не удалось загрузить профили",
+    "deleteConfirmTitle": "Удалить профиль",
+    "deleteConfirmMessage": "Вы уверены, что хотите удалить \"{{name}}\"? Это действие нельзя отменить.",
+    "deleteConfirmAction": "Удалить",
+    "deleteConfirmCancel": "Отмена"
+  },
   "profile": {
     "create": { "title": "Создать профиль", "back": "Назад" },
     "edit": { "title": "Редактировать профиль" },
-    "detail": { "title": "Профиль", "placeholder": "Карта и детали скоро появятся." }
+    "detail": { "title": "Профиль", "placeholder": "Карта и детали скоро появятся." },
+    "birthDate": "Дата рождения",
+    "birthTime": "Время рождения",
+    "birthPlace": "Место рождения",
+    "timeUnknown": "Время неизвестно"
   },
   "common": { "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить", "loading": "Загрузка...", "error": "Произошла ошибка" },
   "language": { "en": "Английский", "ru": "Русский" }

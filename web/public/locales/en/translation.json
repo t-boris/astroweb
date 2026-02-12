@@ -1,11 +1,25 @@
 {
   "app": { "title": "AstroWeb", "description": "Natal Astrology Charts" },
   "nav": { "home": "Home", "createProfile": "Create Profile" },
-  "home": { "title": "Profiles", "createProfile": "Create Profile", "noProfiles": "No profiles yet. Create your first one!" },
+  "home": {
+    "title": "Profiles",
+    "createProfile": "Create Profile",
+    "noProfiles": "No profiles yet. Create your first one!",
+    "loading": "Loading profiles...",
+    "error": "Failed to load profiles",
+    "deleteConfirmTitle": "Delete Profile",
+    "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteConfirmAction": "Delete",
+    "deleteConfirmCancel": "Cancel"
+  },
   "profile": {
     "create": { "title": "Create Profile", "back": "Back" },
     "edit": { "title": "Edit Profile" },
-    "detail": { "title": "Profile", "placeholder": "Chart and details coming soon." }
+    "detail": { "title": "Profile", "placeholder": "Chart and details coming soon." },
+    "birthDate": "Birth Date",
+    "birthTime": "Birth Time",
+    "birthPlace": "Birth Place",
+    "timeUnknown": "Time unknown"
   },
   "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "An error occurred" },
   "language": { "en": "English", "ru": "Russian" }

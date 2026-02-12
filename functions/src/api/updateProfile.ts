@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { validateUpdateProfilePayload } from "../validation/profile";
 import * as profileService from "../services/profile";
+import { getTimezoneFromCoords } from "../utils/timezone";
 
 export const updateProfile = onCall(async (request) => {
   const { data } = request;
@@ -33,6 +34,16 @@ export const updateProfile = onCall(async (request) => {
 
     // Extract update fields (exclude ownerDeviceId and profileId)
     const { ownerDeviceId, profileId, ...updateFields } = data;
+
+    // Re-resolve timezone when coordinates change and timezone not explicitly provided
+    if (
+      (updateFields.lat !== undefined || updateFields.lng !== undefined) &&
+      updateFields.timezone === undefined
+    ) {
+      const lat = updateFields.lat ?? existing.lat;
+      const lng = updateFields.lng ?? existing.lng;
+      updateFields.timezone = getTimezoneFromCoords(lat, lng);
+    }
 
     const updated = await profileService.updateProfile(
       profileId,

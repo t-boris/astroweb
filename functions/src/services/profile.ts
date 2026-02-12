@@ -31,7 +31,7 @@ export async function createProfile(
     birthPlace: payload.birthPlace,
     lat: payload.lat,
     lng: payload.lng,
-    timezone: payload.timezone,
+    timezone: payload.timezone as string, // Guaranteed by createProfile API (auto-resolved from coords if not provided)
     createdAt: now,
     updatedAt: now,
   };

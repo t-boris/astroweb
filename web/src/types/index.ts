@@ -24,7 +24,7 @@ export interface CreateProfilePayload {
   birthPlace: string;
   lat: number;
   lng: number;
-  timezone: string;
+  timezone?: string; // Optional — server resolves from lat/lng if not provided
 }
 
 export interface ChartPoint {

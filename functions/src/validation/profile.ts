@@ -173,8 +173,8 @@ export function validateCreateProfilePayload(data: unknown): ApiError[] {
     });
   }
 
-  // timezone: must be non-empty string
-  if (!isNonEmptyString(payload.timezone)) {
+  // timezone: optional, but if provided must be non-empty string
+  if (payload.timezone !== undefined && !isNonEmptyString(payload.timezone)) {
     errors.push({
       code: "INVALID_PAYLOAD",
       message: "timezone must be a non-empty string",

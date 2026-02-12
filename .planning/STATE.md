@@ -9,28 +9,29 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Phase: 1 of 7 (Foundation & Firebase Setup)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-12 — Completed 01-03-PLAN.md
+Phase: 2 of 7 (Profile Backend & Data Layer)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 02-01-PLAN.md
 
-Progress: ███░░░░░░░ 14%
+Progress: ████░░░░░░ 19%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 2.7 min
-- Total execution time: 8 min
+- Total plans completed: 4
+- Average duration: 2.5 min
+- Total execution time: 10 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
+| 2 - Profile Backend | 1/3 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (3 min), 01-03 (3 min)
+- Last 5 plans: 01-01 (2 min), 01-02 (3 min), 01-03 (3 min), 02-01 (2 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -49,6 +50,9 @@ Recent decisions affecting current work:
 - 01-03: i18next HTTP backend loading from /locales/ public directory
 - 01-03: Duplicated types in web/ and functions/ (no shared package for MVP)
 - 01-03: Single "translation" namespace for i18n
+- 02-01: Hand-rolled validation (no Zod/Joi) for simple field checks
+- 02-01: ISO string timestamps in Firestore (not Firestore Timestamp objects)
+- 02-01: Idempotent deleteProfile, re-fetch after update for full Profile return
 
 ### Deferred Issues
 
@@ -61,5 +65,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 01-03-PLAN.md (Phase 1 complete)
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

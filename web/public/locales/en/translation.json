@@ -36,6 +36,28 @@
       "deleteConfirmCancel": "Cancel",
       "chartPlaceholder": "Chart visualization coming in Phase 5."
     },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g., Alice",
+      "birthDate": "Birth Date",
+      "birthTime": "Birth Time",
+      "timeUnknown": "Time unknown",
+      "birthPlace": "Birth Place",
+      "searchPlace": "Search for a place...",
+      "coordinates": "Coordinates",
+      "saving": "Saving...",
+      "noResults": "No results found",
+      "searching": "Searching...",
+      "minChars": "Type at least 3 characters"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMaxLength": "Name must be at most 100 characters",
+      "birthDateRequired": "Birth date is required",
+      "birthTimeRequired": "Birth time is required when time is known",
+      "birthPlaceRequired": "Please search and select a place",
+      "saveFailed": "Failed to save profile"
+    },
     "birthDate": "Birth Date",
     "birthTime": "Birth Time",
     "birthPlace": "Birth Place",

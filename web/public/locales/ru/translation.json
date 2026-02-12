@@ -36,6 +36,28 @@
       "deleteConfirmCancel": "Отмена",
       "chartPlaceholder": "Визуализация карты появится в Фазе 5."
     },
+    "form": {
+      "name": "Имя",
+      "namePlaceholder": "напр., Алиса",
+      "birthDate": "Дата рождения",
+      "birthTime": "Время рождения",
+      "timeUnknown": "Время неизвестно",
+      "birthPlace": "Место рождения",
+      "searchPlace": "Поиск места...",
+      "coordinates": "Координаты",
+      "saving": "Сохранение...",
+      "noResults": "Ничего не найдено",
+      "searching": "Поиск...",
+      "minChars": "Введите хотя бы 3 символа"
+    },
+    "validation": {
+      "nameRequired": "Имя обязательно",
+      "nameMaxLength": "Имя должно быть не длиннее 100 символов",
+      "birthDateRequired": "Дата рождения обязательна",
+      "birthTimeRequired": "Время рождения обязательно, если известно",
+      "birthPlaceRequired": "Найдите и выберите место",
+      "saveFailed": "Не удалось сохранить профиль"
+    },
     "birthDate": "Дата рождения",
     "birthTime": "Время рождения",
     "birthPlace": "Место рождения",

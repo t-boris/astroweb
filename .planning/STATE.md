@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 3 of 7 (Astro Computation Engine)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-11 — Completed 03-01-PLAN.md
+Last activity: 2026-02-11 — Completed 03-02-PLAN.md
 
-Progress: ██████░░░░ 33%
+Progress: ████████░░ 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 2.5 min
-- Total execution time: 15 min
+- Total plans completed: 8
+- Average duration: 2.1 min
+- Total execution time: 17 min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: ██████░░░░ 33%
 |-------|-------|-------|----------|
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
-| 3 - Astro Engine | 1/3 | 3 min | 3 min |
+| 3 - Astro Engine | 2/3 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (3 min), 02-01 (2 min), 02-02 (2 min), 03-01 (3 min)
+- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 03-01 (3 min), 03-02 (2 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -61,6 +61,11 @@ Recent decisions affecting current work:
 - 03-01: Moshier ephemeris init with `set_ephe_path('')` at module load
 - 03-01: sweph houses returns 0-indexed tuple, converted to plain array
 - 03-01: Fixed 6-degree orb for all 5 major aspects
+- 03-02: Cusp range iteration for house placement (handles 0/360 wrap-around)
+- 03-02: Placidus failure fallback to Whole Sign at extreme latitudes
+- 03-02: timeUnknown uses noon, nullifies ASC/MC and house assignments
+- 03-02: SHA-256 inputHash from canonical pipe-delimited string for chart caching
+- 03-02: Firestore batch delete for chart cleanup
 
 ### Deferred Issues
 
@@ -73,5 +78,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 03-01-PLAN.md
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

@@ -43,7 +43,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Firestore data model (profiles, charts collections) + security rules (deny all direct access)
-- [ ] 02-02: Cloud Functions: createProfile, updateProfile, listProfiles, deleteProfile
+- [x] 02-02: Cloud Functions: createProfile, updateProfile, listProfiles, deleteProfile
 - [ ] 02-03: DeviceId ownership validation + request payload validation
 
 ### Phase 3: Astro Computation Engine
@@ -112,7 +112,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Foundation & Firebase Setup | 3/3 | Complete | 2026-02-12 |
-| 2. Profile Backend & Data Layer | 1/3 | In progress | - |
+| 2. Profile Backend & Data Layer | 2/3 | In progress | - |
 | 3. Astro Computation Engine | 0/3 | Not started | - |
 | 4. Profile UI & Geocoding | 0/3 | Not started | - |
 | 5. Chart Visualization | 0/3 | Not started | - |

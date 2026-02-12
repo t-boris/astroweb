@@ -88,7 +88,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Planets table (body, sign, degree, house) + aspects table (body A, body B, type, orb)
+- [x] 06-01: Planets table (body, sign, degree, house) + aspects table (body A, body B, type, orb)
 - [ ] 06-02: Tabbed profile detail view (Chart / Planets / Aspects / Interpretation)
 - [ ] 06-03: Rule-based interpretation engine + JSON data (Sun/Moon in sign, ASC/MC, top aspects) + display
 
@@ -116,5 +116,5 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | 3. Astro Computation Engine | 3/3 | Complete | 2026-02-12 |
 | 4. Profile UI & Geocoding | 3/3 | Complete | 2026-02-12 |
 | 5. Chart Visualization | 3/3 | Complete | 2026-02-12 |
-| 6. Data Tables & Interpretations | 0/3 | Not started | - |
+| 6. Data Tables & Interpretations | 1/3 | In progress | - |
 | 7. Testing & Production Readiness | 0/3 | Not started | - |

@@ -74,5 +74,14 @@
       "sextile": "Sextile"
     }
   },
+  "tables": {
+    "planets": {
+      "title": "Planets",
+      "body": "Body",
+      "sign": "Sign",
+      "degree": "Degree",
+      "house": "House"
+    }
+  },
   "language": { "en": "English", "ru": "Russian" }
 }

@@ -54,7 +54,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Swiss Ephemeris setup in Cloud Functions (swisseph npm, ephemeris files, native build verification)
+- [x] 03-01: Swiss Ephemeris setup in Cloud Functions (swisseph npm, ephemeris files, native build verification)
 - [ ] 03-02: computeNatalChart — planetary positions (10 bodies) + house cusps (Placidus + Whole Sign)
 - [ ] 03-03: Aspect calculation (5 major types, fixed orbs) + inputHash caching + getChart endpoint
 
@@ -113,7 +113,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 |-------|---------------|--------|-----------|
 | 1. Foundation & Firebase Setup | 3/3 | Complete | 2026-02-12 |
 | 2. Profile Backend & Data Layer | 3/3 | Complete | 2026-02-12 |
-| 3. Astro Computation Engine | 0/3 | Not started | - |
+| 3. Astro Computation Engine | 1/3 | In progress | - |
 | 4. Profile UI & Geocoding | 0/3 | Not started | - |
 | 5. Chart Visualization | 0/3 | Not started | - |
 | 6. Data Tables & Interpretations | 0/3 | Not started | - |

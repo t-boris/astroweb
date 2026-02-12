@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 3 of 7 (Astro Computation Engine)
-Plan: Not started
-Status: Ready to research
-Last activity: 2026-02-12 — Phase 2 complete, starting Phase 3 research
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-11 — Completed 03-01-PLAN.md
 
-Progress: █████░░░░░ 29%
+Progress: ██████░░░░ 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 2.4 min
-- Total execution time: 12 min
+- Total plans completed: 6
+- Average duration: 2.5 min
+- Total execution time: 15 min
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: █████░░░░░ 29%
 |-------|-------|-------|----------|
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
+| 3 - Astro Engine | 1/3 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (3 min), 01-03 (3 min), 02-01 (2 min), 02-02 (2 min)
+- Last 5 plans: 01-03 (3 min), 02-01 (2 min), 02-02 (2 min), 03-01 (3 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -56,6 +57,10 @@ Recent decisions affecting current work:
 - 02-02: Thin Cloud Functions delegating to service layer (no business logic in function)
 - 02-02: Fetch-then-verify ownership pattern for all mutations
 - 02-02: Consistent HttpsError codes: invalid-argument, not-found, permission-denied, internal
+- 03-01: sweph constants via `constants` sub-object import, not direct exports
+- 03-01: Moshier ephemeris init with `set_ephe_path('')` at module load
+- 03-01: sweph houses returns 0-indexed tuple, converted to plain array
+- 03-01: Fixed 6-degree orb for all 5 major aspects
 
 ### Deferred Issues
 
@@ -67,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-02-11
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

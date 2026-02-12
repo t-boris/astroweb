@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 6 complete — ready for Phase 7 (Testing & Production Readiness).
+**Current focus:** Phase 7 in progress — Testing & Production Readiness.
 
 ## Current Position
 
-Phase: 6 of 7 (Data Tables & Interpretations)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-12 — Completed 06-03-PLAN.md
+Phase: 7 of 7 (Testing & Production Readiness)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 07-01-PLAN.md
 
-Progress: ██████████████░ 86%
+Progress: ███████████████░ 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 2.4 min
-- Total execution time: 43 min
+- Total execution time: 46 min
 
 **By Phase:**
 
@@ -35,7 +35,7 @@ Progress: ██████████████░ 86%
 | 6 - Data Tables | 3/3 | 8 min | 2.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (4 min), 06-01 (2 min), 06-02 (2 min), 06-03 (4 min)
+- Last 5 plans: 06-01 (2 min), 06-02 (2 min), 06-03 (4 min), 07-01 (3 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -97,6 +97,9 @@ Recent decisions affecting current work:
 - 06-02: Default tab is Chart — chart wheel is the primary view users see first
 - 06-03: Interpretation text in i18n files, engine generates key references (not inline text)
 - 06-03: Aspect blocks include original ChartAspect data for planet pair display in view
+- 07-01: Vitest over Jest for functions/ package (native CJS/ESM handling, zero-config)
+- 07-01: Einstein birth data as reference chart for integration testing (well-documented sign placements)
+- 07-01: 98 tests across 3 files: pure functions, validation, and full chart integration
 
 ### Deferred Issues
 
@@ -109,5 +112,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 06-03-PLAN.md (Phase 6 complete)
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None

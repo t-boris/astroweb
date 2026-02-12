@@ -99,7 +99,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: Unit tests for computeNatalChart (fixed birth data → expected planetary positions + house cusps)
+- [x] 07-01: Unit tests for computeNatalChart (fixed birth data → expected planetary positions + house cusps)
 - [ ] 07-02: Snapshot tests for interpretations + rate limiting on Cloud Functions
 - [ ] 07-03: Error handling (UI error messages, structured logs in Functions) + responsive polish
 
@@ -117,4 +117,4 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | 4. Profile UI & Geocoding | 3/3 | Complete | 2026-02-12 |
 | 5. Chart Visualization | 3/3 | Complete | 2026-02-12 |
 | 6. Data Tables & Interpretations | 3/3 | Complete | 2026-02-12 |
-| 7. Testing & Production Readiness | 0/3 | Not started | - |
+| 7. Testing & Production Readiness | 1/3 | In progress | - |

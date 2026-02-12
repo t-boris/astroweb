@@ -10,3 +10,6 @@ export { updateProfile } from "./api/updateProfile";
 export { deleteProfile } from "./api/deleteProfile";
 export { computeNatalChart } from "./api/computeNatalChart";
 export { getChart } from "./api/getChart";
+export { deepenInterpretation } from "./api/deepenInterpretation";
+export { askOracle } from "./api/askOracle";
+export { askRelationship } from "./api/askRelationship";

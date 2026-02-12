@@ -175,11 +175,14 @@ export default function ProfileCreate() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">
-        {isEdit ? t("profile.edit.title") : t("profile.create.title")}
-      </h1>
+      <div className="text-center">
+        <p className="mb-2 text-2xl tracking-widest text-purple-400/20">{"\u2643 \u2644 \u2645 \u2646"}</p>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {isEdit ? t("profile.edit.title") : t("profile.create.title")}
+        </h1>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="glass-card space-y-5 p-6">
         {/* Name */}
         <div className="space-y-2">
           <Label htmlFor="name">{t("profile.form.name")}</Label>

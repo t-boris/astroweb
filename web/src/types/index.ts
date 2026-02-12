@@ -36,7 +36,7 @@ export interface ChartPoint {
 }
 
 export interface ChartHouses {
-  system: "placidus" | "whole-sign";
+  system: "placidus" | "koch" | "whole-sign";
   cusps: number[]; // 12 cusp longitudes (0-360)
   asc: number | null; // Ascendant longitude
   mc: number | null; // Midheaven longitude
@@ -51,7 +51,7 @@ export interface ChartAspect {
 }
 
 export interface ChartMeta {
-  houseSystem: "placidus" | "whole-sign";
+  houseSystem: "placidus" | "koch" | "whole-sign";
   zodiac: "tropical";
   timeUsed: string | null; // HH:mm or null
   timezoneUsed: string;

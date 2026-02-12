@@ -15,7 +15,7 @@ export interface ComputeChartInput {
   lat: number;
   lng: number;
   timezone: string;         // IANA timezone
-  houseSystem: 'placidus' | 'whole-sign';
+  houseSystem: 'placidus' | 'koch' | 'whole-sign';
 }
 
 /**
@@ -70,8 +70,12 @@ export function computeNatalChart(input: ComputeChartInput): ChartResult {
   try {
     houses = calculateHouses(jd, input.lat, input.lng, input.houseSystem);
   } catch (err) {
-    // Placidus at extreme latitudes may fail; fall back to Whole Sign
-    logger.warn("Placidus failed, falling back to whole-sign", { lat: input.lat, lng: input.lng });
+    // Some quadrant systems may fail at extreme latitudes; fall back to Whole Sign
+    logger.warn("House system failed, falling back to whole-sign", {
+      lat: input.lat,
+      lng: input.lng,
+      requestedSystem: input.houseSystem,
+    });
     houses = calculateHouses(jd, input.lat, input.lng, 'whole-sign');
   }
 

@@ -10,7 +10,7 @@ export function calculateHouses(
   jd: number,
   lat: number,
   lng: number,
-  system: 'placidus' | 'whole-sign'
+  system: 'placidus' | 'koch' | 'whole-sign'
 ): ChartHouses {
   const systemCode = HOUSE_SYSTEM_CODES[system];
   if (!systemCode) {

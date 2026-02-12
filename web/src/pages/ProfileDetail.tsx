@@ -5,11 +5,16 @@ import { FirebaseError } from "firebase/app";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { getProfile, deleteProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
+import PlaceSearch from "@/components/PlaceSearch";
 import NatalChart from "@/components/chart/NatalChart";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
 import { AspectsTable } from "@/components/chart/AspectsTable";
 import { InterpretationView } from "@/components/chart/InterpretationView";
+import { HouseAreasView } from "@/components/chart/HouseAreasView";
+import { RelationshipView } from "@/components/chart/RelationshipView";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardHeader,
@@ -34,6 +39,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Profile, ChartResult } from "@/types";
 
+interface StoredRelocation {
+  enabled: boolean;
+  place: string;
+  lat: number;
+  lng: number;
+}
+
+function getRelocationStorageKey(profileId: string): string {
+  return `astroweb:relocation:v1:${profileId}`;
+}
+
 export default function ProfileDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,6 +63,10 @@ export default function ProfileDetail() {
   const [chartLoading, setChartLoading] = useState(true);
   const [chartError, setChartError] = useState<string | null>(null);
   const [chartRetryCount, setChartRetryCount] = useState(0);
+  const [relocationEnabled, setRelocationEnabled] = useState(false);
+  const [relocationPlace, setRelocationPlace] = useState("");
+  const [relocationLat, setRelocationLat] = useState<number | null>(null);
+  const [relocationLng, setRelocationLng] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -107,10 +127,24 @@ export default function ProfileDetail() {
     let cancelled = false;
 
     async function fetchChart() {
+      if (relocationEnabled && (relocationLat === null || relocationLng === null)) {
+        setChartData(null);
+        setChartLoading(false);
+        setChartError(t("profile.detail.relocationPlaceRequired"));
+        return;
+      }
+
       setChartLoading(true);
       setChartError(null);
       try {
-        const { chart } = await getChart(id!, deviceId);
+        const { chart } = await getChart(
+          id!,
+          deviceId,
+          "koch",
+          relocationEnabled && relocationLat !== null && relocationLng !== null
+            ? { lat: relocationLat, lng: relocationLng }
+            : null,
+        );
         if (!cancelled) setChartData(chart);
       } catch {
         if (!cancelled) setChartError(t("errors.chartLoadFailed"));
@@ -125,7 +159,60 @@ export default function ProfileDetail() {
       cancelled = true;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile, id, deviceId, chartRetryCount]);
+  }, [profile, id, deviceId, chartRetryCount, relocationEnabled, relocationLat, relocationLng]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    try {
+      const raw = localStorage.getItem(getRelocationStorageKey(id));
+      if (!raw) {
+        setRelocationEnabled(false);
+        setRelocationPlace("");
+        setRelocationLat(null);
+        setRelocationLng(null);
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Partial<StoredRelocation>;
+      if (
+        typeof parsed.place === "string" &&
+        typeof parsed.lat === "number" &&
+        typeof parsed.lng === "number"
+      ) {
+        setRelocationEnabled(Boolean(parsed.enabled));
+        setRelocationPlace(parsed.place);
+        setRelocationLat(parsed.lat);
+        setRelocationLng(parsed.lng);
+      }
+    } catch {
+      setRelocationEnabled(false);
+      setRelocationPlace("");
+      setRelocationLat(null);
+      setRelocationLng(null);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    try {
+      if (relocationLat === null || relocationLng === null || !relocationPlace) {
+        localStorage.removeItem(getRelocationStorageKey(id));
+        return;
+      }
+
+      const payload: StoredRelocation = {
+        enabled: relocationEnabled,
+        place: relocationPlace,
+        lat: relocationLat,
+        lng: relocationLng,
+      };
+      localStorage.setItem(getRelocationStorageKey(id), JSON.stringify(payload));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [id, relocationEnabled, relocationPlace, relocationLat, relocationLng]);
 
   async function handleDelete() {
     if (!id) return;
@@ -139,6 +226,20 @@ export default function ProfileDetail() {
       setShowDeleteDialog(false);
       setDeleting(false);
     }
+  }
+
+  function handleRelocationSelect(place: {
+    name: string;
+    lat: number;
+    lng: number;
+  }) {
+    setRelocationPlace(place.name);
+    setRelocationLat(place.lat);
+    setRelocationLng(place.lng);
+    if (!relocationEnabled) {
+      setRelocationEnabled(true);
+    }
+    setChartRetryCount((c) => c + 1);
   }
 
   // Loading state
@@ -180,7 +281,7 @@ export default function ProfileDetail() {
       </div>
 
       {/* Birth Data Card */}
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>{t("profile.detail.birthData")}</CardTitle>
         </CardHeader>
@@ -224,6 +325,53 @@ export default function ProfileDetail() {
         </CardContent>
       </Card>
 
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle>{t("profile.detail.chartModeTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Switch
+              id="relocation-mode"
+              checked={relocationEnabled}
+              onCheckedChange={(checked) => {
+                setRelocationEnabled(checked);
+                if (!checked) {
+                  setChartError(null);
+                }
+                setChartRetryCount((c) => c + 1);
+              }}
+            />
+            <Label htmlFor="relocation-mode">
+              {relocationEnabled
+                ? t("profile.detail.relocationMode")
+                : t("profile.detail.natalMode")}
+            </Label>
+          </div>
+
+          {relocationEnabled && (
+            <div className="space-y-2">
+              <Label>{t("profile.detail.relocationSearchLabel")}</Label>
+              <PlaceSearch
+                onSelect={handleRelocationSelect}
+                initialValue={relocationPlace || undefined}
+              />
+              {relocationPlace && relocationLat !== null && relocationLng !== null && (
+                <p className="text-sm text-muted-foreground">
+                  {t("profile.detail.relocationCurrent")}: {relocationPlace} ({relocationLat.toFixed(4)}, {relocationLng.toFixed(4)})
+                </p>
+              )}
+            </div>
+          )}
+
+          <p className="text-xs text-muted-foreground">
+            {relocationEnabled
+              ? t("profile.detail.relocationHintOn")
+              : t("profile.detail.relocationHintOff")}
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2">
         <Button asChild>
@@ -260,7 +408,9 @@ export default function ProfileDetail() {
             <TabsTrigger value="chart" className="flex-1 min-w-fit">{t("tabs.chart")}</TabsTrigger>
             <TabsTrigger value="planets" className="flex-1 min-w-fit">{t("tabs.planets")}</TabsTrigger>
             <TabsTrigger value="aspects" className="flex-1 min-w-fit">{t("tabs.aspects")}</TabsTrigger>
+            <TabsTrigger value="houses" className="flex-1 min-w-fit">{t("tabs.houses")}</TabsTrigger>
             <TabsTrigger value="interpretation" className="flex-1 min-w-fit">{t("tabs.interpretation")}</TabsTrigger>
+            <TabsTrigger value="compatibility" className="flex-1 min-w-fit">{t("tabs.compatibility")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chart">
@@ -268,7 +418,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="planets">
-            <Card>
+            <Card className="glass-card">
               <CardContent className="pt-6">
                 <PlanetsTable points={chartData.points} />
               </CardContent>
@@ -276,17 +426,44 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="aspects">
-            <Card>
+            <Card className="glass-card">
               <CardContent className="pt-6">
                 <AspectsTable aspects={chartData.aspects} />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="interpretation">
-            <Card>
+          <TabsContent value="houses">
+            <Card className="glass-card">
               <CardContent className="pt-6">
-                <InterpretationView chart={chartData} />
+                <HouseAreasView chart={chartData} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="interpretation">
+            <Card className="glass-card">
+              <CardContent className="pt-6">
+                <InterpretationView
+                  chart={chartData}
+                  profileId={id!}
+                  ownerDeviceId={deviceId}
+                  relocationLat={relocationEnabled ? relocationLat : null}
+                  relocationLng={relocationEnabled ? relocationLng : null}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="compatibility">
+            <Card className="glass-card">
+              <CardContent className="pt-6">
+                <RelationshipView
+                  profileId={id!}
+                  ownerDeviceId={deviceId}
+                  relocationLat={relocationEnabled ? relocationLat : null}
+                  relocationLng={relocationEnabled ? relocationLng : null}
+                />
               </CardContent>
             </Card>
           </TabsContent>

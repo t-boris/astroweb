@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.askRelationship = exports.askOracle = exports.deepenInterpretation = exports.getChart = exports.computeNatalChart = exports.deleteProfile = exports.updateProfile = exports.getProfile = exports.listProfiles = exports.createProfile = void 0;
+// Cloud Functions Gen 2 — required for Node.js 22 runtime
+const app_1 = require("firebase-admin/app");
+(0, app_1.initializeApp)();
+var createProfile_1 = require("./api/createProfile");
+Object.defineProperty(exports, "createProfile", { enumerable: true, get: function () { return createProfile_1.createProfile; } });
+var listProfiles_1 = require("./api/listProfiles");
+Object.defineProperty(exports, "listProfiles", { enumerable: true, get: function () { return listProfiles_1.listProfiles; } });
+var getProfile_1 = require("./api/getProfile");
+Object.defineProperty(exports, "getProfile", { enumerable: true, get: function () { return getProfile_1.getProfile; } });
+var updateProfile_1 = require("./api/updateProfile");
+Object.defineProperty(exports, "updateProfile", { enumerable: true, get: function () { return updateProfile_1.updateProfile; } });
+var deleteProfile_1 = require("./api/deleteProfile");
+Object.defineProperty(exports, "deleteProfile", { enumerable: true, get: function () { return deleteProfile_1.deleteProfile; } });
+var computeNatalChart_1 = require("./api/computeNatalChart");
+Object.defineProperty(exports, "computeNatalChart", { enumerable: true, get: function () { return computeNatalChart_1.computeNatalChart; } });
+var getChart_1 = require("./api/getChart");
+Object.defineProperty(exports, "getChart", { enumerable: true, get: function () { return getChart_1.getChart; } });
+var deepenInterpretation_1 = require("./api/deepenInterpretation");
+Object.defineProperty(exports, "deepenInterpretation", { enumerable: true, get: function () { return deepenInterpretation_1.deepenInterpretation; } });
+var askOracle_1 = require("./api/askOracle");
+Object.defineProperty(exports, "askOracle", { enumerable: true, get: function () { return askOracle_1.askOracle; } });
+var askRelationship_1 = require("./api/askRelationship");
+Object.defineProperty(exports, "askRelationship", { enumerable: true, get: function () { return askRelationship_1.askRelationship; } });

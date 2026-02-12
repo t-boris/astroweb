@@ -38,6 +38,7 @@ export const ASPECT_DEFINITIONS = [
 /** Maps house system names to sweph single-char codes */
 export const HOUSE_SYSTEM_CODES: Record<string, string> = {
   placidus: 'P',
+  koch: 'K',
   'whole-sign': 'W',
 };
 

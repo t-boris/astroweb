@@ -19,7 +19,9 @@ export const getChart = onCall(async (request) => {
   // ---- Validate input ----
   const profileId = data?.profileId;
   const ownerDeviceId = data?.ownerDeviceId;
-  const houseSystem = data?.houseSystem ?? "placidus";
+  const houseSystem = data?.houseSystem ?? "koch";
+  const relocationLat = data?.relocationLat ?? undefined;
+  const relocationLng = data?.relocationLng ?? undefined;
 
   if (!profileId || typeof profileId !== "string") {
     throw new HttpsError("invalid-argument", "profileId is required");
@@ -29,11 +31,41 @@ export const getChart = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "ownerDeviceId is required");
   }
 
-  if (houseSystem !== "placidus" && houseSystem !== "whole-sign") {
+  if (
+    houseSystem !== "placidus" &&
+    houseSystem !== "koch" &&
+    houseSystem !== "whole-sign"
+  ) {
     throw new HttpsError("invalid-argument", "Invalid house system");
   }
 
-  logger.info("getChart called", { profileId });
+  const relocationLatValid =
+    typeof relocationLat === "number" &&
+    !Number.isNaN(relocationLat) &&
+    relocationLat >= -90 &&
+    relocationLat <= 90;
+  const relocationLngValid =
+    typeof relocationLng === "number" &&
+    !Number.isNaN(relocationLng) &&
+    relocationLng >= -180 &&
+    relocationLng <= 180;
+  const relocationProvided = relocationLatValid && relocationLngValid;
+
+  if (
+    (relocationLat !== undefined || relocationLng !== undefined) &&
+    !relocationProvided
+  ) {
+    logger.warn("getChart invalid relocation fallback to natal", {
+      profileId,
+      relocationLat,
+      relocationLng,
+    });
+  }
+
+  logger.info("getChart called", {
+    profileId,
+    relocation: relocationProvided,
+  });
 
   try {
     // ---- Ownership check ----
@@ -48,11 +80,14 @@ export const getChart = onCall(async (request) => {
     }
 
     // ---- Cache-through pattern ----
+    const chartLat = relocationProvided ? relocationLat : profile.lat;
+    const chartLng = relocationProvided ? relocationLng : profile.lng;
+
     const inputHash = chartService.computeInputHash({
       birthDate: profile.birthDate,
       birthTime: profile.birthTime,
-      lat: profile.lat,
-      lng: profile.lng,
+      lat: chartLat,
+      lng: chartLng,
       timezone: profile.timezone,
       houseSystem,
     });
@@ -69,8 +104,8 @@ export const getChart = onCall(async (request) => {
       birthDate: profile.birthDate,
       birthTime: profile.birthTime,
       timeUnknown: profile.timeUnknown,
-      lat: profile.lat,
-      lng: profile.lng,
+      lat: chartLat,
+      lng: chartLng,
       timezone: profile.timezone,
       houseSystem,
     });

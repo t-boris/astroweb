@@ -9,6 +9,7 @@ interface PlanetMarkersProps {
   hoveredPlanet: string | null;
   hoveredPlanetAspects: Set<string> | null;
   onPlanetHover: (body: string | null) => void;
+  revealed: boolean;
 }
 
 interface PlacedPlanet {
@@ -75,6 +76,7 @@ export default function PlanetMarkers({
   hoveredPlanet,
   hoveredPlanetAspects,
   onPlanetHover,
+  revealed,
 }: PlanetMarkersProps) {
   const { cx, cy, planetRadius } = CHART_LAYOUT;
 
@@ -85,7 +87,7 @@ export default function PlanetMarkers({
 
   return (
     <g className="planet-markers">
-      {placedPlanets.map((placed) => {
+      {placedPlanets.map((placed, index) => {
         const pos = polarToCartesian(cx, cy, placed.radius, placed.placedAngle);
         const degLabelPos = polarToCartesian(
           cx,
@@ -100,9 +102,10 @@ export default function PlanetMarkers({
           ? polarToCartesian(cx, cy, planetRadius, placed.svgAngle)
           : null;
 
-        // Hover opacity logic
-        let opacity = 1;
-        if (hoveredPlanet) {
+        // Hover opacity logic — when hover is active, skip animation styles
+        const isHoverActive = hoveredPlanet !== null;
+        let opacity: number | undefined;
+        if (isHoverActive) {
           if (
             placed.body === hoveredPlanet ||
             hoveredPlanetAspects?.has(placed.body)
@@ -111,16 +114,28 @@ export default function PlanetMarkers({
           } else {
             opacity = 0.15;
           }
+        } else if (!revealed) {
+          opacity = 0;
         }
 
         const isHovered = placed.body === hoveredPlanet;
+
+        // Animation style — only when hover is not active
+        const animationStyle: React.CSSProperties = isHoverActive
+          ? { opacity }
+          : {
+              animation: revealed
+                ? `chart-fade-in 0.5s ease-out ${1.5 + index * 0.08}s forwards, chart-glow-pulse 3s ease-in-out ${2.5 + index * 0.08}s infinite`
+                : "none",
+              opacity: revealed ? undefined : 0,
+            };
 
         return (
           <g
             key={placed.body}
             className="planet-group transition-opacity duration-200"
             data-planet={placed.body}
-            style={{ opacity }}
+            style={animationStyle}
             onPointerEnter={() => onPlanetHover(placed.body)}
             onPointerLeave={() => onPlanetHover(null)}
           >

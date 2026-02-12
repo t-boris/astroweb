@@ -7,9 +7,10 @@ interface HouseCuspsProps {
   ascDegree: number;
   asc: number | null;
   mc: number | null;
+  revealed: boolean;
 }
 
-export default function HouseCusps({ cusps, ascDegree, asc, mc }: HouseCuspsProps) {
+export default function HouseCusps({ cusps, ascDegree, asc, mc, revealed }: HouseCuspsProps) {
   const { cx, cy, houseOuter, houseInner } = CHART_LAYOUT;
 
   const lines = useMemo(() => {
@@ -68,6 +69,12 @@ export default function HouseCusps({ cusps, ascDegree, asc, mc }: HouseCuspsProp
           y2={inner.y}
           stroke={stroke}
           strokeWidth={strokeWidth}
+          style={{
+            animation: revealed
+              ? `chart-fade-in 0.4s ease-out ${1.0 + index * 0.03}s forwards`
+              : "none",
+            opacity: revealed ? undefined : 0,
+          }}
         />
       ))}
 
@@ -81,6 +88,12 @@ export default function HouseCusps({ cusps, ascDegree, asc, mc }: HouseCuspsProp
           fill="rgba(255,255,255,0.4)"
           textAnchor="middle"
           dominantBaseline="central"
+          style={{
+            animation: revealed
+              ? `chart-fade-in 0.4s ease-out ${1.05 + index * 0.03}s forwards`
+              : "none",
+            opacity: revealed ? undefined : 0,
+          }}
         >
           {houseNumber}
         </text>
@@ -94,6 +107,12 @@ export default function HouseCusps({ cusps, ascDegree, asc, mc }: HouseCuspsProp
         fill="none"
         stroke="rgba(255,255,255,0.1)"
         strokeWidth={1}
+        style={{
+          animation: revealed
+            ? "chart-fade-in 0.4s ease-out 1.0s forwards"
+            : "none",
+          opacity: revealed ? undefined : 0,
+        }}
       />
     </g>
   );

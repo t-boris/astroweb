@@ -10,9 +10,10 @@ import {
 
 interface ZodiacRingProps {
   ascDegree: number;
+  revealed: boolean;
 }
 
-export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
+export default function ZodiacRing({ ascDegree, revealed }: ZodiacRingProps) {
   const { cx, cy, outerRadius, zodiacInner } = CHART_LAYOUT;
 
   const sectors = useMemo(() => {
@@ -33,6 +34,7 @@ export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
 
       return {
         sign,
+        index: i,
         path,
         glyphPos,
         glyph: ZODIAC_GLYPHS[sign],
@@ -44,7 +46,7 @@ export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
   return (
     <g>
       {/* Sign sector wedges */}
-      {sectors.map(({ sign, path, colors }) => (
+      {sectors.map(({ sign, index, path, colors }) => (
         <path
           key={`sector-${sign}`}
           d={path}
@@ -52,11 +54,17 @@ export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
           stroke={colors.stroke}
           strokeOpacity={0.3}
           strokeWidth={1}
+          style={{
+            animation: revealed
+              ? `chart-fade-in 0.6s ease-out ${0.3 + index * 0.05}s forwards`
+              : "none",
+            opacity: revealed ? undefined : 0,
+          }}
         />
       ))}
 
       {/* Zodiac glyphs */}
-      {sectors.map(({ sign, glyphPos, glyph, colors }) => (
+      {sectors.map(({ sign, index, glyphPos, glyph, colors }) => (
         <text
           key={`glyph-${sign}`}
           x={glyphPos.x}
@@ -65,6 +73,12 @@ export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
           textAnchor="middle"
           dominantBaseline="central"
           fill={colors.text}
+          style={{
+            animation: revealed
+              ? `chart-fade-in 0.6s ease-out ${0.5 + index * 0.05}s forwards`
+              : "none",
+            opacity: revealed ? undefined : 0,
+          }}
         >
           {glyph}
         </text>
@@ -78,6 +92,12 @@ export default function ZodiacRing({ ascDegree }: ZodiacRingProps) {
         fill="none"
         stroke="rgba(255,255,255,0.15)"
         strokeWidth={1.5}
+        style={{
+          animation: revealed
+            ? "chart-shimmer 4s ease-in-out infinite, chart-fade-in 0.8s ease-out forwards"
+            : "none",
+          opacity: revealed ? undefined : 0,
+        }}
       />
     </g>
   );

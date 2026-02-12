@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CHART_LAYOUT } from "./utils/constants";
 import ZodiacRing from "./ZodiacRing";
 import HouseCusps from "./HouseCusps";
@@ -17,6 +17,15 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(
     new Set(["conjunction", "opposition", "trine", "square", "sextile"]),
   );
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    // Small delay before starting reveal animation (let DOM paint first)
+    const timer = requestAnimationFrame(() => {
+      setRevealed(true);
+    });
+    return () => cancelAnimationFrame(timer);
+  }, []);
 
   const hoveredPlanetAspects = useMemo(() => {
     if (!hoveredPlanet) return null;
@@ -62,6 +71,13 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          <filter id="glow-bright">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
           <filter id="line-glow">
             <feGaussianBlur stdDeviation="1.5" result="blur" />
             <feMerge>
@@ -75,7 +91,7 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
         <circle cx={cx} cy={cy} r={outerRadius + 20} fill="url(#chart-bg)" />
 
         {/* Zodiac ring */}
-        <ZodiacRing ascDegree={ascDegree} />
+        <ZodiacRing ascDegree={ascDegree} revealed={revealed} />
 
         {/* House cusp lines */}
         <HouseCusps
@@ -83,6 +99,7 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
           ascDegree={ascDegree}
           asc={chart.houses.asc}
           mc={chart.houses.mc}
+          revealed={revealed}
         />
 
         {/* Aspect lines (inside wheel, behind planets) */}
@@ -92,6 +109,7 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
           ascDegree={ascDegree}
           hoveredPlanet={hoveredPlanet}
           hoveredPlanetAspects={hoveredPlanetAspects}
+          revealed={revealed}
         />
 
         {/* Planet markers (on top of aspect lines) */}
@@ -101,6 +119,7 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
           hoveredPlanet={hoveredPlanet}
           hoveredPlanetAspects={hoveredPlanetAspects}
           onPlanetHover={setHoveredPlanet}
+          revealed={revealed}
         />
       </svg>
 

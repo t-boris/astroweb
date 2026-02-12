@@ -9,6 +9,7 @@ interface AspectLinesProps {
   ascDegree: number;
   hoveredPlanet: string | null;
   hoveredPlanetAspects: Set<string> | null;
+  revealed: boolean;
 }
 
 export default function AspectLines({
@@ -16,6 +17,7 @@ export default function AspectLines({
   points,
   ascDegree,
   hoveredPlanet,
+  revealed,
 }: AspectLinesProps) {
   const { cx, cy, aspectRadius } = CHART_LAYOUT;
 
@@ -38,6 +40,10 @@ export default function AspectLines({
         const posA = polarToCartesian(cx, cy, aspectRadius, angleA);
         const posB = polarToCartesian(cx, cy, aspectRadius, angleB);
 
+        const lineLength = Math.sqrt(
+          (posB.x - posA.x) ** 2 + (posB.y - posA.y) ** 2,
+        );
+
         return {
           key: `${aspect.a}-${aspect.b}-${aspect.type}`,
           x1: posA.x,
@@ -50,6 +56,7 @@ export default function AspectLines({
           type: aspect.type,
           a: aspect.a,
           b: aspect.b,
+          lineLength,
         };
       })
       .filter((line): line is NonNullable<typeof line> => line !== null);
@@ -57,13 +64,15 @@ export default function AspectLines({
 
   return (
     <g className="aspect-lines">
-      {lines.map((line) => {
-        // Hover opacity logic
-        let opacity: number;
+      {lines.map((line, index) => {
+        // Hover opacity logic — when hover is active, skip animation styles
+        const isHoverActive = hoveredPlanet !== null;
+
+        let opacity: number | undefined;
         let strokeWidth = line.strokeWidth;
         let strokeOpacity = line.strokeOpacity;
 
-        if (hoveredPlanet) {
+        if (isHoverActive) {
           const connectsToHovered =
             line.a === hoveredPlanet || line.b === hoveredPlanet;
           if (connectsToHovered) {
@@ -73,9 +82,19 @@ export default function AspectLines({
           } else {
             opacity = 0.05;
           }
-        } else {
-          opacity = 1;
         }
+
+        // Animation style — only when hover is not active
+        const animationStyle: React.CSSProperties = isHoverActive
+          ? { opacity }
+          : {
+              "--line-length": `${line.lineLength}`,
+              strokeDasharray: line.lineLength,
+              animation: revealed
+                ? `chart-line-draw 0.8s ease-out ${2.0 + index * 0.02}s forwards`
+                : "none",
+              strokeDashoffset: revealed ? undefined : line.lineLength,
+            } as React.CSSProperties;
 
         return (
           <line
@@ -89,7 +108,7 @@ export default function AspectLines({
             strokeOpacity={strokeOpacity}
             filter="url(#line-glow)"
             className="transition-opacity duration-200"
-            style={{ opacity }}
+            style={animationStyle}
             data-aspect-type={line.type}
             data-aspect-a={line.a}
             data-aspect-b={line.b}

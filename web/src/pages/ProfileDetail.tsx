@@ -6,6 +6,8 @@ import { useDeviceId } from "@/hooks/useDeviceId";
 import { getProfile, deleteProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
 import NatalChart from "@/components/chart/NatalChart";
+import { PlanetsTable } from "@/components/chart/PlanetsTable";
+import { AspectsTable } from "@/components/chart/AspectsTable";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +15,12 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -222,7 +230,7 @@ export default function ProfileDetail() {
         </Button>
       </div>
 
-      {/* Chart Visualization */}
+      {/* Chart / Data Tabs */}
       {chartLoading && (
         <p className="text-muted-foreground text-center">
           {t("profile.detail.chartLoading")}
@@ -233,7 +241,46 @@ export default function ProfileDetail() {
           {t("profile.detail.chartError")}
         </p>
       )}
-      {chartData && <NatalChart chart={chartData} />}
+      {chartData && (
+        <Tabs defaultValue="chart" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="chart">{t("tabs.chart")}</TabsTrigger>
+            <TabsTrigger value="planets">{t("tabs.planets")}</TabsTrigger>
+            <TabsTrigger value="aspects">{t("tabs.aspects")}</TabsTrigger>
+            <TabsTrigger value="interpretation">{t("tabs.interpretation")}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="chart">
+            <NatalChart chart={chartData} />
+          </TabsContent>
+
+          <TabsContent value="planets">
+            <Card>
+              <CardContent className="pt-6">
+                <PlanetsTable points={chartData.points} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="aspects">
+            <Card>
+              <CardContent className="pt-6">
+                <AspectsTable aspects={chartData.aspects} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="interpretation">
+            <Card>
+              <CardContent className="py-6">
+                <p className="text-muted-foreground text-center">
+                  {t("tabs.interpretationPlaceholder")}
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog

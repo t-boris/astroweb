@@ -17,7 +17,6 @@
     "edit": { "title": "Edit Profile" },
     "detail": {
       "title": "Profile",
-      "placeholder": "Chart and details coming soon.",
       "birthData": "Birth Data",
       "birthDate": "Date",
       "birthTime": "Time",
@@ -73,6 +72,13 @@
       "square": "Square",
       "sextile": "Sextile"
     }
+  },
+  "tabs": {
+    "chart": "Chart",
+    "planets": "Planets",
+    "aspects": "Aspects",
+    "interpretation": "Interpretation",
+    "interpretationPlaceholder": "Interpretations coming soon."
   },
   "tables": {
     "planets": {

@@ -17,7 +17,6 @@
     "edit": { "title": "Редактировать профиль" },
     "detail": {
       "title": "Профиль",
-      "placeholder": "Карта и детали скоро появятся.",
       "birthData": "Данные рождения",
       "birthDate": "Дата",
       "birthTime": "Время",
@@ -73,6 +72,13 @@
       "square": "Квадратура",
       "sextile": "Секстиль"
     }
+  },
+  "tabs": {
+    "chart": "Карта",
+    "planets": "Планеты",
+    "aspects": "Аспекты",
+    "interpretation": "Интерпретация",
+    "interpretationPlaceholder": "Интерпретации скоро будут."
   },
   "tables": {
     "planets": {

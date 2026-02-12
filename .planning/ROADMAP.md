@@ -14,7 +14,7 @@ None
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation & Firebase Setup** — Project scaffold, Firebase init, React+Vite+TS, design system, routing, i18n
+- [x] **Phase 1: Foundation & Firebase Setup** — Project scaffold, Firebase init, React+Vite+TS, design system, routing, i18n
 - [ ] **Phase 2: Profile Backend & Data Layer** — Firestore schema, Cloud Functions CRUD, deviceId ownership, security rules
 - [ ] **Phase 3: Astro Computation Engine** — Swiss Ephemeris integration, natal chart computation, aspects, caching
 - [ ] **Phase 4: Profile UI & Geocoding** — Profile list, create/edit form, geocoding, profile detail shell
@@ -33,7 +33,7 @@ None
 Plans:
 - [x] 01-01: Firebase project initialization + monorepo structure (Hosting, Functions, Firestore, Emulators)
 - [x] 01-02: React + Vite + TypeScript + shadcn/ui + Tailwind scaffold
-- [ ] 01-03: Routing (react-router) + i18n (react-i18next) + shared TypeScript types/interfaces
+- [x] 01-03: Routing (react-router) + i18n (react-i18next) + shared TypeScript types/interfaces
 
 ### Phase 2: Profile Backend & Data Layer
 **Goal**: Fully functional profile CRUD API via Cloud Functions with device-based ownership and locked-down Firestore
@@ -111,7 +111,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Foundation & Firebase Setup | 2/3 | In progress | - |
+| 1. Foundation & Firebase Setup | 3/3 | Complete | 2026-02-12 |
 | 2. Profile Backend & Data Layer | 0/3 | Not started | - |
 | 3. Astro Computation Engine | 0/3 | Not started | - |
 | 4. Profile UI & Geocoding | 0/3 | Not started | - |

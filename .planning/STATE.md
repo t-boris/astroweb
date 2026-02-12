@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 7 in progress — Testing & Production Readiness.
+**Current focus:** Phase 7 in progress — Testing & Production Readiness (2/3 plans complete).
 
 ## Current Position
 
 Phase: 7 of 7 (Testing & Production Readiness)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Completed 07-01-PLAN.md
+Last activity: 2026-02-12 — Completed 07-02-PLAN.md
 
-Progress: ███████████████░ 90%
+Progress: ███████████████░ 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: 2.4 min
-- Total execution time: 46 min
+- Total plans completed: 20
+- Average duration: 2.5 min
+- Total execution time: 50 min
 
 **By Phase:**
 
@@ -35,7 +35,7 @@ Progress: ███████████████░ 90%
 | 6 - Data Tables | 3/3 | 8 min | 2.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (2 min), 06-02 (2 min), 06-03 (4 min), 07-01 (3 min)
+- Last 5 plans: 06-02 (2 min), 06-03 (4 min), 07-01 (3 min), 07-02 (4 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -100,6 +100,10 @@ Recent decisions affecting current work:
 - 07-01: Vitest over Jest for functions/ package (native CJS/ESM handling, zero-config)
 - 07-01: Einstein birth data as reference chart for integration testing (well-documented sign placements)
 - 07-01: 98 tests across 3 files: pure functions, validation, and full chart integration
+- 07-02: Structured logging uses firebase-functions/v2 logger (not console) for Cloud Logging
+- 07-02: Error mapping helper is inline per page (not shared utility) for simplicity
+- 07-02: Retry via state counter in useEffect dependency array (retryCount pattern)
+- 07-02: Chart fetch separated into own useEffect for independent retry
 
 ### Deferred Issues
 
@@ -112,5 +116,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 07-01-PLAN.md
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None

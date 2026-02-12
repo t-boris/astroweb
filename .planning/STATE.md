@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 5 of 7 (Chart Visualization)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Completed 05-01-PLAN.md
+Last activity: 2026-02-12 — Completed 05-02-PLAN.md
 
-Progress: █████████░ 62%
+Progress: █████████░ 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 2.2 min
-- Total execution time: 29 min
+- Total execution time: 31 min
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: █████████░ 62%
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
 | 4 - Profile UI | 3/3 | 7 min | 2.3 min |
-| 5 - Chart Viz | 1/3 | 4 min | 4 min |
+| 5 - Chart Viz | 2/3 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (2 min), 04-02 (4 min), 04-03 (1 min), 05-01 (4 min)
+- Last 5 plans: 04-02 (4 min), 04-03 (1 min), 05-01 (4 min), 05-02 (2 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -85,6 +85,9 @@ Recent decisions affecting current work:
 - 05-01: Dark cosmic background radial gradient #0f0f2e to #070714
 - 05-01: Element colors at 8% opacity fill for dark-theme sector tinting
 - 05-01: Chart fetch fires after profile load in same useEffect
+- 05-02: Collision avoidance: 8-deg min separation, 30-unit radial offset for clustered planets
+- 05-02: Aspect line visibility scales with exactness: strokeWidth 1-2, opacity 0.3-0.7
+- 05-02: Body-to-longitude lookup map for O(1) aspect endpoint resolution
 
 ### Deferred Issues
 
@@ -97,5 +100,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 05-01-PLAN.md (Phase 5, plan 1 of 3)
+Stopped at: Completed 05-02-PLAN.md (Phase 5, plan 2 of 3)
 Resume file: None

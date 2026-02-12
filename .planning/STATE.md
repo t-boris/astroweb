@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 4 complete — ready for Phase 5 (Chart Visualization)
+**Current focus:** Phase 5 in progress — Chart Visualization
 
 ## Current Position
 
-Phase: 4 of 7 (Profile UI & Geocoding)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-12 — Completed 04-02-PLAN.md
+Phase: 5 of 7 (Chart Visualization)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 05-01-PLAN.md
 
-Progress: ████████░░ 57%
+Progress: █████████░ 62%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 2.0 min
-- Total execution time: 25 min
+- Total plans completed: 13
+- Average duration: 2.2 min
+- Total execution time: 29 min
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: ████████░░ 57%
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
 | 3 - Astro Engine | 3/3 | 6 min | 2 min |
 | 4 - Profile UI | 3/3 | 7 min | 2.3 min |
+| 5 - Chart Viz | 1/3 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (1 min), 04-01 (2 min), 04-02 (4 min), 04-03 (1 min)
+- Last 5 plans: 04-01 (2 min), 04-02 (4 min), 04-03 (1 min), 05-01 (4 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -79,6 +80,11 @@ Recent decisions affecting current work:
 - 04-02: PlaceSearch uses Photon API with 300ms debounce and AbortController
 - 04-03: FirebaseError not-found detection via err.message.includes('not-found') for 404 vs generic errors
 - 04-03: Controlled AlertDialog with deleting state disables buttons during async delete
+- 05-01: ASC at 9 o'clock via eclipticToSvgAngle: 180 - (eclipticDeg - ascDeg)
+- 05-01: SVG Y-inversion in polarToCartesian: cy - radius * sin(rad)
+- 05-01: Dark cosmic background radial gradient #0f0f2e to #070714
+- 05-01: Element colors at 8% opacity fill for dark-theme sector tinting
+- 05-01: Chart fetch fires after profile load in same useEffect
 
 ### Deferred Issues
 
@@ -91,5 +97,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 04-02-PLAN.md (Phase 4 complete)
+Stopped at: Completed 05-01-PLAN.md (Phase 5, plan 1 of 3)
 Resume file: None

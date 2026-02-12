@@ -77,7 +77,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: SVG chart wheel base — zodiac ring (12 sign sectors with glyphs) + house cusp lines
+- [x] 05-01: SVG chart wheel base — zodiac ring (12 sign sectors with glyphs) + house cusp lines
 - [ ] 05-02: Planet placement on wheel (glyph icons at correct degrees) + aspect lines inside circle
 - [ ] 05-03: Hover interactions (highlight planet's aspects + tooltip) + aspect type filter toggles
 
@@ -115,6 +115,6 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 | 2. Profile Backend & Data Layer | 3/3 | Complete | 2026-02-12 |
 | 3. Astro Computation Engine | 3/3 | Complete | 2026-02-12 |
 | 4. Profile UI & Geocoding | 3/3 | Complete | 2026-02-12 |
-| 5. Chart Visualization | 0/3 | Not started | - |
+| 5. Chart Visualization | 1/3 | In progress | - |
 | 6. Data Tables & Interpretations | 0/3 | Not started | - |
 | 7. Testing & Production Readiness | 0/3 | Not started | - |

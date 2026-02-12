@@ -8,3 +8,5 @@ export { listProfiles } from "./api/listProfiles";
 export { getProfile } from "./api/getProfile";
 export { updateProfile } from "./api/updateProfile";
 export { deleteProfile } from "./api/deleteProfile";
+export { computeNatalChart } from "./api/computeNatalChart";
+export { getChart } from "./api/getChart";

@@ -16,7 +16,7 @@ None
 
 - [x] **Phase 1: Foundation & Firebase Setup** — Project scaffold, Firebase init, React+Vite+TS, design system, routing, i18n
 - [x] **Phase 2: Profile Backend & Data Layer** — Firestore schema, Cloud Functions CRUD, deviceId ownership, security rules
-- [ ] **Phase 3: Astro Computation Engine** — Swiss Ephemeris integration, natal chart computation, aspects, caching
+- [x] **Phase 3: Astro Computation Engine** — Swiss Ephemeris integration, natal chart computation, aspects, caching
 - [ ] **Phase 4: Profile UI & Geocoding** — Profile list, create/edit form, geocoding, profile detail shell
 - [ ] **Phase 5: Chart Visualization** — SVG chart wheel, planet placement, aspect lines, hover interactions, filters
 - [ ] **Phase 6: Data Tables & Interpretations** — Planets/aspects tables, tabbed view, rule-based interpretations
@@ -56,7 +56,7 @@ Plans:
 Plans:
 - [x] 03-01: Swiss Ephemeris setup in Cloud Functions (swisseph npm, ephemeris files, native build verification)
 - [x] 03-02: computeNatalChart — planetary positions (10 bodies) + house cusps (Placidus + Whole Sign)
-- [ ] 03-03: Aspect calculation (5 major types, fixed orbs) + inputHash caching + getChart endpoint
+- [x] 03-03: Aspect calculation (5 major types, fixed orbs) + inputHash caching + getChart endpoint
 
 ### Phase 4: Profile UI & Geocoding
 **Goal**: Complete profile management UI — list, create, edit, delete profiles — with geocoding for place search
@@ -113,7 +113,7 @@ Note: Phase 4 can start after Phase 2 (parallel with Phase 3). Phase 5 and 6 bot
 |-------|---------------|--------|-----------|
 | 1. Foundation & Firebase Setup | 3/3 | Complete | 2026-02-12 |
 | 2. Profile Backend & Data Layer | 3/3 | Complete | 2026-02-12 |
-| 3. Astro Computation Engine | 2/3 | In progress | - |
+| 3. Astro Computation Engine | 3/3 | Complete | 2026-02-12 |
 | 4. Profile UI & Geocoding | 0/3 | Not started | - |
 | 5. Chart Visualization | 0/3 | Not started | - |
 | 6. Data Tables & Interpretations | 0/3 | Not started | - |

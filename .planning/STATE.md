@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Accurate, reproducible natal chart computation with a polished interactive visualization — the complete flow from birth data input to chart interpretation must work end-to-end.
-**Current focus:** Phase 3 — Astro Computation Engine
+**Current focus:** Phase 3 complete — ready for Phase 4
 
 ## Current Position
 
 Phase: 3 of 7 (Astro Computation Engine)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-11 — Completed 03-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-12 — Completed 03-03-PLAN.md
 
-Progress: ████████░░ 38%
+Progress: ████████░░ 43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 2.1 min
-- Total execution time: 17 min
+- Total plans completed: 9
+- Average duration: 2.0 min
+- Total execution time: 18 min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: ████████░░ 38%
 |-------|-------|-------|----------|
 | 1 - Foundation | 3/3 | 8 min | 2.7 min |
 | 2 - Profile Backend | 2/3 | 4 min | 2 min |
-| 3 - Astro Engine | 2/3 | 5 min | 2.5 min |
+| 3 - Astro Engine | 3/3 | 6 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 03-01 (3 min), 03-02 (2 min)
+- Last 5 plans: 02-02 (2 min), 03-01 (3 min), 03-02 (2 min), 03-03 (1 min)
 - Trend: Consistent
 
 ## Accumulated Context
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - 03-02: timeUnknown uses noon, nullifies ASC/MC and house assignments
 - 03-02: SHA-256 inputHash from canonical pipe-delimited string for chart caching
 - 03-02: Firestore batch delete for chart cleanup
+- 03-03: computeNatalChart returns raw ChartResult; getChart wraps with { cached, chart }
+- 03-03: Both endpoints share identical validation and ownership check patterns
+- 03-03: Cache check before compute in both endpoints avoids redundant ephemeris calls
 
 ### Deferred Issues
 
@@ -77,6 +80,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-11
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-02-12
+Stopped at: Completed 03-03-PLAN.md (Phase 3 complete)
 Resume file: None

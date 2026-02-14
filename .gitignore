@@ -12,3 +12,9 @@ ui-debug.log
 
 .DS_Store
 *.tsbuildinfo
+
+# Build artifacts
+functions/lib/
+
+# Planning docs
+.planning/

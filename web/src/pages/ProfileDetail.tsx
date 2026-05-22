@@ -197,26 +197,18 @@ export default function ProfileDetail() {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (!id) return;
-
+  function saveRelocation(profileId: string, enabled: boolean, place: string, lat: number | null, lng: number | null) {
     try {
-      if (relocationLat === null || relocationLng === null || !relocationPlace) {
-        localStorage.removeItem(getRelocationStorageKey(id));
+      if (lat === null || lng === null || !place) {
+        localStorage.removeItem(getRelocationStorageKey(profileId));
         return;
       }
-
-      const payload: StoredRelocation = {
-        enabled: relocationEnabled,
-        place: relocationPlace,
-        lat: relocationLat,
-        lng: relocationLng,
-      };
-      localStorage.setItem(getRelocationStorageKey(id), JSON.stringify(payload));
+      const payload: StoredRelocation = { enabled, place, lat, lng };
+      localStorage.setItem(getRelocationStorageKey(profileId), JSON.stringify(payload));
     } catch {
-      // Ignore storage errors.
+      // Ignore storage errors
     }
-  }, [id, relocationEnabled, relocationPlace, relocationLat, relocationLng]);
+  }
 
   async function handleDelete() {
     if (!id) return;
@@ -254,8 +246,12 @@ export default function ProfileDetail() {
     setRelocationPlace(place.name);
     setRelocationLat(place.lat);
     setRelocationLng(place.lng);
+    const newEnabled = true;
     if (!relocationEnabled) {
       setRelocationEnabled(true);
+    }
+    if (id) {
+      saveRelocation(id, newEnabled, place.name, place.lat, place.lng);
     }
     setChartRetryCount((c) => c + 1);
   }
@@ -375,6 +371,9 @@ export default function ProfileDetail() {
               checked={relocationEnabled}
               onCheckedChange={(checked) => {
                 setRelocationEnabled(checked);
+                if (id) {
+                  saveRelocation(id, checked, relocationPlace, relocationLat, relocationLng);
+                }
                 if (!checked) {
                   setChartError(null);
                 }

@@ -17,17 +17,21 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install and Build Functions
+      - name: Install Dependencies (Root & Workspaces)
+        run: npm ci
+
+      - name: Build Functions
+        run: npm run build:functions
+
+      - name: Build Web
+        run: npm run build:web
+
+      - name: Fix Firebase Workspace Check
         working-directory: ./functions
         run: |
-          npm ci
-          npm run build
-
-      - name: Install and Build Web
-        working-directory: ./web
-        run: |
-          npm ci
-          npm run build
+          # Firebase CLI explicitly checks functions/node_modules/firebase-functions
+          # In an npm workspace, it is hoisted to root, so we symlink it to pass the check.
+          ln -sf ../node_modules ./node_modules
 
       - name: Deploy to Firebase
         run: npx -y firebase-tools deploy --non-interactive

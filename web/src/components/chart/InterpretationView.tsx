@@ -765,7 +765,7 @@ export function InterpretationView({
                   <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
                     <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
                     <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
-                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($0.99)")}
+                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($1.99)")}
                     </Button>
                   </div>
                 </div>
@@ -877,7 +877,7 @@ export function InterpretationView({
                   <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
                     <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
                     <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
-                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($0.99)")}
+                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($1.99)")}
                     </Button>
                   </div>
                 </div>

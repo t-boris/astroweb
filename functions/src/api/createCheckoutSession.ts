@@ -63,9 +63,10 @@ export const createCheckoutSession = onCall(async (request) => {
   });
 
   try {
-    let amount = 99; // $0.99 for all tiers
+    let amount = 99; // Default to $0.99
     let name = "";
     if (tier === "pdf") {
+      amount = 199; // $1.99
       name = "Premium PDF Reading";
     } else if (tier === "oracle") {
       name = "Oracle Question";

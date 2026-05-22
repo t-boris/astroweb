@@ -564,7 +564,7 @@ export default function ProfileDetail() {
                     className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumPdf ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
                   >
                     {checkoutLoading === "pdf" ? t("premium.redirecting", "Redirecting...") : (
-                      profile.hasPremiumPdf ? t("premium.pdfActivated", "Interpretations Unlocked") : t("premium.buyPdf", "Interpretations & PDF ($0.99)")
+                      profile.hasPremiumPdf ? t("premium.pdfActivated", "Interpretations Unlocked") : t("premium.buyPdf", "Interpretations & PDF ($1.99)")
                     )}
                   </Button>
                   <Button

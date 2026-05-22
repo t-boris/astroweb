@@ -44,7 +44,7 @@ interface GeminiGenerateOptions {
   requireEndTag?: string;
 }
 
-const DEFAULT_MODEL = "gemini-3.1-flash";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 
 function toLanguage(language: unknown): SupportedLanguage {
   return language === "ru" ? "ru" : "en";

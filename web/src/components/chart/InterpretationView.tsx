@@ -765,7 +765,7 @@ export function InterpretationView({
                   <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
                     <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
                     <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
-                      {t("premium.buyPdf", "Get Premium PDF ($5)")}
+                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($0.99)")}
                     </Button>
                   </div>
                 </div>
@@ -868,50 +868,67 @@ export function InterpretationView({
                   </span>
                 </p>
               )}
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {t(`${block.key}.text`)}
-              </p>
-
-              <div className="pt-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    void handleDeepDive(block);
-                  }}
-                  disabled={deepLoading}
-                >
-                  {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
-                </Button>
-              </div>
-
-              {deepError && (
-                <p className="text-sm text-destructive">{deepError}</p>
-              )}
-
-              {deepText && (
-                <div className="rounded-md border bg-background/60 p-3 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                      {t("ai.deepDiveTitle")}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setCollapsedDeepDive((prev) => ({
-                          ...prev,
-                          [blockId]: !isDeepDiveCollapsed,
-                        }))
-                      }
-                    >
-                      {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+              {!hasPremiumPdf ? (
+                <div className="relative mt-2">
+                  <p className="text-sm text-muted-foreground leading-relaxed blur-[1px] opacity-80 select-none">
+                    {getSingleLinePreview(t(`${block.key}.text`))}...
+                  </p>
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
+                  <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
+                    <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
+                    <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
+                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($0.99)")}
                     </Button>
                   </div>
-                  {!isDeepDiveCollapsed && <AiFormattedText text={deepText} />}
                 </div>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                    {t(`${block.key}.text`)}
+                  </p>
+
+                  <div className="pt-1 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        void handleDeepDive(block);
+                      }}
+                      disabled={deepLoading}
+                    >
+                      {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
+                    </Button>
+                  </div>
+
+                  {deepError && (
+                    <p className="text-sm text-destructive mt-2">{deepError}</p>
+                  )}
+
+                  {deepText && (
+                    <div className="rounded-md border bg-background/60 p-3 space-y-2 mt-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                          {t("ai.deepDiveTitle")}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setCollapsedDeepDive((prev) => ({
+                              ...prev,
+                              [blockId]: !isDeepDiveCollapsed,
+                            }))
+                          }
+                        >
+                          {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+                        </Button>
+                      </div>
+                      {!isDeepDiveCollapsed && <AiFormattedText text={deepText} />}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

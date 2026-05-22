@@ -14,6 +14,7 @@ export interface Profile {
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
   hasPremiumPdf?: boolean;
+  hasPremiumCompatibility?: boolean;
   oracleCredits?: number;
 }
 

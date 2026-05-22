@@ -6,7 +6,7 @@ import * as profileService from "../services/profile";
 
 export const createCheckoutSession = onCall(async (request) => {
   const { data } = request;
-  const { profileId, ownerDeviceId, tier } = data; // tier: 'pdf' | 'oracle'
+  const { profileId, ownerDeviceId, tier } = data; // tier: 'pdf' | 'oracle' | 'compatibility'
 
   if (!profileId || !ownerDeviceId || !tier) {
     throw new HttpsError("invalid-argument", "Missing required fields");
@@ -48,6 +48,8 @@ export const createCheckoutSession = onCall(async (request) => {
         await profileRef.update({
           oracleCredits: admin.firestore.FieldValue.increment(1)
         });
+      } else if (tier === "compatibility") {
+        await profileRef.update({ hasPremiumCompatibility: true });
       }
       return { url: `${origin}/profile/${profileId}?checkout=success` };
     } catch (e) {
@@ -61,14 +63,14 @@ export const createCheckoutSession = onCall(async (request) => {
   });
 
   try {
-    let amount = 0;
+    let amount = 99; // $0.99 for all tiers
     let name = "";
     if (tier === "pdf") {
-      amount = 500; // $5.00
       name = "Premium PDF Reading";
     } else if (tier === "oracle") {
-      amount = 100; // $1.00
       name = "Oracle Question";
+    } else if (tier === "compatibility") {
+      name = "Relationship Compatibility";
     } else {
       throw new HttpsError("invalid-argument", "Invalid tier");
     }

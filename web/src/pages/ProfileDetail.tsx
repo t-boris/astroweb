@@ -232,7 +232,7 @@ export default function ProfileDetail() {
     }
   }
 
-  async function handleCheckout(tier: "pdf" | "oracle") {
+  async function handleCheckout(tier: "pdf" | "oracle" | "compatibility") {
     if (!id) return;
     setCheckoutLoading(tier);
     try {
@@ -520,6 +520,11 @@ export default function ProfileDetail() {
                   ownerDeviceId={deviceId}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
+                  hasPremiumCompatibility={profile.hasPremiumCompatibility || false}
+                  onPurchasePremium={() => {
+                    const premiumTab = document.querySelector('[value="premium"]') as HTMLElement;
+                    if (premiumTab) premiumTab.click();
+                  }}
                 />
               </CardContent>
             </Card>
@@ -552,14 +557,23 @@ export default function ProfileDetail() {
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
                   <Button
                     onClick={() => handleCheckout("pdf")}
                     disabled={checkoutLoading !== null || profile.hasPremiumPdf}
                     className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumPdf ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
                   >
                     {checkoutLoading === "pdf" ? t("premium.redirecting", "Redirecting...") : (
-                      profile.hasPremiumPdf ? t("premium.pdfActivated", "PDF Activated (Check Email)") : t("premium.buyPdf", "Get Premium PDF ($5)")
+                      profile.hasPremiumPdf ? t("premium.pdfActivated", "Interpretations Unlocked") : t("premium.buyPdf", "Interpretations & PDF ($0.99)")
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => handleCheckout("compatibility")}
+                    disabled={checkoutLoading !== null || profile.hasPremiumCompatibility}
+                    className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumCompatibility ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
+                  >
+                    {checkoutLoading === "compatibility" ? t("premium.redirecting", "Redirecting...") : (
+                      profile.hasPremiumCompatibility ? t("premium.compatibilityActivated", "Compatibility Unlocked") : t("premium.buyCompatibility", "Unlock Compatibility ($0.99)")
                     )}
                   </Button>
                   <Button
@@ -568,7 +582,7 @@ export default function ProfileDetail() {
                     disabled={checkoutLoading !== null}
                     className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
                   >
-                    {checkoutLoading === "oracle" ? t("premium.redirecting", "Redirecting...") : t("premium.buyOracle", "Ask the Oracle ($1)")}
+                    {checkoutLoading === "oracle" ? t("premium.redirecting", "Redirecting...") : t("premium.buyOracle", "Ask Oracle ($0.99)")}
                   </Button>
                 </div>
               </div>

@@ -13,6 +13,8 @@ interface RelationshipViewProps {
   ownerDeviceId: string;
   relocationLat?: number | null;
   relocationLng?: number | null;
+  hasPremiumCompatibility?: boolean;
+  onPurchasePremium?: () => void;
 }
 
 function cleanAiArtifacts(input: string): string {
@@ -101,6 +103,8 @@ export function RelationshipView({
   ownerDeviceId,
   relocationLat,
   relocationLng,
+  hasPremiumCompatibility,
+  onPurchasePremium,
 }: RelationshipViewProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage?.startsWith("ru") ? "ru" : "en";
@@ -260,9 +264,15 @@ export function RelationshipView({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button type="button" onClick={handleGenerate} disabled={loading}>
-          {loading ? t("ai.relationshipGenerating") : t("ai.relationshipGenerate")}
-        </Button>
+        {!hasPremiumCompatibility ? (
+          <Button type="button" onClick={onPurchasePremium} className="bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]">
+            {t("premium.buyCompatibility", "Unlock Compatibility ($0.99)")}
+          </Button>
+        ) : (
+          <Button type="button" onClick={handleGenerate} disabled={loading}>
+            {loading ? t("ai.relationshipGenerating") : t("ai.relationshipGenerate")}
+          </Button>
+        )}
         {model && (
           <span className="text-xs text-muted-foreground">
             {t("ai.modelLabel", { model })}

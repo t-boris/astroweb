@@ -499,6 +499,7 @@ export default function ProfileDetail() {
                   chart={chartData}
                   profileId={id!}
                   ownerDeviceId={deviceId}
+                  oracleCredits={profile.oracleCredits || 0}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
                 />
@@ -526,18 +527,35 @@ export default function ProfileDetail() {
                   <span className="text-4xl text-amber-500">✦</span>
                 </div>
                 <h3 className="mb-2 text-3xl font-serif font-bold tracking-tight text-gold-gradient">
-                  Unlock Your Cosmic Destiny
+                  {t("premium.title", "Unlock Your Cosmic Destiny")}
                 </h3>
+                
+                {/* Credits Indicator */}
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-sm font-medium text-amber-500">
+                  <span>✦</span>
+                  {t("premium.oracleCredits", { count: profile.oracleCredits || 0, defaultValue: `Oracle Credits: ${profile.oracleCredits || 0}` })}
+                </div>
+
                 <p className="mb-6 max-w-md text-sm text-muted-foreground leading-relaxed">
-                  Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.
+                  {t("premium.description", "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.")}
                 </p>
+                
+                {/* Success Banner */}
+                {window.location.search.includes("checkout=success") && (
+                  <div className="mb-6 rounded-md bg-green-500/20 px-4 py-3 text-sm text-green-400 border border-green-500/30">
+                    {t("premium.success", "Purchase successful! Your premium features have been updated.")}
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     onClick={() => handleCheckout("pdf")}
-                    disabled={checkoutLoading !== null}
-                    className="bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]"
+                    disabled={checkoutLoading !== null || profile.hasPremiumPdf}
+                    className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumPdf ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
                   >
-                    {checkoutLoading === "pdf" ? "Redirecting..." : "Get Premium PDF ($5)"}
+                    {checkoutLoading === "pdf" ? t("premium.redirecting", "Redirecting...") : (
+                      profile.hasPremiumPdf ? t("premium.pdfActivated", "PDF Activated (Check Email)") : t("premium.buyPdf", "Get Premium PDF ($5)")
+                    )}
                   </Button>
                   <Button
                     variant="outline"
@@ -545,7 +563,7 @@ export default function ProfileDetail() {
                     disabled={checkoutLoading !== null}
                     className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
                   >
-                    {checkoutLoading === "oracle" ? "Redirecting..." : "Ask the Oracle ($1)"}
+                    {checkoutLoading === "oracle" ? t("premium.redirecting", "Redirecting...") : t("premium.buyOracle", "Ask the Oracle ($1)")}
                   </Button>
                 </div>
               </div>

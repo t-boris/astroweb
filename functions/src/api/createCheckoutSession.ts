@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import Stripe from "stripe";
+import * as admin from "firebase-admin";
 import * as profileService from "../services/profile";
 
 export const createCheckoutSession = onCall(async (request) => {
@@ -21,9 +22,38 @@ export const createCheckoutSession = onCall(async (request) => {
   }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY;
-  if (!stripeKey) {
-    logger.error("Missing STRIPE_SECRET_KEY");
-    throw new HttpsError("internal", "Stripe not configured");
+  const origin = request.rawRequest.headers.origin || "http://localhost:5173";
+
+  if (!stripeKey || stripeKey === "mock") {
+    logger.warn("STRIPE_SECRET_KEY not set or is mock. Using mock payment flow.");
+    
+    // Direct DB update to mock the webhook behavior
+    const db = admin.firestore();
+    const profileRef = db.collection("profiles").doc(profileId);
+    
+    try {
+      if (tier === "pdf") {
+        await profileRef.update({ hasPremiumPdf: true });
+        
+        // Mock queueing the PDF job
+        await db.collection("pdfJobs").add({
+          profileId,
+          ownerDeviceId,
+          profileName: profile.name,
+          customerEmail: "mock@example.com",
+          status: "pending",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } else if (tier === "oracle") {
+        await profileRef.update({
+          oracleCredits: admin.firestore.FieldValue.increment(1)
+        });
+      }
+      return { url: `${origin}/profile/${profileId}?checkout=success` };
+    } catch (e) {
+      logger.error("Mock payment update failed", { error: (e as Error).message });
+      throw new HttpsError("internal", "Mock payment failed");
+    }
   }
 
   const stripe = new Stripe(stripeKey, {
@@ -42,8 +72,6 @@ export const createCheckoutSession = onCall(async (request) => {
     } else {
       throw new HttpsError("invalid-argument", "Invalid tier");
     }
-
-    const origin = request.rawRequest.headers.origin || "http://localhost:5173";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

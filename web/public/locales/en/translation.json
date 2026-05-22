@@ -117,6 +117,8 @@
     "askOracle": "Ask the Oracle",
     "askOracleLoading": "Oracle is answering...",
     "answerTitle": "Oracle Answer",
+    "creditsLabel": "Credits",
+    "oracleNoCredits": "You need Oracle Credits to ask a question. Purchase them in the Premium tab.",
     "modelLabel": "Model: {{model}}",
     "oracleHistoryTitle": "Oracle History",
     "relationshipTitle": "Relationship Reading",
@@ -525,6 +527,16 @@
       "title": "Your Charts",
       "subtitle": "Manage your natal chart profiles"
     }
+  },
+  "premium": {
+    "title": "Unlock Your Cosmic Destiny",
+    "oracleCredits": "Oracle Credits: {{count}}",
+    "description": "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.",
+    "success": "Purchase successful! Your premium features have been updated.",
+    "redirecting": "Redirecting...",
+    "pdfActivated": "PDF Activated (Check Email)",
+    "buyPdf": "Get Premium PDF ($5)",
+    "buyOracle": "Ask the Oracle ($1)"
   },
   "language": {
     "en": "English",

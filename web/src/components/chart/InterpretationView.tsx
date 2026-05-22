@@ -20,6 +20,7 @@ interface InterpretationViewProps {
   chart: ChartResult;
   profileId: string;
   ownerDeviceId: string;
+  oracleCredits: number;
   relocationLat?: number | null;
   relocationLng?: number | null;
 }
@@ -381,6 +382,7 @@ export function InterpretationView({
   chart,
   profileId,
   ownerDeviceId,
+  oracleCredits,
   relocationLat,
   relocationLng,
 }: InterpretationViewProps) {
@@ -571,14 +573,26 @@ export function InterpretationView({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border p-4 space-y-3 bg-muted/10">
-        <h3 className="text-lg font-semibold">{t("ai.oracleTitle")}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t("ai.oracleDescription")}
-        </p>
+      <div className="rounded-lg border p-4 space-y-3 bg-muted/10 relative overflow-hidden">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">{t("ai.oracleTitle")}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("ai.oracleDescription")}
+            </p>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+              {t("ai.creditsLabel", "Credits")}
+            </span>
+            <div className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium border ${oracleCredits > 0 ? "bg-amber-500/10 text-amber-500 border-amber-500/30" : "bg-muted/50 text-muted-foreground border-border"}`}>
+              <span className="mr-1.5">✦</span> {oracleCredits}
+            </div>
+          </div>
+        </div>
 
         <textarea
-          className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed"
+          className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500"
           value={oracleQuestion}
           onChange={(e) => {
             setOracleQuestion(e.target.value);
@@ -586,15 +600,17 @@ export function InterpretationView({
               setOracleError(null);
             }
           }}
-          placeholder={t("ai.oraclePlaceholder")}
+          placeholder={oracleCredits > 0 ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need Oracle Credits to ask a question. Purchase them in the Premium tab.")}
           maxLength={1000}
+          disabled={oracleCredits <= 0}
         />
 
         <div className="flex items-center gap-3">
           <Button
             type="button"
             onClick={handleAskOracle}
-            disabled={oracleLoading}
+            disabled={oracleLoading || oracleCredits <= 0}
+            className={oracleCredits > 0 ? "bg-amber-600 hover:bg-amber-500 text-white" : ""}
           >
             {oracleLoading ? t("ai.askOracleLoading") : t("ai.askOracle")}
           </Button>

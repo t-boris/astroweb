@@ -500,8 +500,13 @@ export default function ProfileDetail() {
                   profileId={id!}
                   ownerDeviceId={deviceId}
                   oracleCredits={profile.oracleCredits || 0}
+                  hasPremiumPdf={profile.hasPremiumPdf || false}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
+                  onPurchasePremium={() => {
+                    const premiumTab = document.querySelector('[value="premium"]') as HTMLElement;
+                    if (premiumTab) premiumTab.click();
+                  }}
                 />
               </CardContent>
             </Card>

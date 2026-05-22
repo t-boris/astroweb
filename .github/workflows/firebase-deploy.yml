@@ -33,6 +33,13 @@ jobs:
           # In an npm workspace, it is hoisted to root, so we symlink it to pass the check.
           ln -sf ../node_modules ./node_modules
 
+      - name: Create .env file for production
+        working-directory: ./functions
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+          echo "STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env
+
       - name: Deploy to Firebase
         run: npx -y firebase-tools deploy --non-interactive --force
         env:

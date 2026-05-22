@@ -70,6 +70,7 @@ export default function ProfileDetail() {
   const [relocationPlace, setRelocationPlace] = useState("");
   const [relocationLat, setRelocationLat] = useState<number | null>(null);
   const [relocationLng, setRelocationLng] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState("chart");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -450,7 +451,7 @@ export default function ProfileDetail() {
         </div>
       )}
       {chartData && (
-        <Tabs defaultValue="chart" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex w-full overflow-x-auto scrollbar-hidden">
             <TabsTrigger value="chart" className="flex-1 min-w-fit">{t("tabs.chart")}</TabsTrigger>
             <TabsTrigger value="planets" className="flex-1 min-w-fit">{t("tabs.planets")}</TabsTrigger>
@@ -502,10 +503,7 @@ export default function ProfileDetail() {
                   hasPremiumPdf={profile.hasPremiumPdf || false}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
-                  onPurchasePremium={() => {
-                    const premiumTab = document.querySelector('[value="premium"]') as HTMLElement;
-                    if (premiumTab) premiumTab.click();
-                  }}
+                  onPurchasePremium={() => setActiveTab("premium")}
                 />
               </CardContent>
             </Card>
@@ -520,10 +518,7 @@ export default function ProfileDetail() {
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
                   hasPremiumCompatibility={profile.hasPremiumCompatibility || false}
-                  onPurchasePremium={() => {
-                    const premiumTab = document.querySelector('[value="premium"]') as HTMLElement;
-                    if (premiumTab) premiumTab.click();
-                  }}
+                  onPurchasePremium={() => setActiveTab("premium")}
                 />
               </CardContent>
             </Card>

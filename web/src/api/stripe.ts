@@ -4,7 +4,7 @@ import { functions } from "@/lib/firebase";
 export interface CreateCheckoutSessionPayload {
   profileId: string;
   ownerDeviceId: string;
-  tier: "pdf" | "oracle";
+  tier: "pdf" | "oracle" | "compatibility";
 }
 
 export interface CreateCheckoutSessionResult {

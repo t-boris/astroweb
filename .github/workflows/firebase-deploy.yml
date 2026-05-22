@@ -1,0 +1,35 @@
+name: Deploy to Firebase
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and Build Functions
+        working-directory: ./functions
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install and Build Web
+        working-directory: ./web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Firebase
+        run: npx -y firebase-tools deploy --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

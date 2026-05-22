@@ -119,16 +119,16 @@ export function buildDeepInterpretationPrompt(params: {
           "Планетарный контекст карты:",
           planetaryContext,
           "Требования к формату ответа (строго):",
-          "1) Русский язык, объем 550-900 слов.",
+          "1) Русский язык, объем 150-250 слов.",
           `2) ${isAspectFocus
             ? "Раскрывай в первую очередь ИМЕННО этот аспект (с его планетами, знаками, домами и орбом)."
             : "Раскрывай ТОЛЬКО указанную тему, без общего разбора всей карты."}`,
           "3) Пиши для новичка: каждый термин (аспект, дом, орб и т.п.) сразу поясняй простыми словами.",
           "4) Обязательно добавь раздел 'Простыми словами': коротко, что это значит в обычной жизни без астросленга.",
-          "5) Структура: 6-9 коротких разделов Markdown (### ...).",
-          "6) Разрешено упомянуть 1-3 поддерживающих фактора, но только если они напрямую связаны с темой.",
-          "7) Добавь 2-3 бытовых примера проявления темы во взаимодействии с людьми (работа, отношения, семья).",
-          "8) В конце блок: 'Практика' с 4-6 конкретными шагами по теме.",
+          "5) Структура: 2-3 коротких раздела Markdown (### ...).",
+          "6) Разрешено упомянуть 1-2 поддерживающих фактора, но только если они напрямую связаны с темой.",
+          "7) Добавь 1-2 бытовых примера проявления темы.",
+          "8) В конце блок: 'Практика' с 2 конкретными шагами по теме.",
           "9) Без таблиц, без длинных отступлений, без повторов.",
           "10) Заверши ответ строкой: [END_OF_REPORT]",
         ].join("\n\n")
@@ -140,16 +140,16 @@ export function buildDeepInterpretationPrompt(params: {
           "Planetary chart context:",
           planetaryContext,
           "Response requirements (strict):",
-          "1) English, 550-900 words.",
+          "1) English, 150-250 words.",
           `2) ${isAspectFocus
             ? "Focus primarily on THIS requested aspect (its planets, signs, houses, and orb)."
             : "Focus ONLY on the requested topic, no full-chart overview."}`,
           "3) Write for non-experts: explain every astrology term (aspect, house, orb, etc.) in plain language right away.",
           "4) Include a mandatory section 'In plain language' that explains the meaning in everyday life without jargon.",
-          "5) Use 6-9 short Markdown sections (### ...).",
-          "6) Mention 1-3 supporting factors only if directly tied to the topic.",
-          "7) Add 2-3 everyday examples involving human interactions (work, relationships, family).",
-          "8) End with a 'Practice' section containing 4-6 actionable steps.",
+          "5) Use 2-3 short Markdown sections (### ...).",
+          "6) Mention 1-2 supporting factors only if directly tied to the topic.",
+          "7) Add 1-2 everyday examples involving human interactions.",
+          "8) End with a 'Practice' section containing 2 actionable steps.",
           "9) No tables, no long detours, no repetition.",
           "10) End with a single line: [END_OF_REPORT]",
         ].join("\n\n");

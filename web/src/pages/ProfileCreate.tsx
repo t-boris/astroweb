@@ -2,13 +2,16 @@ import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
+import { motion } from "framer-motion";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { createProfile, getProfile, updateProfile } from "@/api/profiles";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PlaceSearch from "@/components/PlaceSearch";
+import { Astrolabe } from "@/components/Astrolabe";
 
 export default function ProfileCreate() {
   const { id } = useParams();
@@ -174,107 +177,122 @@ export default function ProfileCreate() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="text-center">
-        <p className="mb-2 text-2xl tracking-widest text-purple-400/20">{"\u2643 \u2644 \u2645 \u2646"}</p>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {isEdit ? t("profile.edit.title") : t("profile.create.title")}
-        </h1>
+    <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+      {/* Background Astrolabe */}
+      <div className="fixed top-0 right-0 w-[150vw] h-[150vw] sm:w-[80vw] sm:h-[80vw] max-w-[800px] max-h-[800px] translate-x-1/4 -translate-y-1/4 opacity-10 pointer-events-none -z-10">
+        <Astrolabe className="w-full h-full" />
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card space-y-5 p-6">
-        {/* Name */}
-        <div className="space-y-2">
-          <Label htmlFor="name">{t("profile.form.name")}</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t("profile.form.namePlaceholder")}
-          />
-          {errors.name && (
-            <p className="text-sm text-destructive">{errors.name}</p>
-          )}
-        </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <Card className="art-deco-card">
+          <CardHeader className="border-b border-primary/20">
+            <CardTitle className="font-serif text-primary">
+              {isEdit ? t("profile.edit.title") : t("profile.create.title")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Name */}
+              <div className="space-y-2">
+                <Label htmlFor="name">{t("profile.form.name")}</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("profile.form.namePlaceholder")}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name}</p>
+                )}
+              </div>
 
-        {/* Birth Date */}
-        <div className="space-y-2">
-          <Label htmlFor="birthDate">{t("profile.form.birthDate")}</Label>
-          <Input
-            id="birthDate"
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-          />
-          {errors.birthDate && (
-            <p className="text-sm text-destructive">{errors.birthDate}</p>
-          )}
-        </div>
+              {/* Birth Date */}
+              <div className="space-y-2">
+                <Label htmlFor="birthDate">{t("profile.form.birthDate")}</Label>
+                <Input
+                  id="birthDate"
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                />
+                {errors.birthDate && (
+                  <p className="text-sm text-destructive">{errors.birthDate}</p>
+                )}
+              </div>
 
-        {/* Time Unknown + Birth Time */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <Switch
-              id="timeUnknown"
-              checked={timeUnknown}
-              onCheckedChange={handleTimeUnknownChange}
-            />
-            <Label htmlFor="timeUnknown">
-              {t("profile.form.timeUnknown")}
-            </Label>
-          </div>
+              {/* Time Unknown + Birth Time */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="timeUnknown"
+                    checked={timeUnknown}
+                    onCheckedChange={handleTimeUnknownChange}
+                  />
+                  <Label htmlFor="timeUnknown">
+                    {t("profile.form.timeUnknown")}
+                  </Label>
+                </div>
 
-          {!timeUnknown && (
-            <div className="space-y-2">
-              <Label htmlFor="birthTime">{t("profile.form.birthTime")}</Label>
-              <Input
-                id="birthTime"
-                type="time"
-                value={birthTime}
-                onChange={(e) => setBirthTime(e.target.value)}
-              />
-              {errors.birthTime && (
-                <p className="text-sm text-destructive">{errors.birthTime}</p>
+                {!timeUnknown && (
+                  <div className="space-y-2">
+                    <Label htmlFor="birthTime">{t("profile.form.birthTime")}</Label>
+                    <Input
+                      id="birthTime"
+                      type="time"
+                      value={birthTime}
+                      onChange={(e) => setBirthTime(e.target.value)}
+                    />
+                    {errors.birthTime && (
+                      <p className="text-sm text-destructive">{errors.birthTime}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Birth Place (PlaceSearch) */}
+              <div className="space-y-2">
+                <Label>{t("profile.form.birthPlace")}</Label>
+                <PlaceSearch
+                  onSelect={handlePlaceSelect}
+                  initialValue={isEdit ? birthPlace : undefined}
+                  selectedLat={lat}
+                  selectedLng={lng}
+                />
+                {errors.birthPlace && (
+                  <p className="text-sm text-destructive">{errors.birthPlace}</p>
+                )}
+              </div>
+
+              {/* Coordinates preview (read-only) */}
+              {lat !== null && lng !== null && (
+                <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  <span className="font-medium">{t("profile.form.coordinates")}:</span>{" "}
+                  {lat.toFixed(4)}, {lng.toFixed(4)}
+                </div>
               )}
-            </div>
-          )}
-        </div>
 
-        {/* Birth Place (PlaceSearch) */}
-        <div className="space-y-2">
-          <Label>{t("profile.form.birthPlace")}</Label>
-          <PlaceSearch
-            onSelect={handlePlaceSelect}
-            initialValue={isEdit ? birthPlace : undefined}
-          />
-          {errors.birthPlace && (
-            <p className="text-sm text-destructive">{errors.birthPlace}</p>
-          )}
-        </div>
+              {/* Form-level error */}
+              {errors.form && (
+                <p className="text-sm text-destructive">{errors.form}</p>
+              )}
 
-        {/* Coordinates preview (read-only) */}
-        {lat !== null && lng !== null && (
-          <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-            <span className="font-medium">{t("profile.form.coordinates")}:</span>{" "}
-            {lat.toFixed(4)}, {lng.toFixed(4)}
-          </div>
-        )}
-
-        {/* Form-level error */}
-        {errors.form && (
-          <p className="text-sm text-destructive">{errors.form}</p>
-        )}
-
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          <Button type="submit" disabled={saving}>
-            {saving ? t("profile.form.saving") : t("common.save")}
-          </Button>
-          <Link to="/" className="text-primary hover:underline">
-            {t("profile.create.back")}
-          </Link>
-        </div>
-      </form>
+              {/* Actions */}
+              <div className="flex items-center gap-3 pt-4">
+                <Button type="submit" disabled={saving}>
+                  {saving ? t("profile.form.saving") : t("common.save")}
+                </Button>
+                <Link to="/" className="text-primary hover:underline">
+                  {t("profile.create.back")}
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

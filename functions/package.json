@@ -16,10 +16,14 @@
     "firebase-functions": "^7.0.0",
     "geo-tz": "^8.1.5",
     "luxon": "^3.7.2",
+    "pdfkit": "^0.18.0",
+    "resend": "^6.12.3",
+    "stripe": "^22.1.1",
     "sweph": "^2.10.3-b-1"
   },
   "devDependencies": {
     "@types/luxon": "^3.7.1",
+    "@types/pdfkit": "^0.17.6",
     "firebase-functions-test": "^3.0.0",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"

@@ -13,6 +13,8 @@ export interface Profile {
   timezone: string; // IANA timezone (e.g., "America/Chicago")
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
+  hasPremiumPdf?: boolean;
+  oracleCredits?: number;
 }
 
 export interface CreateProfilePayload {

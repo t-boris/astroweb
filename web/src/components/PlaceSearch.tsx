@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
+import { Map, Marker } from "pigeon-maps";
 
 interface PhotonProperties {
   name?: string;
@@ -18,6 +19,8 @@ interface PhotonFeature {
 interface PlaceSearchProps {
   onSelect: (place: { name: string; lat: number; lng: number }) => void;
   initialValue?: string;
+  selectedLat?: number | null;
+  selectedLng?: number | null;
 }
 
 const PHOTON_URL = "https://photon.komoot.io/api";
@@ -29,17 +32,27 @@ function formatPlaceName(props: PhotonProperties): string {
   return parts.join(", ");
 }
 
-export default function PlaceSearch({ onSelect, initialValue }: PlaceSearchProps) {
+export default function PlaceSearch({ onSelect, initialValue, selectedLat, selectedLng }: PlaceSearchProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState<PhotonFeature[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
+  const [mapZoom, setMapZoom] = useState(2);
 
   const controllerRef = useRef<AbortController | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync map with props
+  useEffect(() => {
+    if (selectedLat != null && selectedLng != null) {
+      setMapCenter([selectedLat, selectedLng]);
+      setMapZoom(10);
+    }
+  }, [selectedLat, selectedLng]);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -108,7 +121,34 @@ export default function PlaceSearch({ onSelect, initialValue }: PlaceSearchProps
     setQuery(displayName);
     setIsOpen(false);
     setResults([]);
+    setMapCenter([lat, lon]);
+    setMapZoom(10);
     onSelect({ name: displayName, lat, lng: lon });
+  }
+
+  async function handleMapClick({ latLng }: { latLng: [number, number] }) {
+    const [lat, lng] = latLng;
+    setMapCenter([lat, lng]);
+    
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({ lat: lat.toString(), lon: lng.toString(), lang: "en" });
+      const response = await fetch(`${PHOTON_URL}/reverse?${params}`);
+      const data = await response.json();
+      
+      let name = "Selected Location";
+      if (data.features && data.features.length > 0) {
+        name = formatPlaceName(data.features[0].properties) || name;
+      }
+      
+      setQuery(name);
+      onSelect({ name, lat, lng });
+    } catch (err) {
+      setQuery("Selected Location");
+      onSelect({ name: "Selected Location", lat, lng });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -155,6 +195,23 @@ export default function PlaceSearch({ onSelect, initialValue }: PlaceSearchProps
           {t("profile.form.minChars")}
         </p>
       )}
+
+      <div className="mt-4 h-[300px] w-full overflow-hidden rounded-md border border-primary/20 shadow-sm relative z-0">
+        <Map
+          center={mapCenter}
+          zoom={mapZoom}
+          onBoundsChanged={({ center, zoom }) => {
+            setMapCenter(center);
+            setMapZoom(zoom);
+          }}
+          onClick={handleMapClick}
+          metaWheelZoom={true}
+        >
+          {selectedLat != null && selectedLng != null && (
+            <Marker width={40} anchor={[selectedLat, selectedLng]} color="#d4af37" />
+          )}
+        </Map>
+      </div>
     </div>
   );
 }

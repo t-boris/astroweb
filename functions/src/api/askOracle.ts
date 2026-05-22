@@ -7,6 +7,8 @@ import {
   getGeminiModelName,
   normalizeLanguage,
 } from "../services/gemini";
+import { getProfileById } from "../services/profile";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 export const askOracle = onCall(async (request) => {
   const profileId = request.data?.profileId;
@@ -36,6 +38,25 @@ export const askOracle = onCall(async (request) => {
   if (trimmedQuestion.length > 1000) {
     throw new HttpsError("invalid-argument", "question is too long");
   }
+
+    // Check oracle credits
+    const profile = await getProfileById(profileId);
+    if (!profile) {
+      throw new HttpsError("not-found", "Profile not found");
+    }
+    
+    if (profile.ownerDeviceId !== ownerDeviceId) {
+      throw new HttpsError("permission-denied", "Not authorized");
+    }
+
+    if (!profile.oracleCredits || profile.oracleCredits <= 0) {
+      throw new HttpsError("permission-denied", "No oracle credits available. Please purchase more.");
+    }
+
+    // Deduct one credit
+    await getFirestore().collection("profiles").doc(profileId).update({
+      oracleCredits: FieldValue.increment(-1)
+    });
 
   try {
     const { chart } = await resolveOwnedChart({

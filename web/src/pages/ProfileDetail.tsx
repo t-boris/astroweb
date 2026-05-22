@@ -5,6 +5,9 @@ import { FirebaseError } from "firebase/app";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { getProfile, deleteProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
+import { createCheckoutSession } from "@/api/stripe";
+import { motion } from "framer-motion";
+import { Astrolabe } from "@/components/Astrolabe";
 import PlaceSearch from "@/components/PlaceSearch";
 import NatalChart from "@/components/chart/NatalChart";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
@@ -69,6 +72,7 @@ export default function ProfileDetail() {
   const [relocationLng, setRelocationLng] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   function getErrorMessage(err: unknown, fallbackKey: string): string {
     if (err instanceof FirebaseError) {
@@ -228,6 +232,20 @@ export default function ProfileDetail() {
     }
   }
 
+  async function handleCheckout(tier: "pdf" | "oracle") {
+    if (!id) return;
+    setCheckoutLoading(tier);
+    try {
+      const { url } = await createCheckoutSession({ profileId: id, ownerDeviceId: deviceId, tier });
+      window.location.href = url;
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      // fallback error handling
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }
+
   function handleRelocationSelect(place: {
     name: string;
     lat: number;
@@ -275,16 +293,31 @@ export default function ProfileDetail() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">{profile.name}</h1>
+    <div className="space-y-6 relative z-10">
+      {/* Background Astrolabe shifted to the side */}
+      <div className="fixed top-0 left-0 w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] -translate-x-1/2 -translate-y-1/4 opacity-10 pointer-events-none -z-10">
+        <Astrolabe className="w-full h-full" />
       </div>
 
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="flex items-center justify-between"
+      >
+        <h1 className="text-3xl font-serif font-bold tracking-tight text-gold-gradient">{profile.name}</h1>
+      </motion.div>
+
       {/* Birth Data Card */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>{t("profile.detail.birthData")}</CardTitle>
-        </CardHeader>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
+      >
+        <Card className="art-deco-card">
+          <CardHeader className="border-b border-primary/20">
+            <CardTitle className="font-serif text-primary">{t("profile.detail.birthData")}</CardTitle>
+          </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="font-medium text-muted-foreground">
@@ -324,10 +357,16 @@ export default function ProfileDetail() {
           </dl>
         </CardContent>
       </Card>
+      </motion.div>
 
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>{t("profile.detail.chartModeTitle")}</CardTitle>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+      <Card className="art-deco-card">
+        <CardHeader className="border-b border-primary/20">
+          <CardTitle className="font-serif text-primary">{t("profile.detail.chartModeTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-3">
@@ -355,6 +394,8 @@ export default function ProfileDetail() {
               <PlaceSearch
                 onSelect={handleRelocationSelect}
                 initialValue={relocationPlace || undefined}
+                selectedLat={relocationLat}
+                selectedLng={relocationLng}
               />
               {relocationPlace && relocationLat !== null && relocationLng !== null && (
                 <p className="text-sm text-muted-foreground">
@@ -371,22 +412,29 @@ export default function ProfileDetail() {
           </p>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2">
-        <Button asChild>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="flex flex-wrap gap-2"
+      >
+        <Button className="border border-primary/50 text-primary hover:bg-primary/10" variant="outline" asChild>
           <Link to={`/profile/${id}/edit`}>{t("profile.detail.edit")}</Link>
         </Button>
         <Button
           variant="destructive"
+          className="bg-red-900/40 text-red-200 border border-red-800 hover:bg-red-900/60"
           onClick={() => setShowDeleteDialog(true)}
         >
           {t("profile.detail.delete")}
         </Button>
-        <Button variant="outline" asChild>
+        <Button variant="outline" className="border border-primary/50 text-primary hover:bg-primary/10" asChild>
           <Link to="/">{t("profile.detail.back")}</Link>
         </Button>
-      </div>
+      </motion.div>
 
       {/* Chart / Data Tabs */}
       {chartLoading && (
@@ -411,6 +459,9 @@ export default function ProfileDetail() {
             <TabsTrigger value="houses" className="flex-1 min-w-fit">{t("tabs.houses")}</TabsTrigger>
             <TabsTrigger value="interpretation" className="flex-1 min-w-fit">{t("tabs.interpretation")}</TabsTrigger>
             <TabsTrigger value="compatibility" className="flex-1 min-w-fit">{t("tabs.compatibility")}</TabsTrigger>
+            <TabsTrigger value="premium" className="flex-1 min-w-fit text-amber-500 font-semibold flex items-center gap-2">
+              <span className="text-lg">✧</span> Premium
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="chart">
@@ -418,7 +469,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="planets">
-            <Card className="glass-card">
+            <Card className="art-deco-card">
               <CardContent className="pt-6">
                 <PlanetsTable points={chartData.points} />
               </CardContent>
@@ -426,7 +477,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="aspects">
-            <Card className="glass-card">
+            <Card className="art-deco-card">
               <CardContent className="pt-6">
                 <AspectsTable aspects={chartData.aspects} />
               </CardContent>
@@ -434,7 +485,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="houses">
-            <Card className="glass-card">
+            <Card className="art-deco-card">
               <CardContent className="pt-6">
                 <HouseAreasView chart={chartData} />
               </CardContent>
@@ -442,7 +493,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="interpretation">
-            <Card className="glass-card">
+            <Card className="art-deco-card">
               <CardContent className="pt-6">
                 <InterpretationView
                   chart={chartData}
@@ -456,7 +507,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="compatibility">
-            <Card className="glass-card">
+            <Card className="art-deco-card">
               <CardContent className="pt-6">
                 <RelationshipView
                   profileId={id!}
@@ -464,6 +515,55 @@ export default function ProfileDetail() {
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="premium">
+            <Card className="art-deco-card overflow-hidden relative border-amber-500/50">
+              <div className="absolute inset-0 bg-background/60 backdrop-blur-[4px] z-10 flex flex-col items-center justify-center p-6 text-center">
+                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 ring-2 ring-amber-500/50 shadow-[0_0_30px_rgba(217,119,6,0.2)]">
+                  <span className="text-4xl text-amber-500">✦</span>
+                </div>
+                <h3 className="mb-2 text-3xl font-serif font-bold tracking-tight text-gold-gradient">
+                  Unlock Your Cosmic Destiny
+                </h3>
+                <p className="mb-6 max-w-md text-sm text-muted-foreground leading-relaxed">
+                  Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button
+                    onClick={() => handleCheckout("pdf")}
+                    disabled={checkoutLoading !== null}
+                    className="bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]"
+                  >
+                    {checkoutLoading === "pdf" ? "Redirecting..." : "Get Premium PDF ($5)"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCheckout("oracle")}
+                    disabled={checkoutLoading !== null}
+                    className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                  >
+                    {checkoutLoading === "oracle" ? "Redirecting..." : "Ask the Oracle ($1)"}
+                  </Button>
+                </div>
+              </div>
+
+              <CardContent className="pt-6 opacity-30 select-none pointer-events-none blur-[4px]">
+                <div className="space-y-6">
+                  <div className="h-8 w-1/3 rounded bg-muted animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
+                    <div className="h-4 w-5/6 rounded bg-muted animate-pulse"></div>
+                    <div className="h-4 w-4/6 rounded bg-muted animate-pulse"></div>
+                  </div>
+                  <div className="h-64 w-full rounded bg-muted/50 border border-muted animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
+                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

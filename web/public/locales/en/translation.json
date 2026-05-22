@@ -534,9 +534,12 @@
     "description": "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.",
     "success": "Purchase successful! Your premium features have been updated.",
     "redirecting": "Redirecting...",
-    "pdfActivated": "PDF Activated (Check Email)",
-    "buyPdf": "Get Premium PDF ($5)",
-    "buyOracle": "Ask the Oracle ($1)"
+    "pdfActivated": "Interpretations Unlocked",
+    "buyPdf": "Interpretations & PDF ($1.99)",
+    "buyOracle": "Ask Oracle ($0.99)",
+    "buyCompatibility": "Unlock Compatibility ($0.99)",
+    "compatibilityActivated": "Compatibility Unlocked",
+    "unlockRequired": "Unlock Premium to read full deep interpretation."
   },
   "language": {
     "en": "English",

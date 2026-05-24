@@ -50,6 +50,7 @@ interface AiTextResult {
 const DEFAULT_MODEL = "claude-sonnet-4-6";
 const ANTHROPIC_VERSION = "2023-06-01";
 const REQUEST_TIMEOUT_MS = 60_000;
+const ANTHROPIC_API_KEY_PATTERN = /sk-ant-[A-Za-z0-9_-]+/;
 
 function toLanguage(language: unknown): SupportedLanguage {
   return language === "ru" ? "ru" : "en";
@@ -57,6 +58,12 @@ function toLanguage(language: unknown): SupportedLanguage {
 
 function formatDegree(value: number): string {
   return `${value.toFixed(2)} deg`;
+}
+
+function normalizeAnthropicApiKey(rawApiKey: string | undefined): string {
+  const trimmed = rawApiKey?.trim() ?? "";
+  const match = trimmed.match(ANTHROPIC_API_KEY_PATTERN);
+  return match?.[0] ?? trimmed;
 }
 
 export function normalizeLanguage(language: unknown): SupportedLanguage {
@@ -467,9 +474,13 @@ export async function generateClaudeTextResult(
   input: AiGenerateInput,
   options: AiGenerateOptions = {},
 ): Promise<AiTextResult> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = normalizeAnthropicApiKey(process.env.ANTHROPIC_API_KEY);
   if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY is not configured");
+  }
+
+  if (!ANTHROPIC_API_KEY_PATTERN.test(apiKey)) {
+    throw new Error("ANTHROPIC_API_KEY is malformed");
   }
 
   const allowContinuation = options.allowContinuation ?? true;

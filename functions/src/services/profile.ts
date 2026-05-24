@@ -22,7 +22,7 @@ export async function createProfile(
   payload: CreateProfilePayload
 ): Promise<Profile> {
   const now = new Date().toISOString();
-  const profileData = {
+  const profileData: Omit<Profile, "id"> = {
     ownerDeviceId: payload.ownerDeviceId,
     name: payload.name,
     birthDate: payload.birthDate,
@@ -35,6 +35,19 @@ export async function createProfile(
     createdAt: now,
     updatedAt: now,
   };
+
+  if (payload.relocationEnabled !== undefined) {
+    profileData.relocationEnabled = payload.relocationEnabled;
+  }
+  if (payload.currentPlace !== undefined) {
+    profileData.currentPlace = payload.currentPlace;
+  }
+  if (payload.currentLat !== undefined) {
+    profileData.currentLat = payload.currentLat;
+  }
+  if (payload.currentLng !== undefined) {
+    profileData.currentLng = payload.currentLng;
+  }
 
   const docRef = await getCollection().add(profileData);
 

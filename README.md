@@ -3,7 +3,7 @@
 Monorepo for a Firebase-backed astrology web app:
 
 - `web/`: React + TypeScript + Vite frontend (Tailwind, i18n)
-- `functions/`: Firebase Cloud Functions (Gen 2, Node.js 22) for profiles, natal chart computation, and AI-powered interpretations (Gemini)
+- `functions/`: Firebase Cloud Functions (Gen 2, Node.js 22) for profiles, natal chart computation, and AI-powered interpretations (Anthropic Claude)
 
 ## Repo Layout
 
@@ -60,15 +60,15 @@ If you want to run Hosting emulator anyway, either:
 
 Cloud Functions use:
 
-- `GEMINI_API_KEY` (required for AI endpoints)
-- `GEMINI_MODEL` (optional; defaults to `gemini-3-flash-preview`)
+- `ANTHROPIC_API_KEY` (required for AI endpoints)
+- `ANTHROPIC_MODEL` (optional; defaults to `claude-sonnet-4-6`)
 
 Local setup (example):
 
 ```bash
 cat > functions/.env.local <<'EOF'
-GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-3-flash-preview
+ANTHROPIC_API_KEY=...
+ANTHROPIC_MODEL=claude-sonnet-4-6
 EOF
 ```
 
@@ -108,4 +108,3 @@ firebase deploy
 ```
 
 This deploys Hosting + Functions using the Firebase project set in `.firebaserc` (default: `astroweb-dev`).
-

@@ -1,9 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const API_KEY = "AIzaSyDDiYmawOrrX5kNdkkbuxe0cnofUa1Bepk"; // from functions/.env
-const MODEL = "gemini-1.5-flash";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+const API_URL = "https://api.anthropic.com/v1/messages";
 
 async function expandCategory(categoryName, originalJson, language) {
   console.log(`Expanding ${categoryName} in ${language}...`);
@@ -20,10 +20,16 @@ ${JSON.stringify(originalJson, null, 2)}
 
   const response = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+      model: MODEL,
+      max_tokens: 8192,
+      temperature: 0.7,
+      messages: [{ role: "user", content: prompt }],
     }),
   });
 
@@ -33,7 +39,10 @@ ${JSON.stringify(originalJson, null, 2)}
   }
 
   const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const text = data.content
+    ?.filter((block) => block.type === "text" || block.text)
+    .map((block) => block.text || "")
+    .join("") || "";
   
   // Clean markdown JSON fences
   const cleaned = text.replace(/^```json\s*/m, "").replace(/```$/m, "").trim();
@@ -69,6 +78,10 @@ async function processFile(filePath, language) {
 }
 
 async function main() {
+  if (!API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY is required");
+  }
+
   const ruPath = path.join(__dirname, "..", "public", "locales", "ru", "translation.json");
   const enPath = path.join(__dirname, "..", "public", "locales", "en", "translation.json");
 

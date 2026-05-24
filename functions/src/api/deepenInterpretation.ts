@@ -3,12 +3,11 @@ import { logger } from "firebase-functions/v2";
 import { resolveOwnedChart } from "../services/chartResolver";
 import {
   buildDeepInterpretationPrompt,
-  generateGeminiText,
-  getGeminiModelName,
+  generateClaudeTextResult,
   normalizeLanguage,
-} from "../services/gemini";
+} from "../services/anthropic";
 
-export const deepenInterpretation = onCall(async (request) => {
+export const deepenInterpretation = onCall({ timeoutSeconds: 180 }, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
   const focusTopic = request.data?.focusTopic;
@@ -41,7 +40,7 @@ export const deepenInterpretation = onCall(async (request) => {
       relocationLng,
     });
 
-    const text = await generateGeminiText(
+    const result = await generateClaudeTextResult(
       buildDeepInterpretationPrompt({
         chart,
         focusTopic: focusTopic.trim().slice(0, 200),
@@ -56,8 +55,8 @@ export const deepenInterpretation = onCall(async (request) => {
     );
 
     return {
-      text,
-      model: getGeminiModelName(),
+      text: result.text,
+      model: result.model,
     };
   } catch (error) {
     if (error instanceof HttpsError) {

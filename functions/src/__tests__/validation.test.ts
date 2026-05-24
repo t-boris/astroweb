@@ -160,6 +160,17 @@ describe('validateCreateProfilePayload', () => {
     });
     expect(errors.some((e) => e.field === 'birthTime')).toBe(false);
   });
+
+  it('accepts optional current place fields', () => {
+    const errors = validateCreateProfilePayload({
+      ...validPayload,
+      relocationEnabled: true,
+      currentPlace: 'Chicago, United States',
+      currentLat: 41.8781,
+      currentLng: -87.6298,
+    });
+    expect(errors).toEqual([]);
+  });
 });
 
 // ============================================================
@@ -192,5 +203,26 @@ describe('validateUpdateProfilePayload', () => {
       lat: -91,
     });
     expect(errors.some((e) => e.field === 'lat')).toBe(true);
+  });
+
+  it('accepts current place updates', () => {
+    const errors = validateUpdateProfilePayload({
+      ownerDeviceId: 'device-abc-123',
+      relocationEnabled: true,
+      currentPlace: 'Chicago, United States',
+      currentLat: 41.8781,
+      currentLng: -87.6298,
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('rejects invalid current coordinates', () => {
+    const errors = validateUpdateProfilePayload({
+      ownerDeviceId: 'device-abc-123',
+      currentLat: 91,
+      currentLng: -181,
+    });
+    expect(errors.some((e) => e.field === 'currentLat')).toBe(true);
+    expect(errors.some((e) => e.field === 'currentLng')).toBe(true);
   });
 });

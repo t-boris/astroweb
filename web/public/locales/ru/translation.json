@@ -51,6 +51,7 @@
       "relocationMode": "Релокация (место жизни)",
       "relocationSearchLabel": "Текущее место жизни",
       "relocationCurrent": "Выбрано",
+      "relocationSaving": "Сохраняю текущее место...",
       "relocationHintOff": "Показывается базовая натальная карта по месту рождения.",
       "relocationHintOn": "Дома, ASC и MC пересчитываются по текущему месту жизни. Планеты и аспекты натала сохраняются.",
       "relocationPlaceRequired": "Для релокации выберите текущее место жизни."

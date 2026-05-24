@@ -3,14 +3,13 @@ import { logger } from "firebase-functions/v2";
 import { resolveOwnedChart } from "../services/chartResolver";
 import {
   buildOraclePrompt,
-  generateGeminiText,
-  getGeminiModelName,
+  generateClaudeTextResult,
   normalizeLanguage,
-} from "../services/gemini";
+} from "../services/anthropic";
 import { getProfileById } from "../services/profile";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-export const askOracle = onCall(async (request) => {
+export const askOracle = onCall({ timeoutSeconds: 180 }, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
   const question = request.data?.question;
@@ -77,7 +76,7 @@ export const askOracle = onCall(async (request) => {
       language,
     });
 
-    const answer = await generateGeminiText(basePrompt, {
+    const result = await generateClaudeTextResult(basePrompt, {
       allowContinuation: true,
       sanitizeOutput: true,
       requireEndTag: "[END_OF_REPORT]",
@@ -85,13 +84,13 @@ export const askOracle = onCall(async (request) => {
 
     logger.info("askOracle success", {
       profileId,
-      answerLength: answer.length,
-      answerWords: answer.split(/\s+/).filter(Boolean).length,
+      answerLength: result.text.length,
+      answerWords: result.text.split(/\s+/).filter(Boolean).length,
     });
 
     return {
-      answer,
-      model: getGeminiModelName(),
+      answer: result.text,
+      model: result.model,
     };
   } catch (error) {
     if (error instanceof HttpsError) {

@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
 import { useDeviceId } from "@/hooks/useDeviceId";
-import { getProfile, deleteProfile } from "@/api/profiles";
+import { getProfile, deleteProfile, updateProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
 import { createCheckoutSession } from "@/api/stripe";
 import { motion } from "framer-motion";
@@ -53,6 +53,46 @@ function getRelocationStorageKey(profileId: string): string {
   return `astroweb:relocation:v1:${profileId}`;
 }
 
+function isCompleteRelocation(value: Partial<StoredRelocation>): value is StoredRelocation {
+  return (
+    typeof value.place === "string" &&
+    value.place.trim().length > 0 &&
+    typeof value.lat === "number" &&
+    Number.isFinite(value.lat) &&
+    value.lat >= -90 &&
+    value.lat <= 90 &&
+    typeof value.lng === "number" &&
+    Number.isFinite(value.lng) &&
+    value.lng >= -180 &&
+    value.lng <= 180
+  );
+}
+
+function getProfileRelocation(profile: Profile): StoredRelocation | null {
+  const relocation = {
+    enabled: Boolean(profile.relocationEnabled),
+    place: profile.currentPlace,
+    lat: profile.currentLat,
+    lng: profile.currentLng,
+  };
+
+  return isCompleteRelocation(relocation) ? relocation : null;
+}
+
+function readStoredRelocation(profileId: string): StoredRelocation | null {
+  try {
+    const raw = localStorage.getItem(getRelocationStorageKey(profileId));
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<StoredRelocation>;
+    return isCompleteRelocation(parsed)
+      ? { ...parsed, enabled: Boolean(parsed.enabled) }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ProfileDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -70,6 +110,8 @@ export default function ProfileDetail() {
   const [relocationPlace, setRelocationPlace] = useState("");
   const [relocationLat, setRelocationLat] = useState<number | null>(null);
   const [relocationLng, setRelocationLng] = useState<number | null>(null);
+  const [relocationSaving, setRelocationSaving] = useState(false);
+  const [relocationSaveError, setRelocationSaveError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("chart");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -167,36 +209,45 @@ export default function ProfileDetail() {
   }, [profile, id, deviceId, chartRetryCount, relocationEnabled, relocationLat, relocationLng]);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !profile) return;
 
-    try {
-      const raw = localStorage.getItem(getRelocationStorageKey(id));
-      if (!raw) {
-        setRelocationEnabled(false);
-        setRelocationPlace("");
-        setRelocationLat(null);
-        setRelocationLng(null);
-        return;
-      }
-
-      const parsed = JSON.parse(raw) as Partial<StoredRelocation>;
-      if (
-        typeof parsed.place === "string" &&
-        typeof parsed.lat === "number" &&
-        typeof parsed.lng === "number"
-      ) {
-        setRelocationEnabled(Boolean(parsed.enabled));
-        setRelocationPlace(parsed.place);
-        setRelocationLat(parsed.lat);
-        setRelocationLng(parsed.lng);
-      }
-    } catch {
-      setRelocationEnabled(false);
-      setRelocationPlace("");
-      setRelocationLat(null);
-      setRelocationLng(null);
+    const profileRelocation = getProfileRelocation(profile);
+    if (profileRelocation) {
+      setRelocationEnabled(profileRelocation.enabled);
+      setRelocationPlace(profileRelocation.place);
+      setRelocationLat(profileRelocation.lat);
+      setRelocationLng(profileRelocation.lng);
+      saveRelocation(
+        id,
+        profileRelocation.enabled,
+        profileRelocation.place,
+        profileRelocation.lat,
+        profileRelocation.lng,
+      );
+      return;
     }
-  }, [id]);
+
+    const storedRelocation = readStoredRelocation(id);
+    if (storedRelocation) {
+      setRelocationEnabled(storedRelocation.enabled);
+      setRelocationPlace(storedRelocation.place);
+      setRelocationLat(storedRelocation.lat);
+      setRelocationLng(storedRelocation.lng);
+      void persistRelocation(
+        storedRelocation.enabled,
+        storedRelocation.place,
+        storedRelocation.lat,
+        storedRelocation.lng,
+      );
+      return;
+    }
+
+    setRelocationEnabled(false);
+    setRelocationPlace("");
+    setRelocationLat(null);
+    setRelocationLng(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, profile]);
 
   function saveRelocation(profileId: string, enabled: boolean, place: string, lat: number | null, lng: number | null) {
     try {
@@ -208,6 +259,41 @@ export default function ProfileDetail() {
       localStorage.setItem(getRelocationStorageKey(profileId), JSON.stringify(payload));
     } catch {
       // Ignore storage errors
+    }
+  }
+
+  async function persistRelocation(
+    enabled: boolean,
+    place: string,
+    lat: number | null,
+    lng: number | null,
+  ) {
+    if (!id) return;
+
+    saveRelocation(id, enabled, place, lat, lng);
+
+    const updates: Parameters<typeof updateProfile>[1] = {
+      ownerDeviceId: deviceId,
+      relocationEnabled: enabled,
+    };
+
+    if (place && lat !== null && lng !== null) {
+      updates.currentPlace = place;
+      updates.currentLat = lat;
+      updates.currentLng = lng;
+    } else if (enabled) {
+      return;
+    }
+
+    setRelocationSaving(true);
+    setRelocationSaveError(null);
+    try {
+      const updated = await updateProfile(id, updates);
+      setProfile(updated);
+    } catch (err) {
+      setRelocationSaveError(getErrorMessage(err, "errors.profileSaveFailed"));
+    } finally {
+      setRelocationSaving(false);
     }
   }
 
@@ -253,6 +339,21 @@ export default function ProfileDetail() {
     }
     if (id) {
       saveRelocation(id, newEnabled, place.name, place.lat, place.lng);
+    }
+    void persistRelocation(newEnabled, place.name, place.lat, place.lng);
+    setChartRetryCount((c) => c + 1);
+  }
+
+  function handleRelocationToggle(checked: boolean) {
+    setRelocationEnabled(checked);
+    if (id) {
+      saveRelocation(id, checked, relocationPlace, relocationLat, relocationLng);
+    }
+    if (!checked) {
+      setChartError(null);
+    }
+    if (!checked || (relocationPlace && relocationLat !== null && relocationLng !== null)) {
+      void persistRelocation(checked, relocationPlace, relocationLat, relocationLng);
     }
     setChartRetryCount((c) => c + 1);
   }
@@ -370,16 +471,7 @@ export default function ProfileDetail() {
             <Switch
               id="relocation-mode"
               checked={relocationEnabled}
-              onCheckedChange={(checked) => {
-                setRelocationEnabled(checked);
-                if (id) {
-                  saveRelocation(id, checked, relocationPlace, relocationLat, relocationLng);
-                }
-                if (!checked) {
-                  setChartError(null);
-                }
-                setChartRetryCount((c) => c + 1);
-              }}
+              onCheckedChange={handleRelocationToggle}
             />
             <Label htmlFor="relocation-mode">
               {relocationEnabled
@@ -401,6 +493,14 @@ export default function ProfileDetail() {
                 <p className="text-sm text-muted-foreground">
                   {t("profile.detail.relocationCurrent")}: {relocationPlace} ({relocationLat.toFixed(4)}, {relocationLng.toFixed(4)})
                 </p>
+              )}
+              {relocationSaving && (
+                <p className="text-sm text-muted-foreground">
+                  {t("profile.detail.relocationSaving")}
+                </p>
+              )}
+              {relocationSaveError && (
+                <p className="text-sm text-destructive">{relocationSaveError}</p>
               )}
             </div>
           )}

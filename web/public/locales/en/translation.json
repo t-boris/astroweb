@@ -51,6 +51,7 @@
       "relocationMode": "Relocation (current place)",
       "relocationSearchLabel": "Current place of living",
       "relocationCurrent": "Selected",
+      "relocationSaving": "Saving current place...",
       "relocationHintOff": "Showing base natal chart for birth place.",
       "relocationHintOn": "Houses, ASC, and MC are recalculated for current place. Natal planets and aspects stay the same.",
       "relocationPlaceRequired": "Select your current place of living for relocation mode."

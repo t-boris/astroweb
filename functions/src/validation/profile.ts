@@ -52,6 +52,48 @@ function isValidTime(val: string): boolean {
   return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
 }
 
+function validateLatitude(payload: Record<string, unknown>, field: string): ApiError[] {
+  const value = payload[field];
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return [{
+      code: "INVALID_PAYLOAD",
+      message: `${field} must be a number`,
+      field,
+    }];
+  }
+
+  if (value < -90 || value > 90) {
+    return [{
+      code: "INVALID_PAYLOAD",
+      message: `${field} must be between -90 and 90`,
+      field,
+    }];
+  }
+
+  return [];
+}
+
+function validateLongitude(payload: Record<string, unknown>, field: string): ApiError[] {
+  const value = payload[field];
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return [{
+      code: "INVALID_PAYLOAD",
+      message: `${field} must be a number`,
+      field,
+    }];
+  }
+
+  if (value < -180 || value > 180) {
+    return [{
+      code: "INVALID_PAYLOAD",
+      message: `${field} must be between -180 and 180`,
+      field,
+    }];
+  }
+
+  return [];
+}
+
 /**
  * Validate all required fields for profile creation.
  * Returns array of ApiError objects (empty = valid).
@@ -144,34 +186,10 @@ export function validateCreateProfilePayload(data: unknown): ApiError[] {
   }
 
   // lat: must be number, range -90 to 90
-  if (typeof payload.lat !== "number" || Number.isNaN(payload.lat)) {
-    errors.push({
-      code: "INVALID_PAYLOAD",
-      message: "lat must be a number",
-      field: "lat",
-    });
-  } else if (payload.lat < -90 || payload.lat > 90) {
-    errors.push({
-      code: "INVALID_PAYLOAD",
-      message: "lat must be between -90 and 90",
-      field: "lat",
-    });
-  }
+  errors.push(...validateLatitude(payload, "lat"));
 
   // lng: must be number, range -180 to 180
-  if (typeof payload.lng !== "number" || Number.isNaN(payload.lng)) {
-    errors.push({
-      code: "INVALID_PAYLOAD",
-      message: "lng must be a number",
-      field: "lng",
-    });
-  } else if (payload.lng < -180 || payload.lng > 180) {
-    errors.push({
-      code: "INVALID_PAYLOAD",
-      message: "lng must be between -180 and 180",
-      field: "lng",
-    });
-  }
+  errors.push(...validateLongitude(payload, "lng"));
 
   // timezone: optional, but if provided must be non-empty string
   if (payload.timezone !== undefined && !isNonEmptyString(payload.timezone)) {
@@ -180,6 +198,38 @@ export function validateCreateProfilePayload(data: unknown): ApiError[] {
       message: "timezone must be a non-empty string",
       field: "timezone",
     });
+  }
+
+  if (payload.relocationEnabled !== undefined && typeof payload.relocationEnabled !== "boolean") {
+    errors.push({
+      code: "INVALID_PAYLOAD",
+      message: "relocationEnabled must be a boolean",
+      field: "relocationEnabled",
+    });
+  }
+
+  if (payload.currentPlace !== undefined) {
+    if (!isNonEmptyString(payload.currentPlace)) {
+      errors.push({
+        code: "INVALID_PAYLOAD",
+        message: "currentPlace must be a non-empty string",
+        field: "currentPlace",
+      });
+    } else if ((payload.currentPlace as string).length > 200) {
+      errors.push({
+        code: "INVALID_PAYLOAD",
+        message: "currentPlace must be at most 200 characters",
+        field: "currentPlace",
+      });
+    }
+  }
+
+  if (payload.currentLat !== undefined) {
+    errors.push(...validateLatitude(payload, "currentLat"));
+  }
+
+  if (payload.currentLng !== undefined) {
+    errors.push(...validateLongitude(payload, "currentLng"));
   }
 
   return errors;
@@ -222,6 +272,10 @@ export function validateUpdateProfilePayload(data: unknown): ApiError[] {
     "lat",
     "lng",
     "timezone",
+    "relocationEnabled",
+    "currentPlace",
+    "currentLat",
+    "currentLng",
   ];
   const hasUpdatableField = updatableFields.some(
     (field) => payload[field] !== undefined
@@ -306,35 +360,11 @@ export function validateUpdateProfilePayload(data: unknown): ApiError[] {
   }
 
   if (payload.lat !== undefined) {
-    if (typeof payload.lat !== "number" || Number.isNaN(payload.lat)) {
-      errors.push({
-        code: "INVALID_PAYLOAD",
-        message: "lat must be a number",
-        field: "lat",
-      });
-    } else if (payload.lat < -90 || payload.lat > 90) {
-      errors.push({
-        code: "INVALID_PAYLOAD",
-        message: "lat must be between -90 and 90",
-        field: "lat",
-      });
-    }
+    errors.push(...validateLatitude(payload, "lat"));
   }
 
   if (payload.lng !== undefined) {
-    if (typeof payload.lng !== "number" || Number.isNaN(payload.lng)) {
-      errors.push({
-        code: "INVALID_PAYLOAD",
-        message: "lng must be a number",
-        field: "lng",
-      });
-    } else if (payload.lng < -180 || payload.lng > 180) {
-      errors.push({
-        code: "INVALID_PAYLOAD",
-        message: "lng must be between -180 and 180",
-        field: "lng",
-      });
-    }
+    errors.push(...validateLongitude(payload, "lng"));
   }
 
   if (payload.timezone !== undefined) {
@@ -345,6 +375,40 @@ export function validateUpdateProfilePayload(data: unknown): ApiError[] {
         field: "timezone",
       });
     }
+  }
+
+  if (payload.relocationEnabled !== undefined) {
+    if (typeof payload.relocationEnabled !== "boolean") {
+      errors.push({
+        code: "INVALID_PAYLOAD",
+        message: "relocationEnabled must be a boolean",
+        field: "relocationEnabled",
+      });
+    }
+  }
+
+  if (payload.currentPlace !== undefined) {
+    if (!isNonEmptyString(payload.currentPlace)) {
+      errors.push({
+        code: "INVALID_PAYLOAD",
+        message: "currentPlace must be a non-empty string",
+        field: "currentPlace",
+      });
+    } else if ((payload.currentPlace as string).length > 200) {
+      errors.push({
+        code: "INVALID_PAYLOAD",
+        message: "currentPlace must be at most 200 characters",
+        field: "currentPlace",
+      });
+    }
+  }
+
+  if (payload.currentLat !== undefined) {
+    errors.push(...validateLatitude(payload, "currentLat"));
+  }
+
+  if (payload.currentLng !== undefined) {
+    errors.push(...validateLongitude(payload, "currentLng"));
   }
 
   return errors;

@@ -4,10 +4,9 @@ import { computeNatalChart } from "../astro/chart";
 import { resolveOwnedChart } from "../services/chartResolver";
 import {
   buildRelationshipPrompt,
-  generateGeminiText,
-  getGeminiModelName,
+  generateClaudeTextResult,
   normalizeLanguage,
-} from "../services/gemini";
+} from "../services/anthropic";
 import { getTimezoneFromCoords } from "../utils/timezone";
 
 interface PartnerInput {
@@ -77,7 +76,7 @@ function parsePartnerInput(raw: unknown): PartnerInput {
   };
 }
 
-export const askRelationship = onCall(async (request) => {
+export const askRelationship = onCall({ timeoutSeconds: 180 }, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
   const language = normalizeLanguage(request.data?.language);
@@ -113,7 +112,7 @@ export const askRelationship = onCall(async (request) => {
       houseSystem: "koch",
     });
 
-    const answer = await generateGeminiText(
+    const result = await generateClaudeTextResult(
       buildRelationshipPrompt({
         chartA,
         chartB,
@@ -131,12 +130,12 @@ export const askRelationship = onCall(async (request) => {
     logger.info("askRelationship success", {
       profileId,
       partnerName: partner.name,
-      answerLength: answer.length,
+      answerLength: result.text.length,
     });
 
     return {
-      answer,
-      model: getGeminiModelName(),
+      answer: result.text,
+      model: result.model,
       partnerTimezone,
     };
   } catch (error) {

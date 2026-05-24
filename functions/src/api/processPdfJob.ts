@@ -17,9 +17,9 @@ export const processPdfJob = onDocumentCreated("pdfJobs/{jobId}", async (event) 
     // Update status
     await snapshot.ref.update({ status: "processing" });
 
-    // 1. We would fetch the chart and ask Gemini to generate the 15-page deep report.
+    // 1. We would fetch the chart and ask the AI provider to generate the 15-page deep report.
     // For this implementation, we simulate fetching the deep interpretation.
-    // In a real scenario, we'd use the astrology data and call Gemini with a heavy prompt.
+    // In a real scenario, we'd use the astrology data and call the AI provider with a heavy prompt.
     const markdownContent = `
 # The Cosmic Blueprint of ${profileName}
 

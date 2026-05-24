@@ -4,47 +4,52 @@ import { detectAspect } from "../astro/aspects";
 
 export type SupportedLanguage = "ru" | "en";
 
-interface GeminiPart {
+interface AnthropicContentBlock {
+  type?: string;
   text?: string;
 }
 
-interface GeminiCandidate {
-  finishReason?: string;
-  content?: {
-    parts?: GeminiPart[];
-  };
-}
-
-interface GeminiErrorResponse {
+interface AnthropicErrorResponse {
+  type?: string;
   message?: string;
 }
 
-interface GeminiGenerateResponse {
-  candidates?: GeminiCandidate[];
-  error?: GeminiErrorResponse;
+interface AnthropicMessageResponse {
+  model?: string;
+  stop_reason?: string | null;
+  content?: AnthropicContentBlock[];
+  error?: AnthropicErrorResponse;
 }
 
-interface GeminiGenerateInput {
+interface AiGenerateInput {
   systemInstruction: string;
   userPrompt: string;
   temperature?: number;
   maxOutputTokens?: number;
 }
 
-interface GeminiCallResult {
+interface ClaudeCallResult {
   text: string;
-  finishReason: string | null;
+  stopReason: string | null;
+  model: string;
 }
 
-interface GeminiGenerateOptions {
+interface AiGenerateOptions {
   allowContinuation?: boolean;
   sanitizeOutput?: boolean;
   // If set, keep requesting continuation until this tag appears (or attempts exhausted).
-  // Useful when finishReason is not MAX_TOKENS but the model still stops early.
+  // Useful when stop_reason is not max_tokens but the model still stops early.
   requireEndTag?: string;
 }
 
-const DEFAULT_MODEL = "gemini-3.1-flash-lite";
+interface AiTextResult {
+  text: string;
+  model: string;
+}
+
+const DEFAULT_MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_VERSION = "2023-06-01";
+const REQUEST_TIMEOUT_MS = 60_000;
 
 function toLanguage(language: unknown): SupportedLanguage {
   return language === "ru" ? "ru" : "en";
@@ -93,7 +98,7 @@ export function buildDeepInterpretationPrompt(params: {
   focusTopic: string;
   baseInterpretation: string;
   language: SupportedLanguage;
-}): GeminiGenerateInput {
+}): AiGenerateInput {
   const { chart, focusTopic, baseInterpretation, language } = params;
   const planetaryContext = buildPlanetaryContext(chart);
   const normalizedFocus = focusTopic.toLowerCase();
@@ -166,7 +171,7 @@ export function buildOraclePrompt(params: {
   chart: ChartResult;
   question: string;
   language: SupportedLanguage;
-}): GeminiGenerateInput {
+}): AiGenerateInput {
   const { chart, question, language } = params;
   const planetaryContext = buildPlanetaryContext(chart);
 
@@ -256,7 +261,7 @@ export function buildRelationshipPrompt(params: {
   personAName: string;
   personBName: string;
   language: SupportedLanguage;
-}): GeminiGenerateInput {
+}): AiGenerateInput {
   const { chartA, chartB, personAName, personBName, language } = params;
   const contextA = buildPlanetaryContext(chartA);
   const contextB = buildPlanetaryContext(chartB);
@@ -317,7 +322,7 @@ export function buildRelationshipPrompt(params: {
   };
 }
 
-function sanitizeGeminiOutput(input: string): string {
+function sanitizeAiOutput(input: string): string {
   const rawLines = input
     .replace(/\r\n/g, "\n")
     .split("\n");
@@ -373,29 +378,24 @@ function sanitizeGeminiOutput(input: string): string {
     .trim();
 }
 
-async function callGeminiOnce(
-  input: GeminiGenerateInput,
+async function callClaudeOnce(
+  input: AiGenerateInput,
   apiKey: string,
   model: string,
-): Promise<GeminiCallResult> {
-  const endpoint = new URL(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-  );
+): Promise<ClaudeCallResult> {
+  const endpoint = new URL("https://api.anthropic.com/v1/messages");
 
   const payload = JSON.stringify({
-    systemInstruction: {
-      parts: [{ text: input.systemInstruction }],
-    },
-    contents: [
+    model,
+    max_tokens: input.maxOutputTokens ?? 800,
+    temperature: input.temperature ?? 0.5,
+    system: input.systemInstruction,
+    messages: [
       {
         role: "user",
-        parts: [{ text: input.userPrompt }],
+        content: input.userPrompt,
       },
     ],
-    generationConfig: {
-      temperature: input.temperature ?? 0.5,
-      maxOutputTokens: input.maxOutputTokens ?? 800,
-    },
   });
 
   const response = await new Promise<{ statusCode: number; body: string }>((resolve, reject) => {
@@ -406,6 +406,8 @@ async function callGeminiOnce(
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(payload),
+          "x-api-key": apiKey,
+          "anthropic-version": ANTHROPIC_VERSION,
         },
       },
       (res) => {
@@ -425,75 +427,88 @@ async function callGeminiOnce(
     );
 
     req.on("error", reject);
+    req.setTimeout(REQUEST_TIMEOUT_MS, () => {
+      req.destroy(new Error("Claude API request timed out"));
+    });
     req.write(payload);
     req.end();
   });
 
-  let parsed: GeminiGenerateResponse | null = null;
+  let parsed: AnthropicMessageResponse | null = null;
   try {
-    parsed = JSON.parse(response.body) as GeminiGenerateResponse;
+    parsed = JSON.parse(response.body) as AnthropicMessageResponse;
   } catch {
     // Keep parsed as null and raise below.
   }
 
   if (response.statusCode >= 400) {
     const apiError = parsed?.error?.message;
-    throw new Error(apiError ?? `Gemini API error (${response.statusCode})`);
+    throw new Error(apiError ?? `Claude API error (${response.statusCode})`);
   }
 
-  const candidate = parsed?.candidates?.[0];
-  const text = candidate?.content?.parts
-    ?.map((part) => part.text ?? "")
+  const text = parsed?.content
+    ?.filter((block) => block.type === "text" || block.text !== undefined)
+    .map((block) => block.text ?? "")
     .join("")
     .trim();
 
   if (!text) {
-    throw new Error("Gemini returned an empty response");
+    throw new Error("Claude returned an empty response");
   }
 
   return {
     text,
-    finishReason: candidate?.finishReason ?? null,
+    stopReason: parsed?.stop_reason ?? null,
+    model: parsed?.model ?? model,
   };
 }
 
-export async function generateGeminiText(
-  input: GeminiGenerateInput,
-  options: GeminiGenerateOptions = {},
-): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
+export async function generateClaudeTextResult(
+  input: AiGenerateInput,
+  options: AiGenerateOptions = {},
+): Promise<AiTextResult> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
+    throw new Error("ANTHROPIC_API_KEY is not configured");
   }
 
   const allowContinuation = options.allowContinuation ?? true;
   const sanitizeOutput = options.sanitizeOutput ?? true;
   const requireEndTag = options.requireEndTag ?? null;
-  const model = process.env.GEMINI_MODEL ?? DEFAULT_MODEL;
+  const configuredModel = process.env.ANTHROPIC_MODEL?.trim();
+  const model = configuredModel || DEFAULT_MODEL;
+  let usedModel = model;
   let fullText = "";
   let prompt = input.userPrompt;
 
   // If the model hits token cap (or doesn't include the expected end tag), optionally request continuation.
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    const result = await callGeminiOnce(
+    const result = await callClaudeOnce(
       { ...input, userPrompt: prompt },
       apiKey,
       model,
     );
 
+    usedModel = result.model;
     fullText = fullText ? `${fullText}\n\n${result.text}` : result.text;
 
     if (requireEndTag) {
       // End-tag mode: keep going until we see the tag (or we can't continue).
       if (fullText.includes(requireEndTag) || !allowContinuation) {
         const finalText = fullText.trim();
-        return sanitizeOutput ? sanitizeGeminiOutput(finalText) : finalText;
+        return {
+          text: sanitizeOutput ? sanitizeAiOutput(finalText) : finalText,
+          model: usedModel,
+        };
       }
     } else {
       // Default mode: only continue when the model explicitly hit max tokens.
-      if (result.finishReason !== "MAX_TOKENS" || !allowContinuation) {
+      if (result.stopReason !== "max_tokens" || !allowContinuation) {
         const finalText = fullText.trim();
-        return sanitizeOutput ? sanitizeGeminiOutput(finalText) : finalText;
+        return {
+          text: sanitizeOutput ? sanitizeAiOutput(finalText) : finalText,
+          model: usedModel,
+        };
       }
     }
 
@@ -509,9 +524,21 @@ export async function generateGeminiText(
   }
 
   const finalText = fullText.trim();
-  return sanitizeOutput ? sanitizeGeminiOutput(finalText) : finalText;
+  return {
+    text: sanitizeOutput ? sanitizeAiOutput(finalText) : finalText,
+    model: usedModel,
+  };
 }
 
-export function getGeminiModelName(): string {
-  return process.env.GEMINI_MODEL ?? DEFAULT_MODEL;
+export async function generateClaudeText(
+  input: AiGenerateInput,
+  options: AiGenerateOptions = {},
+): Promise<string> {
+  const result = await generateClaudeTextResult(input, options);
+  return result.text;
+}
+
+export function getClaudeModelName(): string {
+  const configuredModel = process.env.ANTHROPIC_MODEL?.trim();
+  return configuredModel || DEFAULT_MODEL;
 }

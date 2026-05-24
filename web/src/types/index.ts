@@ -16,6 +16,10 @@ export interface Profile {
   hasPremiumPdf?: boolean;
   hasPremiumCompatibility?: boolean;
   oracleCredits?: number;
+  relocationEnabled?: boolean;
+  currentPlace?: string;
+  currentLat?: number;
+  currentLng?: number;
 }
 
 export interface CreateProfilePayload {
@@ -28,6 +32,10 @@ export interface CreateProfilePayload {
   lat: number;
   lng: number;
   timezone?: string; // Optional — server resolves from lat/lng if not provided
+  relocationEnabled?: boolean;
+  currentPlace?: string;
+  currentLat?: number;
+  currentLng?: number;
 }
 
 export interface ChartPoint {
@@ -77,6 +85,10 @@ export interface UpdateProfilePayload {
   lat?: number;
   lng?: number;
   timezone?: string;
+  relocationEnabled?: boolean;
+  currentPlace?: string;
+  currentLat?: number;
+  currentLng?: number;
 }
 
 export interface ChartDocument {

@@ -12,6 +12,8 @@ export interface DownloadPremiumPdfPayload {
   profileId: string;
   ownerDeviceId: string;
   language?: "ru" | "en";
+  relocationLat?: number;
+  relocationLng?: number;
   report: {
     title?: string;
     subtitle?: string;

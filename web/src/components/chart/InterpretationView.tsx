@@ -501,6 +501,8 @@ export function InterpretationView({
         profileId,
         ownerDeviceId,
         language,
+        relocationLat: relocationLat ?? undefined,
+        relocationLng: relocationLng ?? undefined,
         report: {
           title: t("premium.pdfTitle", {
             name: profileName,

@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
-import * as profileService from "../services/profile";
+import { resolveOwnedChart } from "../services/chartResolver";
 import {
   generateInterpretationPdf,
   type PremiumPdfReport,
@@ -76,21 +76,26 @@ function slugifyFileName(input: string): string {
   return slug || "astroweb-report";
 }
 
+function optionalCoordinate(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 export const downloadPremiumPdf = onCall({
   timeoutSeconds: 60,
 }, async (request) => {
   const profileId = requiredString(request.data?.profileId, "profileId");
   const ownerDeviceId = requiredString(request.data?.ownerDeviceId, "ownerDeviceId");
   const language = request.data?.language === "ru" ? "ru" : "en";
+  const relocationLat = optionalCoordinate(request.data?.relocationLat);
+  const relocationLng = optionalCoordinate(request.data?.relocationLng);
+  const isRelocated = relocationLat !== undefined && relocationLng !== undefined;
 
-  const profile = await profileService.getProfileById(profileId);
-  if (!profile) {
-    throw new HttpsError("not-found", "Profile not found");
-  }
-
-  if (profile.ownerDeviceId !== ownerDeviceId) {
-    throw new HttpsError("permission-denied", "Access denied");
-  }
+  const { profile, chart } = await resolveOwnedChart({
+    profileId,
+    ownerDeviceId,
+    relocationLat,
+    relocationLng,
+  });
 
   if (!profile.hasPremiumPdf) {
     throw new HttpsError("permission-denied", "Premium PDF access is not active");
@@ -113,6 +118,9 @@ export const downloadPremiumPdf = onCall({
         : `Prepared for ${profile.name}`),
     generatedAt,
     sections,
+    profile,
+    chart,
+    isRelocated,
   };
 
   try {

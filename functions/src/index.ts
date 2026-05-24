@@ -13,6 +13,7 @@ export { getChart } from "./api/getChart";
 export { deepenInterpretation } from "./api/deepenInterpretation";
 export { askOracle } from "./api/askOracle";
 export { askRelationship } from "./api/askRelationship";
+export { downloadPremiumPdf } from "./api/downloadPremiumPdf";
 
 // Stripe / Monetization
 export { createCheckoutSession } from "./api/createCheckoutSession";

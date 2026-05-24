@@ -598,6 +598,7 @@ export default function ProfileDetail() {
                 <InterpretationView
                   chart={chartData}
                   profileId={id!}
+                  profileName={profile.name}
                   ownerDeviceId={deviceId}
                   oracleCredits={profile.oracleCredits || 0}
                   hasPremiumPdf={profile.hasPremiumPdf || false}

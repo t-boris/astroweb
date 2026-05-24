@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, Trash2 } from "lucide-react";
 import {
   generateInterpretations,
   type InterpretationBlock,
@@ -13,12 +13,14 @@ import {
   ASPECT_COLORS,
 } from "@/components/chart/utils/constants";
 import { deepenInterpretation, askOracle } from "@/api/ai";
+import { downloadPremiumPdf, type PdfReportSection } from "@/api/pdf";
 import { Button } from "@/components/ui/button";
 import type { ChartResult } from "@/types";
 
 interface InterpretationViewProps {
   chart: ChartResult;
   profileId: string;
+  profileName: string;
   ownerDeviceId: string;
   oracleCredits: number;
   hasPremiumPdf: boolean;
@@ -318,6 +320,25 @@ function getSingleLinePreview(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
+function saveBase64Pdf(base64: string, fileName: string, contentType: string): void {
+  const binary = window.atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  const blob = new Blob([bytes], { type: contentType });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 function readStoredAiState(profileId: string): InterpretationAiState {
   try {
     const raw = localStorage.getItem(getAiStorageKey(profileId));
@@ -383,6 +404,7 @@ function getBlockInstanceKey(block: InterpretationBlock): string {
 export function InterpretationView({
   chart,
   profileId,
+  profileName,
   ownerDeviceId,
   oracleCredits,
   hasPremiumPdf,
@@ -404,6 +426,8 @@ export function InterpretationView({
   const [currentOracleEntryKey, setCurrentOracleEntryKey] = useState<string | null>(null);
   const [oracleLoading, setOracleLoading] = useState(false);
   const [oracleError, setOracleError] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   const [collapsedDeepDive, setCollapsedDeepDive] = useState<Record<string, boolean>>({});
   const [collapsedOracleAnswers, setCollapsedOracleAnswers] = useState<Record<string, boolean>>({});
   const [currentOracleCollapsed, setCurrentOracleCollapsed] = useState(false);
@@ -421,6 +445,8 @@ export function InterpretationView({
     setOracleAnswer(null);
     setOracleModel(null);
     setCurrentOracleEntryKey(null);
+    setPdfError(null);
+    setPdfLoading(false);
     setCollapsedDeepDive({});
     setCurrentOracleCollapsed(false);
     setCollapsedOracleAnswers(
@@ -431,6 +457,81 @@ export function InterpretationView({
   useEffect(() => {
     writeStoredAiState(profileId, { deepTexts, oracleHistory });
   }, [profileId, deepTexts, oracleHistory]);
+
+  function buildPdfSections(): PdfReportSection[] {
+    return blocks.map((block) => {
+      const blockId = getBlockInstanceKey(block);
+      const aspect = block.aspect;
+      const baseText = t(`${block.key}.text`);
+      const deepText = deepTexts[blockId];
+      const body = deepText
+        ? `${baseText}\n\n## ${t("ai.deepDiveTitle")}\n${deepText}`
+        : baseText;
+
+      return {
+        title: t(`${block.key}.title`),
+        category: t(`interpretation.categories.${block.category}`),
+        detail: aspect
+          ? t("interpretation.aspectBetween", {
+              a: aspect.a,
+              b: aspect.b,
+              type: t(`interpretation.aspects.${aspect.type}.title`),
+              orb: aspect.orb.toFixed(1),
+            })
+          : undefined,
+        body,
+      };
+    });
+  }
+
+  async function handleDownloadPdf() {
+    setPdfLoading(true);
+    setPdfError(null);
+
+    try {
+      const generatedAtDate = new Intl.DateTimeFormat(
+        language === "ru" ? "ru-RU" : "en-US",
+        {
+          dateStyle: "long",
+          timeStyle: "short",
+        },
+      ).format(new Date());
+
+      const response = await downloadPremiumPdf({
+        profileId,
+        ownerDeviceId,
+        language,
+        report: {
+          title: t("premium.pdfTitle", {
+            name: profileName,
+            defaultValue: `Premium Interpretation: ${profileName}`,
+          }),
+          subtitle: t("premium.pdfSubtitle", {
+            name: profileName,
+            defaultValue: `Prepared for ${profileName}`,
+          }),
+          generatedAt: t("premium.pdfGeneratedAt", {
+            date: generatedAtDate,
+            defaultValue: `Generated ${generatedAtDate}`,
+          }),
+          sections: buildPdfSections(),
+        },
+      });
+
+      saveBase64Pdf(response.base64, response.fileName, response.contentType);
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        error.message.includes("permission-denied")
+      ) {
+        setPdfError(t("errors.permissionDenied"));
+      } else {
+        setPdfError(t("premium.downloadPdfFailed"));
+      }
+    } finally {
+      setPdfLoading(false);
+    }
+  }
 
   async function handleDeepDive(block: InterpretationBlock) {
     const blockId = getBlockInstanceKey(block);
@@ -577,6 +678,35 @@ export function InterpretationView({
 
   return (
     <div className="space-y-6">
+      {hasPremiumPdf && (
+        <div className="flex flex-col gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-amber-500">
+              {t("premium.pdfReadyTitle")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t("premium.pdfReadyDescription")}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void handleDownloadPdf();
+            }}
+            disabled={pdfLoading}
+            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+          >
+            <Download />
+            {pdfLoading ? t("premium.downloadPdfLoading") : t("premium.downloadPdf")}
+          </Button>
+          {pdfError && (
+            <p className="text-sm text-destructive sm:basis-full">{pdfError}</p>
+          )}
+        </div>
+      )}
+
       <div className="rounded-lg border p-4 space-y-3 bg-muted/10 relative overflow-hidden">
         <div className="flex items-center justify-between">
           <div>

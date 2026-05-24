@@ -8,10 +8,10 @@ import {
   type PremiumPdfSection,
 } from "../services/pdf";
 import {
-  buildPremiumPdfNarrativePrompt,
+  buildPremiumPdfNarrativeSectionPrompt,
   generateClaudeTextResult,
   normalizeLanguage,
-  parsePremiumPdfNarrative,
+  type PremiumPdfNarrativeSection,
 } from "../services/anthropic";
 
 interface RawPdfSection {
@@ -130,31 +130,57 @@ export const downloadPremiumPdf = onCall({
 
   let aiNarrative: PremiumPdfNarrative;
   try {
-    const aiResult = await generateClaudeTextResult(
-      buildPremiumPdfNarrativePrompt({
-        profile,
-        chart,
-        language,
-        sections,
-        isRelocated,
+    const sectionKeys: PremiumPdfNarrativeSection[] = [
+      "planets",
+      "houses",
+      "aspects",
+      "portrait",
+    ];
+    const sectionResults = await Promise.all(
+      sectionKeys.map(async (section) => {
+        try {
+          const result = await generateClaudeTextResult(
+            buildPremiumPdfNarrativeSectionPrompt({
+              profile,
+              chart,
+              language,
+              sections,
+              section,
+              isRelocated,
+            }),
+            {
+              allowContinuation: true,
+              sanitizeOutput: true,
+              requireEndTag: "[END_OF_REPORT]",
+            },
+          );
+
+          return {
+            section,
+            text: result.text,
+            model: result.model,
+          };
+        } catch (error) {
+          throw new Error(`AI section "${section}" failed: ${(error as Error).message}`);
+        }
       }),
-      {
-        allowContinuation: true,
-        sanitizeOutput: true,
-        requireEndTag: "[END_OF_REPORT]",
-      },
     );
 
-    aiNarrative = {
-      ...parsePremiumPdfNarrative(aiResult.text),
-      model: aiResult.model,
-    };
+    aiNarrative = sectionResults.reduce<PremiumPdfNarrative>(
+      (accumulator, result) => ({
+        ...accumulator,
+        [result.section]: result.text,
+      }),
+      {
+        model: Array.from(new Set(sectionResults.map((result) => result.model))).join(", "),
+      },
+    );
     requireCompleteAiNarrative(aiNarrative);
 
     logger.info("downloadPremiumPdf AI narrative generated", {
       profileId,
       language,
-      model: aiResult.model,
+      model: aiNarrative.model,
       planetsLength: aiNarrative.planets?.length ?? 0,
       housesLength: aiNarrative.houses?.length ?? 0,
       aspectsLength: aiNarrative.aspects?.length ?? 0,

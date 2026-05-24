@@ -51,7 +51,7 @@ interface AiTextResult {
 export const PREMIUM_PDF_MODEL = "claude-sonnet-4-6";
 const DEFAULT_MODEL = PREMIUM_PDF_MODEL;
 const ANTHROPIC_VERSION = "2023-06-01";
-const REQUEST_TIMEOUT_MS = 60_000;
+const REQUEST_TIMEOUT_MS = 180_000;
 const ANTHROPIC_API_KEY_PATTERN = /sk-ant-[A-Za-z0-9_-]+/;
 
 const BODY_LABELS: Record<string, Record<SupportedLanguage, string>> = {
@@ -113,6 +113,8 @@ export interface PremiumPdfNarrative {
   aspects?: string;
   portrait?: string;
 }
+
+export type PremiumPdfNarrativeSection = keyof PremiumPdfNarrative;
 
 function toLanguage(language: unknown): SupportedLanguage {
   return language === "ru" ? "ru" : "en";
@@ -403,6 +405,98 @@ export function buildPremiumPdfNarrativePrompt(params: {
     model: PREMIUM_PDF_MODEL,
     temperature: 0.55,
     maxOutputTokens: 8000,
+  };
+}
+
+export function buildPremiumPdfNarrativeSectionPrompt(params: {
+  profile: Profile;
+  chart: ChartResult;
+  language: SupportedLanguage;
+  sections: ReadonlyArray<{
+    title: string;
+    body: string;
+    category?: string;
+    detail?: string;
+  }>;
+  section: PremiumPdfNarrativeSection;
+  isRelocated?: boolean;
+}): AiGenerateInput {
+  const { profile, chart, language, sections, section, isRelocated } = params;
+  const chartContext = buildPremiumPdfChartContext({
+    profile,
+    chart,
+    language,
+    isRelocated,
+  });
+  const baseSectionsContext = buildBaseSectionsContext(sections);
+  const sectionInstructions: Record<PremiumPdfNarrativeSection, {
+    ru: string;
+    en: string;
+    words: string;
+  }> = {
+    planets: {
+      words: "900-1300",
+      ru: "Напиши секцию о планетах как действующих силах психики. Разбери каждую планету из данных карты: Солнце, Луну, Меркурий, Венеру, Марс, Юпитер, Сатурн, Уран, Нептун и Плутон. Для каждой планеты объясни психологический смысл, знак, дом, конкретную сферу жизни и поведенческое проявление. Не ограничивайся справочным определением.",
+      en: "Write the section about planets as active psychological forces. Cover every planet in the chart data: Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto. For each planet explain the psychological meaning, sign, house, concrete life sphere and behavioral expression. Do not reduce it to a dictionary definition.",
+    },
+    houses: {
+      words: "900-1300",
+      ru: "Напиши секцию о домах. Если время рождения известно, раскрой все 12 домов: значение дома, знак на куспиде, планеты внутри и их смысл. Если планет в доме нет, объясни, что тема не исчезает, а работает через знак куспида и обстоятельства. Если время неизвестно, объясни ограничение.",
+      en: "Write the section about houses. If birth time is known, cover all 12 houses: house meaning, cusp sign, planets inside and their meaning. If a house has no planets, explain that the topic is not absent; it works through the cusp sign and circumstances. If time is unknown, explain the limitation.",
+    },
+    aspects: {
+      words: "800-1200",
+      ru: "Напиши секцию обо всех мажорных аспектах из списка. Для каждого аспекта назови планеты, тип и орб, затем объясни внутреннюю динамику: конфликт, поддержку, усиление или возможность. Секстиль, квадратуру, тригон, оппозицию и соединение раскрывай полно, без пустых ярлыков.",
+      en: "Write the section about every major aspect in the list. For each aspect name the planets, type and orb, then explain the inner dynamic: conflict, support, amplification or opportunity. Explain sextiles, squares, trines, oppositions and conjunctions fully, with no empty labels.",
+    },
+    portrait: {
+      words: "900-1300",
+      ru: "Напиши цельный психологический портрет. Не повторяй таблицу. Собери характер, эмоциональный слой, коммуникацию, стиль близости, волю, ресурсы, напряжения, сильные стороны, уязвимости и зрелую задачу карты в связный синтез.",
+      en: "Write a cohesive psychological portrait. Do not repeat the table. Synthesize character, emotional layer, communication style, intimacy style, will, resources, tensions, strengths, vulnerabilities and the mature task of the chart.",
+    },
+  };
+  const instruction = sectionInstructions[section];
+
+  const systemInstruction =
+    language === "ru"
+      ? "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы."
+      : "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.";
+
+  const userPrompt =
+    language === "ru"
+      ? [
+          `Напиши только одну секцию premium PDF для ${profile.name}.`,
+          instruction.ru,
+          "Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».",
+          "Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.",
+          `Объем: ${instruction.words} слов.`,
+          "Markdown-заголовки ## и ### разрешены. Таблицы запрещены.",
+          "Данные карты:",
+          chartContext,
+          "Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:",
+          baseSectionsContext,
+          "Заверши ответ отдельной строкой: [END_OF_REPORT]",
+        ].join("\n\n")
+      : [
+          `Write only one premium PDF section for ${profile.name}.`,
+          instruction.en,
+          "The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.",
+          "Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.",
+          `Length: ${instruction.words} words.`,
+          "Markdown headings ## and ### are allowed. No tables.",
+          "Chart data:",
+          chartContext,
+          "Existing interface text may be used only as additional context. Do not copy generic wording:",
+          baseSectionsContext,
+          "End with a separate line: [END_OF_REPORT]",
+        ].join("\n\n");
+
+  return {
+    systemInstruction,
+    userPrompt,
+    model: PREMIUM_PDF_MODEL,
+    temperature: 0.5,
+    maxOutputTokens: 3000,
   };
 }
 

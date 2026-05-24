@@ -9,7 +9,10 @@ import {
 import { getProfileById } from "../services/profile";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-export const askOracle = onCall({ timeoutSeconds: 180 }, async (request) => {
+export const askOracle = onCall({
+  timeoutSeconds: 180,
+  secrets: ["ANTHROPIC_API_KEY"],
+}, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
   const question = request.data?.question;

@@ -7,7 +7,10 @@ import {
   normalizeLanguage,
 } from "../services/anthropic";
 
-export const deepenInterpretation = onCall({ timeoutSeconds: 180 }, async (request) => {
+export const deepenInterpretation = onCall({
+  timeoutSeconds: 180,
+  secrets: ["ANTHROPIC_API_KEY"],
+}, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
   const focusTopic = request.data?.focusTopic;

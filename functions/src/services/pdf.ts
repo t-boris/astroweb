@@ -15,12 +15,21 @@ export interface PremiumPdfSection {
   detail?: string;
 }
 
+export interface PremiumPdfNarrative {
+  model?: string;
+  planets?: string;
+  houses?: string;
+  aspects?: string;
+  portrait?: string;
+}
+
 export interface PremiumPdfReport {
   title: string;
   subtitle?: string;
   generatedAt?: string;
   language: "en" | "ru";
   sections: PremiumPdfSection[];
+  aiNarrative?: PremiumPdfNarrative;
   profile?: Profile;
   chart?: ChartResult;
   isRelocated?: boolean;
@@ -37,7 +46,6 @@ const INK_LIGHT = "#3C332A";
 const SOFT_LINE = "#D8C39D";
 const PAGE_WIDTH = 612;
 const PAGE_HEIGHT = 792;
-const PAGE_BACKGROUND_RENDERERS = new WeakMap<PDFKit.PDFDocument, () => void>();
 
 type PdfLanguage = "en" | "ru";
 type PdfPageTheme = "cover" | "chart" | "planets" | "houses" | "aspects" | "portrait";
@@ -114,6 +122,21 @@ const SIGN_LABELS: Record<string, Record<PdfLanguage, string>> = {
   Capricorn: { en: "Capricorn", ru: "Козерог" },
   Aquarius: { en: "Aquarius", ru: "Водолей" },
   Pisces: { en: "Pisces", ru: "Рыбы" },
+};
+
+const SIGN_IN_PHRASE_LABELS_RU: Record<string, string> = {
+  Aries: "Овна",
+  Taurus: "Тельца",
+  Gemini: "Близнецов",
+  Cancer: "Рака",
+  Leo: "Льва",
+  Virgo: "Девы",
+  Libra: "Весов",
+  Scorpio: "Скорпиона",
+  Sagittarius: "Стрельца",
+  Capricorn: "Козерога",
+  Aquarius: "Водолея",
+  Pisces: "Рыб",
 };
 
 const SIGN_SHORT_LABELS: Record<string, Record<PdfLanguage, string>> = {
@@ -317,6 +340,184 @@ const SIGN_TONES: Record<string, Record<PdfLanguage, string>> = {
   },
 };
 
+const SIGN_EXPRESSION: Record<string, Record<PdfLanguage, string>> = {
+  Aries: {
+    en: "acts by starting quickly, testing courage in practice, and learning through direct confrontation with life",
+    ru: "действует через быстрый старт, проверку смелости на практике и прямое столкновение с жизнью",
+  },
+  Taurus: {
+    en: "seeks stability, embodiment and visible results; it trusts what can be built, touched and sustained",
+    ru: "ищет устойчивость, телесное подтверждение и видимый результат; доверяет тому, что можно построить, почувствовать и удержать",
+  },
+  Gemini: {
+    en: "moves through questions, words, observation and the ability to compare several possibilities at once",
+    ru: "движется через вопросы, слова, наблюдение и способность одновременно сравнивать несколько возможностей",
+  },
+  Cancer: {
+    en: "responds through memory, attachment, protection and the need to feel emotionally rooted",
+    ru: "реагирует через память, привязанность, защиту и потребность чувствовать эмоциональную укорененность",
+  },
+  Leo: {
+    en: "expresses itself through warmth, creativity, pride and the wish to be seen sincerely",
+    ru: "проявляется через тепло, творчество, гордость и желание быть увиденным искренне",
+  },
+  Virgo: {
+    en: "works by improving, sorting, refining and noticing where reality needs care",
+    ru: "работает через улучшение, сортировку, уточнение и внимание к тому, где реальности нужен уход",
+  },
+  Libra: {
+    en: "looks for proportion, dialogue, aesthetic order and a fair relationship between sides",
+    ru: "ищет пропорцию, диалог, эстетический порядок и справедливое соотношение сторон",
+  },
+  Scorpio: {
+    en: "moves toward depth, trust, intensity and the transformation of what cannot remain superficial",
+    ru: "тянется к глубине, доверию, интенсивности и трансформации того, что не может оставаться поверхностным",
+  },
+  Sagittarius: {
+    en: "needs meaning, perspective, movement and a larger horizon for experience",
+    ru: "нуждается в смысле, перспективе, движении и более широком горизонте опыта",
+  },
+  Capricorn: {
+    en: "acts through discipline, realism, responsibility and the patient building of structure",
+    ru: "действует через дисциплину, реализм, ответственность и терпеливое построение формы",
+  },
+  Aquarius: {
+    en: "works through distance, originality, systems thinking and the need to remain internally free",
+    ru: "работает через дистанцию, оригинальность, системное мышление и потребность оставаться внутренне свободным",
+  },
+  Pisces: {
+    en: "perceives through subtle feeling, imagination, compassion and porous boundaries",
+    ru: "воспринимает через тонкое чувство, воображение, сострадание и проницаемые границы",
+  },
+};
+
+const BODY_INTERPRETIVE_FOCUS: Record<string, Record<PdfLanguage, {
+  functionText: string;
+  houseVerb: string;
+  matureText: string;
+}>> = {
+  Sun: {
+    en: {
+      functionText: "The Sun describes the organizing center of the personality: will, vitality, self-recognition and the way a person claims the right to be visible.",
+      houseVerb: "wants to become visible and meaningful",
+      matureText: "When this solar function is lived consciously, confidence becomes quieter and more reliable; the person no longer needs constant proof of worth, because action itself begins to confirm identity.",
+    },
+    ru: {
+      functionText: "Солнце описывает организующий центр личности: жизненную силу, волю, самопризнание и способ занимать видимое место в жизни.",
+      houseVerb: "хочет стать видимой, значимой и признанной",
+      matureText: "Когда эта солнечная функция проживается осознанно, уверенность становится спокойнее и надежнее: человеку уже не нужно постоянно доказывать ценность, потому что сами действия начинают подтверждать личность.",
+    },
+  },
+  Moon: {
+    en: {
+      functionText: "The Moon describes emotional memory, instinctive safety, private needs and the way the body reacts before the mind has time to explain anything.",
+      houseVerb: "looks for safety, familiarity and emotional confirmation",
+      matureText: "When this lunar function is respected, feelings stop being treated as weakness; they become a sensitive instrument that shows where care, rest or protection is needed.",
+    },
+    ru: {
+      functionText: "Луна описывает эмоциональную память, инстинктивную безопасность, личные потребности и реакцию тела до того, как разум успевает все объяснить.",
+      houseVerb: "ищет безопасность, привычность и эмоциональное подтверждение",
+      matureText: "Когда эта лунная функция уважается, чувства перестают восприниматься как слабость: они становятся точным инструментом, который показывает, где нужны забота, отдых или защита.",
+    },
+  },
+  Mercury: {
+    en: {
+      functionText: "Mercury describes thinking, speech, perception, learning and the way a person turns experience into language and decisions.",
+      houseVerb: "asks questions, gathers information and tries to understand patterns",
+      matureText: "When Mercury works well, words become useful rather than noisy: the person can name what is happening, separate facts from anxiety and make clearer choices.",
+    },
+    ru: {
+      functionText: "Меркурий описывает мышление, речь, восприятие, обучение и способ превращать опыт в слова и решения.",
+      houseVerb: "задает вопросы, собирает информацию и пытается понять закономерности",
+      matureText: "Когда Меркурий работает зрелым образом, слова становятся полезными, а не шумными: человек может назвать происходящее, отделить факты от тревоги и принять более ясное решение.",
+    },
+  },
+  Venus: {
+    en: {
+      functionText: "Venus describes attraction, pleasure, affection, taste, values and the ability to receive without immediately defending or proving.",
+      houseVerb: "seeks pleasure, value, beauty and mutual acceptance",
+      matureText: "When Venus is conscious, desire becomes a guide to values; the person learns not only to please, but also to choose what is genuinely nourishing.",
+    },
+    ru: {
+      functionText: "Венера описывает притяжение, удовольствие, нежность, вкус, ценности и способность принимать, не защищаясь и не доказывая.",
+      houseVerb: "ищет удовольствие, ценность, красоту и взаимное принятие",
+      matureText: "Когда Венера осознается, желание становится указателем ценностей: человек учится не только нравиться, но и выбирать то, что действительно питает.",
+    },
+  },
+  Mars: {
+    en: {
+      functionText: "Mars describes desire, anger, courage, pursuit, physical drive and the way a person meets resistance.",
+      houseVerb: "pushes, defends, initiates and demands direct action",
+      matureText: "When Mars is integrated, force stops leaking as irritation; it becomes clean action, honest boundaries and the courage to want openly.",
+    },
+    ru: {
+      functionText: "Марс описывает желание, злость, смелость, напор, физический импульс и способ встречаться с сопротивлением.",
+      houseVerb: "толкает вперед, защищает, инициирует и требует прямого действия",
+      matureText: "Когда Марс интегрирован, сила перестает утекать в раздражение: она становится чистым действием, честными границами и смелостью открыто хотеть.",
+    },
+  },
+  Jupiter: {
+    en: {
+      functionText: "Jupiter describes expansion, faith, generosity, meaning, confidence and the ability to see a larger horizon.",
+      houseVerb: "expands, searches for meaning and expects growth",
+      matureText: "When Jupiter is balanced, optimism does not become exaggeration; it becomes trust supported by judgment and experience.",
+    },
+    ru: {
+      functionText: "Юпитер описывает расширение, веру, щедрость, смысл, уверенность и способность видеть больший горизонт.",
+      houseVerb: "расширяется, ищет смысл и ожидает роста",
+      matureText: "Когда Юпитер уравновешен, оптимизм не превращается в преувеличение: он становится доверием, подкрепленным рассудком и опытом.",
+    },
+  },
+  Saturn: {
+    en: {
+      functionText: "Saturn describes limits, responsibility, discipline, fear, endurance and the ability to turn pressure into mastery.",
+      houseVerb: "tests, slows down, structures and demands maturity",
+      matureText: "When Saturn is lived well, limitation stops being only a wall; it becomes the form through which competence, authority and self-respect are built.",
+    },
+    ru: {
+      functionText: "Сатурн описывает границы, ответственность, дисциплину, страх, выдержку и способность превращать давление в мастерство.",
+      houseVerb: "проверяет, замедляет, структурирует и требует зрелости",
+      matureText: "Когда Сатурн проживается зрелым образом, ограничение перестает быть только стеной: оно становится формой, через которую строятся компетентность, авторитет и самоуважение.",
+    },
+  },
+  Uranus: {
+    en: {
+      functionText: "Uranus describes freedom, disruption, originality, sudden insight and the need to break patterns that have become lifeless.",
+      houseVerb: "interrupts routine and demands more inner freedom",
+      matureText: "When Uranus is integrated, rebellion becomes clarity: the person can renew life without destroying everything simply to feel free.",
+    },
+    ru: {
+      functionText: "Уран описывает свободу, разрыв шаблонов, оригинальность, внезапное прозрение и потребность ломать формы, которые стали мертвыми.",
+      houseVerb: "прерывает рутину и требует большей внутренней свободы",
+      matureText: "Когда Уран интегрирован, бунт становится ясностью: человек может обновлять жизнь, не разрушая все подряд только ради ощущения свободы.",
+    },
+  },
+  Neptune: {
+    en: {
+      functionText: "Neptune describes imagination, compassion, ideals, sensitivity, longing and places where boundaries become porous.",
+      houseVerb: "dissolves hard edges, idealizes and opens subtle perception",
+      matureText: "When Neptune is conscious, sensitivity becomes inspiration rather than confusion; compassion remains alive without sacrificing discernment.",
+    },
+    ru: {
+      functionText: "Нептун описывает воображение, сострадание, идеалы, чувствительность, тоску по большему и места, где границы становятся проницаемыми.",
+      houseVerb: "размывает жесткие края, идеализирует и открывает тонкое восприятие",
+      matureText: "Когда Нептун осознается, чувствительность становится вдохновением, а не туманом; сострадание остается живым, но не отменяет различения.",
+    },
+  },
+  Pluto: {
+    en: {
+      functionText: "Pluto describes depth, power, crisis, hidden intensity, loss of innocence and the ability to regenerate after inner truth has been faced.",
+      houseVerb: "intensifies, exposes hidden motives and forces transformation",
+      matureText: "When Pluto is integrated, control gives way to depth: the person can meet difficult truth without being consumed by it.",
+    },
+    ru: {
+      functionText: "Плутон описывает глубину, власть, кризис, скрытую интенсивность, потерю наивности и способность возрождаться после встречи с внутренней правдой.",
+      houseVerb: "усиливает, вскрывает скрытые мотивы и заставляет трансформироваться",
+      matureText: "Когда Плутон интегрирован, контроль уступает место глубине: человек может встретиться с трудной правдой и не быть ею поглощенным.",
+    },
+  },
+};
+
 function getFontPath(fileName: string): string | null {
   const fontPath = path.resolve(__dirname, "../../assets/fonts", fileName);
   return fs.existsSync(fontPath) ? fontPath : null;
@@ -370,7 +571,6 @@ function ensureSpace(doc: PDFKit.PDFDocument, minHeight: number): void {
   const bottom = doc.page.height - doc.page.margins.bottom;
   if (doc.y + minHeight > bottom) {
     doc.addPage();
-    PAGE_BACKGROUND_RENDERERS.get(doc)?.();
   }
 }
 
@@ -470,7 +670,9 @@ function renderFooter(
     doc.switchToPage(pageIndex);
 
     const pageNumber = pageIndex + 1;
-    const footerY = doc.page.height - doc.page.margins.bottom - 14;
+    const footerY = doc.page.height - 30;
+    const originalBottomMargin = doc.page.margins.bottom;
+    doc.page.margins.bottom = 20;
     doc
       .font(fonts.regular)
       .fontSize(8)
@@ -485,6 +687,7 @@ function renderFooter(
           lineBreak: false,
         },
       );
+    doc.page.margins.bottom = originalBottomMargin;
   }
 }
 
@@ -494,6 +697,14 @@ function labelFor(
   language: PdfLanguage,
 ): string {
   return labels[key]?.[language] ?? key;
+}
+
+function signInPhrase(sign: string, language: PdfLanguage): string {
+  if (language === "ru") {
+    return SIGN_IN_PHRASE_LABELS_RU[sign] ?? labelFor(SIGN_LABELS, sign, language);
+  }
+
+  return labelFor(SIGN_LABELS, sign, language);
 }
 
 function formatDegreeInSign(degree: number): string {
@@ -749,13 +960,17 @@ function drawPageBackground(
     .save()
     .fontSize(8)
     .fillColor(theme.accent)
-    .opacity(0.55)
-    .text(String(pageNumber + 1).padStart(2, "0"), PAGE_WIDTH - 76, PAGE_HEIGHT - 68, {
+    .opacity(0.55);
+  const originalBottomMargin = doc.page.margins.bottom;
+  doc.page.margins.bottom = 20;
+  doc
+    .text(String(pageNumber + 1).padStart(2, "0"), PAGE_WIDTH - 76, PAGE_HEIGHT - 36, {
       width: 36,
       align: "right",
       lineBreak: false,
-    })
-    .restore();
+    });
+  doc.page.margins.bottom = originalBottomMargin;
+  doc.restore();
   doc.x = previousX;
   doc.y = previousY;
 }
@@ -1195,20 +1410,31 @@ function renderPlanetNotes(
   fonts: { regular: string; bold: string; sans: string; sansBold: string },
 ): void {
   for (const point of chart.points) {
-    ensureSpace(doc, 58);
+    ensureSpace(doc, 132);
     const body = labelFor(BODY_LABELS, point.body, language);
-    const placement = formatPointPlacement(point, language);
-    const meaning = BODY_MEANINGS[point.body]?.[language] ?? point.body;
+    const focus = BODY_INTERPRETIVE_FOCUS[point.body]?.[language];
+    const signName = labelFor(SIGN_LABELS, point.sign, language);
+    const signPhraseName = signInPhrase(point.sign, language);
+    const signExpression = SIGN_EXPRESSION[point.sign]?.[language] ?? signName;
+    const houseTopic = point.house ? HOUSE_TOPICS[point.house]?.[language] : undefined;
+    const houseIntro =
+      point.house === null
+        ? language === "ru"
+          ? "Так как надежный дом не рассчитан, эту функцию лучше читать через знак и аспекты, без привязки к конкретной жизненной сфере."
+          : "Because a reliable house is not calculated, this function should be read through sign and aspects without attaching it to a precise life area."
+        : language === "ru"
+          ? `${point.house} дом связан с темой "${houseTopic}". Поэтому эта планета проявляется не абстрактно, а через эту область: там она ${focus?.houseVerb ?? "становится заметной"}, создает повторяющиеся ситуации и показывает, где человеку приходится делать выбор.`
+          : `House ${point.house} is connected with "${houseTopic}". This planet therefore does not express itself abstractly; it works through this area, where it ${focus?.houseVerb ?? "becomes visible"}, creates recurring situations and shows where choices must be made.`;
     const sentence =
       language === "ru"
-        ? `${body} показывает ${meaning}. Его положение (${placement}) описывает, через какой темперамент и сферу жизни эта функция проявляется заметнее всего.`
-        : `${body} describes ${meaning}. Its placement (${placement}) shows the temperament and life area through which this function is most visible.`;
+        ? `${focus?.functionText ?? `${body} описывает одну из основных функций психики.`} В знаке ${signPhraseName} эта функция ${signExpression}. ${houseIntro} ${focus?.matureText ?? ""}`
+        : `${focus?.functionText ?? `${body} describes one of the main psychological functions.`} In ${signName}, this function ${signExpression}. ${houseIntro} ${focus?.matureText ?? ""}`;
 
     doc
       .font(fonts.sansBold)
       .fontSize(10.5)
       .fillColor(DEEP_GOLD)
-      .text(`${body}: ${placement}`, doc.page.margins.left, doc.y)
+      .text(`${body}: ${formatPointPlacement(point, language)}`, doc.page.margins.left, doc.y)
       .moveDown(0.2)
       .font(fonts.regular)
       .fontSize(10)
@@ -1217,7 +1443,7 @@ function renderPlanetNotes(
         width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
         lineGap: 3,
       })
-      .moveDown(0.7);
+      .moveDown(0.9);
   }
 }
 
@@ -1229,11 +1455,12 @@ function describeHouse(
 ): string {
   const { sign } = longitudeToSign(cuspLongitude);
   const signName = labelFor(SIGN_LABELS, sign, language);
+  const signPhraseName = signInPhrase(sign, language);
   const tone = SIGN_TONES[sign]?.[language] ?? signName;
   const topic = HOUSE_TOPICS[houseNumber]?.[language] ?? "";
 
   if (language === "ru") {
-    const opening = `${houseNumber} дом отвечает за ${topic}. Его куспид стоит в знаке ${signName}, поэтому эта область жизни раскрывается через ${tone} способ проявления.`;
+    const opening = `${houseNumber} дом отвечает за ${topic}. Его куспид стоит в знаке ${signPhraseName}, поэтому эта область жизни раскрывается через ${tone} способ проявления.`;
 
     if (points.length === 0) {
       return `${opening} В этом доме нет планет, и это не означает пустоту или отсутствие событий. Скорее, тема дома включается через управителя знака, транзиты, прогрессии и реальные обстоятельства, а не давит постоянно изнутри. Такой дом может проживаться спокойнее: человек обращается к нему тогда, когда жизнь сама требует внимания к этой сфере.`;
@@ -1453,6 +1680,7 @@ function describePointForPortrait(
 
   const bodyName = labelFor(BODY_LABELS, body, language);
   const signName = labelFor(SIGN_LABELS, point.sign, language);
+  const signPhraseName = signInPhrase(point.sign, language);
   const houseText =
     point.house === null
       ? language === "ru"
@@ -1465,7 +1693,7 @@ function describePointForPortrait(
   const tone = SIGN_TONES[point.sign]?.[language] ?? signName;
 
   if (language === "ru") {
-    return `${bodyName} стоит в знаке ${signName} ${houseText}${topic ? `, в зоне "${topic}"` : ""}. Это дает ${tone} оттенок функции: ${BODY_MEANINGS[body]?.[language] ?? body}.`;
+    return `${bodyName} стоит в знаке ${signPhraseName} ${houseText}${topic ? `, в зоне "${topic}"` : ""}. Это дает ${tone} оттенок функции: ${BODY_MEANINGS[body]?.[language] ?? body}.`;
   }
 
   return `${bodyName} is in ${signName} ${houseText}${topic ? `, the area of "${topic}"` : ""}. This gives the function a ${tone} tone: ${BODY_MEANINGS[body]?.[language] ?? body}.`;
@@ -1841,9 +2069,15 @@ export async function generateInterpretationPdf(
     try {
       let activeTheme: PdfPageTheme = "cover";
       let pageIndex = 0;
+      let drawingBackground = false;
       const doc = new PDFDocument({
         size: "LETTER",
-        margin: 54,
+        margins: {
+          top: 54,
+          left: 54,
+          right: 54,
+          bottom: 78,
+        },
         bufferPages: true,
         info: {
           Title: report.title,
@@ -1856,24 +2090,25 @@ export async function generateInterpretationPdf(
       const language = report.language;
       const contentWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
+      function renderActiveBackground(): void {
+        if (drawingBackground) return;
+        drawingBackground = true;
+        drawPageBackground(doc, activeTheme, pageIndex);
+        pageIndex += 1;
+        drawingBackground = false;
+      }
+
       function addPage(theme: PdfPageTheme): void {
         activeTheme = theme;
         doc.addPage();
-        drawPageBackground(doc, activeTheme, pageIndex);
-        pageIndex += 1;
       }
 
       doc.on("data", (chunk) => buffers.push(chunk));
       doc.on("end", () => resolve(Buffer.concat(buffers)));
       doc.on("error", (err) => reject(err));
+      doc.on("pageAdded", renderActiveBackground);
 
-      PAGE_BACKGROUND_RENDERERS.set(doc, () => {
-        drawPageBackground(doc, activeTheme, pageIndex);
-        pageIndex += 1;
-      });
-
-      drawPageBackground(doc, "cover", pageIndex);
-      pageIndex += 1;
+      renderActiveBackground();
 
       drawSketchWheel(doc, PAGE_WIDTH / 2, 282, 138, "#D0B982", 0.42);
 
@@ -2026,7 +2261,11 @@ export async function generateInterpretationPdf(
           ]),
           [74, 122, 48, 258],
         );
-        renderPlanetNotes(doc, report.chart, language, fonts);
+        if (report.aiNarrative?.planets) {
+          renderParagraph(doc, report.aiNarrative.planets, fonts);
+        } else {
+          renderPlanetNotes(doc, report.chart, language, fonts);
+        }
 
         addPage("houses");
         renderChapterDivider(
@@ -2072,6 +2311,11 @@ export async function generateInterpretationPdf(
             ]),
             [54, 150, 298],
           );
+        }
+
+        if (report.aiNarrative?.houses) {
+          renderParagraph(doc, report.aiNarrative.houses, fonts);
+        } else if (report.chart.houses.asc !== null && !report.profile?.timeUnknown) {
           renderHouseNarratives(doc, report.chart, language, fonts);
         }
 
@@ -2112,7 +2356,11 @@ export async function generateInterpretationPdf(
           ]),
           [202, 124, 70, 106],
         );
-        renderAspectNarratives(doc, report.chart, language, fonts);
+        if (report.aiNarrative?.aspects) {
+          renderParagraph(doc, report.aiNarrative.aspects, fonts);
+        } else {
+          renderAspectNarratives(doc, report.chart, language, fonts);
+        }
       }
 
       addPage("portrait");
@@ -2135,17 +2383,17 @@ export async function generateInterpretationPdf(
         language === "ru" ? "синтез карты" : "chart synthesis",
       );
       renderNarrativeText(doc, buildBridge("aspects", language), fonts);
-      renderDetailedPortrait(
-        doc,
-        buildDetailedPortrait(report.profile, report.chart, language),
-        fonts,
-      );
+      if (report.aiNarrative?.portrait) {
+        renderParagraph(doc, report.aiNarrative.portrait, fonts);
+      } else {
+        renderDetailedPortrait(
+          doc,
+          buildDetailedPortrait(report.profile, report.chart, language),
+          fonts,
+        );
+      }
 
-      doc
-        .addPage();
-      activeTheme = "cover";
-      drawPageBackground(doc, "cover", pageIndex);
-      pageIndex += 1;
+      addPage("cover");
       doc
         .font(fonts.bold)
         .fontSize(26)

@@ -1,5 +1,5 @@
 import { request } from "node:https";
-import type { ChartResult } from "../types";
+import type { ChartResult, Profile } from "../types";
 import { detectAspect } from "../astro/aspects";
 
 export type SupportedLanguage = "ru" | "en";
@@ -24,6 +24,7 @@ interface AnthropicMessageResponse {
 interface AiGenerateInput {
   systemInstruction: string;
   userPrompt: string;
+  model?: string;
   temperature?: number;
   maxOutputTokens?: number;
 }
@@ -47,10 +48,71 @@ interface AiTextResult {
   model: string;
 }
 
-const DEFAULT_MODEL = "claude-sonnet-4-6";
+export const PREMIUM_PDF_MODEL = "claude-sonnet-4-6";
+const DEFAULT_MODEL = PREMIUM_PDF_MODEL;
 const ANTHROPIC_VERSION = "2023-06-01";
 const REQUEST_TIMEOUT_MS = 60_000;
 const ANTHROPIC_API_KEY_PATTERN = /sk-ant-[A-Za-z0-9_-]+/;
+
+const BODY_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+  Sun: { en: "Sun", ru: "Солнце" },
+  Moon: { en: "Moon", ru: "Луна" },
+  Mercury: { en: "Mercury", ru: "Меркурий" },
+  Venus: { en: "Venus", ru: "Венера" },
+  Mars: { en: "Mars", ru: "Марс" },
+  Jupiter: { en: "Jupiter", ru: "Юпитер" },
+  Saturn: { en: "Saturn", ru: "Сатурн" },
+  Uranus: { en: "Uranus", ru: "Уран" },
+  Neptune: { en: "Neptune", ru: "Нептун" },
+  Pluto: { en: "Pluto", ru: "Плутон" },
+  ASC: { en: "Ascendant", ru: "Асцендент" },
+  MC: { en: "Midheaven", ru: "Середина неба" },
+};
+
+const SIGN_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+  Aries: { en: "Aries", ru: "Овен" },
+  Taurus: { en: "Taurus", ru: "Телец" },
+  Gemini: { en: "Gemini", ru: "Близнецы" },
+  Cancer: { en: "Cancer", ru: "Рак" },
+  Leo: { en: "Leo", ru: "Лев" },
+  Virgo: { en: "Virgo", ru: "Дева" },
+  Libra: { en: "Libra", ru: "Весы" },
+  Scorpio: { en: "Scorpio", ru: "Скорпион" },
+  Sagittarius: { en: "Sagittarius", ru: "Стрелец" },
+  Capricorn: { en: "Capricorn", ru: "Козерог" },
+  Aquarius: { en: "Aquarius", ru: "Водолей" },
+  Pisces: { en: "Pisces", ru: "Рыбы" },
+};
+
+const ASPECT_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+  conjunction: { en: "conjunction", ru: "соединение" },
+  sextile: { en: "sextile", ru: "секстиль" },
+  square: { en: "square", ru: "квадратура" },
+  trine: { en: "trine", ru: "тригон" },
+  opposition: { en: "opposition", ru: "оппозиция" },
+};
+
+const HOUSE_TOPICS: Record<number, Record<SupportedLanguage, string>> = {
+  1: { en: "identity, body, manner of acting", ru: "личность, тело, способ действовать" },
+  2: { en: "resources, money, self-worth", ru: "ресурсы, деньги, самоценность" },
+  3: { en: "learning, siblings, communication", ru: "обучение, близкое окружение, коммуникация" },
+  4: { en: "home, family roots, inner foundation", ru: "дом, родовые корни, внутренняя опора" },
+  5: { en: "creativity, romance, children, play", ru: "творчество, романтика, дети, игра" },
+  6: { en: "work rhythm, health, craft, service", ru: "рабочий ритм, здоровье, мастерство, служение" },
+  7: { en: "partnership, marriage, open mirrors", ru: "партнерство, брак, открытые зеркала" },
+  8: { en: "shared resources, intimacy, crisis, trust", ru: "общие ресурсы, близость, кризис, доверие" },
+  9: { en: "beliefs, travel, higher study, meaning", ru: "убеждения, путешествия, высшее знание, смысл" },
+  10: { en: "career, status, vocation, public role", ru: "карьера, статус, призвание, публичная роль" },
+  11: { en: "friends, networks, hopes, community", ru: "друзья, сети, надежды, сообщество" },
+  12: { en: "subconscious, solitude, endings, spirit", ru: "подсознание, уединение, завершения, дух" },
+};
+
+export interface PremiumPdfNarrative {
+  planets?: string;
+  houses?: string;
+  aspects?: string;
+  portrait?: string;
+}
 
 function toLanguage(language: unknown): SupportedLanguage {
   return language === "ru" ? "ru" : "en";
@@ -98,6 +160,286 @@ export function buildPlanetaryContext(chart: ChartResult): string {
     "Major planetary aspects:",
     aspects || "none",
   ].join("\n");
+}
+
+function labelFor(
+  labels: Record<string, Record<SupportedLanguage, string>>,
+  key: string,
+  language: SupportedLanguage,
+): string {
+  return labels[key]?.[language] ?? key;
+}
+
+function formatLocalizedDegree(value: number): string {
+  return `${value.toFixed(2)}°`;
+}
+
+function formatLocalizedLongitude(longitude: number, language: SupportedLanguage): string {
+  const normalized = ((longitude % 360) + 360) % 360;
+  const signIndex = Math.floor(normalized / 30);
+  const sign = [
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
+  ][signIndex];
+  const degree = normalized - signIndex * 30;
+  return `${formatLocalizedDegree(degree)} ${labelFor(SIGN_LABELS, sign, language)}`;
+}
+
+function clipForPrompt(value: string, maxLength: number): string {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= maxLength) return trimmed;
+  return `${trimmed.slice(0, maxLength - 1).trim()}…`;
+}
+
+function buildPremiumPdfChartContext(params: {
+  profile: Profile;
+  chart: ChartResult;
+  language: SupportedLanguage;
+  isRelocated?: boolean;
+}): string {
+  const { profile, chart, language, isRelocated } = params;
+  const timeText =
+    profile.timeUnknown || !profile.birthTime
+      ? language === "ru"
+        ? "время рождения неизвестно"
+        : "birth time unknown"
+      : profile.birthTime;
+
+  const points = chart.points
+    .map((point) => {
+      const body = labelFor(BODY_LABELS, point.body, language);
+      const sign = labelFor(SIGN_LABELS, point.sign, language);
+      const house =
+        point.house === null
+          ? language === "ru"
+            ? "дом неизвестен"
+            : "house unknown"
+          : language === "ru"
+            ? `${point.house} дом (${HOUSE_TOPICS[point.house]?.[language]})`
+            : `house ${point.house} (${HOUSE_TOPICS[point.house]?.[language]})`;
+      return `${body}: ${formatLocalizedDegree(point.degreeInSign)} ${sign}, ${house}`;
+    })
+    .join("\n");
+
+  const houses =
+    chart.houses.asc === null
+      ? language === "ru"
+        ? "Дома, Асцендент и Середина неба ненадежны, потому что время рождения неизвестно."
+        : "Houses, Ascendant and Midheaven are unreliable because birth time is unknown."
+      : chart.houses.cusps
+          .map((cusp, index) => {
+            const house = index + 1;
+            const planets = chart.points
+              .filter((point) => point.house === house)
+              .map((point) => labelFor(BODY_LABELS, point.body, language))
+              .join(", ");
+            const planetText =
+              planets ||
+              (language === "ru" ? "планет в доме нет" : "no planets in this house");
+            return `${house}: ${formatLocalizedLongitude(cusp, language)}; ${HOUSE_TOPICS[house]?.[language]}; ${planetText}`;
+          })
+          .join("\n");
+
+  const aspects = chart.aspects
+    .slice()
+    .sort((a, b) => b.exactness - a.exactness)
+    .map((aspect) => {
+      const a = labelFor(BODY_LABELS, aspect.a, language);
+      const b = labelFor(BODY_LABELS, aspect.b, language);
+      const type = labelFor(ASPECT_LABELS, aspect.type, language);
+      return `${a} ${type} ${b}; orb ${aspect.orb.toFixed(2)}°; exactness ${Math.round(aspect.exactness * 100)}%`;
+    })
+    .join("\n");
+
+  const angles = [
+    chart.houses.asc === null
+      ? null
+      : `ASC: ${formatLocalizedLongitude(chart.houses.asc, language)}`,
+    chart.houses.mc === null
+      ? null
+      : `MC: ${formatLocalizedLongitude(chart.houses.mc, language)}`,
+  ].filter(Boolean);
+
+  return [
+    language === "ru" ? "Данные человека:" : "Person data:",
+    `Name: ${profile.name}`,
+    `Birth date: ${profile.birthDate}`,
+    `Birth time: ${timeText}`,
+    `Birth place: ${profile.birthPlace}`,
+    `Timezone: ${profile.timezone}`,
+    `Chart mode: ${isRelocated ? "relocated" : "natal"}`,
+    `House system: ${chart.meta.houseSystem}`,
+    `Zodiac: ${chart.meta.zodiac}`,
+    angles.length ? `Angles:\n${angles.join("\n")}` : "",
+    language === "ru" ? "Положения планет:" : "Planet positions:",
+    points,
+    language === "ru" ? "Дома:" : "Houses:",
+    houses,
+    language === "ru" ? "Мажорные аспекты:" : "Major aspects:",
+    aspects || (language === "ru" ? "нет мажорных аспектов" : "no major aspects"),
+  ].filter(Boolean).join("\n");
+}
+
+function buildBaseSectionsContext(sections: ReadonlyArray<{
+  title: string;
+  body: string;
+  category?: string;
+  detail?: string;
+}>): string {
+  if (sections.length === 0) return "none";
+
+  return sections
+    .slice(0, 12)
+    .map((section, index) => {
+      const label = section.category ? `${section.title} (${section.category})` : section.title;
+      const detail = section.detail ? ` Detail: ${clipForPrompt(section.detail, 350)}` : "";
+      return `${index + 1}. ${label}.${detail}\n${clipForPrompt(section.body, 900)}`;
+    })
+    .join("\n\n");
+}
+
+export function buildPremiumPdfNarrativePrompt(params: {
+  profile: Profile;
+  chart: ChartResult;
+  language: SupportedLanguage;
+  sections: ReadonlyArray<{
+    title: string;
+    body: string;
+    category?: string;
+    detail?: string;
+  }>;
+  isRelocated?: boolean;
+}): AiGenerateInput {
+  const { profile, chart, language, sections, isRelocated } = params;
+  const chartContext = buildPremiumPdfChartContext({
+    profile,
+    chart,
+    language,
+    isRelocated,
+  });
+  const baseSectionsContext = buildBaseSectionsContext(sections);
+
+  const systemInstruction =
+    language === "ru"
+      ? [
+          "Ты автор премиальной астрологической брошюры и строгий редактор русского языка.",
+          "Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления.",
+          "Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+          "Каждый астрологический термин сразу объясняй человеческим языком, но не превращай текст в учебник.",
+        ].join(" ")
+      : [
+          "You are the author of a premium astrology booklet and a strict English editor.",
+          "Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic.",
+          "Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+          "Explain each astrological term in plain language without turning the text into a textbook.",
+        ].join(" ");
+
+  const userPrompt =
+    language === "ru"
+      ? [
+          `Напиши премиальный текст PDF для ${profile.name}.`,
+          "Нужно получить цельную брошюру минимум на 6 страниц PDF. Текст должен быть длинным, связным и разделенным на секции и подсекции. Между секциями обязательно должны быть логические переходы.",
+          "Запрещено писать фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории» или объяснять, что текст написан как рассказ.",
+          "Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Вместо этого объясняй конкретно: что означает именно это Солнце, именно в этом знаке, именно в этом доме, и как оно проявляется в характере, выборе, привычках, отношениях и внутренней мотивации.",
+          "Данные карты:",
+          chartContext,
+          "Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:",
+          baseSectionsContext,
+          "Структура ответа строго по маркерам ниже. Маркеры должны быть отдельными строками, без Markdown вокруг них:",
+          "[PLANETS]",
+          "Здесь дай большую секцию о планетах как действующих силах психики. Разбери каждую планету из данных карты: Солнце, Луну, Меркурий, Венеру, Марс, Юпитер, Сатурн, Уран, Нептун и Плутон. Для каждой планеты обязательно объясни: что эта планета значит психологически; как знак меняет темперамент функции; через какой дом и сферу жизни она проявляется; как это может звучать в поведении человека. Не ограничивайся одним предложением. Пиши абзацами, а не таблицей.",
+          "[HOUSES]",
+          "Здесь дай секцию о домах. Если время рождения известно, раскрой все 12 домов: что значит сам дом, какой знак на куспиде задает тон, какие планеты находятся внутри и что это означает. Если в доме нет планет, объясни, что тема не исчезает, а работает через знак куспида и жизненные обстоятельства. Если время рождения неизвестно, прямо объясни ограничение.",
+          "[ASPECTS]",
+          "Здесь раскрой все мажорные аспекты из списка. Для каждого аспекта назови планеты, тип аспекта и орб, а затем объясни конкретную внутреннюю динамику: как функции спорят, поддерживают друг друга или дают возможность. Секстиль, квадратуру, тригон, оппозицию и соединение раскрывай полно, без пустых названий вроде «аспект возможностей».",
+          "[PORTRAIT]",
+          "Здесь собери психологический портрет человека в цельный синтез. Не перечисляй снова таблицу. Покажи характер, эмоциональный слой, коммуникацию, стиль близости, волю, ресурсы, напряжения, сильные стороны, уязвимости и зрелую задачу карты. Делай переходы от предыдущих секций, чтобы текст читался как единое объяснение человека.",
+          "Формат:",
+          "1) Только русский язык.",
+          "2) Markdown-заголовки внутри секций разрешены: ## и ###.",
+          "3) Без таблиц.",
+          "4) Общий объем 3500-5200 слов.",
+          "5) Заверши ответ отдельной строкой: [END_OF_REPORT]",
+        ].join("\n\n")
+      : [
+          `Write the premium PDF text for ${profile.name}.`,
+          "The result must feel like a polished booklet of at least 6 PDF pages. The text must be long, cohesive, divided into sections and subsections, with logical transitions between sections.",
+          "Do not write phrases such as “this is a story”, “story interpretation”, or explain that the text is written as a story.",
+          "Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Instead, explain specifically what this Sun means in this sign and this house, and how it appears in character, choices, habits, relationships, and inner motivation.",
+          "Chart data:",
+          chartContext,
+          "Existing interface text may be used only as additional context. Do not copy generic wording:",
+          baseSectionsContext,
+          "Use the exact markers below. Markers must be separate lines, with no Markdown around them:",
+          "[PLANETS]",
+          "Write a large section about planets as active psychological forces. Cover every planet in the chart data: Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto. For each planet explain what it means psychologically, how the sign changes the temperament of that function, through which house and life area it works, and how it may appear in behavior. Do not reduce it to one sentence. Use paragraphs, not tables.",
+          "[HOUSES]",
+          "Write the section about houses. If birth time is known, cover all 12 houses: what the house means, how the cusp sign colors the area, which planets are inside and what that means. If a house has no planets, explain that the topic is not absent; it works through the cusp sign and life circumstances. If birth time is unknown, explain the limitation clearly.",
+          "[ASPECTS]",
+          "Interpret every major aspect from the list. For each aspect name the planets, aspect type and orb, then explain the concrete inner dynamic: how the functions clash, support, intensify, or create opportunity. Explain sextiles, squares, trines, oppositions and conjunctions fully; never leave an empty label like “aspect of opportunity”.",
+          "[PORTRAIT]",
+          "Synthesize the psychological portrait into one coherent reading. Do not repeat the table. Show character, emotional layer, communication style, intimacy style, will, resources, tensions, strengths, vulnerabilities and the mature task of the chart. Connect it logically to the previous sections.",
+          "Format:",
+          "1) English only.",
+          "2) Markdown headings inside sections are allowed: ## and ###.",
+          "3) No tables.",
+          "4) Total length 3500-5200 words.",
+          "5) End with a separate line: [END_OF_REPORT]",
+        ].join("\n\n");
+
+  return {
+    systemInstruction,
+    userPrompt,
+    model: PREMIUM_PDF_MODEL,
+    temperature: 0.55,
+    maxOutputTokens: 8000,
+  };
+}
+
+export function parsePremiumPdfNarrative(text: string): PremiumPdfNarrative {
+  const result: Record<keyof PremiumPdfNarrative, string> = {
+    planets: "",
+    houses: "",
+    aspects: "",
+    portrait: "",
+  };
+  const markerToKey: Record<string, keyof PremiumPdfNarrative> = {
+    PLANETS: "planets",
+    HOUSES: "houses",
+    ASPECTS: "aspects",
+    PORTRAIT: "portrait",
+  };
+  let currentKey: keyof PremiumPdfNarrative | null = null;
+
+  for (const rawLine of text.replace(/\r\n/g, "\n").split("\n")) {
+    const marker = rawLine.trim().match(/^\[(PLANETS|HOUSES|ASPECTS|PORTRAIT|END_OF_REPORT)\]$/i);
+    if (marker) {
+      const markerName = marker[1].toUpperCase();
+      currentKey = markerName === "END_OF_REPORT" ? null : markerToKey[markerName];
+      continue;
+    }
+
+    if (currentKey) {
+      result[currentKey] = `${result[currentKey]}${rawLine}\n`;
+    }
+  }
+
+  return {
+    planets: result.planets.trim() || undefined,
+    houses: result.houses.trim() || undefined,
+    aspects: result.aspects.trim() || undefined,
+    portrait: result.portrait.trim() || undefined,
+  };
 }
 
 export function buildDeepInterpretationPrompt(params: {
@@ -487,7 +829,7 @@ export async function generateClaudeTextResult(
   const sanitizeOutput = options.sanitizeOutput ?? true;
   const requireEndTag = options.requireEndTag ?? null;
   const configuredModel = process.env.ANTHROPIC_MODEL?.trim();
-  const model = configuredModel || DEFAULT_MODEL;
+  const model = input.model?.trim() || configuredModel || DEFAULT_MODEL;
   let usedModel = model;
   let fullText = "";
   let prompt = input.userPrompt;

@@ -3,9 +3,16 @@ import { logger } from "firebase-functions/v2";
 import { resolveOwnedChart } from "../services/chartResolver";
 import {
   generateInterpretationPdf,
+  type PremiumPdfNarrative,
   type PremiumPdfReport,
   type PremiumPdfSection,
 } from "../services/pdf";
+import {
+  buildPremiumPdfNarrativePrompt,
+  generateClaudeTextResult,
+  normalizeLanguage,
+  parsePremiumPdfNarrative,
+} from "../services/anthropic";
 
 interface RawPdfSection {
   title?: unknown;
@@ -80,12 +87,28 @@ function optionalCoordinate(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
+function requireCompleteAiNarrative(narrative: PremiumPdfNarrative): void {
+  const missing = [
+    ["planets", narrative.planets],
+    ["houses", narrative.houses],
+    ["aspects", narrative.aspects],
+    ["portrait", narrative.portrait],
+  ]
+    .filter(([, value]) => typeof value !== "string" || value.trim().length < 120)
+    .map(([key]) => key);
+
+  if (missing.length > 0) {
+    throw new Error(`Premium PDF AI narrative is incomplete: ${missing.join(", ")}`);
+  }
+}
+
 export const downloadPremiumPdf = onCall({
-  timeoutSeconds: 60,
+  timeoutSeconds: 300,
+  secrets: ["ANTHROPIC_API_KEY"],
 }, async (request) => {
   const profileId = requiredString(request.data?.profileId, "profileId");
   const ownerDeviceId = requiredString(request.data?.ownerDeviceId, "ownerDeviceId");
-  const language = request.data?.language === "ru" ? "ru" : "en";
+  const language = normalizeLanguage(request.data?.language);
   const relocationLat = optionalCoordinate(request.data?.relocationLat);
   const relocationLng = optionalCoordinate(request.data?.relocationLng);
   const isRelocated = relocationLat !== undefined && relocationLng !== undefined;
@@ -104,6 +127,48 @@ export const downloadPremiumPdf = onCall({
   const rawReport = request.data?.report ?? {};
   const sections = parseSections(rawReport.sections);
   const generatedAt = optionalString(rawReport.generatedAt, 120);
+
+  let aiNarrative: PremiumPdfNarrative;
+  try {
+    const aiResult = await generateClaudeTextResult(
+      buildPremiumPdfNarrativePrompt({
+        profile,
+        chart,
+        language,
+        sections,
+        isRelocated,
+      }),
+      {
+        allowContinuation: true,
+        sanitizeOutput: true,
+        requireEndTag: "[END_OF_REPORT]",
+      },
+    );
+
+    aiNarrative = {
+      ...parsePremiumPdfNarrative(aiResult.text),
+      model: aiResult.model,
+    };
+    requireCompleteAiNarrative(aiNarrative);
+
+    logger.info("downloadPremiumPdf AI narrative generated", {
+      profileId,
+      language,
+      model: aiResult.model,
+      planetsLength: aiNarrative.planets?.length ?? 0,
+      housesLength: aiNarrative.houses?.length ?? 0,
+      aspectsLength: aiNarrative.aspects?.length ?? 0,
+      portraitLength: aiNarrative.portrait?.length ?? 0,
+    });
+  } catch (error) {
+    logger.error("downloadPremiumPdf AI narrative failed", {
+      profileId,
+      language,
+      error: (error as Error).message,
+    });
+    throw new HttpsError("internal", "Failed to generate premium PDF text");
+  }
+
   const report: PremiumPdfReport = {
     language,
     title:
@@ -118,6 +183,7 @@ export const downloadPremiumPdf = onCall({
         : `Prepared for ${profile.name}`),
     generatedAt,
     sections,
+    aiNarrative,
     profile,
     chart,
     isRelocated,

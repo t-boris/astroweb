@@ -40,7 +40,7 @@ const PAGE_HEIGHT = 792;
 const PAGE_BACKGROUND_RENDERERS = new WeakMap<PDFKit.PDFDocument, () => void>();
 
 type PdfLanguage = "en" | "ru";
-type PdfPageTheme = "cover" | "chart" | "planets" | "houses" | "aspects" | "story";
+type PdfPageTheme = "cover" | "chart" | "planets" | "houses" | "aspects" | "portrait";
 
 const PAGE_THEMES: Record<PdfPageTheme, {
   background: string;
@@ -78,7 +78,7 @@ const PAGE_THEMES: Record<PdfPageTheme, {
     accent: "#82384C",
     line: "#A45B70",
   },
-  story: {
+  portrait: {
     background: "#F8EEDC",
     wash: "#C9A772",
     accent: "#6D4E1F",
@@ -264,6 +264,57 @@ const HOUSE_TOPICS: Record<number, Record<PdfLanguage, string>> = {
   10: { en: "career, status, vocation, public role", ru: "карьера, статус, призвание, публичная роль" },
   11: { en: "friends, networks, hopes, community", ru: "друзья, сети, надежды, сообщество" },
   12: { en: "subconscious, solitude, endings, spirit", ru: "подсознание, уединение, завершения, дух" },
+};
+
+const SIGN_TONES: Record<string, Record<PdfLanguage, string>> = {
+  Aries: {
+    en: "direct, initiating, impatient and courageous",
+    ru: "прямой, инициативный, нетерпеливый и смелый",
+  },
+  Taurus: {
+    en: "steady, bodily, practical and oriented toward lasting value",
+    ru: "устойчивый, телесный, практичный и ориентированный на долговечную ценность",
+  },
+  Gemini: {
+    en: "curious, mobile, verbal and responsive to changing information",
+    ru: "любопытный, подвижный, словесный и чувствительный к новой информации",
+  },
+  Cancer: {
+    en: "protective, emotional, memory-based and focused on belonging",
+    ru: "защитный, эмоциональный, связанный с памятью и потребностью в принадлежности",
+  },
+  Leo: {
+    en: "expressive, proud, creative and hungry for sincere recognition",
+    ru: "выразительный, гордый, творческий и нуждающийся в искреннем признании",
+  },
+  Virgo: {
+    en: "precise, analytical, improving and attentive to detail",
+    ru: "точный, аналитический, улучшающий и внимательный к деталям",
+  },
+  Libra: {
+    en: "relational, aesthetic, diplomatic and sensitive to balance",
+    ru: "партнерский, эстетический, дипломатичный и чувствительный к балансу",
+  },
+  Scorpio: {
+    en: "intense, private, transformative and drawn to hidden layers",
+    ru: "интенсивный, закрытый, трансформирующий и тянущийся к скрытым слоям",
+  },
+  Sagittarius: {
+    en: "expansive, searching, philosophical and oriented toward meaning",
+    ru: "расширяющий, ищущий, философский и ориентированный на смысл",
+  },
+  Capricorn: {
+    en: "disciplined, realistic, responsible and focused on structure",
+    ru: "дисциплинированный, реалистичный, ответственный и сфокусированный на структуре",
+  },
+  Aquarius: {
+    en: "independent, conceptual, future-minded and socially observant",
+    ru: "независимый, концептуальный, обращенный в будущее и социально наблюдательный",
+  },
+  Pisces: {
+    en: "imaginative, permeable, compassionate and guided by subtle feeling",
+    ru: "воображающий, восприимчивый, сострадательный и ведомый тонким чувством",
+  },
 };
 
 function getFontPath(fileName: string): string | null {
@@ -507,6 +558,94 @@ function pointPlacementDescription(
   return point ? formatPointPlacement(point, language) : "";
 }
 
+function sketchOffset(index: number, amplitude: number): number {
+  return (((index * 37) % 11) - 5) * amplitude;
+}
+
+function drawSketchLine(
+  doc: PDFKit.PDFDocument,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+  opacity = 0.22,
+): void {
+  doc.save().strokeColor(color).lineWidth(0.55).opacity(opacity);
+  for (let index = 0; index < 4; index += 1) {
+    const dx = sketchOffset(index, 0.45);
+    const dy = sketchOffset(index + 3, 0.45);
+    doc
+      .moveTo(x1 + dx, y1 + dy)
+      .lineTo(x2 + sketchOffset(index + 6, 0.45), y2 + sketchOffset(index + 9, 0.45))
+      .stroke();
+  }
+  doc.restore();
+}
+
+function drawSketchCircle(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  radius: number,
+  color: string,
+  opacity = 0.2,
+): void {
+  doc.save().strokeColor(color).lineWidth(0.55).opacity(opacity);
+  for (let index = 0; index < 4; index += 1) {
+    doc
+      .circle(
+        x + sketchOffset(index, 0.7),
+        y + sketchOffset(index + 4, 0.7),
+        radius + sketchOffset(index + 8, 0.35),
+      )
+      .stroke();
+  }
+  doc.restore();
+}
+
+function drawSketchWheel(
+  doc: PDFKit.PDFDocument,
+  centerX: number,
+  centerY: number,
+  radius: number,
+  color: string,
+  opacity = 0.18,
+): void {
+  drawSketchCircle(doc, centerX, centerY, radius, color, opacity);
+  drawSketchCircle(doc, centerX, centerY, radius * 0.67, color, opacity * 0.9);
+  drawSketchCircle(doc, centerX, centerY, radius * 0.36, color, opacity * 0.85);
+
+  for (let index = 0; index < 12; index += 1) {
+    const angle = ((index * 30 - 90) * Math.PI) / 180;
+    drawSketchLine(
+      doc,
+      centerX + Math.cos(angle) * radius * 0.36,
+      centerY + Math.sin(angle) * radius * 0.36,
+      centerX + Math.cos(angle) * radius,
+      centerY + Math.sin(angle) * radius,
+      color,
+      opacity * 0.95,
+    );
+  }
+}
+
+function drawSketchConstellation(
+  doc: PDFKit.PDFDocument,
+  points: Array<[number, number]>,
+  color: string,
+  opacity = 0.22,
+): void {
+  for (let index = 0; index < points.length; index += 1) {
+    const [x, y] = points[index];
+    drawSketchCircle(doc, x, y, 4, color, opacity);
+    if (index < points.length - 1) {
+      const [nextX, nextY] = points[index + 1];
+      drawSketchLine(doc, x, y, nextX, nextY, color, opacity);
+    }
+  }
+}
+
 function drawPageBackground(
   doc: PDFKit.PDFDocument,
   themeName: PdfPageTheme,
@@ -563,41 +702,44 @@ function drawPageBackground(
     .opacity(0.32);
 
   if (themeName === "chart") {
-    drawDecorativeWheel(doc, PAGE_WIDTH - 92, 132, 112);
+    drawSketchWheel(doc, PAGE_WIDTH - 92, 132, 112, theme.line, 0.2);
   } else if (themeName === "planets") {
     for (let index = 0; index < 6; index += 1) {
-      doc
-        .circle(PAGE_WIDTH - 86, 94 + index * 24, 7 + index * 2)
-        .stroke();
+      drawSketchCircle(doc, PAGE_WIDTH - 86, 94 + index * 24, 7 + index * 2, theme.line, 0.22);
+      if (index > 0) {
+        drawSketchLine(
+          doc,
+          PAGE_WIDTH - 86,
+          94 + (index - 1) * 24,
+          PAGE_WIDTH - 86,
+          94 + index * 24,
+          theme.line,
+          0.14,
+        );
+      }
     }
   } else if (themeName === "houses") {
-    for (let index = 0; index < 12; index += 1) {
-      const angle = ((index * 30 - 90) * Math.PI) / 180;
-      doc
-        .moveTo(58, PAGE_HEIGHT - 112)
-        .lineTo(58 + Math.cos(angle) * 92, PAGE_HEIGHT - 112 + Math.sin(angle) * 92)
-        .stroke();
-    }
-    doc.circle(58, PAGE_HEIGHT - 112, 92).stroke();
+    drawSketchWheel(doc, 58, PAGE_HEIGHT - 112, 92, theme.line, 0.2);
   } else if (themeName === "aspects") {
-    const points = [
+    drawSketchConstellation(doc, [
       [PAGE_WIDTH - 170, 86],
       [PAGE_WIDTH - 66, 128],
       [PAGE_WIDTH - 122, 205],
       [PAGE_WIDTH - 202, 176],
       [PAGE_WIDTH - 220, 112],
-    ];
-    points.forEach(([x, y], index) => {
-      const next = points[(index + 2) % points.length];
-      doc.moveTo(x, y).lineTo(next[0], next[1]).stroke();
-      doc.circle(x, y, 4).stroke();
-    });
+      [PAGE_WIDTH - 170, 86],
+    ], theme.line, 0.24);
+    drawSketchLine(doc, PAGE_WIDTH - 220, 112, PAGE_WIDTH - 122, 205, theme.line, 0.14);
+    drawSketchLine(doc, PAGE_WIDTH - 202, 176, PAGE_WIDTH - 66, 128, theme.line, 0.14);
   } else {
     for (let index = 0; index < 5; index += 1) {
-      doc
-        .moveTo(42 + index * 18, 78)
-        .bezierCurveTo(96, 44 + index * 19, 124, 128 + index * 6, 190, 66 + index * 24)
-        .stroke();
+      const startX = 42 + index * 18;
+      const startY = 78;
+      const endX = 190;
+      const endY = 66 + index * 24;
+      drawSketchLine(doc, startX, startY, 96, 44 + index * 19, theme.line, 0.12);
+      drawSketchLine(doc, 96, 44 + index * 19, 124, 128 + index * 6, theme.line, 0.12);
+      drawSketchLine(doc, 124, 128 + index * 6, endX, endY, theme.line, 0.12);
     }
   }
 
@@ -1079,6 +1221,110 @@ function renderPlanetNotes(
   }
 }
 
+function describeHouse(
+  houseNumber: number,
+  cuspLongitude: number,
+  points: ChartPoint[],
+  language: PdfLanguage,
+): string {
+  const { sign } = longitudeToSign(cuspLongitude);
+  const signName = labelFor(SIGN_LABELS, sign, language);
+  const tone = SIGN_TONES[sign]?.[language] ?? signName;
+  const topic = HOUSE_TOPICS[houseNumber]?.[language] ?? "";
+
+  if (language === "ru") {
+    const opening = `${houseNumber} дом отвечает за ${topic}. Его куспид стоит в знаке ${signName}, поэтому эта область жизни раскрывается через ${tone} способ проявления.`;
+
+    if (points.length === 0) {
+      return `${opening} В этом доме нет планет, и это не означает пустоту или отсутствие событий. Скорее, тема дома включается через управителя знака, транзиты, прогрессии и реальные обстоятельства, а не давит постоянно изнутри. Такой дом может проживаться спокойнее: человек обращается к нему тогда, когда жизнь сама требует внимания к этой сфере.`;
+    }
+
+    const planetText = points
+      .map((point) => {
+        const body = labelFor(BODY_LABELS, point.body, language);
+        const meaning = BODY_MEANINGS[point.body]?.[language] ?? point.body;
+        return `${body} приносит сюда ${meaning}`;
+      })
+      .join("; ");
+
+    return `${opening} В этом доме находятся ${points.map((point) => labelFor(BODY_LABELS, point.body, language)).join(", ")}, поэтому тема дома становится активной и личной. ${planetText}. Это значит, что область "${topic}" не остается фоном: через нее человек принимает решения, сталкивается с повторяющимися задачами и получает заметную часть жизненного опыта. Чем больше планет в доме, тем труднее игнорировать эту сферу, потому что несколько психологических функций одновременно требуют выражения именно здесь.`;
+  }
+
+  const opening = `House ${houseNumber} governs ${topic}. Its cusp falls in ${signName}, so this life area opens through a ${tone} mode of expression.`;
+
+  if (points.length === 0) {
+    return `${opening} There are no planets in this house, which does not mean that the area is empty or irrelevant. It usually means the theme is activated through the sign ruler, transits, progressions and real circumstances rather than pressing constantly from within. This house may feel quieter until life specifically asks for attention there.`;
+  }
+
+  const planetText = points
+    .map((point) => {
+      const body = labelFor(BODY_LABELS, point.body, language);
+      const meaning = BODY_MEANINGS[point.body]?.[language] ?? point.body;
+      return `${body} brings ${meaning} into this house`;
+    })
+    .join("; ");
+
+  return `${opening} This house contains ${points.map((point) => labelFor(BODY_LABELS, point.body, language)).join(", ")}, so the house topic becomes active and personal. ${planetText}. This means that "${topic}" is not merely background material: it becomes a field where decisions are made, recurring tasks appear and a visible part of life experience is concentrated. The more planets gather here, the harder it is to ignore this area, because several psychological functions seek expression through it at once.`;
+}
+
+function renderHouseNarratives(
+  doc: PDFKit.PDFDocument,
+  chart: ChartResult,
+  language: PdfLanguage,
+  fonts: { regular: string; bold: string; sans: string; sansBold: string },
+): void {
+  if (chart.houses.asc === null) {
+    renderNarrativeText(
+      doc,
+      language === "ru"
+        ? "Без точного времени рождения дома нельзя раскрыть персонально: куспиды и распределение планет по домам зависят от времени. Поэтому ниже домовая интерпретация опущена, чтобы не выдавать ненадежные данные за точный анализ."
+        : "Without an exact birth time, houses cannot be interpreted personally: cusps and planet placement by house depend on time. The house interpretation is therefore omitted rather than presented as precise analysis.",
+      fonts,
+    );
+    return;
+  }
+
+  for (let houseNumber = 1; houseNumber <= 12; houseNumber += 1) {
+    const cusp = chart.houses.cusps[houseNumber - 1];
+    const points = chart.points.filter((point) => point.house === houseNumber);
+    ensureSpace(doc, 112);
+
+    doc
+      .font(fonts.sansBold)
+      .fontSize(11)
+      .fillColor(DEEP_GOLD)
+      .text(
+        language === "ru" ? `${houseNumber} дом` : `House ${houseNumber}`,
+        doc.page.margins.left,
+        doc.y,
+      )
+      .moveDown(0.25)
+      .font(fonts.sans)
+      .fontSize(8.7)
+      .fillColor(MUTED)
+      .text(
+        language === "ru"
+          ? `Куспид: ${formatLongitude(cusp, language)} · Тема: ${HOUSE_TOPICS[houseNumber]?.[language] ?? ""}`
+          : `Cusp: ${formatLongitude(cusp, language)} · Theme: ${HOUSE_TOPICS[houseNumber]?.[language] ?? ""}`,
+        doc.page.margins.left,
+        doc.y,
+        {
+          width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          lineGap: 2,
+        },
+      )
+      .moveDown(0.35)
+      .font(fonts.regular)
+      .fontSize(10.2)
+      .fillColor(TEXT)
+      .text(describeHouse(houseNumber, cusp, points, language), doc.page.margins.left, doc.y, {
+        width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        lineGap: 3.4,
+      })
+      .moveDown(0.9);
+  }
+}
+
 function renderChapterDivider(
   doc: PDFKit.PDFDocument,
   language: PdfLanguage,
@@ -1113,21 +1359,6 @@ function renderChapterDivider(
       width: 390,
       lineGap: 5,
     });
-
-  doc
-    .moveDown(1.8)
-    .font(fonts.sans)
-    .fontSize(9.5)
-    .fillColor(MUTED)
-    .text(
-      language === "ru"
-        ? "Следующий раздел продолжает общий рассказ: мы не читаем элементы карты изолированно, а смотрим, как один слой объясняет и уточняет другой."
-        : "The next section continues the same story: the chart is not read as isolated fragments, but as layers that explain and refine each other.",
-      {
-        width: 410,
-        lineGap: 4,
-      },
-    );
 }
 
 function renderNarrativeText(
@@ -1159,8 +1390,8 @@ function buildOpeningNarrative(
 ): string {
   if (!profile || !chart) {
     return language === "ru"
-      ? "Этот отчет начинается с общей схемы карты, а затем постепенно переходит к планетам, домам и аспектам. Так рождается связная история: что в человеке является центром, где это проявляется и какие внутренние диалоги создают движение."
-      : "This report starts with the whole chart, then moves through planets, houses and aspects. The result is a single story: what forms the center of the person, where it expresses itself, and which inner dialogues create movement.";
+      ? "Этот отчет начинается с общей схемы карты, а затем постепенно переходит к планетам, домам и аспектам. Так формируется цельный портрет: что в человеке является центром, где это проявляется и какие внутренние диалоги создают движение."
+      : "This report starts with the whole chart, then moves through planets, houses and aspects. The result is an integrated portrait: what forms the center of the person, where it expresses itself, and which inner dialogues create movement.";
   }
 
   const sun = chart.points.find((point) => point.body === "Sun");
@@ -1171,10 +1402,10 @@ function buildOpeningNarrative(
       : formatLongitude(chart.houses.asc, language);
 
   if (language === "ru") {
-    return `Карта ${profile.name} читается как история о том, как внутренняя воля, эмоциональная природа и жизненные обстоятельства собираются в одну систему. Солнце ${sun ? `находится в ${formatPointPlacement(sun, language)}` : "задает центральный мотив"}, Луна ${moon ? `стоит в ${formatPointPlacement(moon, language)}` : "показывает эмоциональный ритм"}${asc ? `, а Асцендент расположен в ${asc}` : ""}. Эти три точки задают начало рассказа: кто действует, что ему нужно внутри и через какую дверь он входит в мир.\n\nДальше отчет движется слоями. Сначала мы смотрим на саму карту как на рисунок, затем на планеты как на действующих персонажей, после этого на дома как на сцены жизни, и только потом на аспекты - линии напряжения, поддержки и выбора между персонажами. Такой порядок важен: аспект не существует сам по себе, он связывает уже описанные силы.`;
+    return `Карта ${profile.name} показывает, как внутренняя воля, эмоциональная природа и жизненные обстоятельства собираются в одну систему. Солнце ${sun ? `находится в ${formatPointPlacement(sun, language)}` : "задает центральный мотив"}, Луна ${moon ? `стоит в ${formatPointPlacement(moon, language)}` : "показывает эмоциональный ритм"}${asc ? `, а Асцендент расположен в ${asc}` : ""}. Эти три точки дают базовую ось: кто действует, что ему нужно внутри и через какую дверь он входит в мир.\n\nДальше отчет движется слоями. Сначала видна карта как рисунок, затем планеты как активные функции психики, после этого дома как конкретные области опыта, и только потом аспекты - линии напряжения, поддержки и выбора между этими функциями. Такой порядок важен: аспект не существует сам по себе, он связывает уже описанные силы.`;
   }
 
-  return `${profile.name}'s chart reads as a story about how will, emotional nature and life circumstances assemble into one system. The Sun ${sun ? `is placed at ${formatPointPlacement(sun, language)}` : "sets the central motive"}, the Moon ${moon ? `stands at ${formatPointPlacement(moon, language)}` : "shows the emotional rhythm"}${asc ? `, and the Ascendant is at ${asc}` : ""}. These three points begin the narrative: who acts, what is needed inside, and through which doorway the person enters the world.\n\nThe report then moves layer by layer. First comes the chart as an image, then the planets as characters, then the houses as life scenes, and only after that the aspects - the lines of tension, support and choice between those characters. This order matters: an aspect never lives alone; it connects forces already described.`;
+  return `${profile.name}'s chart shows how will, emotional nature and life circumstances assemble into one system. The Sun ${sun ? `is placed at ${formatPointPlacement(sun, language)}` : "sets the central motive"}, the Moon ${moon ? `stands at ${formatPointPlacement(moon, language)}` : "shows the emotional rhythm"}${asc ? `, and the Ascendant is at ${asc}` : ""}. These three points establish the basic axis: who acts, what is needed inside, and through which doorway the person enters the world.\n\nThe report then moves layer by layer. First comes the chart as an image, then the planets as active psychological functions, then the houses as concrete areas of experience, and only after that the aspects - the lines of tension, support and choice between those functions. This order matters: an aspect never lives alone; it connects forces already described.`;
 }
 
 function buildBridge(
@@ -1187,20 +1418,369 @@ function buildBridge(
       ru: "Когда общий рисунок уже виден, можно назвать действующих лиц внутри него. Планеты показывают, какая именно энергия говорит, прежде чем мы решим, где и как она действует.",
     },
     planets: {
-      en: "Once the actors are known, the houses give them a stage. A planet is never abstract: the house shows the concrete area of life where its story asks to be lived.",
-      ru: "Когда действующие лица названы, дома дают им сцену. Планета не бывает абстрактной: дом показывает конкретную область жизни, где ее сюжет просит быть прожитым.",
+      en: "Once the planetary functions are named, the houses give them a place of expression. A planet is never abstract: the house shows the concrete area of life where its pattern becomes visible.",
+      ru: "Когда планетарные функции названы, дома дают им место проявления. Планета не бывает абстрактной: дом показывает конкретную область жизни, где ее принцип становится видимым.",
     },
     houses: {
-      en: "The planets and houses describe the cast and scenery. The aspects describe the plot: where the energies cooperate, resist, amplify or challenge each other.",
-      ru: "Планеты и дома описали персонажей и декорации. Аспекты описывают сюжет: где энергии сотрудничают, сопротивляются, усиливают или испытывают друг друга.",
+      en: "The planets and houses describe forces and life areas. The aspects show how these forces interact: where they cooperate, resist, amplify or challenge each other.",
+      ru: "Планеты и дома описали силы и области жизни. Аспекты показывают, как эти силы взаимодействуют: где они сотрудничают, сопротивляются, усиливают или испытывают друг друга.",
     },
     aspects: {
-      en: "After the mechanics of the chart are clear, the interpretation can read more like a continuous biography of the inner life.",
-      ru: "Когда механика карты стала понятной, интерпретацию можно читать уже как цельную биографию внутренней жизни.",
+      en: "After the mechanics of the chart are clear, the synthesis can move from separate factors to a fuller psychological portrait.",
+      ru: "Когда механика карты стала понятной, синтез может перейти от отдельных факторов к более полному психологическому портрету.",
     },
   };
 
   return bridges[from][language];
+}
+
+interface PortraitSection {
+  title: string;
+  paragraphs: string[];
+}
+
+function getChartPoint(chart: ChartResult, body: string): ChartPoint | null {
+  return chart.points.find((point) => point.body === body) ?? null;
+}
+
+function describePointForPortrait(
+  chart: ChartResult,
+  body: string,
+  language: PdfLanguage,
+): string {
+  const point = getChartPoint(chart, body);
+  if (!point) return "";
+
+  const bodyName = labelFor(BODY_LABELS, body, language);
+  const signName = labelFor(SIGN_LABELS, point.sign, language);
+  const houseText =
+    point.house === null
+      ? language === "ru"
+        ? "без надежного дома"
+        : "without a reliable house placement"
+      : language === "ru"
+        ? `в ${point.house} доме`
+        : `in house ${point.house}`;
+  const topic = point.house ? HOUSE_TOPICS[point.house]?.[language] : "";
+  const tone = SIGN_TONES[point.sign]?.[language] ?? signName;
+
+  if (language === "ru") {
+    return `${bodyName} стоит в знаке ${signName} ${houseText}${topic ? `, в зоне "${topic}"` : ""}. Это дает ${tone} оттенок функции: ${BODY_MEANINGS[body]?.[language] ?? body}.`;
+  }
+
+  return `${bodyName} is in ${signName} ${houseText}${topic ? `, the area of "${topic}"` : ""}. This gives the function a ${tone} tone: ${BODY_MEANINGS[body]?.[language] ?? body}.`;
+}
+
+function strongestAspects(
+  chart: ChartResult,
+  types: ChartAspect["type"][],
+  limit: number,
+): ChartAspect[] {
+  return chart.aspects
+    .filter((aspect) => types.includes(aspect.type))
+    .slice(0, limit);
+}
+
+function aspectSynthesisSentence(
+  aspect: ChartAspect,
+  chart: ChartResult,
+  language: PdfLanguage,
+): string {
+  const a = labelFor(BODY_LABELS, aspect.a, language);
+  const b = labelFor(BODY_LABELS, aspect.b, language);
+  const type = ASPECT_LABELS[aspect.type][language].toLowerCase();
+  const meaning = ASPECT_MEANINGS[aspect.type][language];
+  const placementA = pointPlacementDescription(chart, aspect.a, language);
+  const placementB = pointPlacementDescription(chart, aspect.b, language);
+
+  if (language === "ru") {
+    return `${a} (${placementA}) и ${b} (${placementB}) связаны через ${type}: ${meaning}. Это не абстрактная формула, а конкретная внутренняя связка между ${BODY_MEANINGS[aspect.a]?.[language] ?? aspect.a} и ${BODY_MEANINGS[aspect.b]?.[language] ?? aspect.b}.`;
+  }
+
+  return `${a} (${placementA}) and ${b} (${placementB}) are connected through a ${type}: it ${meaning}. This is not an abstract formula, but a concrete inner link between ${BODY_MEANINGS[aspect.a]?.[language] ?? aspect.a} and ${BODY_MEANINGS[aspect.b]?.[language] ?? aspect.b}.`;
+}
+
+function houseEmphasis(chart: ChartResult, language: PdfLanguage): string {
+  const houses = new Map<number, ChartPoint[]>();
+  for (const point of chart.points) {
+    if (point.house === null) continue;
+    houses.set(point.house, [...(houses.get(point.house) ?? []), point]);
+  }
+
+  const emphasized = [...houses.entries()]
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 3);
+
+  if (emphasized.length === 0) {
+    return language === "ru"
+      ? "Без точного времени рождения домовые акценты читаются осторожно, поэтому основной вес переносится на планеты, знаки и аспекты."
+      : "Without an exact birth time, house emphasis must be read cautiously, so the main weight shifts to planets, signs and aspects.";
+  }
+
+  if (language === "ru") {
+    return emphasized
+      .map(([house, points]) => {
+        const topic = HOUSE_TOPICS[house]?.[language] ?? "";
+        const names = points.map((point) => labelFor(BODY_LABELS, point.body, language)).join(", ");
+        return `${house} дом (${topic}) выделен через ${names}`;
+      })
+      .join("; ");
+  }
+
+  return emphasized
+    .map(([house, points]) => {
+      const topic = HOUSE_TOPICS[house]?.[language] ?? "";
+      const names = points.map((point) => labelFor(BODY_LABELS, point.body, language)).join(", ");
+      return `house ${house} (${topic}) is emphasized through ${names}`;
+    })
+    .join("; ");
+}
+
+function buildDetailedPortrait(
+  profile: Profile | undefined,
+  chart: ChartResult | undefined,
+  language: PdfLanguage,
+): PortraitSection[] {
+  if (!chart) {
+    return [
+      {
+        title: language === "ru" ? "Подробный портрет" : "Detailed Portrait",
+        paragraphs: [
+          language === "ru"
+            ? "Для полного синтеза нужна рассчитанная карта. В этом файле доступны только текстовые интерпретации, поэтому ниже сохранен общий разбор без персонального распределения планет по домам и аспектам."
+            : "A full synthesis requires a calculated chart. This file only contains text interpretations, so the reading below remains general and cannot include personal house and aspect structure.",
+        ],
+      },
+    ];
+  }
+
+  const name = profile?.name ?? (language === "ru" ? "человек" : "the person");
+  const sun = describePointForPortrait(chart, "Sun", language);
+  const moon = describePointForPortrait(chart, "Moon", language);
+  const mercury = describePointForPortrait(chart, "Mercury", language);
+  const venus = describePointForPortrait(chart, "Venus", language);
+  const mars = describePointForPortrait(chart, "Mars", language);
+  const jupiter = describePointForPortrait(chart, "Jupiter", language);
+  const saturn = describePointForPortrait(chart, "Saturn", language);
+  const outer = ["Uranus", "Neptune", "Pluto"]
+    .map((body) => describePointForPortrait(chart, body, language))
+    .filter(Boolean);
+  const tensionAspects = strongestAspects(chart, ["square", "opposition"], 5);
+  const supportAspects = strongestAspects(chart, ["sextile", "trine", "conjunction"], 6);
+  const topAspects = chart.aspects.slice(0, 6);
+  const ascText =
+    chart.houses.asc === null
+      ? ""
+      : language === "ru"
+        ? `Асцендент расположен в ${formatLongitude(chart.houses.asc, language)}, поэтому первое впечатление строится через ${SIGN_TONES[longitudeToSign(chart.houses.asc).sign]?.[language] ?? formatLongitude(chart.houses.asc, language)} способ контакта.`
+        : `The Ascendant is at ${formatLongitude(chart.houses.asc, language)}, so first impressions form through a ${SIGN_TONES[longitudeToSign(chart.houses.asc).sign]?.[language] ?? formatLongitude(chart.houses.asc, language)} mode of contact.`;
+  const mcText =
+    chart.houses.mc === null
+      ? ""
+      : language === "ru"
+        ? `Середина неба стоит в ${formatLongitude(chart.houses.mc, language)}, и это показывает, каким тоном человек выходит в публичность, строит репутацию и выбирает направление достижения.`
+        : `The Midheaven is at ${formatLongitude(chart.houses.mc, language)}, showing the tone through which public direction, reputation and achievement are built.`;
+
+  if (language === "ru") {
+    return [
+      {
+        title: "Внутренний центр и способ держаться в мире",
+        paragraphs: [
+          `${name} устроен не через один простой признак, а через сочетание устойчивого центра, эмоциональной памяти и внешней манеры действовать. ${sun} Это описание важно не как ярлык, а как указание на то, где человек собирает волю, где чувствует право быть собой и каким способом пытается удержать ощущение собственной ценности.`,
+          `${moon} Эмоциональный слой может работать иначе, чем внешний центр. Там, где воля стремится к одному, чувство безопасности может просить другого ритма: привычности, контроля, близости, дистанции или подтверждения. Поэтому в характере появляется не плоская линия, а несколько внутренних требований, которые нужно согласовывать.`,
+          ascText || "Если точное время рождения неизвестно, внешний стиль лучше читать осторожно: без Асцендента нельзя уверенно говорить о телесной манере, первом впечатлении и способе входить в новые обстоятельства.",
+          `Главная задача базовой оси - не выбрать одну часть личности и подавить остальные, а научиться пользоваться ими по очереди. Когда центральная воля получает форму, эмоциональная часть перестает быть помехой, а внешняя манера становится инструментом, человек выглядит цельнее и действует спокойнее.`,
+        ],
+      },
+      {
+        title: "Эмоциональная память, близость и внутренняя опора",
+        paragraphs: [
+          `Эмоциональная жизнь здесь не сводится к настроению. Она показывает, как человек запоминает опыт, чего боится потерять и что считает безопасным. ${moon} Это положение делает реакции не случайными: за ними стоит потребность в понятном внутреннем порядке, который помогает выдерживать давление внешних обстоятельств.`,
+          `Когда человеку не хватает опоры, он может пытаться компенсировать это контролем, уходом в работу, идеализацией отношений или жесткой самодисциплиной. Но сама карта показывает, что эмоциональная зрелость приходит не через подавление чувств, а через признание их фактической силы. Чувство здесь сообщает, где нарушена граница, где нужна забота, а где пора перестать удерживать старую форму.`,
+          `В близости такой человек может одновременно хотеть надежности и бояться полной зависимости. Ему важно, чтобы другой человек не только вызывал чувства, но и уважал ритм, тело, привычки, личные границы. Отношения становятся устойчивыми тогда, когда эмоции не требуют постоянной драматизации, а получают регулярное подтверждение через действия.`,
+          `Эта часть карты особенно важна для восстановления после перегрузок. Если эмоциональный слой игнорируется, человек начинает действовать механически. Если же он получает место, появляется способность мягче выбирать, быстрее возвращаться к себе и не путать временное напряжение с окончательным решением.`,
+        ],
+      },
+      {
+        title: "Мышление, речь и способ понимать происходящее",
+        paragraphs: [
+          `${mercury} Поэтому мышление работает не только как анализ, но и как способ удерживать контакт с реальностью. Человеку важно понимать, что именно происходит, на какие факты можно опереться и какие слова действительно что-то меняют. Пустые объяснения быстро утомляют, зато точная формулировка способна собрать внутренний хаос.`,
+          `В разговоре это может давать осторожность: прежде чем раскрыться, человек проверяет, насколько собеседник надежен, насколько тема практична и не придется ли потом расплачиваться за слишком быструю откровенность. Там, где доверие есть, речь становится глубже, конкретнее и полезнее.`,
+          `Такой ум лучше всего раскрывается, когда получает материал для применения. Абстрактные идеи ценны, если их можно перевести в навык, план, решение, текст, систему или полезный вывод. Если информации слишком много и она никак не структурирована, появляется раздражение или желание закрыться.`,
+          `Сильная сторона этого слоя - способность постепенно докапываться до сути. Не обязательно быстро, не обязательно громко, но настойчиво. Человек может видеть детали, которые другие пропускают, и связывать их в практическую картину, если не заставляет себя отвечать раньше, чем мысль созрела.`,
+        ],
+      },
+      {
+        title: "Любовь, желание и выбор партнерства",
+        paragraphs: [
+          `${venus} Тема любви здесь связана не только с симпатией, но и с ценностями: что человек считает красивым, достойным, желанным, живым. В отношениях важно не потерять ощущение собственного желания, потому что без него близость быстро превращается в обязанность.`,
+          `${mars} Желание действует как двигатель: оно показывает, где человек готов рисковать, защищаться, добиваться и вступать в прямое взаимодействие с миром. Если эта энергия не имеет выхода, она может уходить в раздражение, пассивное сопротивление или внутреннее напряжение.`,
+          `Партнерство для такой карты становится местом, где нужно учиться честно называть свои потребности. Слишком сильная адаптация лишает отношения огня, а слишком резкое самоутверждение может разрушить доверие. Зрелый вариант - говорить прямо, но не превращать каждое различие в борьбу за власть.`,
+          `В любви важна не только романтика, но и способность вместе выдерживать реальность: деньги, быт, усталость, разные желания, несовпадающие темпы. Когда партнер видит не только привлекательную часть, но и внутреннюю сложность человека, появляется возможность настоящей близости, а не красивой роли.`,
+        ],
+      },
+      {
+        title: "Рост, дисциплина и социальная реализация",
+        paragraphs: [
+          `${jupiter} Этот слой показывает, где человек расширяется, во что верит и через что чувствует перспективу. Рост не всегда приходит через легкость; иногда он приходит через необходимость поверить в большее, чем текущий страх или привычная рамка.`,
+          `${saturn} Сатурнианская часть карты показывает, где требуется взросление: принять ограничения, не обесценить труд, выдержать срок, построить форму. Если этот принцип проживается жестко, человек может критиковать себя слишком сурово. Если зрелее - он превращает страх в мастерство.`,
+          mcText || "Если Середина неба не рассчитана из-за неизвестного времени рождения, карьерный вектор лучше читать через планеты, аспекты и повторяющиеся темы карты, а не через точную ось публичной реализации.",
+          `Социальная реализация складывается из двух движений: расширения и дисциплины. Нужна смелость видеть возможность, но нужна и форма, которая позволит эту возможность удержать. Когда вера не отрывается от труда, а труд не убивает веру, человек начинает строить результат, который имеет вес.`,
+        ],
+      },
+      {
+        title: "Глубинные изменения и скрытые напряжения",
+        paragraphs: [
+          outer.join(" ") || "Поколенческие планеты показывают более глубокие процессы: свободу, идеалы, кризисы, очищение и способность меняться не поверхностно, а на уровне жизненной стратегии.",
+          `${houseEmphasis(chart, language)}. Эти домовые акценты показывают, где жизнь чаще всего требует участия. Если в доме несколько планет, человек не может относиться к этой сфере как к второстепенной: там собирается энергия, там возникают задачи, там же находится часть силы.`,
+          ...tensionAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+          `Напряженные аспекты не стоит читать как поломку. Они показывают места, где психика не может оставаться пассивной. Там приходится учиться новому способу поведения: не действовать автоматически, не переносить внутренний конфликт на других людей, не выбирать одну часть себя против другой.`,
+        ],
+      },
+      {
+        title: "Таланты, поддержка и естественные способности",
+        paragraphs: [
+          ...supportAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+          `Гармоничные связи не гарантируют результата сами по себе. Они показывают каналы, где энергия идет легче, но если человек не пользуется ими сознательно, талант остается фоном. Именно поэтому секстили требуют действия: они открывают возможность, но не делают выбор вместо человека.`,
+          `Трины дают естественность и чувство внутреннего разрешения. Через них человек может восстанавливаться, находить уверенность и делать сложные вещи проще. Но зрелое использование трина означает не расслабленную пассивность, а умение превратить легкость в мастерство.`,
+        ],
+      },
+      {
+        title: "Повторяющиеся линии характера",
+        paragraphs: [
+          ...topAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+          `Если смотреть на карту в целом, повторяется одна важная тема: человеку нужно согласовать устойчивость и изменение, личное желание и ответственность, внутреннюю безопасность и необходимость двигаться дальше. Когда одна из этих сторон подавляется, появляется напряжение; когда они начинают взаимодействовать, возникает зрелость.`,
+          `Практически это означает, что человеку важно не строить жизнь только из защиты и не бросаться в перемены только ради освобождения. Лучший путь - создавать форму, которую можно обновлять. Тогда стабильность не становится клеткой, а развитие не превращается в хаос.`,
+        ],
+      },
+      {
+        title: "Итоговый психологический вектор",
+        paragraphs: [
+          `${name} раскрывается сильнее всего там, где может соединить конкретность, эмоциональную честность и способность выдерживать сложные внутренние связи. Эта карта не про один простой темперамент: в ней есть потребность в форме, потребность в глубине, потребность в свободе и потребность в надежном контакте.`,
+          `Главная зрелая задача - перестать воспринимать внутренние противоречия как доказательство неправильности. Они показывают, что личность устроена объемно. Одна часть хочет безопасности, другая - движения; одна стремится к контролю, другая - к доверию; одна держит форму, другая требует обновления. Сила появляется, когда эти части начинают работать как система.`,
+          `В отношениях, работе и личных решениях этому человеку важно выбирать не самый быстрый ответ, а самый честный. Если решение сохраняет тело, ценности, эмоциональную правду и долгосрочную форму, оно будет работать. Если оно держится только на страхе, идеализации или попытке понравиться, карта быстро покажет напряжение.`,
+          `Потенциал здесь раскрывается через постепенное строительство жизни, где внутренний мир не вытесняется ради внешнего результата, а внешний результат не разваливается из-за невыраженных чувств. Когда человек учится слышать обе стороны, карта начинает работать как ресурс: дает устойчивость, глубину, способность любить, действовать, меняться и оставаться собой.`,
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Inner Center And Personal Presence",
+      paragraphs: [
+        `${name} is not described by one simple trait, but by the combination of a stable center, emotional memory and an outer way of acting. ${sun} This is not a label; it shows where the person gathers will, where self-worth is felt, and how the right to exist as oneself is claimed.`,
+        `${moon} The emotional layer may work differently from the visible center. Where will wants one thing, safety may need another rhythm: familiarity, control, closeness, distance or confirmation. Character therefore contains several inner requirements that must be coordinated.`,
+        ascText || "If birth time is unknown, the outer style should be read carefully: without the Ascendant, body language, first impressions and the way of entering new circumstances cannot be described with precision.",
+        `The task of the basic axis is not to choose one part of the personality and suppress the rest, but to learn how to use them in sequence. When will receives form, emotion stops feeling like an obstacle, and outward style becomes a tool rather than a mask.`,
+      ],
+    },
+    {
+      title: "Emotional Memory, Intimacy And Inner Ground",
+      paragraphs: [
+        `Emotional life here is not just mood. It shows how experience is remembered, what feels unsafe to lose, and what kind of inner order is needed. ${moon} Reactions are not random; they protect a need for safety that has its own logic.`,
+        `When inner ground is missing, compensation may appear through control, overwork, idealizing relationships or rigid self-discipline. The chart suggests that maturity does not come from suppressing feeling, but from recognizing its factual strength.`,
+        `In intimacy there may be a simultaneous need for reliability and fear of too much dependence. The other person needs to respect rhythm, body, habits and boundaries. Relationships become steady when emotions receive regular confirmation through action.`,
+        `This layer is crucial for recovery. If it is ignored, life becomes mechanical. If it is given room, the person chooses more gently, returns to the self more quickly, and stops confusing temporary pressure with final truth.`,
+      ],
+    },
+    {
+      title: "Thinking, Speech And Understanding",
+      paragraphs: [
+        `${mercury} Thinking works not only as analysis, but as a way of staying in contact with reality. The person needs to know what is happening, what facts can be trusted, and which words actually change something.`,
+        `Speech may therefore be cautious. Before opening up, the person checks whether the listener is reliable, whether the subject is practical, and whether too much honesty will carry a cost. Where trust exists, communication becomes deeper and more useful.`,
+        `This mind opens best when ideas can be applied. Abstract thought matters when it becomes a skill, plan, decision, text, system or useful conclusion. Too much unstructured information can create irritation or withdrawal.`,
+        `The strength here is the ability to get to the core gradually. Not always quickly, not always loudly, but persistently. Details that others miss can be joined into a practical picture once the thought has time to mature.`,
+      ],
+    },
+    {
+      title: "Love, Desire And Partnership Choice",
+      paragraphs: [
+        `${venus} Love is tied not only to attraction, but to values: what feels beautiful, worthy, desirable and alive. In relationships, the person must not lose contact with desire, because without it intimacy becomes duty.`,
+        `${mars} Desire acts as the engine. It shows where the person risks, defends, pursues and meets the world directly. Without an outlet, this energy can become irritation, passive resistance or inner pressure.`,
+        `Partnership becomes a field where needs must be named honestly. Too much adaptation removes fire; too much self-assertion can damage trust. The mature path is directness without turning every difference into a power struggle.`,
+        `Love requires more than romance. It must survive money, daily life, fatigue, different desires and mismatched timing. When a partner sees the complexity beneath the attractive surface, real intimacy becomes possible.`,
+      ],
+    },
+    {
+      title: "Growth, Discipline And Public Direction",
+      paragraphs: [
+        `${jupiter} This layer shows where expansion, faith and perspective appear. Growth does not always arrive through ease; sometimes it comes through believing in something larger than fear or habit.`,
+        `${saturn} The Saturnian layer shows where maturity is required: accepting limits, respecting effort, enduring time and building form. If lived harshly, it becomes self-criticism; if lived well, fear becomes mastery.`,
+        mcText || "If the Midheaven is not calculated because birth time is unknown, public direction is better read through planets, aspects and repeated themes rather than a precise career axis.",
+        `Realization requires both expansion and discipline. Courage sees possibility; structure holds it. When faith is not separated from work, and work does not kill faith, the person begins to build results with weight.`,
+      ],
+    },
+    {
+      title: "Deep Change And Hidden Pressure",
+      paragraphs: [
+        outer.join(" ") || "The outer planets describe deeper processes: freedom, ideals, crisis, purification and the ability to change at the level of life strategy.",
+        `${houseEmphasis(chart, language)}. These house emphases show where life demands participation most often. If several planets gather in one house, that area cannot be treated as secondary.`,
+        ...tensionAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+        `Difficult aspects should not be read as damage. They show places where the psyche cannot remain passive. A new behavior must be learned: not acting automatically, not projecting inner conflict onto others, and not choosing one part of the self against another.`,
+      ],
+    },
+    {
+      title: "Talents, Support And Natural Abilities",
+      paragraphs: [
+        ...supportAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+        `Supportive aspects do not guarantee results by themselves. They show channels where energy moves more easily, but if they are not used consciously, talent remains background. Sextiles especially ask for action: they open a possibility but do not choose for the person.`,
+        `Trines give naturalness and inner permission. Through them the person recovers confidence and does difficult things with more ease. Mature use of a trine means turning ease into skill rather than passive comfort.`,
+      ],
+    },
+    {
+      title: "Repeated Character Lines",
+      paragraphs: [
+        ...topAspects.map((aspect) => aspectSynthesisSentence(aspect, chart, language)),
+        `Across the chart, one important theme repeats: stability and change, personal desire and responsibility, inner safety and forward movement need to be coordinated. Tension appears when one side is suppressed; maturity appears when they begin to cooperate.`,
+        `Practically, this means not building life only from defense and not chasing change only for the sake of escape. The best path is to create a form that can be renewed. Then stability is not a cage, and development is not chaos.`,
+      ],
+    },
+    {
+      title: "Overall Psychological Direction",
+      paragraphs: [
+        `${name} becomes strongest when concreteness, emotional honesty and the ability to hold complex inner links work together. This chart is not about one simple temperament: it contains a need for form, depth, freedom and reliable contact.`,
+        `The main mature task is to stop treating inner contradictions as proof that something is wrong. They show dimensionality. One part needs safety, another needs motion; one seeks control, another asks for trust; one keeps form, another demands renewal.`,
+        `In relationships, work and private decisions, the best answer is not always the fastest one, but the most honest one. If a choice preserves the body, values, emotional truth and long-term form, it will hold. If it rests only on fear, idealization or pleasing others, tension will return.`,
+        `The potential opens through slowly building a life where the inner world is not sacrificed for external results, and external results are not destroyed by unspoken feeling. When both sides are heard, the chart becomes a resource: steadiness, depth, love, action, change and self-possession can work together.`,
+      ],
+    },
+  ];
+}
+
+function renderDetailedPortrait(
+  doc: PDFKit.PDFDocument,
+  sections: PortraitSection[],
+  fonts: { regular: string; bold: string; sans: string; sansBold: string },
+): void {
+  for (const section of sections) {
+    ensureSpace(doc, 120);
+    doc
+      .font(fonts.bold)
+      .fontSize(16)
+      .fillColor(DEEP_GOLD)
+      .text(section.title, doc.page.margins.left, doc.y, {
+        width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        lineGap: 2,
+      })
+      .moveDown(0.45);
+
+    for (const paragraph of section.paragraphs.filter(Boolean)) {
+      ensureSpace(doc, 88);
+      doc
+        .font(fonts.regular)
+        .fontSize(10.8)
+        .fillColor(TEXT)
+        .text(paragraph, doc.page.margins.left, doc.y, {
+          width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          lineGap: 4.2,
+          align: "left",
+        })
+        .moveDown(0.8);
+    }
+
+    doc.moveDown(0.35);
+  }
 }
 
 export async function generatePremiumPdf(
@@ -1295,7 +1875,7 @@ export async function generateInterpretationPdf(
       drawPageBackground(doc, "cover", pageIndex);
       pageIndex += 1;
 
-      drawDecorativeWheel(doc, PAGE_WIDTH / 2, 282, 138);
+      drawSketchWheel(doc, PAGE_WIDTH / 2, 282, 138, "#D0B982", 0.42);
 
       doc
         .font(fonts.bold)
@@ -1357,7 +1937,7 @@ export async function generateInterpretationPdf(
       addSectionTitle(
         doc,
         fonts,
-        language === "ru" ? "Вступление" : "Opening Narrative",
+        language === "ru" ? "Первичная ориентация" : "First Orientation",
         language === "ru" ? "общее направление" : "the whole pattern",
       );
       renderNarrativeText(doc, buildOpeningNarrative(report.profile, report.chart, language), fonts);
@@ -1453,7 +2033,7 @@ export async function generateInterpretationPdf(
           doc,
           language,
           fonts,
-          language === "ru" ? "Дома: сцены жизни" : "Houses: The Life Stages",
+          language === "ru" ? "Дома: сферы опыта" : "Houses: Areas Of Experience",
           language === "ru"
             ? "После планет важно понять, где именно раскрывается каждая тема. Дома превращают психологические функции в конкретные области опыта."
             : "After the planets, we need to know where each theme unfolds. Houses turn psychological functions into concrete areas of experience.",
@@ -1492,6 +2072,7 @@ export async function generateInterpretationPdf(
             ]),
             [54, 150, 298],
           );
+          renderHouseNarratives(doc, report.chart, language, fonts);
         }
 
         addPage("aspects");
@@ -1499,10 +2080,10 @@ export async function generateInterpretationPdf(
           doc,
           language,
           fonts,
-          language === "ru" ? "Аспекты: сюжетные линии" : "Aspects: The Plot Lines",
+          language === "ru" ? "Аспекты: связи карты" : "Aspects: Chart Dynamics",
           language === "ru"
-            ? "Теперь персонажи и сцены известны. Аспекты показывают сам сюжет: где энергия течет легко, где требует труда, а где создает внутренний диалог."
-            : "Now the characters and scenes are known. Aspects show the plot itself: where energy flows easily, where it requires work, and where it creates inner dialogue.",
+            ? "Теперь видны планеты и дома. Аспекты показывают, где энергии поддерживают друг друга, где спорят, где усиливаются и где требуют осознанной работы."
+            : "Now the planets and houses are visible. Aspects show where energies support one another, where they clash, where they amplify, and where conscious work is required.",
           language === "ru" ? "Глава 4" : "Chapter 4",
         );
 
@@ -1534,71 +2115,31 @@ export async function generateInterpretationPdf(
         renderAspectNarratives(doc, report.chart, language, fonts);
       }
 
-      addPage("story");
+      addPage("portrait");
       renderChapterDivider(
         doc,
         language,
         fonts,
-        language === "ru" ? "Интерпретация как рассказ" : "Interpretation As A Story",
+        language === "ru" ? "Психологический портрет" : "Psychological Portrait",
         language === "ru"
-          ? "Последний раздел соединяет технику карты с живым текстом. Здесь отдельные указания складываются в последовательное описание характера и внутренних задач."
-          : "The final section joins chart technique with living text. Here the separate indications become a continuous description of character and inner tasks.",
+          ? "Здесь технические элементы карты собраны в цельное описание характера, отношений, эмоциональных реакций, сильных сторон и внутренних задач."
+          : "Here the technical factors of the chart are gathered into a full description of character, relationships, emotional reactions, strengths and inner tasks.",
         language === "ru" ? "Глава 5" : "Chapter 5",
       );
 
-      addPage("story");
+      addPage("portrait");
       addSectionTitle(
         doc,
         fonts,
-        language === "ru" ? "Главные интерпретации" : "Core Interpretations",
-        language === "ru" ? "связный разбор" : "connected reading",
+        language === "ru" ? "Подробный портрет" : "Detailed Portrait",
+        language === "ru" ? "синтез карты" : "chart synthesis",
       );
       renderNarrativeText(doc, buildBridge("aspects", language), fonts);
-
-      for (const [index, section] of report.sections.entries()) {
-        if (index > 0) {
-          const bridge =
-            language === "ru"
-              ? "Этот мотив продолжает предыдущий: он показывает еще один слой той же карты и уточняет, как центральная тема проявляется в другой функции."
-              : "This theme continues the previous one: it adds another layer of the same chart and clarifies how the central pattern expresses itself through another function.";
-          renderNarrativeText(doc, bridge, fonts);
-        }
-
-        ensureSpace(doc, 124);
-
-        if (section.category) {
-          doc
-            .font(fonts.sansBold)
-            .fontSize(8.5)
-            .fillColor(MUTED)
-            .text(section.category.toUpperCase(), {
-              characterSpacing: 0.8,
-            })
-            .moveDown(0.2);
-        }
-
-        doc
-          .font(fonts.bold)
-          .fontSize(17)
-          .fillColor(DEEP_GOLD)
-          .text(section.title, {
-            lineGap: 2,
-          })
-          .moveDown(0.3);
-
-        if (section.detail) {
-          doc
-            .font(fonts.sans)
-            .fontSize(9.5)
-            .fillColor(MUTED)
-            .text(section.detail, {
-              lineGap: 2,
-            })
-            .moveDown(0.5);
-        }
-
-        renderParagraph(doc, section.body, fonts);
-      }
+      renderDetailedPortrait(
+        doc,
+        buildDetailedPortrait(report.profile, report.chart, language),
+        fonts,
+      );
 
       doc
         .addPage();
@@ -1619,8 +2160,8 @@ export async function generateInterpretationPdf(
         .fillColor("#E7D4B5")
         .text(
           language === "ru"
-            ? "Карта не является набором случайных признаков. Это связная система: планеты показывают силы, дома - области жизни, аспекты - сюжетные связи, а интерпретация собирает их в человеческую историю."
-            : "A chart is not a list of random traits. It is a connected system: planets show forces, houses show life areas, aspects show plot lines, and interpretation gathers them into a human story.",
+            ? "Карта не является набором случайных признаков. Это связная система: планеты показывают силы, дома - области жизни, аспекты - связи между ними, а синтез помогает увидеть цельный психологический портрет."
+            : "A chart is not a list of random traits. It is a connected system: planets show forces, houses show life areas, aspects show connections between them, and synthesis helps reveal an integrated psychological portrait.",
           {
             width: contentWidth - 60,
             align: "center",

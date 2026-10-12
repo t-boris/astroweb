@@ -114,7 +114,7 @@ export const askRelationship = onCall({
     uid: request.auth?.uid ?? null,
     deviceId: ownerDeviceId,
   });
-  await spendFromWallet(walletKey, TOKEN_COST.compatibility);
+  await spendFromWallet(walletKey, TOKEN_COST.compatibility, "relationship");
 
   try {
     const partnerTimezone = getTimezoneFromCoords(partner.lat, partner.lng);
@@ -157,7 +157,7 @@ export const askRelationship = onCall({
   } catch (error) {
     // Generation failed after tokens were spent — refund (best-effort).
     try {
-      await refundToWallet(walletKey, TOKEN_COST.compatibility);
+      await refundToWallet(walletKey, TOKEN_COST.compatibility, "relationship");
       logger.info("askRelationship refunded tokens after failure", { profileId });
     } catch (refundError) {
       logger.error("askRelationship failed to refund tokens", {

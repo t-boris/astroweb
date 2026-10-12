@@ -113,7 +113,7 @@ export const askInLetter = onCall(
     const trimmed = question.trim().slice(0, 1000);
     const language = normalizeLanguage(request.data?.language);
 
-    await spendFromWallet(uid, TOKEN_COST.oracle);
+    await spendFromWallet(uid, TOKEN_COST.oracle, "letter");
     try {
       const { chart } = await resolveOwnedChart({ profileId, ownerDeviceId, uid });
       const dossierSummary = await getDossierSummaryText(profileId);
@@ -132,7 +132,7 @@ export const askInLetter = onCall(
       return { answer: result.text, model: result.model };
     } catch (error) {
       try {
-        await refundToWallet(uid, TOKEN_COST.oracle);
+        await refundToWallet(uid, TOKEN_COST.oracle, "letter");
       } catch {
         /* best-effort */
       }

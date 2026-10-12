@@ -21,6 +21,27 @@ import type { OwnerCtx } from "./owner";
 
 const DEVICE_PREFIX = "device:";
 
+/** Feature labels recorded in the `starSpends` ledger (REQ-009 / DEC-009). */
+export type SpendFeature = "interpretations" | "compatibility" | "oracle" | "relationship" | "letter";
+
+/** Ledger row of one star spend (positive `stars`) or refund (negative `stars`). */
+export interface StarSpendRow {
+  walletKey: string;
+  feature: SpendFeature;
+  stars: number;
+}
+
+/** Build the ledger row for a spend (`stars` > 0) or a refund (`stars` < 0). */
+export function buildStarSpendRow(walletKey: string, feature: SpendFeature, stars: number): StarSpendRow {
+  return { walletKey, feature, stars };
+}
+
+/** Write a ledger row inside the same transaction as the wallet change. */
+function recordSpendInTx(tx: Transaction, row: StarSpendRow): void {
+  const ref = getFirestore().collection("starSpends").doc();
+  tx.set(ref, { ...row, createdAt: FieldValue.serverTimestamp() });
+}
+
 /** Build the wallet key for a request's ownership context. */
 export function walletKeyFromCtx(ctx: OwnerCtx): string {
   if (ctx.uid) return ctx.uid;
@@ -110,22 +131,11 @@ export async function ensureWalletInTx(tx: Transaction, key: string): Promise<nu
 /**
  * Spend `cost` stars from the wallet. Throws failed-precondition
  * ("INSUFFICIENT_TOKENS") when the balance is too low. Returns the remaining
- * balance.
+ * balance. The spend and its `starSpends` ledger row commit atomically.
  */
-export async function spendFromWallet(key: string, cost: number): Promise<number> {
+export async function spendFromWallet(key: string, cost: number, feature: SpendFeature): Promise<number> {
   const db = getFirestore();
-  return db.runTransaction(async (tx) => {
-    const balance = await ensureWalletInTx(tx, key);
-    if (balance < cost) {
-      throw new HttpsError("failed-precondition", "INSUFFICIENT_TOKENS");
-    }
-    tx.set(
-      walletRef(key),
-      { tokens: balance - cost, updatedAt: FieldValue.serverTimestamp() },
-      { merge: true },
-    );
-    return balance - cost;
-  });
+  return db.runTransaction(async (tx) => spendInTx(tx, key, cost, feature));
 }
 
 /**
@@ -133,7 +143,12 @@ export async function spendFromWallet(key: string, cost: number): Promise<number
  * atomically combine the spend with another write (e.g. setting a profile's
  * unlock flag). All reads in the transaction must precede this call.
  */
-export async function spendInTx(tx: Transaction, key: string, cost: number): Promise<number> {
+export async function spendInTx(
+  tx: Transaction,
+  key: string,
+  cost: number,
+  feature: SpendFeature,
+): Promise<number> {
   const balance = await ensureWalletInTx(tx, key);
   if (balance < cost) {
     throw new HttpsError("failed-precondition", "INSUFFICIENT_TOKENS");
@@ -143,12 +158,24 @@ export async function spendInTx(tx: Transaction, key: string, cost: number): Pro
     { tokens: balance - cost, updatedAt: FieldValue.serverTimestamp() },
     { merge: true },
   );
+  recordSpendInTx(tx, buildStarSpendRow(key, feature, cost));
   return balance - cost;
 }
 
-/** Add stars back after a failed action (best-effort path uses this too). */
-export async function refundToWallet(key: string, amount: number): Promise<number> {
-  return grantToWallet(key, amount);
+/**
+ * Add stars back after a failed action. Writes a negative `starSpends` row for
+ * the same feature in the same transaction, so net spend never counts a failed
+ * generation.
+ */
+export async function refundToWallet(key: string, amount: number, feature: SpendFeature): Promise<number> {
+  const db = getFirestore();
+  return db.runTransaction(async (tx) => {
+    const balance = await ensureWalletInTx(tx, key);
+    const next = Math.max(0, balance + amount);
+    tx.set(walletRef(key), { tokens: next, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    recordSpendInTx(tx, buildStarSpendRow(key, feature, -amount));
+    return next;
+  });
 }
 
 /** Credit stars (purchase fulfilment or admin). Returns the new balance. */

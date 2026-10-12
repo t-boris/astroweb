@@ -3,6 +3,8 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import type { Profile } from "../types";
 import { grantToWallet, walletKeyFromProfile } from "../services/wallet";
+import { GROUPINGS, PERIODS, type Grouping, type Period } from "../services/businessStats";
+import { loadBusinessStats } from "../services/businessStatsLoader";
 
 const ADMIN_EMAIL = "t.boris@gmail.com";
 
@@ -141,4 +143,18 @@ export const adminGrantToWallet = onCall(async (request) => {
   }
   const tokens = await grantToWallet(walletKey, amount);
   return { ok: true, tokens };
+});
+
+/**
+ * KPIs for the admin Business tab (REQ-006): per-currency revenue, purchases,
+ * paying users, ARPPU, subscription counts, new profiles and net stars per
+ * feature for the chosen UTC period. Admin only.
+ */
+export const adminStats = onCall(async (request) => {
+  assertAdmin(request);
+  const period = request.data?.period ?? "30d";
+  const grouping = request.data?.grouping ?? "day";
+  if (!PERIODS.includes(period)) throw new HttpsError("invalid-argument", "period must be 7d, 30d, 90d or all");
+  if (!GROUPINGS.includes(grouping)) throw new HttpsError("invalid-argument", "grouping must be day, week or month");
+  return loadBusinessStats(period as Period, grouping as Grouping);
 });

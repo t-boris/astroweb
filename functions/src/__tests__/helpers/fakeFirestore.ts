@@ -62,31 +62,74 @@ export function createFakeFirestore(): FakeFirestore {
     return ref;
   };
 
+  type Filter = [field: string, op: string, value: unknown];
   interface Query {
     __query: true;
     col: string;
-    filters: Array<[string, unknown]>;
+    filters: Filter[];
     max: number;
+    order: [field: string, dir: "asc" | "desc"] | null;
     where(field: string, op: string, value: unknown): Query;
+    orderBy(field: string, dir?: "asc" | "desc"): Query;
     limit(n: number): Query;
+    select(...fields: string[]): Query;
     get(): Promise<ReturnType<typeof runQuery>>;
+    count(): { get(): Promise<{ data(): { count: number } }> };
   }
 
-  const makeQuery = (col: string, filters: Array<[string, unknown]>, max = Infinity): Query => ({
+  /** Comparable form of a stored/queried value: Timestamp-likes -> millis. */
+  const norm = (v: unknown): unknown => {
+    const o = v as { __ts?: number; toDate?: () => Date } | null;
+    if (o && typeof o === "object") {
+      if (typeof o.__ts === "number") return o.__ts;
+      if (typeof o.toDate === "function") return o.toDate().getTime();
+    }
+    return v;
+  };
+  const matches = (d: Doc, [field, op, value]: Filter) => {
+    const a = norm(d[field]) as number | string;
+    const b = norm(value) as number | string;
+    if (op === "==") return a === b;
+    if (a === undefined || a === null) return false;
+    if (op === ">=") return a >= b;
+    if (op === ">") return a > b;
+    if (op === "<=") return a <= b;
+    if (op === "<") return a < b;
+    throw new Error(`unsupported where operator ${op}`);
+  };
+
+  const makeQuery = (
+    col: string,
+    filters: Filter[],
+    max = Infinity,
+    order: Query["order"] = null,
+  ): Query => ({
     __query: true,
     col,
     filters,
     max,
-    where: (field, _op, value) => makeQuery(col, [...filters, [field, value]], max),
-    limit: (n) => makeQuery(col, filters, n),
-    get: async () => runQuery(makeQuery(col, filters, max)),
+    order,
+    where: (field, op, value) => makeQuery(col, [...filters, [field, op, value]], max, order),
+    orderBy: (field, dir = "asc") => makeQuery(col, filters, max, [field, dir]),
+    limit: (n) => makeQuery(col, filters, n, order),
+    select: () => makeQuery(col, filters, max, order),
+    get: async () => runQuery(makeQuery(col, filters, max, order)),
+    count: () => ({
+      get: async () => ({ data: () => ({ count: runQuery(makeQuery(col, filters, Infinity, null)).docs.length }) }),
+    }),
   });
 
-  const runQuery = (q: { col: string; filters: Array<[string, unknown]>; max: number }) => {
-    const docs = [...colMap(q.col).entries()]
-      .filter(([, d]) => q.filters.every(([f, v]) => d[f] === v))
-      .slice(0, q.max)
-      .map(([id, d]) => ({ id, ref: makeRef(q.col, id), data: () => ({ ...d }) }));
+  const runQuery = (q: { col: string; filters: Filter[]; max: number; order: Query["order"] }) => {
+    let entries = [...colMap(q.col).entries()].filter(([, d]) => q.filters.every((f) => matches(d, f)));
+    if (q.order) {
+      const [field, dir] = q.order;
+      entries = entries.sort(([, x], [, y]) => {
+        const a = norm(x[field]) as number | string;
+        const b = norm(y[field]) as number | string;
+        return (a < b ? -1 : a > b ? 1 : 0) * (dir === "desc" ? -1 : 1);
+      });
+    }
+    const docs = entries.slice(0, q.max).map(([id, d]) => ({ id, ref: makeRef(q.col, id), data: () => ({ ...d }) }));
     return {
       empty: docs.length === 0,
       docs,
@@ -99,10 +142,14 @@ export function createFakeFirestore(): FakeFirestore {
       return {
         doc: (id?: string): Ref => makeRef(col, id ?? `auto${++auto}`),
         where: (field: string, op: string, value: unknown) => makeQuery(col, []).where(field, op, value),
+        orderBy: (field: string, dir?: "asc" | "desc") => makeQuery(col, []).orderBy(field, dir),
         limit: (n: number) => makeQuery(col, []).limit(n),
+        select: () => makeQuery(col, []),
+        count: () => makeQuery(col, []).count(),
         get: () => makeQuery(col, []).get(),
       };
     },
+    getAll: async (...refs: Ref[]) => Promise.all(refs.map((r) => r.get())),
     async runTransaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       const writes: Array<() => void> = [];
       const tx = {

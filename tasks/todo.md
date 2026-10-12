@@ -1,3 +1,21 @@
+# Server-side, cross-device storage of profile data (issue #10)
+
+Spec: `docs/features/server-side-cross-device-storage-of-profile-data/` (REQ-001..009, DEC-001..009).
+Branch: `feature/cross-device-profile-content`. Plan and defaults approved by Boris on 2026-10-12 (DEC-009).
+Deploy: the CI auto-deploy runs when the PR is merged to main.
+
+- [x] **WP1 Backend storage + callables (I-3, I-4, I-6, I-9; REQ-002..005, REQ-007, REQ-009):** `services/profileContent.ts`, `getProfileContent`, `uploadLocalContent`, `deleteProfileContentItem`, cascade in `deleteProfile`, persistence in `askRelationship` / `deepenInterpretation` / `askOracle`, rules test, unit tests.
+- [x] **WP2 Account gate on the server (I-1; REQ-006, REQ-004):** `askOracle`, `askRelationship`, `unlockFeature`, `createCheckoutSession` reject deviceId-only callers before any charge; tests.
+- [ ] **WP3 Client content layer (I-4, I-5, I-7; REQ-002..004, REQ-007, REQ-009):** api client, local-content reader/uploader (pure, tested), `useProfileContent` hook, InterpretationView and RelationshipView read from the server, entry deletion.
+- [ ] **WP4 Client sign-in gate + notice (I-2, I-8; REQ-006, REQ-008, REQ-001):** `ensureSignedIn` (popup, claimProfiles, no reload), gate on buy / unlock / Oracle / compatibility, "Sign in to save" notice in the profile list.
+- [ ] **WP5 Verify:** functions and web tests, builds, live anonymous walkthrough in the MarkView browser.
+- [ ] **WP6 Ship:** PR with test plan, CI green, merge, version 2.21.0, CI deploy, confirm the live version, manual checklist for Boris.
+
+## Review
+(filled in at the end)
+
+---
+
 # Product analytics, purchase funnel and SEO foundation (issue #2)
 
 Spec: `docs/features/product-analytics-purchase-funnel-and-seo-foundation/` (REQ-001..010, DEC-001..016).

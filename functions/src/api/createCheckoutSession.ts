@@ -2,7 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import Stripe from "stripe";
 import * as profileService from "../services/profile";
-import { ownerCtx, ownsProfile } from "../services/owner";
+import { ownsProfile, requireAccount } from "../services/owner";
 import { grantToWallet, isFirstReadingAvailable, walletKeyFromCtx } from "../services/wallet";
 import { getStarPack } from "../services/starPacks";
 import { analyticsMetadata, parseClientAnalytics } from "../services/ga4";
@@ -35,6 +35,8 @@ interface ResolvedOrder {
 export const createCheckoutSession = onCall({
   secrets: ["STRIPE_SECRET_KEY"],
 }, async (request) => {
+  // Buying stars requires an account (DEC-001, REQ-006).
+  const uid = requireAccount(request);
   const { data } = request;
   const { profileId, ownerDeviceId } = data;
   const packId = data?.packId;
@@ -44,7 +46,7 @@ export const createCheckoutSession = onCall({
   }
 
   // Verify ownership (account or device)
-  const ctx = ownerCtx(request);
+  const ctx = { uid, deviceId: null };
   const profile = await profileService.getProfileById(profileId);
   if (!profile) {
     throw new HttpsError("not-found", "Profile not found");

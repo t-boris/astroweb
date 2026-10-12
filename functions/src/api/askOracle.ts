@@ -9,7 +9,7 @@ import {
 import { getProfileById } from "../services/profile";
 import { TOKEN_COST } from "../services/tokens";
 import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
-import { ownerCtx, ownsProfile } from "../services/owner";
+import { ownsProfile, requireAccount } from "../services/owner";
 import { getDossierSummaryText, recordOracleHistory } from "../services/dossier";
 import { extractAndStoreFacts } from "../services/factExtraction";
 
@@ -17,8 +17,10 @@ export const askOracle = onCall({
   timeoutSeconds: 180,
   secrets: ["ANTHROPIC_API_KEY"],
 }, async (request) => {
+  // Asking the Oracle spends stars: account only (DEC-001, REQ-004). Checked
+  // before anything else, so a deviceId-only caller is never charged.
+  const uid = requireAccount(request);
   const profileId = request.data?.profileId;
-  const ownerDeviceId = request.data?.ownerDeviceId;
   const question = request.data?.question;
   const language = normalizeLanguage(request.data?.language);
   const relocationLat = request.data?.relocationLat;
@@ -26,10 +28,6 @@ export const askOracle = onCall({
 
   if (!profileId || typeof profileId !== "string") {
     throw new HttpsError("invalid-argument", "profileId is required");
-  }
-
-  if (!ownerDeviceId || typeof ownerDeviceId !== "string") {
-    throw new HttpsError("invalid-argument", "ownerDeviceId is required");
   }
 
   if (!question || typeof question !== "string") {
@@ -46,7 +44,7 @@ export const askOracle = onCall({
   }
 
     // Ownership check
-    const ctx = ownerCtx(request);
+    const ctx = { uid, deviceId: null };
     const profile = await getProfileById(profileId);
     if (!profile) {
       throw new HttpsError("not-found", "Profile not found");
@@ -64,21 +62,17 @@ export const askOracle = onCall({
   try {
     const { chart } = await resolveOwnedChart({
       profileId,
-      ownerDeviceId,
-      uid: ctx.uid,
+      uid,
       relocationLat,
       relocationLng,
     });
 
-    // Person-aware answers: inject the dossier summary when this chart has one
-    // (only meaningful for signed-in accounts that own the dossier).
+    // Person-aware answers: inject the dossier summary when this chart has one.
     let dossierSummary = "";
-    if (ctx.uid) {
-      try {
-        dossierSummary = await getDossierSummaryText(profileId);
-      } catch {
-        /* dossier optional */
-      }
+    try {
+      dossierSummary = await getDossierSummaryText(profileId);
+    } catch {
+      /* dossier optional */
     }
 
     const basePrompt = buildOraclePrompt({
@@ -106,24 +100,30 @@ export const askOracle = onCall({
       answerWords: result.text.split(/\s+/).filter(Boolean).length,
     });
 
-    // Server-side history + background fact extraction (signed-in accounts only).
-    if (ctx.uid) {
-      try {
-        await recordOracleHistory(profileId, {
-          question: trimmedQuestion,
-          answer: result.text,
-          model: result.model,
-          channel: "web",
-        });
-        await extractAndStoreFacts(profileId, ctx.uid, trimmedQuestion, null);
-      } catch (e) {
-        logger.warn("askOracle post-processing failed", { profileId, error: (e as Error).message });
-      }
+    // Server-side history (REQ-004): written only after a successful answer,
+    // so a refunded failure never leaves an entry.
+    let entryId: string | null = null;
+    try {
+      entryId = await recordOracleHistory(profileId, {
+        question: trimmedQuestion,
+        answer: result.text,
+        model: result.model,
+        channel: "web",
+      });
+    } catch (e) {
+      logger.warn("askOracle history write failed", { profileId, error: (e as Error).message });
+    }
+    try {
+      await extractAndStoreFacts(profileId, uid, trimmedQuestion, null);
+    } catch (e) {
+      logger.warn("askOracle fact extraction failed", { profileId, error: (e as Error).message });
     }
 
     return {
       answer: result.text,
       model: result.model,
+      entryId,
+      persisted: entryId !== null,
     };
   } catch (error) {
     // Generation failed after tokens were spent — refund so the user isn't

@@ -22,6 +22,19 @@ export function ownerCtx(request: CallableRequest): OwnerCtx {
   return { uid, deviceId };
 }
 
+/**
+ * Paid actions and server-stored content need a signed-in account (DEC-001).
+ * A caller authenticated only by a device id gets `unauthenticated` before any
+ * charge or write happens.
+ */
+export function requireAccount(request: CallableRequest): string {
+  const uid = (request.auth?.uid as string | undefined) ?? null;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign in required");
+  }
+  return uid;
+}
+
 /** True if this context may access the profile. */
 export function ownsProfile(profile: Pick<Profile, "ownerUid" | "ownerDeviceId">, ctx: OwnerCtx): boolean {
   if (ctx.uid && profile.ownerUid && profile.ownerUid === ctx.uid) return true;

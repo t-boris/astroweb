@@ -219,10 +219,11 @@ export async function exportDossier(profileId: string): Promise<unknown> {
 export async function recordOracleHistory(
   profileId: string,
   entry: { question: string; answer: string; model: string; channel: "web" | "letter" },
-): Promise<void> {
-  await getFirestore()
+): Promise<string> {
+  const ref = await getFirestore()
     .collection("oracleHistory")
     .doc(profileId)
     .collection("items")
     .add({ ...entry, askedAt: new Date().toISOString() });
+  return ref.id;
 }

@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as profileService from "../services/profile";
 import { ownerCtx, ownsProfile } from "../services/owner";
+import { deleteAllProfileContent } from "../services/profileContent";
 
 export const deleteProfile = onCall(async (request) => {
   const { data } = request;
@@ -24,6 +25,8 @@ export const deleteProfile = onCall(async (request) => {
       throw new HttpsError("permission-denied", "Access denied");
     }
 
+    // DEC-007: texts, readings and Oracle history go away with the profile.
+    await deleteAllProfileContent(data.profileId);
     await profileService.deleteProfile(data.profileId);
     return { success: true };
   } catch (error) {

@@ -68,6 +68,9 @@ export { unlockFeature } from "./api/unlockFeature";
 export { stripeWebhook } from "./api/stripeWebhook";
 export { processPdfJob } from "./api/processPdfJob";
 
+// Per-profile server-side content (REQ-002..005, REQ-007, REQ-009)
+export { getProfileContent, uploadLocalContent, deleteProfileContentItem } from "./api/profileContent";
+
 // Admin (gated to t.boris@gmail.com)
 export {
   adminListProfiles,

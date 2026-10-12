@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
+import type { CheckoutAnalytics } from "@/lib/analytics";
 
 export interface CreateCheckoutSessionPayload {
   profileId: string;
@@ -8,6 +9,8 @@ export interface CreateCheckoutSessionPayload {
   packId?: string;
   /** Legacy fallback: raw number of stars to buy ($0.99 each). */
   quantity?: number;
+  /** Analytics consent + GA client_id at checkout time (REQ-002). */
+  analytics?: CheckoutAnalytics;
 }
 
 export interface CreateCheckoutSessionResult {

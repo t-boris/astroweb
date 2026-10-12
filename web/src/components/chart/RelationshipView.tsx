@@ -4,6 +4,7 @@ import { toAppLanguage } from "@/lib/language";
 import { FirebaseError } from "firebase/app";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { askRelationship } from "@/api/ai";
+import { trackEvent, trackOnce } from "@/lib/analytics";
 import PlaceSearch from "@/components/PlaceSearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,11 @@ export function RelationshipView({
   const { t, i18n } = useTranslation();
   const language = toAppLanguage(i18n.resolvedLanguage);
   const canAfford = tokens >= TOKEN_COST.compatibility;
+
+  // Funnel: the compatibility paywall (not enough stars) is on screen.
+  useEffect(() => {
+    if (!canAfford) trackOnce(profileId, "paywall_viewed", { feature: "compatibility" });
+  }, [canAfford, profileId]);
 
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -139,6 +145,7 @@ export function RelationshipView({
 
     setLoading(true);
     setError(null);
+    trackEvent("ai_reading_requested", { kind: "compatibility" });
 
     try {
       const response = await askRelationship({

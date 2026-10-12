@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PlaceSearch from "@/components/PlaceSearch";
+import { trackEvent } from "@/lib/analytics";
 
 export default function ProfileCreate() {
   const { id } = useParams();
@@ -18,6 +19,11 @@ export default function ProfileCreate() {
   const { t } = useTranslation();
   const deviceId = useDeviceId();
   const isEdit = Boolean(id);
+
+  // Funnel: the visitor opened the profile-creation form (create mode only).
+  useEffect(() => {
+    if (!isEdit) trackEvent("profile_create_start");
+  }, [isEdit]);
 
   // Form state
   const [name, setName] = useState("");
@@ -127,6 +133,7 @@ export default function ProfileCreate() {
           lng: lng!,
           // timezone omitted — server resolves from lat/lng
         });
+        trackEvent("profile_created");
         navigate(`/profile/${result.id}`);
       }
     } catch (err) {

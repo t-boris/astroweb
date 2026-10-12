@@ -177,9 +177,13 @@ export async function getCheckoutAnalytics(): Promise<CheckoutAnalytics> {
 
 const seenOnce = new Set<string>();
 
-/** Fire `name` at most once per key for this page load (e.g. one paywall view per profile and feature). */
+/**
+ * Fire `name` at most once per key and parameter set for this page load (e.g. one
+ * paywall view per profile AND feature: the parameters are part of the identity,
+ * so paywall_viewed for "interpretations" never swallows the one for "premium_store").
+ */
 export function trackOnce<K extends FunnelEventName>(key: string, name: K, params?: FunnelEvents[K]): void {
-  const k = `${name}:${key}`;
+  const k = `${name}:${key}:${JSON.stringify(params ?? {})}`;
   if (seenOnce.has(k)) return;
   seenOnce.add(k);
   trackEvent(name, params);

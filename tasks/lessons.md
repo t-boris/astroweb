@@ -143,3 +143,12 @@ A gate that re-applies "URL language" in an effect depending on the current i18n
 switch (click EN on /ru/privacy -> the gate flips back to RU and the English page redirects to RU). Apply the
 URL language on arrival only (effect keyed on the location, not on the language) and let the switcher change
 the language first, then navigate.
+
+## Dev tools with a floating range can break the Cloud Build install of the functions
+
+Cloud Build runs `npm install` on `functions/package.json` alone (no lockfile in the upload). `"vitest": "^4.0.18"`
+floated to 4.1.x, which crashes npm's resolver (`Cannot read properties of null (reading 'edgesOut')`), so every
+function failed to update, in CI and in a manual deploy. Diagnose by copying `functions/package.json` to an empty
+directory and running `npm install --package-lock-only`; bisect by dropping one dependency at a time. Keep dev
+tools in `functions/package.json` pinned exactly (DEC-017) and re-run that clean-directory check after touching
+its dependencies.

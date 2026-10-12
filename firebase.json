@@ -2,10 +2,24 @@
   "hosting": {
     "public": "web/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "trailingSlashBehavior": "REMOVE",
     "headers": [
       {
         "source": "/locales/**",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/admin",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/account",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/profile/**",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
       }
     ],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]

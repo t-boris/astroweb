@@ -19,8 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import BusinessTab from "@/components/admin/BusinessTab";
+import { ADMIN_EMAIL } from "@/lib/admin";
 
-const ADMIN_EMAIL = "t.boris@gmail.com";
 
 export default function Admin() {
   const [user, setUser] = useState<User | null>(null);

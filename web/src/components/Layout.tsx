@@ -16,12 +16,25 @@ import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
 import Cosmos from "@/components/Cosmos";
+import ConsentBanner from "@/components/ConsentBanner";
+import SiteFooter from "@/components/SiteFooter";
+import AnalyticsRuntime from "@/components/AnalyticsRuntime";
+import { syncHeadForPath } from "@/seo/head";
+import { homePath, publicRoute } from "@/seo/routes";
+import { toAppLanguage } from "@/lib/language";
 import type { Profile } from "@/types";
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = toAppLanguage(i18n.language);
+  const home = homePath(lang);
+
+  // Per-route <head> for SPA navigation (the static HTML already carries it for first loads).
+  useEffect(() => {
+    syncHeadForPath(location.pathname, lang);
+  }, [location.pathname, lang]);
 
   // The ✦ stars pill is the Premium entry point: clicking it opens the Premium
   // (buy stars) tab of the current profile, or the first profile otherwise.
@@ -29,10 +42,10 @@ export default function Layout() {
     const m = location.pathname.match(/^\/profile\/([^/]+)/);
     const target = m && m[1] !== "new" ? m[1] : profiles[0]?.id;
     if (target) navigate(`/profile/${target}?tab=premium`);
-    else navigate("/");
+    else navigate(home);
   }
   const deviceId = useDeviceId();
-  const isHome = location.pathname === "/";
+  const isHome = publicRoute(location.pathname)?.kind === "landing";
   const [stars, setStars] = useState<number | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -86,7 +99,7 @@ export default function Layout() {
       <Cosmos />
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4">
-          <Link to="/" className="flex flex-none items-baseline gap-1">
+          <Link to={home} className="flex flex-none items-baseline gap-1">
             <span
               className="font-serif text-base uppercase tracking-[0.14em] text-foreground sm:text-xl sm:tracking-[0.16em]"
               style={{ fontFamily: "Marcellus, serif" }}
@@ -105,7 +118,7 @@ export default function Layout() {
           )}
           <div className="flex flex-none items-center gap-2 sm:gap-4">
             <nav className="hidden items-center gap-6 md:flex">
-              <Link to="/" className={`${navLink} ${location.pathname === "/" ? "text-foreground" : ""}`}>
+              <Link to={home} className={`${navLink} ${isHome ? "text-foreground" : ""}`}>
                 {t("nav.charts", "Charts")}
               </Link>
             </nav>
@@ -146,6 +159,9 @@ export default function Layout() {
       <main className={`relative z-10 ${isHome ? "" : "mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10"}`}>
         <Outlet />
       </main>
+      {location.pathname !== "/admin" && <SiteFooter />}
+      <ConsentBanner />
+      <AnalyticsRuntime />
     </div>
   );
 }

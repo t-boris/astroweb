@@ -126,6 +126,20 @@ describe("analytics runtime", () => {
     expect(sdk.logEvent.mock.calls.filter((c) => c[1] === "paywall_viewed")).toHaveLength(2);
   });
 
+  it("trackOnce keeps events with different parameters apart even for the same key (paywall features)", async () => {
+    const { consent, analytics } = await freshModules();
+    consent.setConsent("granted");
+    // Same profile id as key, three different paywalls: all three must be sent, a repeat must not.
+    analytics.trackOnce("profile-1", "paywall_viewed", { feature: "interpretations" });
+    analytics.trackOnce("profile-1", "paywall_viewed", { feature: "premium_store" });
+    analytics.trackOnce("profile-1", "paywall_viewed", { feature: "oracle" });
+    analytics.trackOnce("profile-1", "paywall_viewed", { feature: "premium_store" });
+    await vi.waitFor(() => expect(sdk.logEvent.mock.calls.filter((c) => c[1] === "paywall_viewed")).toHaveLength(3));
+    await flush();
+    const features = sdk.logEvent.mock.calls.filter((c) => c[1] === "paywall_viewed").map((c) => (c[2] as { feature: string }).feature);
+    expect(features).toEqual(["interpretations", "premium_store", "oracle"]);
+  });
+
   it("sets user_id for signed-in users and the internal-traffic parameter for the admin", async () => {
     const { consent, analytics } = await freshModules();
     consent.setConsent("granted");

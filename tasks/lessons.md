@@ -159,3 +159,10 @@ its dependencies.
 the same names with `secrets: [...]`. Cloud Run rejects the update with HTTP 400 "Secret environment variable
 overlaps non secret environment variable". Secrets live only in Secret Manager; `.env.<project>` holds public
 values (DEC-018). After touching secrets or env files, confirm with the next push-to-main deploy run, not only locally.
+
+## Test the dedupe key with the call sites' real arguments
+
+`trackOnce(key, name, params)` deduped on `name:key`. Two call sites passed the same profile id as key for different
+`paywall_viewed` features, so the second one (premium_store) was silently dropped; the unit test used distinct keys and
+passed. Found only by reading the live `dataLayer`. Make the identity include everything that distinguishes events
+(here the parameters) and test with the exact collision, not only the happy path.

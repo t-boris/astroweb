@@ -9,7 +9,9 @@ import {
 } from "../services/anthropic";
 import { getTimezoneFromCoords } from "../utils/timezone";
 import { TOKEN_COST } from "../services/tokens";
-import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
+import { spendFromWallet, refundToWallet } from "../services/wallet";
+import { requireAccount } from "../services/owner";
+import { saveCompatReading } from "../services/profileContent";
 
 interface PartnerInput {
   name: string;
@@ -82,8 +84,9 @@ export const askRelationship = onCall({
   timeoutSeconds: 180,
   secrets: ["ANTHROPIC_API_KEY"],
 }, async (request) => {
+  // A compatibility reading costs stars: account only (DEC-001, REQ-006).
+  const uid = requireAccount(request);
   const profileId = request.data?.profileId;
-  const ownerDeviceId = request.data?.ownerDeviceId;
   const language = normalizeLanguage(request.data?.language);
   const relocationLat = request.data?.relocationLat;
   const relocationLng = request.data?.relocationLng;
@@ -93,14 +96,9 @@ export const askRelationship = onCall({
     throw new HttpsError("invalid-argument", "profileId is required");
   }
 
-  if (!ownerDeviceId || typeof ownerDeviceId !== "string") {
-    throw new HttpsError("invalid-argument", "ownerDeviceId is required");
-  }
-
   const { profile, chart: chartA } = await resolveOwnedChart({
     profileId,
-    ownerDeviceId,
-    uid: request.auth?.uid ?? null,
+    uid,
     houseSystem: "koch",
     relocationLat,
     relocationLng,
@@ -110,10 +108,7 @@ export const askRelationship = onCall({
   // mirroring the oracle's per-question charge. Spend up front from the user's
   // wallet; refund on failure so the user is never charged for a reading they
   // didn't receive.
-  const walletKey = walletKeyFromCtx({
-    uid: request.auth?.uid ?? null,
-    deviceId: ownerDeviceId,
-  });
+  const walletKey = uid;
   await spendFromWallet(walletKey, TOKEN_COST.compatibility, "relationship");
 
   try {
@@ -149,10 +144,32 @@ export const askRelationship = onCall({
       answerLength: result.text.length,
     });
 
+    // REQ-002: the paid reading is stored on the server for every device of
+    // the account. A failed write does not cost the user the reading: the
+    // client keeps it locally (persisted=false) and uploads it later.
+    const generatedAt = new Date().toISOString();
+    let readingId: string | null = null;
+    try {
+      readingId = await saveCompatReading(profileId, {
+        partnerName: partner.name,
+        partnerBirthDate: partner.birthDate,
+        partnerBirthPlace: partner.birthPlace,
+        answer: result.text,
+        partnerTimezone,
+        generatedAt,
+        model: result.model,
+      });
+    } catch (e) {
+      logger.warn("askRelationship reading write failed", { profileId, error: (e as Error).message });
+    }
+
     return {
       answer: result.text,
       model: result.model,
       partnerTimezone,
+      generatedAt,
+      readingId,
+      persisted: readingId !== null,
     };
   } catch (error) {
     // Generation failed after tokens were spent — refund (best-effort).

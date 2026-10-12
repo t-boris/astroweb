@@ -3,8 +3,8 @@ import { logger } from "firebase-functions/v2";
 import { getFirestore } from "firebase-admin/firestore";
 import * as profileService from "../services/profile";
 import { TOKEN_COST } from "../services/tokens";
-import { ensureWalletInTx, spendInTx, walletKeyFromCtx } from "../services/wallet";
-import { ownerCtx, ownsProfile } from "../services/owner";
+import { ensureWalletInTx, spendInTx } from "../services/wallet";
+import { ownsProfile, requireAccount } from "../services/owner";
 
 const FEATURES = {
   interpretations: { flag: "hasPremiumPdf", cost: TOKEN_COST.pdf }, // 4 — full readings + Dig Deeper + PDF
@@ -17,6 +17,8 @@ const FEATURES = {
  * and an already-unlocked feature is never charged again.
  */
 export const unlockFeature = onCall(async (request) => {
+  // Unlocking spends stars: account only (DEC-001, REQ-006).
+  const uid = requireAccount(request);
   const profileId = request.data?.profileId;
   const feature = request.data?.feature as keyof typeof FEATURES;
 
@@ -27,7 +29,7 @@ export const unlockFeature = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Invalid feature");
   }
 
-  const ctx = ownerCtx(request);
+  const ctx = { uid, deviceId: null };
   const profile = await profileService.getProfileById(profileId);
   if (!profile) {
     throw new HttpsError("not-found", "Profile not found");
@@ -37,7 +39,7 @@ export const unlockFeature = onCall(async (request) => {
   }
 
   const { flag, cost } = FEATURES[feature];
-  const walletKey = walletKeyFromCtx(ctx);
+  const walletKey = uid;
   const db = getFirestore();
   const ref = db.collection("profiles").doc(profileId);
 

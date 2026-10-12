@@ -11,6 +11,9 @@ export interface Ref {
   get(): Promise<Snap>;
   set(value: Doc, opts?: { merge?: boolean }): Promise<void>;
   update(value: Doc): Promise<void>;
+  delete(): Promise<void>;
+  /** Subcollection: stored under the path "<col>/<id>/<name>". */
+  collection(name: string): ReturnType<Db["collection"]>;
 }
 
 interface Snap {
@@ -26,6 +29,8 @@ export interface FakeFirestore {
   all(col: string): Map<string, Doc>;
   seed(col: string, id: string, doc: Doc): void;
 }
+
+type Db = { collection(col: string): { doc(id?: string): Ref } };
 
 export function createFakeFirestore(): FakeFirestore {
   const store = new Map<string, Map<string, Doc>>();
@@ -52,6 +57,10 @@ export function createFakeFirestore(): FakeFirestore {
     const ref: Ref = {
       col,
       id,
+      delete: async () => {
+        colMap(col).delete(id);
+      },
+      collection: (name: string) => db.collection(`${col}/${id}/${name}`),
       get: async () => {
         const d = colMap(col).get(id);
         return { exists: d !== undefined, id, ref, data: () => (d ? { ...d } : undefined) };
@@ -141,6 +150,11 @@ export function createFakeFirestore(): FakeFirestore {
     collection(col: string) {
       return {
         doc: (id?: string): Ref => makeRef(col, id ?? `auto${++auto}`),
+        add: async (value: Doc): Promise<Ref> => {
+          const ref = makeRef(col, `auto${++auto}`);
+          applySet(col, ref.id, value);
+          return ref;
+        },
         where: (field: string, op: string, value: unknown) => makeQuery(col, []).where(field, op, value),
         orderBy: (field: string, dir?: "asc" | "desc") => makeQuery(col, []).orderBy(field, dir),
         limit: (n: number) => makeQuery(col, []).limit(n),
@@ -150,6 +164,25 @@ export function createFakeFirestore(): FakeFirestore {
       };
     },
     getAll: async (...refs: Ref[]) => Promise.all(refs.map((r) => r.get())),
+    batch() {
+      const ops: Array<() => void> = [];
+      return {
+        set(ref: Ref, value: Doc, opts?: { merge?: boolean }) {
+          ops.push(() => applySet(ref.col, ref.id, value, opts));
+        },
+        update(ref: Ref, value: Doc) {
+          ops.push(() => applyUpdate(ref.col, ref.id, value));
+        },
+        delete(ref: Ref) {
+          ops.push(() => {
+            colMap(ref.col).delete(ref.id);
+          });
+        },
+        async commit() {
+          ops.forEach((o) => o());
+        },
+      };
+    },
     async runTransaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       const writes: Array<() => void> = [];
       const tx = {
@@ -162,6 +195,11 @@ export function createFakeFirestore(): FakeFirestore {
         },
         update(ref: Ref, value: Doc) {
           writes.push(() => applyUpdate(ref.col, ref.id, value));
+        },
+        delete(ref: Ref) {
+          writes.push(() => {
+            colMap(ref.col).delete(ref.id);
+          });
         },
       };
       const result = await fn(tx);

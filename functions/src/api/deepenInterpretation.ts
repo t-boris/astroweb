@@ -5,6 +5,7 @@ import { resolveOwnedChart } from "../services/chartResolver";
 import * as profileService from "../services/profile";
 import { hashCacheKey } from "../services/aiCache";
 import { ownerCtx, ownsProfile } from "../services/owner";
+import { saveDeepText } from "../services/profileContent";
 import {
   buildDeepInterpretationPrompt,
   generateClaudeTextResult,
@@ -22,6 +23,9 @@ export const deepenInterpretation = onCall({
   const language = normalizeLanguage(request.data?.language);
   const relocationLat = request.data?.relocationLat;
   const relocationLng = request.data?.relocationLng;
+  // Interpretation block the text belongs to (used to store it per block).
+  const rawBlockKey = request.data?.blockKey;
+  const blockKey = typeof rawBlockKey === "string" && rawBlockKey.trim() && rawBlockKey.length <= 200 ? rawBlockKey.trim() : null;
 
   if (!profileId || typeof profileId !== "string") {
     throw new HttpsError("invalid-argument", "profileId is required");
@@ -69,6 +73,19 @@ export const deepenInterpretation = onCall({
       baseInterpretation: trimmedBase,
     });
 
+    // REQ-003: a signed-in owner's deep text is stored per block for every
+    // device of the account. Anonymous owners keep it in the browser (DEC-004).
+    const persist = async (text: string, model: string): Promise<boolean> => {
+      if (!blockKey || !ctx.uid || profile.ownerUid !== ctx.uid) return false;
+      try {
+        await saveDeepText(profileId, { blockKey, text, language, model });
+        return true;
+      } catch (e) {
+        logger.warn("deepenInterpretation text write failed", { profileId, error: (e as Error).message });
+        return false;
+      }
+    };
+
     const db = getFirestore();
     const cacheRef = db.collection("deepInterpretationCache").doc(cacheKey);
 
@@ -78,7 +95,8 @@ export const deepenInterpretation = onCall({
       const data = cached.data() as { text?: string; model?: string };
       if (data.text) {
         logger.info("deepenInterpretation cache hit", { profileId, cacheKey });
-        return { text: data.text, model: data.model ?? "cache" };
+        const persisted = await persist(data.text, data.model ?? "cache");
+        return { text: data.text, model: data.model ?? "cache", persisted };
       }
     }
 
@@ -121,6 +139,7 @@ export const deepenInterpretation = onCall({
     return {
       text: result.text,
       model: result.model,
+      persisted: await persist(result.text, result.model),
     };
   } catch (error) {
     if (error instanceof HttpsError) {

@@ -143,3 +143,17 @@ The last question in this discussion, whether one dashboard is needed in this fe
 ### Boris Tsekinovsky · 2026-10-12
 
 Answers to the four implementation questions: static per-route shells; add the starSpends ledger; Claude sets up Google-side pieces via the MarkView browser; approve the plan and defaults (renewal and cancel identifiers, legacy livemode from the session-id prefix, payer chain, subscription charges outside revenue, PR-check workflow, manual deploy).
+
+### AI · 2026-10-12
+
+Released as 2.20.1 on natalmystic.com. Verified live: no cookie or request before consent, funnel events with the documented parameters in the live dataLayer and in GA4 Realtime, a live checkout session created without payment, Search Console ownership verified, GA4 funnel exploration 'Purchase funnel' created. Fixed on the way: Cloud Build npm crash (DEC-017), CI `.env` secret overlap (DEC-018), `adminStats` missing public invoker, `paywall_viewed` dedupe collision.
+
+Open: the submitted sitemap shows 'Couldn't fetch' with an empty 'Last read' (the file is valid and Google's live URL test says it is available), the funnel exploration has no data yet, and the Business tab success path was not checked live because Google sign-in does not complete in the MarkView browser.
+
+### Boris Tsekinovsky · 2026-10-12
+
+Checked it (sign-in works in Chrome). The feature can be closed.
+
+### AI · 2026-10-12
+
+Recorded as DEC-019. The remaining owner steps are in `docs/ga4-setup-checklist.md` section 10.

@@ -88,6 +88,8 @@ If one screen is wanted later, connect Looker Studio (free) to the GA4 property 
 
 Operational facts found while deploying 2.20.0: see section 13.
 
+**Owner acceptance (2026-10-12):** the owner checked the release, confirmed that sign-in works in Chrome and closed the feature (DEC-019). The open owner steps above remain; the sitemap was re-submitted once more after Google's live URL test reported the file as available.
+
 ## 11. Checking an event before it goes live
 
 `curl -s -X POST 'https://www.google-analytics.com/debug/mp/collect?measurement_id=G-0RFR9LGX0L&api_secret=<secret>' -d '{"client_id":"1234567890.1700000000","events":[{"name":"purchase","params":{"transaction_id":"t1","value":1,"currency":"USD"}}]}'`

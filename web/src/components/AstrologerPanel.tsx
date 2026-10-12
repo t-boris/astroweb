@@ -5,6 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Sparkles, Mail, Shuffle, Check, Calendar, MessageCircle, AlertTriangle, Gift } from "lucide-react";
 import { generateLetterNow } from "@/api/letters";
+import { getCheckoutAnalytics, trackEvent } from "@/lib/analytics";
 import {
   getAstrologerStatus,
   subscribeAstrologer,
@@ -77,7 +78,9 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
     setBusy(true);
     setError(null);
     try {
-      const url = await subscribeAstrologer({ profileId, cadence, billingPeriod: period, channels: { email }, recipientEmails: recipients, astrologerName: name });
+      trackEvent("astrologer_subscribe_start", { cadence, billing_period: period });
+      const analytics = await getCheckoutAnalytics();
+      const url = await subscribeAstrologer({ profileId, cadence, billingPeriod: period, channels: { email }, recipientEmails: recipients, astrologerName: name, analytics });
       window.location.href = url;
     } catch (e) {
       setError((e as Error).message);
@@ -90,6 +93,7 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
   async function tryFreeLetter() {
     setTrialBusy(true);
     setTrialErr(null);
+    trackEvent("ai_reading_requested", { kind: "letter" });
     try {
       await generateLetterNow(profileId);
       navigate(`/profile/${profileId}/letters`);

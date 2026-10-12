@@ -12,6 +12,7 @@ import {
   type Letter,
 } from "@/api/letters";
 import { Button } from "@/components/ui/button";
+import { trackEvent, trackOnce } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 
 function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }) {
@@ -25,6 +26,7 @@ function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }
 
   useEffect(() => {
     void markLetterRead(profileId, letter.id).catch(() => {});
+    trackOnce(letter.id, "letter_opened");
   }, [profileId, letter.id]);
 
   async function tap(qid: string, option: string) {
@@ -40,6 +42,7 @@ function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }
     if (!q) return;
     setAsking(true);
     setAskErr(null);
+    trackEvent("ai_reading_requested", { kind: "letter" });
     try {
       const r = await askInLetter(profileId, q);
       setAnswer(r.answer);
@@ -144,6 +147,7 @@ export default function LettersInbox({ profileId }: { profileId: string }) {
   async function generate() {
     setGenerating(true);
     setError(null);
+    trackEvent("ai_reading_requested", { kind: "letter" });
     try {
       await generateLetterNow(profileId);
       window.dispatchEvent(new Event("astroweb:stars-changed"));

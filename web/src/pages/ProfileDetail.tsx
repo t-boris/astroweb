@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
@@ -7,6 +7,8 @@ import { getProfile, archiveProfile, updateProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
 import { createCheckoutSession } from "@/api/stripe";
 import { STAR_PACKS } from "@/lib/tokens";
+import { getCheckoutAnalytics, trackEvent, trackOnce } from "@/lib/analytics";
+import { PROFILE_TABS, type ProfileTab } from "@/lib/analyticsEvents";
 import { getWalletInfo } from "@/api/wallet";
 import { signLabel } from "@/lib/signs";
 import { motion } from "framer-motion";
@@ -147,6 +149,19 @@ export default function ProfileDetail() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // Funnel: one chart_viewed each time a tab becomes active (re-renders do not
+  // repeat it) once the profile is loaded; the Premium tab is also the
+  // paywall/store view.
+  const lastViewedTab = useRef<string | null>(null);
+  useEffect(() => {
+    if (!profile || !id || !(PROFILE_TABS as readonly string[]).includes(activeTab)) return;
+    const key = `${id}:${activeTab}`;
+    if (lastViewedTab.current === key) return;
+    lastViewedTab.current = key;
+    trackEvent("chart_viewed", { tab: activeTab as ProfileTab });
+    if (activeTab === "premium") trackOnce(id, "paywall_viewed", { feature: "premium_store" });
+  }, [profile, id, activeTab]);
 
   // One-time first-reading discount eligibility (drives the store price label).
   const [firstReadingAvailable, setFirstReadingAvailable] = useState(false);
@@ -393,7 +408,11 @@ export default function ProfileDetail() {
     if (!id) return;
     setCheckoutLoading(packId);
     try {
-      const { url } = await createCheckoutSession({ profileId: id, ownerDeviceId: deviceId, packId });
+      const pack = STAR_PACKS.find((p) => p.id === packId);
+      const price = pack ? (pack.firstPriceUsd && firstReadingAvailable ? pack.firstPriceUsd : pack.priceUsd) : 0;
+      trackEvent("begin_checkout", { pack_id: packId, value: price, currency: "USD", items: [{ item_id: packId }] });
+      const analytics = await getCheckoutAnalytics();
+      const { url } = await createCheckoutSession({ profileId: id, ownerDeviceId: deviceId, packId, analytics });
       window.location.href = url;
     } catch (err) {
       console.error("Checkout failed:", err);

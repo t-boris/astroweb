@@ -120,7 +120,7 @@ async function handleClientDownloadJob(
       try {
         const prof = await getProfileById(profileId);
         const key = prof && walletKeyFromProfile(prof);
-        if (key) await refundToWallet(key, cost);
+        if (key) await refundToWallet(key, cost, "interpretations");
         logger.info("processPdfJob refunded tokens after failure", { jobId, profileId, cost });
       } catch (refundError) {
         logger.error("processPdfJob failed to refund tokens", {

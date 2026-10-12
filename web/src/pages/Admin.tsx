@@ -18,8 +18,9 @@ import {
 } from "@/api/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import BusinessTab from "@/components/admin/BusinessTab";
+import { ADMIN_EMAIL } from "@/lib/admin";
 
-const ADMIN_EMAIL = "t.boris@gmail.com";
 
 export default function Admin() {
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +32,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [grantAmounts, setGrantAmounts] = useState<Record<string, string>>({});
+  const [tab, setTab] = useState<"overview" | "business">("overview");
 
   useEffect(() => onAuthStateChanged(auth, (u) => { setUser(u); setAuthReady(true); }), []);
 
@@ -125,6 +127,26 @@ export default function Admin() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
+      <div className="flex gap-1 border-b border-border/40" role="tablist">
+        {(["overview", "business"] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={tab === k}
+            onClick={() => setTab(k)}
+            className={`px-4 py-2 text-sm capitalize transition-colors ${
+              tab === k ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {k}
+          </button>
+        ))}
+      </div>
+
+      {tab === "business" && <BusinessTab />}
+
+      {tab === "overview" && (<>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="ds-card p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Revenue</p>
@@ -240,6 +262,7 @@ export default function Admin() {
           </table>
         </div>
       </section>
+      </>)}
     </div>
   );
 }

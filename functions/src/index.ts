@@ -75,4 +75,5 @@ export {
   adminGrantTokens,
   adminListUsers,
   adminGrantToWallet,
+  adminStats,
 } from "./api/admin";

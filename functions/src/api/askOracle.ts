@@ -59,7 +59,7 @@ export const askOracle = onCall({
     // Spend stars up front from the user's wallet (throws failed-precondition
     // "INSUFFICIENT_TOKENS").
     const walletKey = walletKeyFromCtx(ctx);
-    await spendFromWallet(walletKey, TOKEN_COST.oracle);
+    await spendFromWallet(walletKey, TOKEN_COST.oracle, "oracle");
 
   try {
     const { chart } = await resolveOwnedChart({
@@ -129,7 +129,7 @@ export const askOracle = onCall({
     // Generation failed after tokens were spent — refund so the user isn't
     // charged for an answer they didn't receive. Best-effort.
     try {
-      await refundToWallet(walletKey, TOKEN_COST.oracle);
+      await refundToWallet(walletKey, TOKEN_COST.oracle, "oracle");
       logger.info("askOracle refunded tokens after failure", { profileId });
     } catch (refundError) {
       logger.error("askOracle failed to refund tokens", {

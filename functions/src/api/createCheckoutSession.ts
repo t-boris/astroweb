@@ -5,6 +5,7 @@ import * as profileService from "../services/profile";
 import { ownerCtx, ownsProfile } from "../services/owner";
 import { grantToWallet, isFirstReadingAvailable, walletKeyFromCtx } from "../services/wallet";
 import { getStarPack } from "../services/starPacks";
+import { analyticsMetadata, parseClientAnalytics } from "../services/ga4";
 
 const PRICE_PER_TOKEN = 99; // cents ($0.99) — legacy quantity path
 const MAX_TOKENS_PER_PURCHASE = 100;
@@ -20,6 +21,8 @@ interface ResolvedOrder {
   productName: string;
   /** True when the one-time first-reading discount is being applied. */
   firstReading: boolean;
+  /** Catalog pack id; undefined on the legacy quantity path. */
+  packId?: string;
 }
 
 /**
@@ -70,6 +73,7 @@ export const createCheckoutSession = onCall({
       unitAmount,
       productName: `AstroWeb · ${pack.id}`,
       firstReading,
+      packId: pack.id,
     };
   } else {
     const quantity = Math.floor(Number(data?.quantity));
@@ -129,6 +133,9 @@ export const createCheckoutSession = onCall({
         walletKey,
         tokens: String(order.stars),
         ...(order.firstReading ? { firstReading: "1" } : {}),
+        ...(order.packId ? { packId: order.packId } : {}),
+        // Analytics consent + GA client_id at checkout time (REQ-002).
+        ...analyticsMetadata(parseClientAnalytics(data?.analytics), ctx.uid),
       },
     });
 

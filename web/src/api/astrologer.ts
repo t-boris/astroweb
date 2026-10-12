@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
+import type { CheckoutAnalytics } from "@/lib/analytics";
 
 export type Cadence = "daily" | "every_2_days" | "every_5_days" | "weekly" | "every_2_weeks";
 
@@ -30,6 +31,8 @@ export async function subscribeAstrologer(input: {
   /** Comma-separated custom recipients; empty = the account email. */
   recipientEmails?: string;
   astrologerName: string;
+  /** Analytics consent + GA client_id at checkout time (REQ-002, DEC-007). */
+  analytics?: CheckoutAnalytics;
 }): Promise<string> {
   const fn = httpsCallable<typeof input, { url: string }>(functions, "subscribeAstrologer");
   return (await fn(input)).data.url;

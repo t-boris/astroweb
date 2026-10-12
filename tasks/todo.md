@@ -1,3 +1,24 @@
+# Product analytics, purchase funnel and SEO foundation (issue #2)
+
+Spec: `docs/features/product-analytics-purchase-funnel-and-seo-foundation/` (REQ-001..010, DEC-001..016).
+Branch: `feature/analytics-funnel-seo-foundation`. Plan approved by Boris on 2026-10-12.
+Deploy is manual (`npm run build:functions` then `npm run deploy`); the auto-deploy workflow is already broken (DEC-013).
+
+- [x] **WP1 Consent + analytics core (I-1, REQ-001):** consent store, EN/RU banner, lazy Firebase Analytics after consent, page_view with `/profile/:id` templating, client_id helper, reopen-consent control.
+- [x] **WP2 Event taxonomy (I-7, REQ-005):** typed `trackEvent`, nine funnel events at their triggers, uid as user_id, `traffic_type=internal` for admin, PII-free payload builder + test.
+- [x] **WP3 Star spend ledger (I-8, REQ-009):** `starSpends` rows written with every spend/refund, four labelled call sites, tests.
+- [x] **WP4 Checkout metadata + GA4 Measurement Protocol (I-2, I-3, REQ-002):** client_id + consent into checkout and subscription metadata, `ga4.ts` service (pseudo client_id hash, payload builder, sender), webhook events for purchase / subscription start / renewal / cancel, `livemode`+`walletKey`+`ownerUid` on purchases, tests.
+- [x] **WP5 adminStats + Business tab (I-9, REQ-006):** admin-only callable, tested aggregation service, Business tab in `/admin`.
+- [x] **WP6 Bilingual routes, privacy pages, footer (I-5, I-10, REQ-003, REQ-004, REQ-008):** `/ru`, `/ru/privacy`, language-from-URL, shared route metadata, static HTML shells plugin, `cleanUrls` + `X-Robots-Tag`, robots.txt, sitemap.xml, JSON-LD, privacy text matching what is collected, footer.
+- [x] **WP7 Docs + CI (I-6, I-11, REQ-010):** `docs/ga4-setup-checklist.md`, `.github/workflows/ci.yml`.
+- [x] **WP8 Verify:** functions build + tests, web build, privacy text vs implementation, no-consent network check, ad-blocker check.
+- [ ] **WP9 Ship:** commits, push, PR with test plan, CI green, merge, version 2.20.0, GA4 property + `GA_API_SECRET` + Search Console via MarkView browser, manual deploy, confirm deployed version, browser walkthrough, manual checklist for Boris.
+
+## Review
+(filled in at the end)
+
+---
+
 # Deep Space UI reskin (from /Users/boris/Downloads/AstroWeb)
 
 Target: prototype in Downloads/AstroWeb (proto/ + screens/*.png). Cosmic-blue, ice-blue accent,

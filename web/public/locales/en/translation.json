@@ -757,5 +757,73 @@
     "pushEnable": "Enable push notifications",
     "pushOn": "Push notifications are on",
     "pushUnsupported": "Push isn't supported here. On iPhone, add AstroWeb to your Home Screen first."
+  },
+  "consent": {
+    "title": "Cookies & analytics",
+    "body": "We would like to use Google Analytics to understand how AstroWeb is used. It stays off until you accept. Payments are always reported from our servers — read the <privacy>privacy page</privacy>.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "settings": "Cookie settings"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "operator": "© {{year}} MobileMind AI"
+  },
+  "privacy": {
+    "title": "Privacy & analytics",
+    "updated": "Last updated: 12 October 2026",
+    "intro": "This page explains what AstroWeb measures, how consent works, and what is sent to Google Analytics 4 (GA4) from your browser and from our servers.",
+    "operator": {
+      "title": "Who runs this site",
+      "body": "AstroWeb is operated by MobileMind AI. For any question about data and privacy, write to <mail>astroweb@mobilemindai.com</mail>."
+    },
+    "consent": {
+      "title": "Consent and cookies",
+      "body1": "Analytics is off until you accept. Before that, no Google Analytics script is loaded, no analytics cookie is set and nothing is sent to Google (Google Consent Mode v2, basic mode). If you decline, it stays off, including after you reload the page.",
+      "body2": "If you accept, Firebase Analytics / GA4 loads and sets the cookies below. You can change your choice at any time with the button at the end of this page or the \"Cookie settings\" link in the footer.",
+      "cookiesTitle": "Cookies set by Google Analytics after you accept",
+      "cookie1": "_ga — tells visitors apart; lasts up to two years.",
+      "cookie2": "_ga_<container id> — keeps the GA4 session state; lasts up to two years.",
+      "storageTitle": "Browser storage used by the site",
+      "storage1": "astroweb.analyticsConsent — remembers your analytics choice (browser storage, not a cookie).",
+      "storage2": "i18nextLng — remembers the interface language.",
+      "storage3": "astroweb_device_id — a random id that lets the app find the profiles you created before you sign in. It is used to run the service, not for analytics.",
+      "storage4": "Firebase installation id (IndexedDB) — created only after you accept, when Firebase Analytics starts."
+    },
+    "events": {
+      "title": "What your browser sends after you accept",
+      "intro": "Only after you accept, the app sends the events below. They never contain names, e-mail addresses or text you type.",
+      "pageView": "page_view — the page path, with profile ids replaced by :id.",
+      "profileCreateStart": "profile_create_start — no parameters.",
+      "profileCreated": "profile_created — no parameters.",
+      "chartViewed": "chart_viewed — which tab was opened.",
+      "paywallViewed": "paywall_viewed — which paid feature was shown.",
+      "beginCheckout": "begin_checkout — star pack, price and currency.",
+      "unlockFeature": "unlock_feature — which feature and how many stars it cost.",
+      "subscribeStart": "astrologer_subscribe_start — cadence and billing period chosen.",
+      "aiReading": "ai_reading_requested — the kind of reading (deepen, oracle, compatibility, letter).",
+      "letterOpened": "letter_opened — no parameters.",
+      "userId": "If you are signed in, your account id (Firebase user id) is attached as user_id. If you are not signed in, no user id is set."
+    },
+    "server": {
+      "title": "Purchase and subscription events from our servers",
+      "body1": "When a payment succeeds, our server reports it to GA4 so that revenue figures are complete. The events are purchase (star packs) and subscription_start, subscription_renewal and subscription_cancel (Personal Astrologer). These server-side events are sent whether or not you gave consent.",
+      "body2": "They contain the transaction identifier (the Stripe checkout session, invoice or event id), the amount and currency, the product and, for subscriptions, the cadence and billing period.",
+      "withConsent": "With consent: the event carries your GA client id and, if you were signed in, your account id as user_id, so the purchase is tied to your visit.",
+      "withoutConsent": "Without consent: the event carries no user_id and no other user identifier. It carries only a pseudonymous client id: a deterministic one-way hash of the Stripe identifier of that payment (the checkout session id for a purchase). It cannot be turned back into that identifier, but it can be matched to the payment record we hold in Stripe and in our database. It is therefore pseudonymous data, and we do not treat it as anonymous."
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "body": "For the Personal Astrologer subscription, your analytics choice is recorded when you start the subscription checkout and stored with the subscription. It applies to all later renewal and cancel events of that subscription. Withdrawing consent on the site later does not change the choice stored for an existing subscription. To stop attribution of your subscription events, write to <mail>astroweb@mobilemindai.com</mail>. Subscriptions created before this page existed are treated as not consented."
+    },
+    "never": {
+      "title": "What we never send",
+      "body": "We never send your name, your e-mail address or the details you enter into forms to Google Analytics."
+    },
+    "change": {
+      "title": "Change or withdraw your consent",
+      "body": "Use the button to reopen the choice. Declining switches analytics off and removes the Google Analytics cookies from this site.",
+      "button": "Change cookie settings"
+    }
   }
 }

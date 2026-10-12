@@ -26,6 +26,7 @@ import {
 } from "@/api/pdf";
 import { Button } from "@/components/ui/button";
 import { unlockFeature } from "@/api/unlock";
+import { trackEvent, trackOnce } from "@/lib/analytics";
 import { TOKEN_COST } from "@/lib/tokens";
 import type { ChartResult } from "@/types";
 
@@ -518,6 +519,7 @@ export function InterpretationView({
 
     setDeepLoadingKey(blockId);
     setDeepErrors((prev) => ({ ...prev, [blockId]: "" }));
+    trackEvent("ai_reading_requested", { kind: "deepen" });
 
     try {
       const response = await deepenInterpretation({
@@ -559,6 +561,7 @@ export function InterpretationView({
     setOracleLoading(true);
     setOracleError(null);
     setOracleAnswer(null);
+    trackEvent("ai_reading_requested", { kind: "oracle" });
 
     try {
       const response = await askOracle({
@@ -672,10 +675,19 @@ export function InterpretationView({
   const canUnlock = tokens >= TOKEN_COST.pdf;
   const [unlocking, setUnlocking] = useState(false);
 
+  // Funnel: the paywall of this view is on screen (once per profile and feature).
+  useEffect(() => {
+    if (mode !== "oracle" && !interpretationsUnlocked) trackOnce(profileId, "paywall_viewed", { feature: "interpretations" });
+    if (mode !== "interpretation" && !canOracle) trackOnce(profileId, "paywall_viewed", { feature: "oracle" });
+  }, [mode, interpretationsUnlocked, canOracle, profileId]);
+
   async function handleUnlock() {
     setUnlocking(true);
     try {
-      await unlockFeature({ profileId, ownerDeviceId, feature: "interpretations" });
+      const unlocked = await unlockFeature({ profileId, ownerDeviceId, feature: "interpretations" });
+      if (!unlocked.alreadyUnlocked) {
+        trackEvent("unlock_feature", { feature: "interpretations", stars: TOKEN_COST.pdf });
+      }
       onUnlocked?.();
       window.dispatchEvent(new Event("astroweb:stars-changed"));
     } catch {

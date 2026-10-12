@@ -8,6 +8,7 @@ import { requireUid, isAstrologerEnabled } from "../services/astrologer";
 import { priceCents, stripeInterval } from "../services/pricing";
 import { parseRecipientEmails } from "../services/email";
 import { enqueueImmediateLetter } from "../services/letterEngine";
+import { analyticsMetadata, parseClientAnalytics } from "../services/ga4";
 
 const CADENCES = new Set(["daily", "every_2_days", "every_5_days", "weekly", "every_2_weeks"]);
 
@@ -64,6 +65,10 @@ export const subscribeAstrologer = onCall({ secrets: ["STRIPE_SECRET_KEY"] }, as
   }
 
   const stripe = new Stripe(stripeKey, { apiVersion: "2024-04-10" as never });
+  // Analytics state at checkout is fixed for the lifetime of the subscription
+  // (DEC-007): it goes into the session AND the subscription metadata so that
+  // renewal and cancel webhooks can read it.
+  const analytics = analyticsMetadata(parseClientAnalytics(request.data?.analytics), uid);
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -89,6 +94,10 @@ export const subscribeAstrologer = onCall({ secrets: ["STRIPE_SECRET_KEY"] }, as
         astrologerName,
         channels: JSON.stringify(channels),
         recipientEmails: recipientEmails.join(","),
+        ...analytics,
+      },
+      subscription_data: {
+        metadata: { kind: "astrologer", cadence, period, ...analytics },
       },
     });
     return { url: session.url };

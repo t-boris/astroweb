@@ -72,3 +72,34 @@ export async function adminGrantToWallet(walletKey: string, amount: number): Pro
   const r = await fn({ walletKey, amount });
   return r.data.tokens;
 }
+
+export type StatsPeriod = "7d" | "30d" | "90d" | "all";
+export type StatsGrouping = "day" | "week" | "month";
+
+export interface CurrencyStats {
+  currency: string;
+  revenueCents: number;
+  purchases: number;
+  payingUsers: number;
+  arppuCents: number;
+  series: Array<{ bucket: string; revenueCents: number; purchases: number }>;
+}
+
+export interface BusinessStats {
+  period: StatsPeriod;
+  grouping: StatsGrouping;
+  generatedAt: string;
+  since: string | null;
+  currencies: CurrencyStats[];
+  totals: { purchases: number; payingUsers: number };
+  testPurchasesExcluded: number;
+  subscriptions: { active: number; past_due: number; canceled: number; paused: number };
+  newProfiles: number;
+  starsByFeature: Array<{ feature: string; stars: number }>;
+  starLedgerSince: string | null;
+}
+
+export async function adminStats(period: StatsPeriod, grouping: StatsGrouping): Promise<BusinessStats> {
+  const fn = httpsCallable<{ period: StatsPeriod; grouping: StatsGrouping }, BusinessStats>(functions, "adminStats");
+  return (await fn({ period, grouping })).data;
+}

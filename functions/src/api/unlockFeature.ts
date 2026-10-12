@@ -51,7 +51,7 @@ export const unlockFeature = onCall(async (request) => {
       const balance = await ensureWalletInTx(tx, walletKey);
       return { tokens: balance, alreadyUnlocked: true };
     }
-    const remaining = await spendInTx(tx, walletKey, cost);
+    const remaining = await spendInTx(tx, walletKey, cost, feature);
     tx.update(ref, { [flag]: true });
     return { tokens: remaining, alreadyUnlocked: false };
   });

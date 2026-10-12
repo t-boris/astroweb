@@ -1,13 +1,23 @@
 /**
  * Minimal in-memory stand-in for the parts of the Firestore Admin SDK that the
- * wallet and stats code uses: collections, docs, equality `where`, and
- * transactions (reads first, writes applied on commit).
+ * wallet, GA4 and webhook code uses: collections, docs (get/set/update),
+ * equality `where` + `limit`, and transactions (reads first, writes on commit).
  */
-type Doc = Record<string, unknown>;
+export type Doc = Record<string, unknown>;
 
-interface Ref {
+export interface Ref {
   col: string;
   id: string;
+  get(): Promise<Snap>;
+  set(value: Doc, opts?: { merge?: boolean }): Promise<void>;
+  update(value: Doc): Promise<void>;
+}
+
+interface Snap {
+  exists: boolean;
+  id: string;
+  ref: Ref;
+  data(): Doc | undefined;
 }
 
 export interface FakeFirestore {
@@ -30,55 +40,81 @@ export function createFakeFirestore(): FakeFirestore {
     return m;
   };
 
-  const snapshot = (ref: Ref) => {
-    const d = colMap(ref.col).get(ref.id);
-    return { exists: d !== undefined, id: ref.id, ref, data: () => (d ? { ...d } : undefined) };
+  const applySet = (col: string, id: string, value: Doc, opts?: { merge?: boolean }) => {
+    const prev = colMap(col).get(id);
+    colMap(col).set(id, opts?.merge && prev ? { ...prev, ...value } : { ...value });
+  };
+  const applyUpdate = (col: string, id: string, value: Doc) => {
+    colMap(col).set(id, { ...(colMap(col).get(id) ?? {}), ...value });
   };
 
-  const makeQuery = (col: string, filters: Array<[string, unknown]>) => ({
-    __query: true as const,
+  const makeRef = (col: string, id: string): Ref => {
+    const ref: Ref = {
+      col,
+      id,
+      get: async () => {
+        const d = colMap(col).get(id);
+        return { exists: d !== undefined, id, ref, data: () => (d ? { ...d } : undefined) };
+      },
+      set: async (value, opts) => applySet(col, id, value, opts),
+      update: async (value) => applyUpdate(col, id, value),
+    };
+    return ref;
+  };
+
+  interface Query {
+    __query: true;
+    col: string;
+    filters: Array<[string, unknown]>;
+    max: number;
+    where(field: string, op: string, value: unknown): Query;
+    limit(n: number): Query;
+    get(): Promise<ReturnType<typeof runQuery>>;
+  }
+
+  const makeQuery = (col: string, filters: Array<[string, unknown]>, max = Infinity): Query => ({
+    __query: true,
     col,
     filters,
-    where(field: string, _op: string, value: unknown) {
-      return makeQuery(col, [...filters, [field, value]]);
-    },
+    max,
+    where: (field, _op, value) => makeQuery(col, [...filters, [field, value]], max),
+    limit: (n) => makeQuery(col, filters, n),
+    get: async () => runQuery(makeQuery(col, filters, max)),
   });
 
-  const runQuery = (q: { col: string; filters: Array<[string, unknown]> }) => {
+  const runQuery = (q: { col: string; filters: Array<[string, unknown]>; max: number }) => {
     const docs = [...colMap(q.col).entries()]
       .filter(([, d]) => q.filters.every(([f, v]) => d[f] === v))
-      .map(([id, d]) => ({ id, ref: { col: q.col, id } as Ref, data: () => ({ ...d }) }));
-    return { empty: docs.length === 0, docs, forEach: (fn: (d: (typeof docs)[number]) => void) => docs.forEach(fn) };
+      .slice(0, q.max)
+      .map(([id, d]) => ({ id, ref: makeRef(q.col, id), data: () => ({ ...d }) }));
+    return {
+      empty: docs.length === 0,
+      docs,
+      forEach: (fn: (d: (typeof docs)[number]) => void) => docs.forEach(fn),
+    };
   };
 
   const db = {
     collection(col: string) {
       return {
-        doc(id?: string): Ref {
-          return { col, id: id ?? `auto${++auto}` };
-        },
-        where(field: string, op: string, value: unknown) {
-          return makeQuery(col, []).where(field, op, value);
-        },
+        doc: (id?: string): Ref => makeRef(col, id ?? `auto${++auto}`),
+        where: (field: string, op: string, value: unknown) => makeQuery(col, []).where(field, op, value),
+        limit: (n: number) => makeQuery(col, []).limit(n),
+        get: () => makeQuery(col, []).get(),
       };
     },
     async runTransaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       const writes: Array<() => void> = [];
       const tx = {
-        async get(target: Ref | { __query: true; col: string; filters: Array<[string, unknown]> }) {
-          return "__query" in target ? runQuery(target) : snapshot(target);
+        async get(target: Ref | Query) {
+          if ("__query" in target) return runQuery(target);
+          return target.get();
         },
         set(ref: Ref, value: Doc, opts?: { merge?: boolean }) {
-          writes.push(() => {
-            const prev = colMap(ref.col).get(ref.id);
-            colMap(ref.col).set(ref.id, opts?.merge && prev ? { ...prev, ...value } : { ...value });
-          });
+          writes.push(() => applySet(ref.col, ref.id, value, opts));
         },
         update(ref: Ref, value: Doc) {
-          writes.push(() => {
-            const prev = colMap(ref.col).get(ref.id) ?? {};
-            colMap(ref.col).set(ref.id, { ...prev, ...value });
-          });
+          writes.push(() => applyUpdate(ref.col, ref.id, value));
         },
       };
       const result = await fn(tx);

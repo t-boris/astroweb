@@ -54,7 +54,8 @@ async function freshModules(storage: Record<string, string> = {}) {
   return { consent, analytics };
 }
 
-const flush = () => new Promise((r) => setTimeout(r, 0));
+// Time for any (wrongly) triggered dynamic import to run; positive assertions use vi.waitFor instead.
+const flush = () => new Promise((r) => setTimeout(r, 50));
 
 describe("analytics runtime", () => {
   beforeEach(() => {
@@ -93,8 +94,7 @@ describe("analytics runtime", () => {
     consent.setConsent("granted");
     analytics.trackEvent("chart_viewed", { tab: "planets", name: "Ada" } as never);
     analytics.trackEvent("paywall_viewed", { feature: "oracle" });
-    await flush();
-    await flush();
+    await vi.waitFor(() => expect(sdk.logEvent).toHaveBeenCalledTimes(2));
     expect(sdk.initializeAnalytics).toHaveBeenCalledTimes(1);
     expect(sdk.initializeAnalytics).toHaveBeenCalledWith({ name: "test-app" }, { config: { send_page_view: false } });
     expect(sdk.logEvent).toHaveBeenCalledWith({ fake: "analytics" }, "chart_viewed", { tab: "planets" });
@@ -108,8 +108,7 @@ describe("analytics runtime", () => {
     analytics.trackPageView("/profile/abc123"); // same route again: ignored
     analytics.trackPageView("/profile/zzz999"); // another id, same template: ignored
     analytics.trackPageView("/account");
-    await flush();
-    await flush();
+    await vi.waitFor(() => expect(sdk.logEvent.mock.calls.filter((c) => c[1] === "page_view")).toHaveLength(2));
     const pageViews = sdk.logEvent.mock.calls.filter((c) => c[1] === "page_view");
     expect(pageViews.map((c) => (c[2] as { page_path: string }).page_path)).toEqual(["/profile/:id", "/account"]);
     expect(JSON.stringify(pageViews)).not.toMatch(/abc123|zzz999/);
@@ -122,8 +121,8 @@ describe("analytics runtime", () => {
     analytics.trackOnce("p1", "paywall_viewed", { feature: "interpretations" });
     analytics.trackOnce("p1", "paywall_viewed", { feature: "interpretations" });
     analytics.trackOnce("p2", "paywall_viewed", { feature: "interpretations" });
-    await flush();
-    await flush();
+    await vi.waitFor(() => expect(sdk.logEvent.mock.calls.filter((c) => c[1] === "paywall_viewed")).toHaveLength(2));
+    await flush(); // a third call would have shown up by now
     expect(sdk.logEvent.mock.calls.filter((c) => c[1] === "paywall_viewed")).toHaveLength(2);
   });
 
@@ -133,8 +132,7 @@ describe("analytics runtime", () => {
     analytics.setAnalyticsUser("uid-1");
     analytics.setInternalTraffic(true);
     analytics.setAnalyticsUser(null);
-    await flush();
-    await flush();
+    await vi.waitFor(() => expect(sdk.setUserId).toHaveBeenCalledTimes(2));
     expect(sdk.setUserId.mock.calls.map((c) => c[1])).toEqual(["uid-1", null]);
     expect(sdk.setDefaultEventParameters).toHaveBeenCalledWith({ traffic_type: "internal" });
   });
@@ -144,13 +142,10 @@ describe("analytics runtime", () => {
     consent.setConsent("granted");
     const stop = analytics.startConsentWatcher();
     analytics.trackEvent("profile_created");
-    await flush();
-    await flush();
+    await vi.waitFor(() => expect(sdk.logEvent).toHaveBeenCalledTimes(1));
     cookies.value = "_ga=GA1.1.1.2; _ga_ABC=GS1.1.1.2.3; other=1";
     consent.setConsent("denied");
-    await flush();
-    await flush();
-    expect(sdk.setAnalyticsCollectionEnabled).toHaveBeenCalledWith({ fake: "analytics" }, false);
+    await vi.waitFor(() => expect(sdk.setAnalyticsCollectionEnabled).toHaveBeenCalledWith({ fake: "analytics" }, false));
     stop();
     sdk.logEvent.mockClear();
     analytics.trackEvent("profile_created");

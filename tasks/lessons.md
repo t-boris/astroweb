@@ -114,3 +114,32 @@ logs, silent in the UI; no letters were ever enqueued. Fix: add the index, `fire
 (advances `nextLetterAt` one cadence per missed window). Rule: any new two-field `where`/`orderBy`
 query — especially in a scheduled/background function with no user-facing error — needs its
 composite index added to firestore.indexes.json in the same change.
+
+## Do not chain a commit after a check with `;`
+
+`(cd functions && tsc --noEmit && npm test | grep ...) ; git commit` committed even though `tsc` failed,
+because `;` ignores the failure and the subshell's `&&` chain only covers what is inside it. A test file with a
+type error then sat in a commit and would have broken `npm run build` (tsc compiles `src/__tests__`).
+Rule: join verification and commit with `&&`, and read the failing output before committing. Fix-up commits are
+fine, but never leave a red typecheck in history that CI or the deploy build will hit.
+
+## Google consoles in the MarkView browser: narrow window, hidden slide-over panels, legal acknowledgements
+
+- GA4 Admin opens stream details and the API-secret panel as slide-overs that can sit off-screen in a narrow
+  window. `browser_click` then falls back to "by script" clicks on the wrong element (it hit the sidebar
+  "Create" menu instead of the panel's button). Find the right element with `browser_evaluate` (check
+  `getBoundingClientRect`) and click it explicitly; close stray menus with Escape.
+- Two Google accounts are signed in (`/u/0` = boris@mobilemindai.com, `/u/1` = t.boris@gmail.com). The
+  Firebase project belongs to `/u/1`; "project does not exist or no permission" means wrong account index.
+- "User Data Collection Acknowledgement" (needed for a Measurement Protocol secret) is a legal statement by
+  the property owner: ask before clicking. Data-filter activation is irreversible: leave filters in Testing
+  until the owner has verified them.
+- Move a secret from a web page into Secret Manager through the clipboard (`pbpaste | firebase
+  functions:secrets:set NAME --data-file -`), then `pbcopy < /dev/null`; never print the value.
+
+## Public routes with a language in the URL: do not let the page fight the language switcher
+
+A gate that re-applies "URL language" in an effect depending on the current i18n language undoes an explicit
+switch (click EN on /ru/privacy -> the gate flips back to RU and the English page redirects to RU). Apply the
+URL language on arrival only (effect keyed on the location, not on the language) and let the switcher change
+the language first, then navigate.

@@ -8,10 +8,23 @@ Deploy: the CI auto-deploy runs when the PR is merged to main.
 - [x] **WP2 Account gate on the server (I-1; REQ-006, REQ-004):** `askOracle`, `askRelationship`, `unlockFeature`, `createCheckoutSession` reject deviceId-only callers before any charge; tests.
 - [x] **WP3 Client content layer (I-4, I-5, I-7; REQ-002..004, REQ-007, REQ-009):** api client, local-content reader/uploader (pure, tested), `useProfileContent` hook, InterpretationView and RelationshipView read from the server, entry deletion.
 - [x] **WP4 Client sign-in gate + notice (I-2, I-8; REQ-006, REQ-008, REQ-001):** `ensureSignedIn` (popup, claimProfiles, no reload), gate on buy / unlock / Oracle / compatibility, "Sign in to save" notice in the profile list.
-- [ ] **WP5 Verify:** functions and web tests, builds, live anonymous walkthrough in the MarkView browser.
-- [ ] **WP6 Ship:** PR with test plan, CI green, merge, version 2.21.0, CI deploy, confirm the live version, manual checklist for Boris.
+- [x] **WP5 Verify:** functions and web tests, builds, live anonymous walkthrough in the MarkView browser.
+- [x] **WP6 Ship:** PR with test plan, CI green, merge, version 2.21.0, CI deploy, confirm the live version, manual checklist for Boris.
 
 ## Review
+
+Shipped as 2.21.0 in PR #11 (merged, issue #10 closed). The CI deploy run 38320211298 succeeded and the live bundle reports `2.21.0`.
+
+- Tests: functions 205, web 80, both builds green; web lint at the baseline of 9 errors.
+- Endpoints on production: the 3 new callables have the public invoker and the CORS preflight answers 204. A call with only a deviceId gets `UNAUTHENTICATED` from `askOracle`, `askRelationship`, `unlockFeature`, `createCheckoutSession` and `uploadLocalContent`.
+- Anonymous walkthrough on natalmystic.com in the MarkView browser:
+  - A legacy local Oracle entry is shown and stays in localStorage.
+  - The Oracle button reads "Sign in to ask the Oracle" and opens the sign-in popup. While the popup is open, nothing is charged and the question stays in the box.
+  - The compatibility button reads "Sign in to generate the reading".
+  - The "Sign in to save" notice appears in English and Russian.
+- Not checked here: the signed-in flows, because Google sign-in does not complete in MarkView. They are on the owner's Chrome checklist.
+- Deviation from the plan: the planned `useProfileContent` hook became `loadProfileContent` in `lib/contentSync.ts`, which each view calls. Its result also controls whether the view writes content back to the browser (anonymous) or not (signed in).
+- Test data: anonymous profile "Walkthrough Test 3" (`4NnkkxALYciufg1PXJX3`), left on the MarkView browser's device.
 (filled in at the end)
 
 ---

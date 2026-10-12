@@ -179,3 +179,8 @@ and compare `gcloud run services get-iam-policy` with a sibling callable.
 
 Unit tests and the build were green while `paywall_viewed` was dropped. Reading `window.dataLayer` on the deployed site
 after clicking through the funnel found it. For analytics work always check the real events, not only the code path.
+
+
+## A paid action that needs sign-in must open the popup first
+
+The browser lets a popup open only from the click itself. A gate that awaits anything before `signInWithPopup` gets blocked. Call `ensureSignedIn` first in the click handler, then claim, then continue the action. Check a gate by its result: nothing is charged and the user's input stays in place when the popup is closed.

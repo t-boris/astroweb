@@ -71,9 +71,22 @@ Status: see section 10.
 
 If one screen is wanted later, connect Looker Studio (free) to the GA4 property or to the BigQuery export. Not part of this feature; no code.
 
-## 10. Status log
+## 10. Status log (2026-10-12)
 
-(updated at the end of the work, see the pull request for evidence)
+| Item | Status |
+|---|---|
+| GA4 property, web stream, Firebase link | **done** (section 1) |
+| Measurement Protocol API secret in Secret Manager, bound to `stripeWebhook` | **done** |
+| GA4 receives events from the live site | **done**: Realtime shows `page_view`, `first_visit`, `session_start`, `user_engagement`, `profile_create_start`; the live `dataLayer` showed `profile_created`, `chart_viewed`, `paywall_viewed`, `begin_checkout` with the documented parameters and no PII |
+| Funnel exploration **Purchase funnel** (Visit, Profile created, Chart viewed, Paywall viewed, Checkout started, Purchase) | **done**: created in GA4 > Explore, range "This month". Today's data was not processed yet when it was created (Explore lags by hours), so the drop-off chart is still empty. `purchase` can only appear after the first real live-mode payment. |
+| Search Console property `https://natalmystic.com/` | **done**: verified automatically with the HTML tag |
+| Sitemap `https://natalmystic.com/sitemap.xml` submitted | **submitted**; Search Console showed "Couldn't fetch / 0 discovered pages" right after the first submission. The file is valid (HTTP 200, `application/xml`, 4 URLs, fetched with a Googlebot user agent). **Owner step:** re-check Search Console > Sitemaps after about 24 hours; if it still fails, remove and re-submit it. |
+| Search Console linked to GA4 | **owner step** (section 8) |
+| Key events (`purchase`, `subscription_start`, `profile_created`, `begin_checkout`, `unlock_feature`) | **owner step** (section 4); the events now exist in GA4 |
+| Internal Traffic data filter | **owner step**, left in Testing (section 6) |
+| BigQuery export link | **owner step** (section 7) |
+
+Operational facts found while deploying 2.20.0: see section 13.
 
 ## 11. Checking an event before it goes live
 
@@ -99,3 +112,10 @@ returns `validationMessages`. An empty list means the payload is valid. Without 
 - When consent is declined, nothing identifying (no `client_id`, no uid) is written to Stripe metadata, only `ga_consent = denied`.
 
 **Open points for counsel:** whether legitimate interest is accepted for pseudonymous server-side revenue events in the target jurisdictions (EU/RU audience); the transfer mechanism to Google LLC; whether a withdrawal after subscribing should retroactively anonymise later events (option 3 of F-003 was rejected for effort).
+
+## 13. Deploy notes (2026-10-12)
+
+- Cloud Build installs `functions/package.json` without a lockfile. `vitest ^4.0.18` floated to 4.1.x and crashed npm (`edgesOut`); it is pinned to 4.0.18 (DEC-017). Check a change to the functions dependencies in an empty directory: `npm install --package-lock-only`.
+- `.github/workflows/firebase-deploy.yml` no longer writes `functions/.env`, because it repeated Secret Manager secrets and Cloud Run rejected the update (DEC-018). A push to `main` deploys again.
+- A function first created by an aborted deploy can be left without the public invoker binding (`adminStats` was). Symptom: HTTP 403 with no body from Cloud Run, also on the CORS preflight. Check with `gcloud run services get-iam-policy <name> --region us-central1 --project astroweb-dev`; callables need `allUsers` with `roles/run.invoker` (the function itself enforces admin with `assertAdmin`). Trigger-based functions (`processPdfJob`, `processLetterJob`, `scheduleLetters`) are correctly not public.
+- The MarkView embedded browser opens sign-in popups without `window.opener`, so Google sign-in does not complete there. It works in Chrome.

@@ -166,3 +166,16 @@ values (DEC-018). After touching secrets or env files, confirm with the next pus
 `paywall_viewed` features, so the second one (premium_store) was silently dropped; the unit test used distinct keys and
 passed. Found only by reading the live `dataLayer`. Make the identity include everything that distinguishes events
 (here the parameters) and test with the exact collision, not only the happy path.
+
+## Verify a new Cloud Run callable with a CORS preflight, not only with a deploy log
+
+A function created by an aborted deploy (`adminStats`) had no `allUsers` invoker binding: every call, including the
+browser's OPTIONS preflight, got a bodiless 403 from Cloud Run, which the app would show as a CORS/permission error. After
+deploying a new callable run:
+`curl -X OPTIONS <service-url> -H 'Origin: https://natalmystic.com' -H 'Access-Control-Request-Method: POST'` (expect 204)
+and compare `gcloud run services get-iam-policy` with a sibling callable.
+
+## Walk the live site and read the real events
+
+Unit tests and the build were green while `paywall_viewed` was dropped. Reading `window.dataLayer` on the deployed site
+after clicking through the funnel found it. For analytics work always check the real events, not only the code path.

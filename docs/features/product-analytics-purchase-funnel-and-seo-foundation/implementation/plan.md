@@ -38,7 +38,7 @@ issues:
     summary: "Write a documentation checklist covering: the funnel exploration over the taxonomy events, key events, BigQuery export link, internal-traffic exclusion, Search Console linking, and the legal reasoning for always-sent server-side events with a pseudonymous transaction-derived client_id and consent state retained in Stripe subscription metadata."
     requirements: [REQ-002]
     decisions: [DEC-001, DEC-005, DEC-007]
-    status: in-progress
+    status: implemented
   - id: I-7
     title: Funnel event taxonomy wired into the web app
     summary: "Add a typed analytics helper (trackEvent, setAnalyticsUser, page path templating) and fire profile_create_start, profile_created, chart_viewed, paywall_viewed, begin_checkout, unlock_feature, astrologer_subscribe_start, ai_reading_requested and letter_opened at the triggers in REQ-005, with a unit-tested payload builder that cannot carry PII. Set traffic_type=internal for the admin account."
@@ -68,7 +68,7 @@ issues:
     summary: "Operational work: create the GA4 property and web stream via the MarkView browser, link to Firebase, put the API secret in Secret Manager as GA_API_SECRET, commit the public measurement id, create the funnel exploration, verify Search Console and submit the sitemap, add .github/workflows/ci.yml, bump the version to 2.20.0 and deploy manually."
     requirements: [REQ-007, REQ-010]
     decisions: [DEC-010, DEC-013]
-    status: in-progress
+    status: implemented
 updated: 2026-10-12
 ---
 

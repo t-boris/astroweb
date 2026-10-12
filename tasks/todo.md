@@ -12,10 +12,15 @@ Deploy is manual (`npm run build:functions` then `npm run deploy`); the auto-dep
 - [x] **WP6 Bilingual routes, privacy pages, footer (I-5, I-10, REQ-003, REQ-004, REQ-008):** `/ru`, `/ru/privacy`, language-from-URL, shared route metadata, static HTML shells plugin, `cleanUrls` + `X-Robots-Tag`, robots.txt, sitemap.xml, JSON-LD, privacy text matching what is collected, footer.
 - [x] **WP7 Docs + CI (I-6, I-11, REQ-010):** `docs/ga4-setup-checklist.md`, `.github/workflows/ci.yml`.
 - [x] **WP8 Verify:** functions build + tests, web build, privacy text vs implementation, no-consent network check, ad-blocker check.
-- [ ] **WP9 Ship:** commits, push, PR with test plan, CI green, merge, version 2.20.0, GA4 property + `GA_API_SECRET` + Search Console via MarkView browser, manual deploy, confirm deployed version, browser walkthrough, manual checklist for Boris.
+- [x] **WP9 Ship:** commits, push, PR with test plan, CI green, merge, version 2.20.0, GA4 property + `GA_API_SECRET` + Search Console via MarkView browser, manual deploy, confirm deployed version, browser walkthrough, manual checklist for Boris.
 
-## Review
-(filled in at the end)
+## Review (2026-10-12)
+
+- Shipped as PR #3 (feature), #4 (pin vitest, DEC-017), #5 (CI deploy fix, DEC-018), #6 (paywall dedupe fix, 2.20.1). Live: https://natalmystic.com v2.20.1.
+- Verified: functions 173 + web 66 unit tests, builds, Hosting emulator, live browser walkthrough (no request or cookie before consent; events and parameters in the live dataLayer; checkout creates a live Stripe session; GA4 Realtime sees the events), Search Console verified, GA4 funnel exploration created.
+- Found and fixed during live verification: Cloud Build npm crash (vitest 4.1), CI `.env`/secret overlap, `adminStats` missing public invoker, `paywall_viewed` dedupe collision.
+- Open for the owner: Search Console sitemap status (re-check in ~24 h), GA4 key events, Internal Traffic filter activation, BigQuery link, Business tab check as admin in Chrome, first real purchase to fill the funnel's last step.
+- Known limits: subscription charges are not in Business-tab revenue (DEC-012); star-spend data starts at the release (DEC-009); the CI auto-deploy now runs on every push to main.
 
 ---
 

@@ -10,11 +10,15 @@ interface DeepenInterpretationPayload {
   language?: AppLanguage;
   relocationLat?: number;
   relocationLng?: number;
+  /** Interpretation block the text belongs to; the server stores it per block for signed-in owners. */
+  blockKey?: string;
 }
 
 interface DeepenInterpretationResponse {
   text: string;
   model: string;
+  /** True when the text was stored on the server (signed-in owner). */
+  persisted?: boolean;
 }
 
 interface AskOraclePayload {
@@ -29,6 +33,9 @@ interface AskOraclePayload {
 interface AskOracleResponse {
   answer: string;
   model: string;
+  /** Id of the stored history entry (null if the server write failed). */
+  entryId?: string | null;
+  persisted?: boolean;
 }
 
 interface RelationshipPartnerPayload {
@@ -54,6 +61,9 @@ interface AskRelationshipResponse {
   answer: string;
   model: string;
   partnerTimezone: string;
+  generatedAt?: string;
+  readingId?: string | null;
+  persisted?: boolean;
 }
 
 export async function deepenInterpretation(

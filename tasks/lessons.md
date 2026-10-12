@@ -152,3 +152,10 @@ function failed to update, in CI and in a manual deploy. Diagnose by copying `fu
 directory and running `npm install --package-lock-only`; bisect by dropping one dependency at a time. Keep dev
 tools in `functions/package.json` pinned exactly (DEC-017) and re-run that clean-directory check after touching
 its dependencies.
+
+## A generated `.env` must never repeat a Secret Manager secret
+
+`firebase-deploy.yml` wrote STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET into `functions/.env` while the functions bind
+the same names with `secrets: [...]`. Cloud Run rejects the update with HTTP 400 "Secret environment variable
+overlaps non secret environment variable". Secrets live only in Secret Manager; `.env.<project>` holds public
+values (DEC-018). After touching secrets or env files, confirm with the next push-to-main deploy run, not only locally.

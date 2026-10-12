@@ -14,6 +14,10 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
 
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null);
+  const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null);
+  // Hover wins while pointing; otherwise the tapped (selected) planet stays
+  // focused — so the wheel is actionable on touch devices, not just on hover.
+  const focusPlanet = hoveredPlanet ?? selectedPlanet;
   const [activeFilters, setActiveFilters] = useState<Set<string>>(
     new Set(["conjunction", "opposition", "trine", "square", "sextile"]),
   );
@@ -28,13 +32,13 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
   }, []);
 
   const hoveredPlanetAspects = useMemo(() => {
-    if (!hoveredPlanet) return null;
+    if (!focusPlanet) return null;
     return new Set(
       chart.aspects
-        .filter((a) => a.a === hoveredPlanet || a.b === hoveredPlanet)
+        .filter((a) => a.a === focusPlanet || a.b === focusPlanet)
         .flatMap((a) => [a.a, a.b]),
     );
-  }, [hoveredPlanet, chart.aspects]);
+  }, [focusPlanet, chart.aspects]);
 
   const filteredAspects = useMemo(() => {
     return chart.aspects.filter((a) => activeFilters.has(a.type));
@@ -107,7 +111,7 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
           aspects={filteredAspects}
           points={chart.points}
           ascDegree={ascDegree}
-          hoveredPlanet={hoveredPlanet}
+          hoveredPlanet={focusPlanet}
           hoveredPlanetAspects={hoveredPlanetAspects}
           revealed={revealed}
         />
@@ -116,19 +120,22 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
         <PlanetMarkers
           points={chart.points}
           ascDegree={ascDegree}
-          hoveredPlanet={hoveredPlanet}
+          hoveredPlanet={focusPlanet}
           hoveredPlanetAspects={hoveredPlanetAspects}
           onPlanetHover={setHoveredPlanet}
+          onPlanetSelect={(body) =>
+            setSelectedPlanet((prev) => (prev === body ? null : body))
+          }
           revealed={revealed}
         />
       </svg>
 
       {/* Tooltip overlay (HTML, outside SVG) */}
-      {hoveredPlanet && (
+      {focusPlanet && (
         <ChartTooltip
-          planet={chart.points.find((p) => p.body === hoveredPlanet)!}
+          planet={chart.points.find((p) => p.body === focusPlanet)!}
           aspects={chart.aspects.filter(
-            (a) => a.a === hoveredPlanet || a.b === hoveredPlanet,
+            (a) => a.a === focusPlanet || a.b === focusPlanet,
           )}
           svgRef={svgRef}
           ascDegree={ascDegree}

@@ -11,6 +11,7 @@ import {
   buildPremiumPdfNarrativeSectionPrompt,
   generateClaudeTextResult,
   normalizeLanguage,
+  promptLanguage,
   type PremiumPdfNarrativeSection,
 } from "../services/anthropic";
 
@@ -116,6 +117,7 @@ export const downloadPremiumPdf = onCall({
   const { profile, chart } = await resolveOwnedChart({
     profileId,
     ownerDeviceId,
+    uid: request.auth?.uid ?? null,
     relocationLat,
     relocationLng,
   });
@@ -196,7 +198,8 @@ export const downloadPremiumPdf = onCall({
   }
 
   const report: PremiumPdfReport = {
-    language,
+    // Static PDF labels exist only in ru/en; AI narrative is already in the requested language.
+    language: promptLanguage(language),
     title:
       optionalString(rawReport.title, 180) ??
       (language === "ru"

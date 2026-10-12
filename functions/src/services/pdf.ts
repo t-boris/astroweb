@@ -672,7 +672,10 @@ function renderFooter(
     const pageNumber = pageIndex + 1;
     const footerY = doc.page.height - 30;
     const originalBottomMargin = doc.page.margins.bottom;
-    doc.page.margins.bottom = 20;
+    // Drop the bottom margin to 0 while writing the footer: otherwise the
+    // footer line at height-30 sits within the line-height of the bottom
+    // margin and PDFKit's overflow check spawns a blank page per footer.
+    doc.page.margins.bottom = 0;
     doc
       .font(fonts.regular)
       .fontSize(8)

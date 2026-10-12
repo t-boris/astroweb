@@ -3,6 +3,7 @@ import { logger } from "firebase-functions/v2";
 import { computeNatalChart as computeChart } from "../astro/chart";
 import * as profileService from "../services/profile";
 import * as chartService from "../services/chart";
+import { ownerCtx, ownsProfile } from "../services/owner";
 
 /**
  * computeNatalChart Cloud Function — computes a natal chart for a profile.
@@ -16,7 +17,6 @@ export const computeNatalChart = onCall(async (request) => {
 
   // ---- Validate input ----
   const profileId = data?.profileId;
-  const ownerDeviceId = data?.ownerDeviceId;
   const houseSystem = data?.houseSystem ?? "koch";
   const relocationLat = data?.relocationLat ?? undefined;
   const relocationLng = data?.relocationLng ?? undefined;
@@ -25,9 +25,7 @@ export const computeNatalChart = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "profileId is required");
   }
 
-  if (!ownerDeviceId || typeof ownerDeviceId !== "string") {
-    throw new HttpsError("invalid-argument", "ownerDeviceId is required");
-  }
+  const ctx = ownerCtx(request);
 
   if (
     houseSystem !== "placidus" &&
@@ -74,7 +72,7 @@ export const computeNatalChart = onCall(async (request) => {
       throw new HttpsError("not-found", "Profile not found");
     }
 
-    if (profile.ownerDeviceId !== ownerDeviceId) {
+    if (!ownsProfile(profile, ctx)) {
       throw new HttpsError("permission-denied", "Access denied");
     }
 

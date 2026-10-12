@@ -8,6 +8,8 @@ import {
   normalizeLanguage,
 } from "../services/anthropic";
 import { getTimezoneFromCoords } from "../utils/timezone";
+import { TOKEN_COST } from "../services/tokens";
+import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
 
 interface PartnerInput {
   name: string;
@@ -95,15 +97,26 @@ export const askRelationship = onCall({
     throw new HttpsError("invalid-argument", "ownerDeviceId is required");
   }
 
-  try {
-    const { profile, chart: chartA } = await resolveOwnedChart({
-      profileId,
-      ownerDeviceId,
-      houseSystem: "koch",
-      relocationLat,
-      relocationLng,
-    });
+  const { profile, chart: chartA } = await resolveOwnedChart({
+    profileId,
+    ownerDeviceId,
+    uid: request.auth?.uid ?? null,
+    houseSystem: "koch",
+    relocationLat,
+    relocationLng,
+  });
 
+  // Each compatibility reading costs ✦2 (a fresh paid reading per partner),
+  // mirroring the oracle's per-question charge. Spend up front from the user's
+  // wallet; refund on failure so the user is never charged for a reading they
+  // didn't receive.
+  const walletKey = walletKeyFromCtx({
+    uid: request.auth?.uid ?? null,
+    deviceId: ownerDeviceId,
+  });
+  await spendFromWallet(walletKey, TOKEN_COST.compatibility);
+
+  try {
     const partnerTimezone = getTimezoneFromCoords(partner.lat, partner.lng);
     const chartB = computeNatalChart({
       birthDate: partner.birthDate,
@@ -142,6 +155,17 @@ export const askRelationship = onCall({
       partnerTimezone,
     };
   } catch (error) {
+    // Generation failed after tokens were spent — refund (best-effort).
+    try {
+      await refundToWallet(walletKey, TOKEN_COST.compatibility);
+      logger.info("askRelationship refunded tokens after failure", { profileId });
+    } catch (refundError) {
+      logger.error("askRelationship failed to refund tokens", {
+        profileId,
+        error: (refundError as Error).message,
+      });
+    }
+
     if (error instanceof HttpsError) {
       throw error;
     }

@@ -1,12 +1,13 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
+import type { AppLanguage } from "@/lib/language";
 
 interface DeepenInterpretationPayload {
   profileId: string;
   ownerDeviceId: string;
   focusTopic: string;
   baseInterpretation: string;
-  language?: "ru" | "en";
+  language?: AppLanguage;
   relocationLat?: number;
   relocationLng?: number;
 }
@@ -20,7 +21,7 @@ interface AskOraclePayload {
   profileId: string;
   ownerDeviceId: string;
   question: string;
-  language?: "ru" | "en";
+  language?: AppLanguage;
   relocationLat?: number;
   relocationLng?: number;
 }
@@ -44,7 +45,7 @@ interface AskRelationshipPayload {
   profileId: string;
   ownerDeviceId: string;
   partner: RelationshipPartnerPayload;
-  language?: "ru" | "en";
+  language?: AppLanguage;
   relocationLat?: number;
   relocationLng?: number;
 }

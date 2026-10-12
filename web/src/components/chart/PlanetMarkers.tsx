@@ -9,6 +9,7 @@ interface PlanetMarkersProps {
   hoveredPlanet: string | null;
   hoveredPlanetAspects: Set<string> | null;
   onPlanetHover: (body: string | null) => void;
+  onPlanetSelect?: (body: string) => void;
   revealed: boolean;
 }
 
@@ -76,9 +77,10 @@ export default function PlanetMarkers({
   hoveredPlanet,
   hoveredPlanetAspects,
   onPlanetHover,
+  onPlanetSelect,
   revealed,
 }: PlanetMarkersProps) {
-  const { cx, cy, planetRadius } = CHART_LAYOUT;
+  const { cx, cy, planetRadius, zodiacInner } = CHART_LAYOUT;
 
   const placedPlanets = useMemo(
     () => resolvePlanetCollisions(points, ascDegree),
@@ -130,15 +132,30 @@ export default function PlanetMarkers({
               opacity: revealed ? undefined : 0,
             };
 
+        // Tick line from the sign band toward the planet marker (prototype style)
+        const tickStart = polarToCartesian(cx, cy, zodiacInner - 6, placed.placedAngle);
+        const tickEnd = polarToCartesian(cx, cy, placed.radius + 22, placed.placedAngle);
+
         return (
           <g
             key={placed.body}
             className="planet-group transition-opacity duration-200"
             data-planet={placed.body}
-            style={animationStyle}
+            style={{ ...animationStyle, cursor: "pointer" }}
             onPointerEnter={() => onPlanetHover(placed.body)}
             onPointerLeave={() => onPlanetHover(null)}
+            onClick={() => onPlanetSelect?.(placed.body)}
           >
+            {/* Tick line linking the sign band to the planet */}
+            <line
+              x1={tickStart.x}
+              y1={tickStart.y}
+              x2={tickEnd.x}
+              y2={tickEnd.y}
+              stroke="rgba(143, 182, 255, 0.4)"
+              strokeWidth={1}
+            />
+
             {/* Leader line connecting offset planet to true ecliptic position */}
             {placed.hasLeader && truePos && (
               <line
@@ -146,10 +163,21 @@ export default function PlanetMarkers({
                 y1={truePos.y}
                 x2={pos.x}
                 y2={pos.y}
-                stroke="rgba(255, 255, 255, 0.2)"
+                stroke="rgba(143, 182, 255, 0.25)"
                 strokeWidth={0.5}
               />
             )}
+
+            {/* Planet disc */}
+            <circle
+              cx={pos.x}
+              cy={pos.y}
+              r={isHovered ? 32 : 29}
+              fill="#0b1124"
+              stroke={isHovered ? "#8fb6ff" : "rgba(143, 182, 255, 0.55)"}
+              strokeWidth={isHovered ? 1.6 : 1}
+              className="transition-all duration-200"
+            />
 
             {/* Planet glyph */}
             <text
@@ -158,7 +186,8 @@ export default function PlanetMarkers({
               fontSize={isHovered ? 26 : 22}
               textAnchor="middle"
               dominantBaseline="central"
-              fill="white"
+              fill="#dfeaff"
+              fontFamily="serif"
               filter="url(#glow)"
               className="transition-[font-size] duration-200"
             >
@@ -169,7 +198,7 @@ export default function PlanetMarkers({
             <circle
               cx={pos.x}
               cy={pos.y}
-              r={20}
+              r={32}
               fill="transparent"
               pointerEvents="all"
               data-planet={placed.body}
@@ -182,7 +211,7 @@ export default function PlanetMarkers({
               fontSize={10}
               textAnchor="middle"
               dominantBaseline="central"
-              fill="rgba(255, 255, 255, 0.5)"
+              fill="rgba(143, 182, 255, 0.55)"
             >
               {`${Math.floor(placed.degreeInSign)}\u00B0`}
             </text>

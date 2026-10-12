@@ -4,6 +4,34 @@ import { detectAspect } from "../astro/aspects";
 
 export type SupportedLanguage = "ru" | "en";
 
+/**
+ * Language a prompt template is written in. Russian has its own templates;
+ * every other output language uses the English templates plus an explicit
+ * output-language directive (see withOutputLanguage).
+ */
+export type PromptLanguage = "ru" | "en";
+
+export function promptLanguage(language: SupportedLanguage): PromptLanguage {
+  return language === "ru" ? "ru" : "en";
+}
+
+const OUTPUT_LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
+  en: "English",
+  ru: "Russian",
+};
+
+const OUTPUT_LANGUAGE_DIRECTIVES: Partial<Record<SupportedLanguage, string>> = {};
+
+export function withOutputLanguage(input: AiGenerateInput, language: SupportedLanguage): AiGenerateInput {
+  const directive = OUTPUT_LANGUAGE_DIRECTIVES[language];
+  if (!directive) return input;
+  return {
+    ...input,
+    systemInstruction: `${input.systemInstruction}\n\n${directive}`,
+    userPrompt: `${input.userPrompt}\n\n${directive}`,
+  };
+}
+
 interface AnthropicContentBlock {
   type?: string;
   text?: string;
@@ -49,12 +77,13 @@ interface AiTextResult {
 }
 
 export const PREMIUM_PDF_MODEL = "claude-sonnet-4-6";
+export const OPUS_MODEL = "claude-opus-4-8";
 const DEFAULT_MODEL = PREMIUM_PDF_MODEL;
 const ANTHROPIC_VERSION = "2023-06-01";
 const REQUEST_TIMEOUT_MS = 180_000;
 const ANTHROPIC_API_KEY_PATTERN = /sk-ant-[A-Za-z0-9_-]+/;
 
-const BODY_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+const BODY_LABELS: Record<string, Record<PromptLanguage, string>> = {
   Sun: { en: "Sun", ru: "Солнце" },
   Moon: { en: "Moon", ru: "Луна" },
   Mercury: { en: "Mercury", ru: "Меркурий" },
@@ -69,7 +98,7 @@ const BODY_LABELS: Record<string, Record<SupportedLanguage, string>> = {
   MC: { en: "Midheaven", ru: "Середина неба" },
 };
 
-const SIGN_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+const SIGN_LABELS: Record<string, Record<PromptLanguage, string>> = {
   Aries: { en: "Aries", ru: "Овен" },
   Taurus: { en: "Taurus", ru: "Телец" },
   Gemini: { en: "Gemini", ru: "Близнецы" },
@@ -84,7 +113,7 @@ const SIGN_LABELS: Record<string, Record<SupportedLanguage, string>> = {
   Pisces: { en: "Pisces", ru: "Рыбы" },
 };
 
-const ASPECT_LABELS: Record<string, Record<SupportedLanguage, string>> = {
+const ASPECT_LABELS: Record<string, Record<PromptLanguage, string>> = {
   conjunction: { en: "conjunction", ru: "соединение" },
   sextile: { en: "sextile", ru: "секстиль" },
   square: { en: "square", ru: "квадратура" },
@@ -92,7 +121,7 @@ const ASPECT_LABELS: Record<string, Record<SupportedLanguage, string>> = {
   opposition: { en: "opposition", ru: "оппозиция" },
 };
 
-const HOUSE_TOPICS: Record<number, Record<SupportedLanguage, string>> = {
+const HOUSE_TOPICS: Record<number, Record<PromptLanguage, string>> = {
   1: { en: "identity, body, manner of acting", ru: "личность, тело, способ действовать" },
   2: { en: "resources, money, self-worth", ru: "ресурсы, деньги, самоценность" },
   3: { en: "learning, siblings, communication", ru: "обучение, близкое окружение, коммуникация" },
@@ -165,9 +194,9 @@ export function buildPlanetaryContext(chart: ChartResult): string {
 }
 
 function labelFor(
-  labels: Record<string, Record<SupportedLanguage, string>>,
+  labels: Record<string, Record<PromptLanguage, string>>,
   key: string,
-  language: SupportedLanguage,
+  language: PromptLanguage,
 ): string {
   return labels[key]?.[language] ?? key;
 }
@@ -176,7 +205,7 @@ function formatLocalizedDegree(value: number): string {
   return `${value.toFixed(2)}°`;
 }
 
-function formatLocalizedLongitude(longitude: number, language: SupportedLanguage): string {
+function formatLocalizedLongitude(longitude: number, language: PromptLanguage): string {
   const normalized = ((longitude % 360) + 360) % 360;
   const signIndex = Math.floor(normalized / 30);
   const sign = [
@@ -206,7 +235,7 @@ function clipForPrompt(value: string, maxLength: number): string {
 function buildPremiumPdfChartContext(params: {
   profile: Profile;
   chart: ChartResult;
-  language: SupportedLanguage;
+  language: PromptLanguage;
   isRelocated?: boolean;
 }): string {
   const { profile, chart, language, isRelocated } = params;
@@ -322,7 +351,8 @@ export function buildPremiumPdfNarrativePrompt(params: {
   }>;
   isRelocated?: boolean;
 }): AiGenerateInput {
-  const { profile, chart, language, sections, isRelocated } = params;
+  const { profile, chart, language: outputLanguage, sections, isRelocated } = params;
+  const language = promptLanguage(outputLanguage);
   const chartContext = buildPremiumPdfChartContext({
     profile,
     chart,
@@ -340,7 +370,7 @@ export function buildPremiumPdfNarrativePrompt(params: {
           "Каждый астрологический термин сразу объясняй человеческим языком, но не превращай текст в учебник.",
         ].join(" ")
       : [
-          "You are the author of a premium astrology booklet and a strict English editor.",
+          `You are the author of a premium astrology booklet and a strict ${OUTPUT_LANGUAGE_NAMES[outputLanguage]} editor.`,
           "Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic.",
           "Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
           "Explain each astrological term in plain language without turning the text into a textbook.",
@@ -392,20 +422,20 @@ export function buildPremiumPdfNarrativePrompt(params: {
           "[PORTRAIT]",
           "Synthesize the psychological portrait into one coherent reading. Do not repeat the table. Show character, emotional layer, communication style, intimacy style, will, resources, tensions, strengths, vulnerabilities and the mature task of the chart. Connect it logically to the previous sections.",
           "Format:",
-          "1) English only.",
+          `1) ${OUTPUT_LANGUAGE_NAMES[outputLanguage]} only.`,
           "2) Markdown headings inside sections are allowed: ## and ###.",
           "3) No tables.",
           "4) Total length 3500-5200 words.",
           "5) End with a separate line: [END_OF_REPORT]",
         ].join("\n\n");
 
-  return {
+  return withOutputLanguage({
     systemInstruction,
     userPrompt,
     model: PREMIUM_PDF_MODEL,
     temperature: 0.55,
     maxOutputTokens: 8000,
-  };
+  }, outputLanguage);
 }
 
 export function buildPremiumPdfNarrativeSectionPrompt(params: {
@@ -421,7 +451,8 @@ export function buildPremiumPdfNarrativeSectionPrompt(params: {
   section: PremiumPdfNarrativeSection;
   isRelocated?: boolean;
 }): AiGenerateInput {
-  const { profile, chart, language, sections, section, isRelocated } = params;
+  const { profile, chart, language: outputLanguage, sections, section, isRelocated } = params;
+  const language = promptLanguage(outputLanguage);
   const chartContext = buildPremiumPdfChartContext({
     profile,
     chart,
@@ -460,7 +491,7 @@ export function buildPremiumPdfNarrativeSectionPrompt(params: {
   const systemInstruction =
     language === "ru"
       ? "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы."
-      : "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.";
+      : `You are the author of a premium astrology booklet and a strict ${OUTPUT_LANGUAGE_NAMES[outputLanguage]} editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.`;
 
   const userPrompt =
     language === "ru"
@@ -491,13 +522,13 @@ export function buildPremiumPdfNarrativeSectionPrompt(params: {
           "End with a separate line: [END_OF_REPORT]",
         ].join("\n\n");
 
-  return {
+  return withOutputLanguage({
     systemInstruction,
     userPrompt,
     model: PREMIUM_PDF_MODEL,
     temperature: 0.5,
-    maxOutputTokens: 3000,
-  };
+    maxOutputTokens: 8000,
+  }, outputLanguage);
 }
 
 export function parsePremiumPdfNarrative(text: string): PremiumPdfNarrative {
@@ -542,7 +573,8 @@ export function buildDeepInterpretationPrompt(params: {
   baseInterpretation: string;
   language: SupportedLanguage;
 }): AiGenerateInput {
-  const { chart, focusTopic, baseInterpretation, language } = params;
+  const { chart, focusTopic, baseInterpretation, language: outputLanguage } = params;
+  const language = promptLanguage(outputLanguage);
   const planetaryContext = buildPlanetaryContext(chart);
   const normalizedFocus = focusTopic.toLowerCase();
   const isAspectFocus =
@@ -588,7 +620,7 @@ export function buildDeepInterpretationPrompt(params: {
           "Planetary chart context:",
           planetaryContext,
           "Response requirements (strict):",
-          "1) English, 150-250 words.",
+          `1) ${OUTPUT_LANGUAGE_NAMES[outputLanguage]}, 150-250 words.`,
           `2) ${isAspectFocus
             ? "Focus primarily on THIS requested aspect (its planets, signs, houses, and orb)."
             : "Focus ONLY on the requested topic, no full-chart overview."}`,
@@ -602,66 +634,95 @@ export function buildDeepInterpretationPrompt(params: {
           "10) End with a single line: [END_OF_REPORT]",
         ].join("\n\n");
 
-  return {
+  return withOutputLanguage({
     systemInstruction,
     userPrompt,
     temperature: 0.4,
     maxOutputTokens: 2600,
-  };
+  }, outputLanguage);
 }
 
 export function buildOraclePrompt(params: {
   chart: ChartResult;
   question: string;
   language: SupportedLanguage;
+  dossierSummary?: string;
 }): AiGenerateInput {
-  const { chart, question, language } = params;
+  const { chart, question, language: outputLanguage, dossierSummary } = params;
+  const language = promptLanguage(outputLanguage);
   const planetaryContext = buildPlanetaryContext(chart);
 
+  const personalBlock =
+    dossierSummary && dossierSummary.trim()
+      ? language === "ru"
+        ? `\n\nЧто известно об этом человеке (учитывай при ответе, обращайся лично и по делу):\n${dossierSummary}`
+        : `\n\nWhat is known about this person (use it to personalize, address them directly):\n${dossierSummary}`
+      : "";
+
   const systemInstruction =
-    language === "ru"
-      ? "Ты Оракул натальной карты. Отвечай только на основе предоставленных планетарных позиций и аспектов. Не опирайся на общие гороскопы, не придумывай события, не давай советы по медицине/праву/финансам как эксперт."
-      : "You are a natal-chart oracle. Answer only from the provided planetary positions and aspects. Do not rely on generic horoscopes, do not invent events, and do not provide medical/legal/financial expert advice.";
+    (language === "ru"
+      ? [
+          "Ты — Оракул натальной карты: вдумчивый астролог-психолог, который говорит с человеком прямо, тепло и по существу.",
+          "Ты опираешься исключительно на предоставленные позиции планет, дома и аспекты ИМЕННО ЭТОЙ карты — никогда на общие гороскопы по знаку.",
+          "Ты не выдумываешь события и даты, не используешь транзиты и внешние факты, не выступаешь как врач, юрист или финансовый консультант.",
+          "Каждый астрологический термин ты раскрываешь так, чтобы он стал понятен человеку без подготовки, не превращая ответ в учебник.",
+        ].join(" ")
+      : [
+          "You are a natal-chart Oracle: a thoughtful astrologer-psychologist who speaks to the person directly, warmly, and to the point.",
+          "You rely solely on the provided planetary positions, houses, and aspects of THIS specific chart — never on generic sign horoscopes.",
+          "You do not invent events or dates, do not use transits or external facts, and do not act as a doctor, lawyer, or financial advisor.",
+          "You explain every astrological term so a layperson understands it, without turning the answer into a textbook.",
+        ].join(" ")) +
+    personalBlock;
 
   const userPrompt =
     language === "ru"
       ? [
           "Вопрос пользователя:",
           question,
-          "Планетарный контекст карты:",
+          "Данные натальной карты (единственный источник истины):",
           planetaryContext,
-          "Формат ответа СТРОГО:",
-          "1) Объем 220-420 слов, законченный цельный ответ.",
-          "2) Структура: 'Вывод', 'Логика карты', 'Риски и опоры', 'Практический фокус'.",
-          "3) В разделе 'Логика карты' дай 4-6 коротких пунктов, каждый с конкретной ссылкой на планеты/знаки/дома/аспекты из данных.",
-          "4) В 'Риски и опоры' покажи минимум 2 риска и 2 ресурса, опираясь на карту.",
-          "5) В 'Практический фокус' дай 3-5 четких шагов, напрямую связанных с указанными астрологическими факторами.",
-          "6) Без воды, без общих фраз, без цитат и технических артефактов.",
-          "7) Используй только данные этой натальной карты. Не добавляй транзиты и внешние события.",
-          "8) Заверши ответ строкой: [END_OF_REPORT]",
+          "Твоя задача: дать цельный, глубокий и честный ответ именно на этот вопрос, опираясь на конкретные факторы карты.",
+          "Ориентиры по качеству (это критерии, а не жёсткий шаблон — выстраивай ответ так, чтобы он был максимально полезным):",
+          "- Начни с ясного, прямого вывода по сути вопроса.",
+          "- Покажи логику карты: на какие именно планеты, знаки, дома и аспекты (учитывая орбы и силу) ты опираешься и почему они отвечают на этот вопрос.",
+          "- Будь честным: назови и реальные опоры, и риски или слепые зоны, которые видны в карте.",
+          "- Заверши практическим фокусом: несколько конкретных шагов, прямо связанных с названными факторами.",
+          "Если выше дан контекст об этом человеке — учитывай его и обращайся лично, но не додумывай того, чего в нём нет.",
+          "Форма ответа:",
+          "- Структурируй ответ Markdown-подзаголовками (### ...), например: ### Вывод, ### Логика карты, ### Риски и опоры, ### Практический фокус. Названия можно адаптировать под суть вопроса.",
+          "- Пиши живым человеческим языком: без канцелярита, воды и общих гороскопных фраз. Каждый термин поясняй простыми словами по ходу.",
+          "- Объём — сколько нужно для содержательного ответа, ориентир 300-550 слов; не растягивай ради объёма.",
+          "- Только данные этой карты. Без транзитов, дат и внешних событий. Без цитат и технических артефактов.",
+          "- Заверши ответ отдельной строкой: [END_OF_REPORT]",
         ].join("\n\n")
       : [
           "User question:",
           question,
-          "Planetary chart context:",
+          "Natal chart data (the only source of truth):",
           planetaryContext,
-          "STRICT response format:",
-          "1) 220-420 words, complete finished answer.",
-          "2) Structure: 'Conclusion', 'Chart logic', 'Risks and supports', 'Practical focus'.",
-          "3) In 'Chart logic', provide 4-6 short bullets, each grounded in concrete planets/signs/houses/aspects from the data.",
-          "4) In 'Risks and supports', include at least 2 risks and 2 resources tied to chart factors.",
-          "5) In 'Practical focus', give 3-5 clear actions directly linked to the cited astrological factors.",
-          "6) No fluff, no generic statements, no quotes or continuation artifacts.",
-          "7) Use only this natal chart data. No transits or external event claims.",
-          "8) End with a single line: [END_OF_REPORT]",
+          "Your task: give a cohesive, deep, and honest answer to this specific question, grounded in concrete chart factors.",
+          "Quality guidance (these are criteria, not a rigid template — shape the answer to be maximally useful):",
+          "- Open with a clear, direct conclusion on the substance of the question.",
+          "- Show the chart logic: which exact planets, signs, houses, and aspects (considering orbs and strength) you rely on and why they answer this question.",
+          "- Be honest: name both the real supports and the risks or blind spots visible in the chart.",
+          "- Close with a practical focus: a few concrete steps directly tied to the cited factors.",
+          "If context about this person is given above, take it into account and address them personally, but do not invent anything not present in it.",
+          "Form of the answer:",
+          "- Structure the answer with Markdown subheadings (### ...), e.g.: ### Conclusion, ### Chart logic, ### Risks and supports, ### Practical focus. Adapt the names to the question if useful.",
+          "- Write in living, human language: no bureaucratese, no fluff, no generic horoscope phrases. Explain each term in plain words as you go.",
+          "- Length: as much as a substantive answer needs, aim for 300-550 words; do not pad for length.",
+          "- Use only this chart's data. No transits, dates, or external events. No quotes or continuation artifacts.",
+          "- End with a single line: [END_OF_REPORT]",
         ].join("\n\n");
 
-  return {
+  return withOutputLanguage({
     systemInstruction,
     userPrompt,
-    temperature: 0.3,
-    maxOutputTokens: 2000,
-  };
+    model: OPUS_MODEL,
+    // Opus 4.8 does not accept `temperature`; omit it so the API call succeeds.
+    maxOutputTokens: 2400,
+  }, outputLanguage);
 }
 
 function buildSynastryAspectContext(params: {
@@ -705,7 +766,8 @@ export function buildRelationshipPrompt(params: {
   personBName: string;
   language: SupportedLanguage;
 }): AiGenerateInput {
-  const { chartA, chartB, personAName, personBName, language } = params;
+  const { chartA, chartB, personAName, personBName, language: outputLanguage } = params;
+  const language = promptLanguage(outputLanguage);
   const contextA = buildPlanetaryContext(chartA);
   const contextB = buildPlanetaryContext(chartB);
   const synastryContext = buildSynastryAspectContext({
@@ -748,7 +810,7 @@ export function buildRelationshipPrompt(params: {
           "Cross-chart synastry aspects:",
           synastryContext || "none",
           "Response requirements:",
-          "1) English, 380-700 words.",
+          `1) ${OUTPUT_LANGUAGE_NAMES[outputLanguage]}, 380-700 words.`,
           "2) Markdown structure: ### Overall dynamic, ### Attraction and intimacy, ### Communication and conflict, ### Relationship strengths, ### Relationship risks, ### Practice.",
           "3) Include at least 6 concrete references to chart factors (planets, signs, houses, aspects, orbs).",
           "4) Explain each astrology term in plain language immediately.",
@@ -757,12 +819,13 @@ export function buildRelationshipPrompt(params: {
           "7) End with a single line: [END_OF_REPORT]",
         ].join("\n\n");
 
-  return {
+  return withOutputLanguage({
     systemInstruction,
     userPrompt,
-    temperature: 0.35,
+    model: OPUS_MODEL,
+    // Opus 4.8 does not accept `temperature`; omit it so the API call succeeds.
     maxOutputTokens: 2400,
-  };
+  }, outputLanguage);
 }
 
 function sanitizeAiOutput(input: string): string {
@@ -831,7 +894,9 @@ async function callClaudeOnce(
   const payload = JSON.stringify({
     model,
     max_tokens: input.maxOutputTokens ?? 800,
-    temperature: input.temperature ?? 0.5,
+    // Newer models (e.g. Opus 4.8) reject `temperature`; only send it when the
+    // caller explicitly provides one.
+    ...(input.temperature !== undefined ? { temperature: input.temperature } : {}),
     system: input.systemInstruction,
     messages: [
       {

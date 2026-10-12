@@ -2,8 +2,14 @@ import { onRequest } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
+import { getProfileById } from "../services/profile";
+import { grantToWallet, markFirstReadingUsed, walletKeyFromProfile } from "../services/wallet";
+import { parseRecipientEmails } from "../services/email";
+import { enqueueImmediateLetter } from "../services/letterEngine";
 
-export const stripeWebhook = onRequest(async (req, res) => {
+export const stripeWebhook = onRequest({
+  secrets: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+}, async (req, res) => {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -33,41 +39,166 @@ export const stripeWebhook = onRequest(async (req, res) => {
     return;
   }
 
+  // Personal Astrologer subscription created.
+  if (event.type === "checkout.session.completed" && (event.data.object as any).metadata?.kind === "astrologer") {
+    const session = event.data.object as any;
+    const m = session.metadata || {};
+    try {
+      const db = admin.firestore();
+      const now = new Date().toISOString();
+      let currentPeriodEnd = now;
+      try {
+        const stripeSub = (await stripe.subscriptions.retrieve(session.subscription as string)) as any;
+        currentPeriodEnd = new Date((stripeSub.current_period_end ?? 0) * 1000).toISOString();
+      } catch {
+        /* best-effort */
+      }
+      let channels = { inApp: true, email: true, webPush: false };
+      try {
+        channels = { inApp: true, ...JSON.parse(m.channels || "{}") };
+      } catch {
+        /* default */
+      }
+      await db.collection("subscriptions").doc(m.profileId).set({
+        profileId: m.profileId,
+        ownerUid: m.ownerUid,
+        status: "active",
+        cadence: m.cadence,
+        billingPeriod: m.period,
+        provider: "stripe",
+        providerRef: session.subscription,
+        priceCents: session.amount_total ?? null,
+        starsPerCycle: 1,
+        channels,
+        recipientEmails: parseRecipientEmails(m.recipientEmails),
+        currentPeriodStart: now,
+        currentPeriodEnd,
+        nextLetterAt: now, // first letter on the next scheduler tick
+        pausedUntil: null,
+        canceledAt: null,
+        astrologerName: m.astrologerName || "Vega",
+        createdAt: now,
+        updatedAt: now,
+      });
+      // Send the first letter right away (don't wait for the 15-min scheduler).
+      await enqueueImmediateLetter(m.profileId, m.ownerUid, m.cadence);
+      logger.info("astrologer subscription created", { profileId: m.profileId, sub: session.subscription });
+    } catch (e) {
+      logger.error("astrologer subscription fulfilment failed", { error: (e as Error).message });
+    }
+    res.json({ received: true });
+    return;
+  }
+
+  // Subscription canceled at period end → stop letters.
+  if (event.type === "customer.subscription.deleted") {
+    const sub = event.data.object as any;
+    const snap = await admin.firestore().collection("subscriptions").where("providerRef", "==", sub.id).limit(1).get();
+    if (!snap.empty) {
+      await snap.docs[0].ref.set({ status: "canceled", updatedAt: new Date().toISOString() }, { merge: true });
+    }
+    res.json({ received: true });
+    return;
+  }
+
+  // Failed renewal → past_due (scheduler skips; dunning nudges).
+  if (event.type === "invoice.payment_failed") {
+    const inv = event.data.object as any;
+    if (inv.subscription) {
+      const snap = await admin.firestore().collection("subscriptions").where("providerRef", "==", inv.subscription).limit(1).get();
+      if (!snap.empty) {
+        await snap.docs[0].ref.set({ status: "past_due", updatedAt: new Date().toISOString() }, { merge: true });
+      }
+    }
+    res.json({ received: true });
+    return;
+  }
+
+  // Successful renewal → ensure active + sync period end.
+  if (event.type === "invoice.payment_succeeded") {
+    const inv = event.data.object as any;
+    if (inv.subscription) {
+      const snap = await admin.firestore().collection("subscriptions").where("providerRef", "==", inv.subscription).limit(1).get();
+      if (!snap.empty) {
+        const periodEnd = inv.lines?.data?.[0]?.period?.end;
+        await snap.docs[0].ref.set(
+          {
+            status: "active",
+            ...(periodEnd ? { currentPeriodEnd: new Date(periodEnd * 1000).toISOString() } : {}),
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true },
+        );
+      }
+    }
+    res.json({ received: true });
+    return;
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any;
-    const { profileId, ownerDeviceId, tier } = session.metadata || {};
+    const { profileId, ownerDeviceId, tier, tokens, walletKey: metaWalletKey } = session.metadata || {};
+    const tokenQty = Number(tokens) || 0;
 
-    if (profileId && tier) {
+    if (profileId) {
       const db = admin.firestore();
       const profileRef = db.collection("profiles").doc(profileId);
-      
-      try {
-        if (tier === "pdf") {
-          await profileRef.update({ hasPremiumPdf: true });
-          
-          const profileDoc = await profileRef.get();
-          const profileData = profileDoc.data();
-          const customerEmail = session.customer_details?.email;
+      // Use the Stripe session id as the purchase doc id for idempotency:
+      // Stripe may deliver the same event more than once.
+      const purchaseRef = db.collection("purchases").doc(session.id);
 
-          if (profileData && customerEmail) {
-            await db.collection("pdfJobs").add({
-              profileId,
-              ownerDeviceId,
-              profileName: profileData.name,
-              customerEmail,
-              status: "pending",
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      try {
+        const alreadyFulfilled = await purchaseRef.get();
+        if (alreadyFulfilled.exists) {
+          logger.info(`Purchase ${session.id} already fulfilled, skipping`);
+        } else {
+          if (tokenQty > 0) {
+            // Token purchase (current model) — credit the per-user wallet.
+            let key = metaWalletKey as string | undefined;
+            if (!key) {
+              const prof = await getProfileById(profileId);
+              key = (prof && walletKeyFromProfile(prof)) || undefined;
+            }
+            if (key) {
+              await grantToWallet(key, tokenQty);
+              // Consume the one-time first-reading discount (after the grant so
+              // the lazy legacy-token migration isn't short-circuited).
+              if (session.metadata?.firstReading === "1") {
+                await markFirstReadingUsed(key);
+              }
+              logger.info(`Granted ${tokenQty} stars to wallet ${key} (profile ${profileId})`);
+            } else {
+              logger.error("No wallet key for token purchase", { profileId, session: session.id });
+            }
+          } else if (tier === "pdf") {
+            // Legacy per-feature purchases (in-flight sessions only).
+            await profileRef.update({ hasPremiumPdf: true });
+          } else if (tier === "oracle") {
+            await profileRef.update({
+              oracleCredits: admin.firestore.FieldValue.increment(1)
             });
-            logger.info(`Queued PDF premium job for profile ${profileId}`);
+          } else if (tier === "compatibility") {
+            await profileRef.update({ hasPremiumCompatibility: true });
           }
-        } else if (tier === "oracle") {
-          await profileRef.update({
-            oracleCredits: admin.firestore.FieldValue.increment(1)
+
+          // Record the transaction for audit/accounting.
+          await purchaseRef.set({
+            profileId,
+            ownerDeviceId: ownerDeviceId ?? null,
+            tier: tier ?? (tokenQty > 0 ? "tokens" : null),
+            tokens: tokenQty,
+            amountTotal: session.amount_total ?? null,
+            currency: session.currency ?? null,
+            paymentStatus: session.payment_status ?? null,
+            stripeSessionId: session.id,
+            stripePaymentIntent: session.payment_intent ?? null,
+            customerEmail: session.customer_details?.email ?? null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
           });
-          logger.info(`Added oracle credit to profile ${profileId}`);
+          logger.info(`Recorded purchase ${session.id} (tokens=${tokenQty}) for profile ${profileId}`);
         }
       } catch (e) {
-        logger.error("Failed to update profile", { profileId, error: (e as Error).message });
+        logger.error("Failed to fulfill purchase", { profileId, error: (e as Error).message });
       }
     }
   }

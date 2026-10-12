@@ -9,9 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import PlaceSearch from "@/components/PlaceSearch";
-import { Astrolabe } from "@/components/Astrolabe";
 
 export default function ProfileCreate() {
   const { id } = useParams();
@@ -177,23 +176,19 @@ export default function ProfileCreate() {
   }
 
   return (
-    <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-      {/* Background Astrolabe */}
-      <div className="fixed top-0 right-0 w-[150vw] h-[150vw] sm:w-[80vw] sm:h-[80vw] max-w-[800px] max-h-[800px] translate-x-1/4 -translate-y-1/4 opacity-10 pointer-events-none -z-10">
-        <Astrolabe className="w-full h-full" />
-      </div>
-
+    <div className="relative z-10 mx-auto max-w-2xl space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <Card className="art-deco-card">
-          <CardHeader className="border-b border-primary/20">
-            <CardTitle className="font-serif text-primary">
-              {isEdit ? t("profile.edit.title") : t("profile.create.title")}
-            </CardTitle>
-          </CardHeader>
+        <div className="mb-2 text-xs uppercase tracking-[0.28em] text-[#8fb6ff]">
+          ✦ {isEdit ? t("profile.edit.title") : t("profile.create.title")}
+        </div>
+        <h1 className="mb-6 font-serif text-4xl text-foreground">
+          {isEdit ? t("profile.edit.title") : t("profile.create.title")}
+        </h1>
+        <Card className="ds-card">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
@@ -269,8 +264,8 @@ export default function ProfileCreate() {
 
               {/* Coordinates preview (read-only) */}
               {lat !== null && lng !== null && (
-                <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  <span className="font-medium">{t("profile.form.coordinates")}:</span>{" "}
+                <div className="rounded-md border border-border/40 bg-transparent px-3 py-2 text-sm text-muted-foreground">
+                  <span className="font-medium text-[#8fb6ff]">{t("profile.form.coordinates")}:</span>{" "}
                   {lat.toFixed(4)}, {lng.toFixed(4)}
                 </div>
               )}

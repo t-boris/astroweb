@@ -1,20 +1,13 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
-import { Sun, Heart, Compass, Zap, Clock, Sparkles } from "lucide-react";
+import { Sun, Heart, Compass, Zap, Clock, Sparkles, Archive, ArchiveRestore, Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useDeviceId } from "@/hooks/useDeviceId";
-import { listProfiles, deleteProfile } from "@/api/profiles";
+import { listProfiles, archiveProfile } from "@/api/profiles";
 import { Button } from "@/components/ui/button";
-import { Astrolabe } from "@/components/Astrolabe";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Mandala } from "@/components/Cosmos";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,70 +23,47 @@ import type { Profile } from "@/types";
 const QUESTION_ICONS = { Sun, Heart, Compass, Zap, Clock, Sparkles } as const;
 const QUESTION_KEYS = ["personality", "relationships", "career", "challenges", "timing", "purpose"] as const;
 
-function StarField() {
-  const stars = useMemo(() =>
-    Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      left: `${(i * 17.3 + 7.1) % 100}%`,
-      top: `${(i * 23.7 + 13.3) % 100}%`,
-      size: Math.random() > 0.8 ? 2 : 1,
-      delay: `${(i * 0.7) % 5}s`,
-      duration: `${3 + (i % 4)}s`,
-      opacity: Math.random() * 0.5 + 0.3,
-    })),
-  []);
-
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="absolute rounded-full bg-primary"
-          style={{
-            left: star.left,
-            top: star.top,
-            width: star.size,
-            height: star.size,
-            opacity: star.opacity,
-            animation: `twinkle ${star.duration} ease-in-out ${star.delay} infinite`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative flex min-h-[80vh] flex-col items-center justify-center px-4 py-24 text-center overflow-hidden">
-      <StarField />
-      
-      {/* Massive rotating astrolabe in the background */}
-      <Astrolabe className="absolute top-1/2 left-1/2 h-[120vw] w-[120vw] max-w-[1200px] max-h-[1200px] -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none" />
+    <section className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
+      {/* Rotating zodiac mandala behind the hero */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[680px] w-[680px] max-w-[140vw] max-h-[140vw] -translate-x-1/2 -translate-y-1/2 opacity-85">
+        <Mandala stroke="#6f9af0" glyphColor="#a9c6ff" baseOpacity={0.28} />
+      </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="relative z-10 max-w-3xl space-y-6 art-deco-card p-12 mt-12 mx-auto"
+        className="relative z-10 mx-auto max-w-3xl"
       >
-        <h1
-          className="text-gold-gradient text-4xl font-serif font-bold tracking-tight sm:text-5xl md:text-6xl"
-          style={{ animation: "glow-text 4s ease-in-out infinite" }}
-        >
-          {t("landing.hero.title")}
+        <div className="mb-4 text-xs uppercase tracking-[0.28em] text-[#8fb6ff]">
+          ✦ {t("landing.hero.eyebrow", "Natal Astrology · Swiss Ephemeris")}
+        </div>
+        <h1 className="font-serif text-5xl leading-[1.03] sm:text-6xl md:text-7xl">
+          <span className="text-foreground">{t("landing.hero.titleLead")}</span>
+          <br />
+          <span className="text-gold-gradient italic">{t("landing.hero.titleAccent")}</span>
         </h1>
-        <div className="h-px w-3/4 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl font-serif">
+        <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
           {t("landing.hero.subtitle")}
         </p>
-        <div className="flex flex-wrap justify-center gap-4 pt-6">
-          <Button size="lg" className="bg-primary/20 border border-primary text-primary hover:bg-primary/30" asChild>
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <Button
+            size="lg"
+            className="rounded-full bg-primary px-8 font-semibold text-primary-foreground hover:bg-[#8fb6ff]"
+            asChild
+          >
             <Link to="/profile/new">{t("landing.hero.cta")}</Link>
           </Button>
-          <Button size="lg" variant="outline" className="border-primary/50 text-primary-foreground hover:bg-primary/10 hover:text-primary" asChild>
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full border-border px-7 text-foreground hover:border-primary hover:text-[#8fb6ff]"
+            asChild
+          >
             <a href="#questions">{t("landing.hero.ctaSecondary")}</a>
           </Button>
         </div>
@@ -140,7 +110,7 @@ function QuestionsSection() {
             const iconKey = t(`landing.questions.${key}.icon`) as keyof typeof QUESTION_ICONS;
             const Icon = QUESTION_ICONS[iconKey] ?? Sparkles;
             return (
-              <motion.div key={key} variants={itemVariants} className="art-deco-card p-8 flex flex-col items-center text-center group">
+              <motion.div key={key} variants={itemVariants} className="ds-card p-8 flex flex-col items-center text-center group">
                 <div className="mb-6 p-4 rounded-full border border-primary/30 group-hover:border-primary/80 transition-colors shadow-[0_0_15px_rgba(212,175,55,0.1)] group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
                   <Icon className="h-8 w-8 text-primary" />
                 </div>
@@ -186,79 +156,117 @@ function FeaturesSection() {
   );
 }
 
-interface ProfilesSectionProps {
+interface ProfilesMenuProps {
   profiles: Profile[];
   onDelete: (id: string) => void;
-  formatBirthTime: (profile: Profile) => string;
+  onUnarchive: (id: string) => void;
 }
 
-function ProfilesSection({ profiles, onDelete, formatBirthTime }: ProfilesSectionProps) {
+/**
+ * Left-side profiles menu. Always visible as a fixed sidebar on wide screens
+ * (xl+, where there is gutter room), and an off-canvas drawer toggled by a
+ * button on smaller screens — so it never covers the central hero artwork.
+ */
+function ProfilesMenu({ profiles, onDelete, onUnarchive }: ProfilesMenuProps) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
 
+  const active = profiles.filter((p) => !p.archived);
+  const archived = profiles.filter((p) => p.archived);
   if (profiles.length === 0) return null;
 
   return (
-    <section className="px-4 py-20 relative z-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-12 flex flex-col sm:flex-row items-center justify-between gap-4 art-deco-card p-6">
-          <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-serif font-bold tracking-tight text-gold-gradient">{t("landing.profiles.title")}</h2>
-            <p className="mt-2 text-muted-foreground font-serif">{t("landing.profiles.subtitle")}</p>
-          </div>
-          <Button className="bg-primary/20 border border-primary text-primary hover:bg-primary/30" asChild>
-            <Link to="/profile/new">{t("home.createProfile")}</Link>
-          </Button>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2">
-          {profiles.map((profile) => (
-            <motion.div
-              key={profile.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <Card className="art-deco-card h-full flex flex-col bg-transparent">
-                <CardHeader className="border-b border-primary/20 pb-4">
-                  <CardTitle className="font-serif text-2xl text-center text-primary">{profile.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-6 text-sm text-muted-foreground flex-grow text-center font-serif">
-                  <p className="flex justify-between border-b border-primary/10 pb-1">
-                    <span className="text-primary/70">{t("profile.birthDate")}</span> 
-                    <span className="text-foreground">{profile.birthDate}</span>
-                  </p>
-                  <p className="flex justify-between border-b border-primary/10 pb-1">
-                    <span className="text-primary/70">{t("profile.birthTime")}</span> 
-                    <span className="text-foreground">{formatBirthTime(profile)}</span>
-                  </p>
-                  <p className="flex justify-between pb-1">
-                    <span className="text-primary/70">{t("profile.birthPlace")}</span> 
-                    <span className="text-foreground">{profile.birthPlace}</span>
-                  </p>
-                </CardContent>
-                <CardFooter className="gap-3 pt-4 border-t border-primary/20 flex-wrap justify-center">
-                  <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10" asChild>
-                    <Link to={`/profile/${profile.id}`}>{t("profile.detail.title")}</Link>
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10" asChild>
-                    <Link to={`/profile/${profile.id}/edit`}>{t("profile.edit.title")}</Link>
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="bg-red-900/40 text-red-200 border border-red-800 hover:bg-red-900/60"
-                    onClick={() => onDelete(profile.id)}
-                  >
-                    {t("common.delete")}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
+    <>
+      {/* Toggle (hidden on xl, where the sidebar is always shown) */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={t("landing.profiles.title")}
+        className="fixed left-3 top-20 z-50 rounded-md border border-primary/30 bg-background/80 p-2 text-primary backdrop-blur-sm xl:hidden"
+      >
+        {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+      </button>
+
+      {/* Backdrop on mobile when open */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 xl:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-14 z-40 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-primary/15 bg-background/85 px-3 py-5 backdrop-blur-md transition-transform duration-300 xl:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <h2 className="mb-3 px-1 font-serif text-xs uppercase tracking-[0.15em] text-primary/70">
+          {t("landing.profiles.title")}
+        </h2>
+        <Button
+          size="sm"
+          className="mb-4 w-full border border-primary bg-primary/20 text-primary hover:bg-primary/30"
+          asChild
+        >
+          <Link to="/profile/new" onClick={() => setOpen(false)}>
+            {t("home.createProfile")}
+          </Link>
+        </Button>
+        <div className="flex flex-col gap-2 overflow-y-auto">
+          {active.map((profile) => (
+            <div key={profile.id} className="group relative">
+              <Link
+                to={`/profile/${profile.id}`}
+                onClick={() => setOpen(false)}
+                className="ds-card block p-2.5 pr-9 transition-colors hover:border-primary/60"
+              >
+                <p className="truncate font-serif text-sm text-primary">{profile.name}</p>
+                <p className="truncate text-[11px] text-muted-foreground">{profile.birthDate}</p>
+                <p className="truncate text-[11px] text-muted-foreground">{profile.birthPlace}</p>
+              </Link>
+              <button
+                type="button"
+                onClick={() => onDelete(profile.id)}
+                aria-label={t("common.archive")}
+                title={t("common.archive")}
+                className="absolute right-1.5 top-1.5 rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                <Archive className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ))}
+
+          {archived.length > 0 && (
+            <div className="mt-4 border-t border-primary/10 pt-3">
+              <h3 className="mb-2 px-1 font-serif text-[11px] uppercase tracking-[0.15em] text-muted-foreground/70">
+                {t("home.archivedSection")}
+              </h3>
+              {archived.map((profile) => (
+                <div key={profile.id} className="group relative mb-2">
+                  <Link
+                    to={`/profile/${profile.id}`}
+                    onClick={() => setOpen(false)}
+                    className="ds-card block p-2.5 pr-9 opacity-55 transition-opacity hover:opacity-100"
+                  >
+                    <p className="truncate font-serif text-sm text-muted-foreground">{profile.name}</p>
+                    <p className="truncate text-[11px] text-muted-foreground/70">{profile.birthDate}</p>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => onUnarchive(profile.id)}
+                    aria-label={t("common.unarchive")}
+                    title={t("common.unarchive")}
+                    className="absolute right-1.5 top-1.5 rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <ArchiveRestore className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </aside>
+    </>
   );
 }
 
@@ -315,8 +323,8 @@ export default function Home() {
     if (!deletingId) return;
 
     try {
-      await deleteProfile(deletingId, deviceId);
-      setProfiles((prev) => prev.filter((p) => p.id !== deletingId));
+      await archiveProfile(deletingId, deviceId, true);
+      setProfiles((prev) => prev.map((p) => (p.id === deletingId ? { ...p, archived: true } : p)));
     } catch (err) {
       setError(getErrorMessage(err, "errors.profileDeleteFailed"));
     } finally {
@@ -324,23 +332,19 @@ export default function Home() {
     }
   }
 
-  function formatBirthTime(profile: Profile): string {
-    if (profile.timeUnknown) {
-      return t("profile.timeUnknown");
+  async function handleUnarchive(id: string) {
+    try {
+      await archiveProfile(id, deviceId, false);
+      setProfiles((prev) => prev.map((p) => (p.id === id ? { ...p, archived: false } : p)));
+    } catch (err) {
+      setError(getErrorMessage(err, "errors.profileDeleteFailed"));
     }
-    return profile.birthTime ?? t("profile.timeUnknown");
   }
 
   return (
     <>
-      <HeroSection />
-      <QuestionsSection />
-      <FeaturesSection />
-
-      {loading && (
-        <div className="px-4 py-12 text-center">
-          <p className="text-muted-foreground">{t("home.loading")}</p>
-        </div>
+      {!loading && !error && profiles.length > 0 && (
+        <ProfilesMenu profiles={profiles} onDelete={setDeletingId} onUnarchive={handleUnarchive} />
       )}
 
       {error && (
@@ -356,13 +360,9 @@ export default function Home() {
         </div>
       )}
 
-      {!loading && !error && (
-        <ProfilesSection
-          profiles={profiles}
-          onDelete={setDeletingId}
-          formatBirthTime={formatBirthTime}
-        />
-      )}
+      <HeroSection />
+      <QuestionsSection />
+      <FeaturesSection />
 
       <AlertDialog
         open={deletingId !== null}
@@ -372,17 +372,17 @@ export default function Home() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("home.deleteConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>{t("home.archiveConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("home.deleteConfirmMessage", {
+              {t("home.archiveConfirmMessage", {
                 name: profileToDelete?.name ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("home.deleteConfirmCancel")}</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleDelete}>
-              {t("home.deleteConfirmAction")}
+            <AlertDialogAction onClick={handleDelete}>
+              {t("home.archiveConfirmAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

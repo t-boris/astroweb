@@ -3,6 +3,7 @@ import { logger } from "firebase-functions/v2";
 import { computeNatalChart } from "../astro/chart";
 import * as profileService from "../services/profile";
 import * as chartService from "../services/chart";
+import { ownerCtx, ownsProfile } from "../services/owner";
 
 /**
  * getChart Cloud Function — cache-through chart retrieval.
@@ -18,7 +19,6 @@ export const getChart = onCall(async (request) => {
 
   // ---- Validate input ----
   const profileId = data?.profileId;
-  const ownerDeviceId = data?.ownerDeviceId;
   const houseSystem = data?.houseSystem ?? "koch";
   const relocationLat = data?.relocationLat ?? undefined;
   const relocationLng = data?.relocationLng ?? undefined;
@@ -27,9 +27,7 @@ export const getChart = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "profileId is required");
   }
 
-  if (!ownerDeviceId || typeof ownerDeviceId !== "string") {
-    throw new HttpsError("invalid-argument", "ownerDeviceId is required");
-  }
+  const ctx = ownerCtx(request);
 
   if (
     houseSystem !== "placidus" &&
@@ -75,7 +73,7 @@ export const getChart = onCall(async (request) => {
       throw new HttpsError("not-found", "Profile not found");
     }
 
-    if (profile.ownerDeviceId !== ownerDeviceId) {
+    if (!ownsProfile(profile, ctx)) {
       throw new HttpsError("permission-denied", "Access denied");
     }
 

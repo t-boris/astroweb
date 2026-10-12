@@ -1,5 +1,6 @@
 import { HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
+import { ownsProfile } from "./owner";
 import { computeNatalChart } from "../astro/chart";
 import type { ChartResult, Profile } from "../types";
 import * as profileService from "./profile";
@@ -7,7 +8,8 @@ import * as chartService from "./chart";
 
 export async function resolveOwnedChart(params: {
   profileId: string;
-  ownerDeviceId: string;
+  ownerDeviceId?: string | null;
+  uid?: string | null;
   houseSystem?: "placidus" | "koch" | "whole-sign";
   relocationLat?: number | null;
   relocationLng?: number | null;
@@ -55,7 +57,7 @@ export async function resolveOwnedChart(params: {
     throw new HttpsError("not-found", "Profile not found");
   }
 
-  if (profile.ownerDeviceId !== params.ownerDeviceId) {
+  if (!ownsProfile(profile, { uid: params.uid ?? null, deviceId: params.ownerDeviceId ?? null })) {
     throw new HttpsError("permission-denied", "Access denied");
   }
 

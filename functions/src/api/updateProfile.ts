@@ -3,6 +3,7 @@ import { logger } from "firebase-functions/v2";
 import { validateUpdateProfilePayload } from "../validation/profile";
 import * as profileService from "../services/profile";
 import { getTimezoneFromCoords } from "../utils/timezone";
+import { ownerCtx, ownsProfile } from "../services/owner";
 
 export const updateProfile = onCall(async (request) => {
   const { data } = request;
@@ -31,12 +32,14 @@ export const updateProfile = onCall(async (request) => {
       throw new HttpsError("not-found", "Profile not found");
     }
 
-    if (existing.ownerDeviceId !== data.ownerDeviceId) {
+    if (!ownsProfile(existing, ownerCtx(request))) {
       throw new HttpsError("permission-denied", "Access denied");
     }
 
-    // Extract update fields (exclude ownerDeviceId and profileId)
-    const { ownerDeviceId, profileId, ...updateFields } = data;
+    // Extract update fields (exclude ownerDeviceId, ownerUid and profileId)
+    const { ownerDeviceId, ownerUid, profileId, ...updateFields } = data;
+    void ownerDeviceId;
+    void ownerUid;
 
     // Re-resolve timezone when coordinates change and timezone not explicitly provided
     if (

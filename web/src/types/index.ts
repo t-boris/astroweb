@@ -3,6 +3,8 @@
 export interface Profile {
   id: string;
   ownerDeviceId: string;
+  ownerUid?: string;
+  archived?: boolean;
   name: string;
   birthDate: string; // YYYY-MM-DD
   birthTime: string | null; // HH:mm or null
@@ -13,6 +15,7 @@ export interface Profile {
   timezone: string; // IANA timezone (e.g., "America/Chicago")
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
+  tokens?: number;
   hasPremiumPdf?: boolean;
   hasPremiumCompatibility?: boolean;
   oracleCredits?: number;
@@ -36,6 +39,53 @@ export interface CreateProfilePayload {
   currentPlace?: string;
   currentLat?: number;
   currentLng?: number;
+}
+
+// ---- Personal Astrologer -----------------------------------------------------
+
+export interface StyleProfile {
+  humor: number;
+  seriousness: number;
+  formality: number;
+  warmth: number;
+  brevity: number;
+  mysticism: number;
+  emoji: number;
+}
+
+export type AddressForm = "masculine" | "feminine" | "neutral";
+export type RelationshipStatus = "single" | "relationship" | "married" | "complicated";
+
+export interface Dossier {
+  profileId: string;
+  ownerUid: string;
+  language: "ru" | "en";
+  addressForm: AddressForm | null;
+  locationCurrent: { place: string; lat: number; lng: number; timezone: string } | null;
+  relationshipStatus: RelationshipStatus | null;
+  hasKids: boolean | null;
+  occupation: string | null;
+  interests: string[];
+  goals: string[];
+  openLoops: string[];
+  styleProfile: StyleProfile | null;
+  styleNudge: "more_serious" | "more_playful" | null;
+  consentSensitive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DossierFact {
+  id: string;
+  key: string;
+  value: string;
+  source: "onboarding" | "tap" | "inferred";
+  sourceRef: string | null;
+  sensitive: boolean;
+  confirmed: boolean;
+  confidence: number;
+  createdAt: string;
+  supersededAt: string | null;
 }
 
 export interface ChartPoint {

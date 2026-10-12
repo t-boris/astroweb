@@ -36,6 +36,9 @@ export async function createProfile(
     updatedAt: now,
   };
 
+  if (payload.ownerUid) {
+    profileData.ownerUid = payload.ownerUid;
+  }
   if (payload.relocationEnabled !== undefined) {
     profileData.relocationEnabled = payload.relocationEnabled;
   }
@@ -87,13 +90,44 @@ export async function listProfilesByOwner(
     .orderBy("createdAt", "desc")
     .get();
 
-  return snapshot.docs.map((doc) => {
-    const data = doc.data() as Omit<Profile, "id">;
-    return {
-      id: doc.id,
-      ...data,
-    };
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data() as Omit<Profile, "id">;
+      return { id: doc.id, ...data };
+    })
+    // A profile claimed by an account is no longer visible via the device id.
+    .filter((p) => !p.ownerUid);
+}
+
+/**
+ * Query profiles owned by an account (uid), newest first.
+ */
+export async function listProfilesByUid(uid: string): Promise<Profile[]> {
+  const snapshot = await getCollection().where("ownerUid", "==", uid).get();
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data() as Omit<Profile, "id">;
+      return { id: doc.id, ...data };
+    })
+    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+}
+
+/**
+ * Link all unclaimed profiles of a device to an account (first sign-in).
+ * Returns the number of profiles claimed.
+ */
+export async function claimProfilesForUid(deviceId: string, uid: string): Promise<number> {
+  const snapshot = await getCollection().where("ownerDeviceId", "==", deviceId).get();
+  const batch = getFirestore().batch();
+  let count = 0;
+  snapshot.docs.forEach((doc) => {
+    if (!doc.data().ownerUid) {
+      batch.update(doc.ref, { ownerUid: uid });
+      count += 1;
+    }
   });
+  if (count > 0) await batch.commit();
+  return count;
 }
 
 /**

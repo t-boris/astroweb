@@ -1,81 +1,111 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import Stripe from "stripe";
-import * as admin from "firebase-admin";
 import * as profileService from "../services/profile";
+import { ownerCtx, ownsProfile } from "../services/owner";
+import { grantToWallet, isFirstReadingAvailable, walletKeyFromCtx } from "../services/wallet";
+import { getStarPack } from "../services/starPacks";
 
-export const createCheckoutSession = onCall(async (request) => {
+const PRICE_PER_TOKEN = 99; // cents ($0.99) — legacy quantity path
+const MAX_TOKENS_PER_PURCHASE = 100;
+
+interface ResolvedOrder {
+  /** Stars credited on fulfilment (base + any bonus). */
+  stars: number;
+  /** Stripe line-item quantity. */
+  quantity: number;
+  /** Per-unit price in cents. */
+  unitAmount: number;
+  /** Product name shown on the Stripe checkout. */
+  productName: string;
+  /** True when the one-time first-reading discount is being applied. */
+  firstReading: boolean;
+}
+
+/**
+ * Create a Stripe Checkout session to buy stars. Preferred input is a `packId`
+ * (price + credited stars resolved server-side from the catalog, supporting
+ * bonus stars and the one-time first-reading discount). A legacy `quantity`
+ * input (N stars at $0.99) is still accepted as a fallback. Stars are credited
+ * by the stripeWebhook on confirmed payment.
+ */
+export const createCheckoutSession = onCall({
+  secrets: ["STRIPE_SECRET_KEY"],
+}, async (request) => {
   const { data } = request;
-  const { profileId, ownerDeviceId, tier } = data; // tier: 'pdf' | 'oracle' | 'compatibility'
+  const { profileId, ownerDeviceId } = data;
+  const packId = data?.packId;
 
-  if (!profileId || !ownerDeviceId || !tier) {
+  if (!profileId) {
     throw new HttpsError("invalid-argument", "Missing required fields");
   }
 
-  // Verify ownership
+  // Verify ownership (account or device)
+  const ctx = ownerCtx(request);
   const profile = await profileService.getProfileById(profileId);
   if (!profile) {
     throw new HttpsError("not-found", "Profile not found");
   }
-  if (profile.ownerDeviceId !== ownerDeviceId) {
+  if (!ownsProfile(profile, ctx)) {
     throw new HttpsError("permission-denied", "Not authorized");
+  }
+
+  // Stars are credited to the buyer's per-user wallet, not a single profile.
+  const walletKey = walletKeyFromCtx(ctx);
+
+  // Resolve the order server-side: never trust price or credited stars from the
+  // client.
+  let order: ResolvedOrder;
+  if (packId !== undefined && packId !== null && packId !== "") {
+    const pack = getStarPack(packId);
+    if (!pack) {
+      throw new HttpsError("invalid-argument", "Invalid pack");
+    }
+    const firstReading =
+      pack.firstPriceCents !== undefined && (await isFirstReadingAvailable(walletKey));
+    const unitAmount = firstReading ? pack.firstPriceCents! : pack.priceCents;
+    order = {
+      stars: pack.stars + pack.bonusStars,
+      quantity: 1,
+      unitAmount,
+      productName: `AstroWeb · ${pack.id}`,
+      firstReading,
+    };
+  } else {
+    const quantity = Math.floor(Number(data?.quantity));
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_TOKENS_PER_PURCHASE) {
+      throw new HttpsError("invalid-argument", "Invalid token quantity");
+    }
+    order = {
+      stars: quantity,
+      quantity,
+      unitAmount: PRICE_PER_TOKEN,
+      productName: `AstroWeb Stars ×${quantity}`,
+      firstReading: false,
+    };
   }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const origin = request.rawRequest.headers.origin || "http://localhost:5173";
+  const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
 
   if (!stripeKey || stripeKey === "mock") {
-    logger.warn("STRIPE_SECRET_KEY not set or is mock. Using mock payment flow.");
-    
-    // Direct DB update to mock the webhook behavior
-    const db = admin.firestore();
-    const profileRef = db.collection("profiles").doc(profileId);
-    
-    try {
-      if (tier === "pdf") {
-        await profileRef.update({ hasPremiumPdf: true });
-        
-        // Mock queueing the PDF job
-        await db.collection("pdfJobs").add({
-          profileId,
-          ownerDeviceId,
-          profileName: profile.name,
-          customerEmail: "mock@example.com",
-          status: "pending",
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      } else if (tier === "oracle") {
-        await profileRef.update({
-          oracleCredits: admin.firestore.FieldValue.increment(1)
-        });
-      } else if (tier === "compatibility") {
-        await profileRef.update({ hasPremiumCompatibility: true });
-      }
-      return { url: `${origin}/profile/${profileId}?checkout=success` };
-    } catch (e) {
-      logger.error("Mock payment update failed", { error: (e as Error).message });
-      throw new HttpsError("internal", "Mock payment failed");
+    // Fail closed in production: never grant tokens for free.
+    if (!isEmulator) {
+      logger.error("STRIPE_SECRET_KEY not configured — refusing checkout in production");
+      throw new HttpsError("failed-precondition", "Payments are not available right now");
     }
+
+    logger.warn("STRIPE_SECRET_KEY not set — mock star grant (emulator only).");
+    await grantToWallet(walletKey, order.stars);
+    return { url: `${origin}/profile/${profileId}?checkout=success` };
   }
 
   const stripe = new Stripe(stripeKey, {
-    apiVersion: "2024-04-10" as any, // use latest compatible or ignore typed error
+    apiVersion: "2024-04-10" as any,
   });
 
   try {
-    let amount = 99; // Default to $0.99
-    let name = "";
-    if (tier === "pdf") {
-      amount = 199; // $1.99
-      name = "Premium PDF Reading";
-    } else if (tier === "oracle") {
-      name = "Oracle Question";
-    } else if (tier === "compatibility") {
-      name = "Relationship Compatibility";
-    } else {
-      throw new HttpsError("invalid-argument", "Invalid tier");
-    }
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -83,11 +113,11 @@ export const createCheckoutSession = onCall(async (request) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name,
+              name: order.productName,
             },
-            unit_amount: amount,
+            unit_amount: order.unitAmount,
           },
-          quantity: 1,
+          quantity: order.quantity,
         },
       ],
       mode: "payment",
@@ -96,7 +126,9 @@ export const createCheckoutSession = onCall(async (request) => {
       metadata: {
         profileId,
         ownerDeviceId,
-        tier,
+        walletKey,
+        tokens: String(order.stars),
+        ...(order.firstReading ? { firstReading: "1" } : {}),
       },
     });
 

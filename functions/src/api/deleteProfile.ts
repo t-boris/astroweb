@@ -1,26 +1,16 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as profileService from "../services/profile";
+import { ownerCtx, ownsProfile } from "../services/owner";
 
 export const deleteProfile = onCall(async (request) => {
   const { data } = request;
 
-  // Validate inputs
-  if (
-    typeof data?.profileId !== "string" ||
-    data.profileId.trim().length === 0
-  ) {
+  if (typeof data?.profileId !== "string" || data.profileId.trim().length === 0) {
     throw new HttpsError("invalid-argument", "profileId is required");
   }
 
-  if (
-    typeof data?.ownerDeviceId !== "string" ||
-    data.ownerDeviceId.trim().length === 0
-  ) {
-    throw new HttpsError("invalid-argument", "ownerDeviceId is required");
-  }
-
-  logger.info("deleteProfile called", { profileId: data.profileId });
+  const ctx = ownerCtx(request);
 
   try {
     // Ownership check: fetch profile first
@@ -30,7 +20,7 @@ export const deleteProfile = onCall(async (request) => {
       throw new HttpsError("not-found", "Profile not found");
     }
 
-    if (existing.ownerDeviceId !== data.ownerDeviceId) {
+    if (!ownsProfile(existing, ctx)) {
       throw new HttpsError("permission-denied", "Access denied");
     }
 

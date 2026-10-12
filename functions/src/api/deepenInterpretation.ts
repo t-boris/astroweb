@@ -1,6 +1,10 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { resolveOwnedChart } from "../services/chartResolver";
+import * as profileService from "../services/profile";
+import { hashCacheKey } from "../services/aiCache";
+import { ownerCtx, ownsProfile } from "../services/owner";
 import {
   buildDeepInterpretationPrompt,
   generateClaudeTextResult,
@@ -35,10 +39,60 @@ export const deepenInterpretation = onCall({
     throw new HttpsError("invalid-argument", "baseInterpretation is required");
   }
 
+  const trimmedFocus = focusTopic.trim().slice(0, 200);
+  const trimmedBase = baseInterpretation.trim().slice(0, 2000);
+
   try {
+    // Ownership check (cheap) before any generation or cache read.
+    const ctx = ownerCtx(request);
+    const profile = await profileService.getProfileById(profileId);
+    if (!profile) {
+      throw new HttpsError("not-found", "Profile not found");
+    }
+    if (!ownsProfile(profile, ctx)) {
+      throw new HttpsError("permission-denied", "Access denied");
+    }
+
+    const cacheKey = hashCacheKey({
+      kind: "deepen",
+      profileId,
+      birthDate: profile.birthDate,
+      birthTime: profile.birthTime ?? null,
+      timeUnknown: profile.timeUnknown,
+      lat: profile.lat,
+      lng: profile.lng,
+      timezone: profile.timezone,
+      relocationLat: typeof relocationLat === "number" ? relocationLat : null,
+      relocationLng: typeof relocationLng === "number" ? relocationLng : null,
+      language,
+      focusTopic: trimmedFocus,
+      baseInterpretation: trimmedBase,
+    });
+
+    const db = getFirestore();
+    const cacheRef = db.collection("deepInterpretationCache").doc(cacheKey);
+
+    // Cache hit: never regenerate — return the stored text (no Claude tokens spent).
+    const cached = await cacheRef.get();
+    if (cached.exists) {
+      const data = cached.data() as { text?: string; model?: string };
+      if (data.text) {
+        logger.info("deepenInterpretation cache hit", { profileId, cacheKey });
+        return { text: data.text, model: data.model ?? "cache" };
+      }
+    }
+
+    // Dig Deeper is included in the one-time Interpretations + PDF unlock —
+    // not charged per call. Requires that unlock; each block generates once
+    // (cache hit above returns the stored answer).
+    if (!profile.hasPremiumPdf) {
+      throw new HttpsError("permission-denied", "PREMIUM_REQUIRED");
+    }
+
     const { chart } = await resolveOwnedChart({
       profileId,
       ownerDeviceId,
+      uid: ctx.uid,
       relocationLat,
       relocationLng,
     });
@@ -46,8 +100,8 @@ export const deepenInterpretation = onCall({
     const result = await generateClaudeTextResult(
       buildDeepInterpretationPrompt({
         chart,
-        focusTopic: focusTopic.trim().slice(0, 200),
-        baseInterpretation: baseInterpretation.trim().slice(0, 2000),
+        focusTopic: trimmedFocus,
+        baseInterpretation: trimmedBase,
         language,
       }),
       {
@@ -56,6 +110,13 @@ export const deepenInterpretation = onCall({
         requireEndTag: "[END_OF_REPORT]",
       },
     );
+
+    await cacheRef.set({
+      text: result.text,
+      model: result.model,
+      profileId,
+      createdAt: FieldValue.serverTimestamp(),
+    });
 
     return {
       text: result.text,

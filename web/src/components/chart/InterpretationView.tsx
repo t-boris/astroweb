@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { dateLocale, toAppLanguage } from "@/lib/language";
 import { FirebaseError } from "firebase/app";
 import { ChevronDown, ChevronUp, Download, Trash2 } from "lucide-react";
 import {
@@ -11,10 +12,21 @@ import {
   ASPECT_GLYPHS,
   ELEMENT_COLORS,
   ASPECT_COLORS,
+  ZODIAC_GLYPHS,
+  ZODIAC_SIGNS,
+  SIGN_ELEMENTS,
 } from "@/components/chart/utils/constants";
+import { signLabel } from "@/lib/signs";
+import { AiReading, renderInlineMarkdown } from "@/components/AiReading";
 import { deepenInterpretation, askOracle } from "@/api/ai";
-import { downloadPremiumPdf, type PdfReportSection } from "@/api/pdf";
+import {
+  enqueuePremiumPdf,
+  getPremiumPdfJob,
+  type PdfReportSection,
+} from "@/api/pdf";
 import { Button } from "@/components/ui/button";
+import { unlockFeature } from "@/api/unlock";
+import { TOKEN_COST } from "@/lib/tokens";
 import type { ChartResult } from "@/types";
 
 interface InterpretationViewProps {
@@ -22,9 +34,12 @@ interface InterpretationViewProps {
   profileId: string;
   profileName: string;
   ownerDeviceId: string;
-  oracleCredits: number;
-  hasPremiumPdf: boolean;
+  tokens: number;
+  interpretationsUnlocked?: boolean;
+  onUnlocked?: () => void;
   onPurchasePremium?: () => void;
+  /** "interpretation" = readings only, "oracle" = oracle chat only, "full" = both. */
+  mode?: "full" | "oracle" | "interpretation";
   relocationLat?: number | null;
   relocationLng?: number | null;
 }
@@ -63,250 +78,6 @@ function cleanAiArtifacts(input: string): string {
     .trim();
 }
 
-function isListLine(line: string): boolean {
-  const trimmed = line.trim();
-  return /^(-|\*|\d+\.)\s+/.test(trimmed);
-}
-
-function isHeadingLine(line: string): boolean {
-  return /^#{1,6}\s+/.test(line.trim());
-}
-
-function isFenceLine(line: string): boolean {
-  return line.trim().startsWith("```");
-}
-
-function isRuleLine(line: string): boolean {
-  return /^---+$/.test(line.trim());
-}
-
-function splitTableRow(line: string): string[] {
-  return line
-    .trim()
-    .replace(/^\|/, "")
-    .replace(/\|$/, "")
-    .split("|")
-    .map((cell) => cell.trim());
-}
-
-function isTableLine(line: string): boolean {
-  const trimmed = line.trim();
-  if (!trimmed.includes("|")) return false;
-  const cells = splitTableRow(trimmed);
-  return cells.length >= 2 && cells.some((cell) => cell.length > 0);
-}
-
-function isTableSeparatorLine(line: string): boolean {
-  const cells = splitTableRow(line.trim());
-  if (cells.length < 2) return false;
-  return cells.every((cell) => /^:?-{3,}:?$/.test(cell.replace(/\s+/g, "")));
-}
-
-function isSpecialLine(line: string): boolean {
-  return (
-    isHeadingLine(line) ||
-    isListLine(line) ||
-    isFenceLine(line) ||
-    isRuleLine(line) ||
-    isTableLine(line) ||
-    isTableSeparatorLine(line)
-  );
-}
-
-function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  const boldPattern = /(\*\*[^*]+?\*\*|__[^_]+?__)/g;
-  let lastIndex = 0;
-  let keyIndex = 0;
-
-  for (const match of text.matchAll(boldPattern)) {
-    const full = match[0];
-    const start = match.index ?? 0;
-
-    if (start > lastIndex) {
-      nodes.push(text.slice(lastIndex, start));
-    }
-
-    const content = full.slice(2, -2).trim();
-    if (content.length > 0) {
-      nodes.push(
-        <strong key={`${keyPrefix}-b-${keyIndex}`}>
-          {content}
-        </strong>,
-      );
-      keyIndex += 1;
-    } else {
-      nodes.push(full);
-    }
-
-    lastIndex = start + full.length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
-
-  return nodes.length > 0 ? nodes : [text];
-}
-
-function AiFormattedText({ text }: { text: string }) {
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const blocks: ReactElement[] = [];
-  let index = 0;
-  let key = 0;
-
-  while (index < lines.length) {
-    const current = lines[index];
-    const trimmed = current.trim();
-
-    if (!trimmed) {
-      index += 1;
-      continue;
-    }
-
-    if (isFenceLine(current)) {
-      const codeLines: string[] = [];
-      index += 1;
-      while (index < lines.length && !isFenceLine(lines[index])) {
-        codeLines.push(lines[index]);
-        index += 1;
-      }
-      if (index < lines.length && isFenceLine(lines[index])) {
-        index += 1;
-      }
-      blocks.push(
-        <pre
-          key={`code-${key}`}
-          className="rounded-md border bg-muted/40 p-3 overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed"
-        >
-          {codeLines.join("\n")}
-        </pre>,
-      );
-      key += 1;
-      continue;
-    }
-
-    if (isRuleLine(current)) {
-      blocks.push(<hr key={`hr-${key}`} className="border-border" />);
-      key += 1;
-      index += 1;
-      continue;
-    }
-
-    if (isHeadingLine(current)) {
-      const match = current.trim().match(/^(#{1,6})\s+(.+)$/);
-      const level = match?.[1].length ?? 3;
-      const title = match?.[2] ?? current.trim();
-      const className =
-        level <= 2
-          ? "text-base font-semibold"
-          : "text-sm font-semibold";
-
-      blocks.push(
-        <h4 key={`h-${key}`} className={className}>
-          {renderInlineMarkdown(title, `h-${key}`)}
-        </h4>,
-      );
-      key += 1;
-      index += 1;
-      continue;
-    }
-
-    if (isListLine(current)) {
-      const items: string[] = [];
-      while (index < lines.length && isListLine(lines[index])) {
-        items.push(lines[index].trim().replace(/^(-|\*|\d+\.)\s+/, ""));
-        index += 1;
-      }
-
-      blocks.push(
-        <ul key={`ul-${key}`} className="list-disc pl-5 space-y-1">
-          {items.map((item, i) => (
-            <li key={`li-${key}-${i}`} className="text-sm leading-relaxed">
-              {renderInlineMarkdown(item, `li-${key}-${i}`)}
-            </li>
-          ))}
-        </ul>,
-      );
-      key += 1;
-      continue;
-    }
-
-    if (
-      isTableLine(current) &&
-      index + 1 < lines.length &&
-      isTableSeparatorLine(lines[index + 1])
-    ) {
-      const headers = splitTableRow(current);
-      const rows: string[][] = [];
-      index += 2;
-
-      while (
-        index < lines.length &&
-        isTableLine(lines[index]) &&
-        !isTableSeparatorLine(lines[index])
-      ) {
-        rows.push(splitTableRow(lines[index]));
-        index += 1;
-      }
-
-      blocks.push(
-        <div key={`table-${key}`} className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                {headers.map((header, i) => (
-                  <th
-                    key={`th-${key}-${i}`}
-                    className="border border-border/70 px-2 py-1 text-left font-semibold"
-                  >
-                    {renderInlineMarkdown(header, `th-${key}-${i}`)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr key={`tr-${key}-${rowIndex}`}>
-                  {headers.map((_, colIndex) => (
-                    <td
-                      key={`td-${key}-${rowIndex}-${colIndex}`}
-                      className="border border-border/60 px-2 py-1 align-top"
-                    >
-                      {renderInlineMarkdown(row[colIndex] ?? "", `td-${key}-${rowIndex}-${colIndex}`)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>,
-      );
-      key += 1;
-      continue;
-    }
-
-    const paragraph: string[] = [trimmed];
-    index += 1;
-    while (index < lines.length) {
-      const next = lines[index].trim();
-      if (!next || isSpecialLine(lines[index])) {
-        break;
-      }
-      paragraph.push(next);
-      index += 1;
-    }
-
-    blocks.push(
-      <p key={`p-${key}`} className="text-sm leading-relaxed whitespace-pre-wrap">
-        {renderInlineMarkdown(paragraph.join(" "), `p-${key}`)}
-      </p>,
-    );
-    key += 1;
-  }
-
-  return <div className="space-y-3">{blocks}</div>;
-}
 
 function getAiStorageKey(profileId: string): string {
   return `astroweb:ai:v4:${profileId}`;
@@ -317,7 +88,12 @@ function getOracleEntryKey(entry: OracleEntry): string {
 }
 
 function getSingleLinePreview(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
+  return text
+    .replace(/^#{1,6}\s+/gm, "")       // strip markdown headings
+    .replace(/\*\*([^*]+)\*\*/g, "$1") // strip bold markers
+    .replace(/[*_`>#]/g, "")           // stray markdown chars
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function saveBase64Pdf(base64: string, fileName: string, contentType: string): void {
@@ -394,6 +170,18 @@ function getBlockColor(block: InterpretationBlock): string {
   return ELEMENT_COLORS[element]?.stroke ?? "#888";
 }
 
+function getBlockGlyph(block: InterpretationBlock): string {
+  if (block.category === "aspect") {
+    return ASPECT_GLYPHS[block.tags[0]] ?? "✦";
+  }
+  const kind = block.key.split(".")[1];
+  if (kind === "sun") return PLANET_GLYPHS["Sun"] ?? "☉";
+  if (kind === "moon") return PLANET_GLYPHS["Moon"] ?? "☽";
+  if (kind === "ascendant") return "↑";
+  if (kind === "midheaven") return "MC";
+  return "✦";
+}
+
 function getBlockInstanceKey(block: InterpretationBlock): string {
   if (block.aspect) {
     return `${block.key}-${block.aspect.a}-${block.aspect.b}-${block.aspect.type}`;
@@ -401,39 +189,200 @@ function getBlockInstanceKey(block: InterpretationBlock): string {
   return block.key;
 }
 
+type ElementKey = "fire" | "earth" | "air" | "water";
+
+function hexToRgba(hex: string, alpha: number): string {
+  let h = hex.replace("#", "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  const n = Number.parseInt(h, 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function signElement(sign: string | null | undefined): ElementKey | null {
+  if (!sign) return null;
+  return SIGN_ELEMENTS[sign] ?? null;
+}
+
+function signFromLongitude(longitude: number): string {
+  const normalized = ((longitude % 360) + 360) % 360;
+  return ZODIAC_SIGNS[Math.floor(normalized / 30)];
+}
+
+/** Sun / Moon / Rising hero strip — a quick visual anchor for the chart. */
+function BigThree({ chart }: { chart: ChartResult }) {
+  const { t } = useTranslation();
+  const sun = chart.points.find((p) => p.body === "Sun");
+  const moon = chart.points.find((p) => p.body === "Moon");
+  const risingSign = chart.houses.asc !== null ? signFromLongitude(chart.houses.asc) : null;
+
+  const items = [
+    sun && { glyph: PLANET_GLYPHS.Sun, label: t("interpretation.overview.bigThreeSun", "Sun"), sign: sun.sign },
+    moon && { glyph: PLANET_GLYPHS.Moon, label: t("interpretation.overview.bigThreeMoon", "Moon"), sign: moon.sign },
+    risingSign && { glyph: "↑", label: t("interpretation.overview.bigThreeRising", "Rising"), sign: risingSign },
+  ].filter(Boolean) as { glyph: string; label: string; sign: string }[];
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      {items.map((it) => {
+        const el = signElement(it.sign);
+        const c = el ? ELEMENT_COLORS[el].stroke : "#8fb6ff";
+        return (
+          <div
+            key={it.label}
+            className="relative overflow-hidden rounded-2xl border p-3 text-center sm:p-4"
+            style={{ borderColor: hexToRgba(c, 0.3), background: hexToRgba(c, 0.06) }}
+          >
+            <div
+              className="mx-auto mb-1.5 flex h-9 w-9 items-center justify-center rounded-full border font-serif text-xl sm:h-11 sm:w-11"
+              style={{ color: c, borderColor: hexToRgba(c, 0.4) }}
+            >
+              {it.glyph}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</div>
+            <div className="flex items-center justify-center gap-1 font-serif text-sm text-[var(--ink)] sm:text-base">
+              <span style={{ color: c }}>{ZODIAC_GLYPHS[it.sign]}</span>
+              <span className="truncate">{signLabel(t, it.sign)}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Circular "explored N/total" progress indicator. */
+function ProgressRing({ done, total, label }: { done: number; total: number; label: string }) {
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
+  const pct = total > 0 ? done / total : 0;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative h-11 w-11">
+        <svg viewBox="0 0 40 40" className="h-11 w-11 -rotate-90">
+          <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+          <circle
+            cx="20"
+            cy="20"
+            r={radius}
+            fill="none"
+            stroke="#e8c969"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - pct)}
+          />
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-[#e8c969]">
+          {done}/{total}
+        </span>
+      </div>
+      <span className="text-xs text-muted-foreground">{label}</span>
+    </div>
+  );
+}
+
+/** Elemental balance bar across the chart's planets + optional progress ring. */
+function ChartOverview({
+  chart,
+  explored,
+  total,
+  unlocked,
+}: {
+  chart: ChartResult;
+  explored: number;
+  total: number;
+  unlocked: boolean;
+}) {
+  const { t } = useTranslation();
+  const order: ElementKey[] = ["fire", "earth", "air", "water"];
+  const counts: Record<ElementKey, number> = { fire: 0, earth: 0, air: 0, water: 0 };
+  let totalPlanets = 0;
+  for (const point of chart.points) {
+    if (!(point.body in PLANET_GLYPHS)) continue;
+    const el = signElement(point.sign);
+    if (el) {
+      counts[el] += 1;
+      totalPlanets += 1;
+    }
+  }
+  if (totalPlanets === 0) return null;
+
+  return (
+    <div className="ds-card p-4 sm:p-5">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="font-serif text-base text-[#8fb6ff] sm:text-lg">
+          {t("interpretation.overview.balanceTitle", "Elemental balance")}
+        </h3>
+        {unlocked && total > 0 && (
+          <ProgressRing done={explored} total={total} label={t("interpretation.overview.explored", "Explored")} />
+        )}
+      </div>
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted/40">
+        {order.map((el) =>
+          counts[el] > 0 ? (
+            <div
+              key={el}
+              style={{ width: `${(counts[el] / totalPlanets) * 100}%`, background: ELEMENT_COLORS[el].stroke }}
+            />
+          ) : null,
+        )}
+      </div>
+      <div className="mt-3 grid grid-cols-4 gap-2">
+        {order.map((el) => (
+          <div key={el} className="flex flex-col items-center gap-0.5">
+            <span className="inline-flex items-center gap-1 text-xs" style={{ color: ELEMENT_COLORS[el].text }}>
+              <span className="h-2 w-2 rounded-full" style={{ background: ELEMENT_COLORS[el].stroke }} />
+              {t(`interpretation.overview.elements.${el}`, el)}
+            </span>
+            <span className="text-sm font-semibold text-[var(--ink)]">{counts[el]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function InterpretationView({
   chart,
   profileId,
   profileName,
   ownerDeviceId,
-  oracleCredits,
-  hasPremiumPdf,
+  tokens,
+  interpretationsUnlocked = false,
+  onUnlocked,
   onPurchasePremium,
+  mode = "full",
   relocationLat,
   relocationLng,
 }: InterpretationViewProps) {
   const { t, i18n } = useTranslation();
   const blocks = useMemo(() => generateInterpretations(chart), [chart]);
-  const language = i18n.resolvedLanguage?.startsWith("ru") ? "ru" : "en";
+  const language = toAppLanguage(i18n.resolvedLanguage);
 
   const [deepLoadingKey, setDeepLoadingKey] = useState<string | null>(null);
   const [deepTexts, setDeepTexts] = useState<Record<string, string>>({});
   const [deepErrors, setDeepErrors] = useState<Record<string, string>>({});
   const [oracleQuestion, setOracleQuestion] = useState("");
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
-  const [oracleModel, setOracleModel] = useState<string | null>(null);
   const [oracleHistory, setOracleHistory] = useState<OracleEntry[]>([]);
   const [currentOracleEntryKey, setCurrentOracleEntryKey] = useState<string | null>(null);
   const [oracleLoading, setOracleLoading] = useState(false);
   const [oracleError, setOracleError] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfProgress, setPdfProgress] = useState<string | null>(null);
   const [collapsedDeepDive, setCollapsedDeepDive] = useState<Record<string, boolean>>({});
   const [collapsedOracleAnswers, setCollapsedOracleAnswers] = useState<Record<string, boolean>>({});
   const [currentOracleCollapsed, setCurrentOracleCollapsed] = useState(false);
 
   const signBlocks = blocks.filter((b) => b.category !== "aspect");
   const aspectBlocks = blocks.filter((b) => b.category === "aspect");
+  const exploredCount = blocks.filter((b) => Boolean(deepTexts[getBlockInstanceKey(b)])).length;
   const oracleHistoryWithoutCurrent = oracleAnswer
     ? oracleHistory.slice(1)
     : oracleHistory;
@@ -443,7 +392,6 @@ export function InterpretationView({
     setDeepTexts(stored.deepTexts);
     setOracleHistory(stored.oracleHistory);
     setOracleAnswer(null);
-    setOracleModel(null);
     setCurrentOracleEntryKey(null);
     setPdfError(null);
     setPdfLoading(false);
@@ -487,17 +435,18 @@ export function InterpretationView({
   async function handleDownloadPdf() {
     setPdfLoading(true);
     setPdfError(null);
+    setPdfProgress(t("premium.pdfGenerating"));
 
     try {
       const generatedAtDate = new Intl.DateTimeFormat(
-        language === "ru" ? "ru-RU" : "en-US",
+        dateLocale(language),
         {
           dateStyle: "long",
           timeStyle: "short",
         },
       ).format(new Date());
 
-      const response = await downloadPremiumPdf({
+      const { jobId } = await enqueuePremiumPdf({
         profileId,
         ownerDeviceId,
         language,
@@ -520,7 +469,29 @@ export function InterpretationView({
         },
       });
 
-      saveBase64Pdf(response.base64, response.fileName, response.contentType);
+      // Poll until the job completes (generation takes ~1-3 min).
+      const POLL_INTERVAL_MS = 3000;
+      const MAX_ATTEMPTS = 120; // ~6 minutes
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+        const job = await getPremiumPdfJob({ jobId, ownerDeviceId });
+
+        if (job.status === "completed" && job.base64 && job.fileName) {
+          saveBase64Pdf(
+            job.base64,
+            job.fileName,
+            job.contentType ?? "application/pdf",
+          );
+          return;
+        }
+
+        if (job.status === "failed") {
+          throw new Error(job.error ?? "PDF generation failed");
+        }
+      }
+
+      throw new Error("PDF generation timed out");
     } catch (error) {
       if (
         error instanceof FirebaseError &&
@@ -532,6 +503,7 @@ export function InterpretationView({
       }
     } finally {
       setPdfLoading(false);
+      setPdfProgress(null);
     }
   }
 
@@ -587,7 +559,6 @@ export function InterpretationView({
     setOracleLoading(true);
     setOracleError(null);
     setOracleAnswer(null);
-    setOracleModel(null);
 
     try {
       const response = await askOracle({
@@ -614,8 +585,21 @@ export function InterpretationView({
         askedAt: new Date().toISOString(),
       };
 
+      // Persist straight to storage first. If the user switched tabs while the
+      // answer was generating, this component has unmounted and the setState
+      // calls below are no-ops — but the user paid ✦1, so the answer must never
+      // be lost. The load effect restores it when they return to the tab.
+      try {
+        const stored = readStoredAiState(profileId);
+        writeStoredAiState(profileId, {
+          deepTexts: stored.deepTexts,
+          oracleHistory: [newEntry, ...stored.oracleHistory].slice(0, 20),
+        });
+      } catch {
+        /* storage unavailable — fall back to state-only persistence */
+      }
+
       setOracleAnswer(finalAnswer);
-      setOracleModel(response.model);
       setCurrentOracleEntryKey(getOracleEntryKey(newEntry));
       setCurrentOracleCollapsed(false);
       setOracleHistory((prev) => [newEntry, ...prev].slice(0, 20));
@@ -627,6 +611,11 @@ export function InterpretationView({
         return next;
       });
       setOracleQuestion("");
+
+      // The oracle spent ✦1 server-side — refresh the profile (inline balance)
+      // and the header star count so the cost is reflected immediately.
+      onUnlocked?.();
+      window.dispatchEvent(new Event("astroweb:stars-changed"));
     } catch (error) {
       if (error instanceof FirebaseError) {
         if (error.message.includes("permission-denied")) {
@@ -657,7 +646,6 @@ export function InterpretationView({
     }
 
     setOracleAnswer(null);
-    setOracleModel(null);
     setCurrentOracleEntryKey(null);
     setCurrentOracleCollapsed(false);
   }
@@ -672,18 +660,121 @@ export function InterpretationView({
 
     if (currentOracleEntryKey === entryKey) {
       setOracleAnswer(null);
-      setOracleModel(null);
       setCurrentOracleEntryKey(null);
       setCurrentOracleCollapsed(false);
     }
   }
 
+  const canOracle = tokens >= TOKEN_COST.oracle;
+  // Full interpretations, Dig Deeper and the PDF are all part of the one-time
+  // 4-star unlock (or a legacy purchase). Until unlocked, they stay blurred.
+  const canPdf = interpretationsUnlocked;
+  const canUnlock = tokens >= TOKEN_COST.pdf;
+  const [unlocking, setUnlocking] = useState(false);
+
+  async function handleUnlock() {
+    setUnlocking(true);
+    try {
+      await unlockFeature({ profileId, ownerDeviceId, feature: "interpretations" });
+      onUnlocked?.();
+      window.dispatchEvent(new Event("astroweb:stars-changed"));
+    } catch {
+      onPurchasePremium?.();
+    } finally {
+      setUnlocking(false);
+    }
+  }
+
+  /** Reading body (blurred unlock CTA or full text + deep dive) shared by sign and aspect cards. */
+  function renderBlockBody(block: InterpretationBlock) {
+    const blockId = getBlockInstanceKey(block);
+    const deepText = deepTexts[blockId];
+    const deepError = deepErrors[blockId];
+    const deepLoading = deepLoadingKey === blockId;
+    const isDeepDiveCollapsed = collapsedDeepDive[blockId] ?? false;
+
+    if (!interpretationsUnlocked) {
+      return (
+        <div className="relative">
+          <p className="text-sm leading-relaxed text-muted-foreground opacity-80 blur-[1px] select-none">
+            {getSingleLinePreview(t(`${block.key}.text`))}...
+          </p>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
+          <div className="relative z-10 mt-2 flex flex-col items-start gap-2">
+            <p className="text-xs font-medium text-[#e8c969]">
+              {t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              disabled={unlocking}
+              className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]"
+              onClick={canUnlock ? handleUnlock : onPurchasePremium}
+            >
+              {unlocking
+                ? t("premium.unlocking", "Unlocking…")
+                : canUnlock
+                  ? t("premium.unlockInterpretations", `Unlock Interpretations + PDF ✦${TOKEN_COST.pdf}`)
+                  : t("premium.needStars", { count: TOKEN_COST.pdf, defaultValue: `Need ✦${TOKEN_COST.pdf} — buy stars` })}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <p className="text-sm leading-relaxed text-muted-foreground">{t(`${block.key}.text`)}</p>
+        {/* Once a deep dive exists, the generated reading below (with its own
+            expand/collapse control) replaces the trigger — re-running it just
+            regenerated near-identical text and left the button looking active. */}
+        {!deepText && (
+          <div className="pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void handleDeepDive(block);
+              }}
+              disabled={deepLoading}
+            >
+              {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
+            </Button>
+          </div>
+        )}
+        {deepError && <p className="text-sm text-destructive">{deepError}</p>}
+        {deepText && (
+          <div className="space-y-2 rounded-xl border bg-background/60 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("ai.deepDiveTitle")}</p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setCollapsedDeepDive((prev) => ({
+                    ...prev,
+                    [blockId]: !isDeepDiveCollapsed,
+                  }))
+                }
+              >
+                {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+              </Button>
+            </div>
+            {!isDeepDiveCollapsed && <AiReading text={deepText} />}
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {hasPremiumPdf && (
-        <div className="flex flex-col gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+      {mode !== "oracle" && canPdf && (
+        <div className="ds-card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-base font-semibold text-amber-500">
+            <h3 className="font-serif text-lg text-[#8fb6ff]">
               {t("premium.pdfReadyTitle")}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -698,37 +789,50 @@ export function InterpretationView({
               void handleDownloadPdf();
             }}
             disabled={pdfLoading}
-            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+            className="border-[#e8c969]/50 text-[#e8c969] hover:bg-[#e8c969]/10"
           >
             <Download />
             {pdfLoading ? t("premium.downloadPdfLoading") : t("premium.downloadPdf")}
           </Button>
+          {pdfLoading && pdfProgress && (
+            <p className="text-sm text-[#e8c969]/80 sm:basis-full">{pdfProgress}</p>
+          )}
           {pdfError && (
             <p className="text-sm text-destructive sm:basis-full">{pdfError}</p>
           )}
         </div>
       )}
 
-      <div className="rounded-lg border p-4 space-y-3 bg-muted/10 relative overflow-hidden">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">{t("ai.oracleTitle")}</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t("ai.oracleDescription")}
-            </p>
+      {mode !== "interpretation" && (
+      <div className="ds-card relative overflow-hidden p-4 space-y-3 sm:p-6">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-20"
+          style={{ background: "linear-gradient(180deg, rgba(232,201,105,0.10) 0%, transparent 100%)" }}
+        />
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 text-lg text-[#e8c969]">
+              ✦
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-serif text-lg text-[#8fb6ff] sm:text-xl">{t("ai.oracleTitle")}</h3>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {t("ai.oracleDescription")}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-none flex-col items-end">
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-              {t("ai.creditsLabel", "Credits")}
+              {t("ai.creditsLabel", "Stars")} · ✦{TOKEN_COST.oracle}
             </span>
-            <div className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium border ${oracleCredits > 0 ? "bg-amber-500/10 text-amber-500 border-amber-500/30" : "bg-muted/50 text-muted-foreground border-border"}`}>
-              <span className="mr-1.5">✦</span> {oracleCredits}
+            <div className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium border ${canOracle ? "bg-[#e8c969]/10 text-[#e8c969] border-[#e8c969]/30" : "bg-muted/50 text-muted-foreground border-border"}`}>
+              <span className="mr-1.5">✦</span> {tokens}
             </div>
           </div>
         </div>
 
         <textarea
-          className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500"
+          className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8c969]"
           value={oracleQuestion}
           onChange={(e) => {
             setOracleQuestion(e.target.value);
@@ -736,25 +840,20 @@ export function InterpretationView({
               setOracleError(null);
             }
           }}
-          placeholder={oracleCredits > 0 ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need Oracle Credits to ask a question. Purchase them in the Premium tab.")}
+          placeholder={canOracle ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
           maxLength={1000}
-          disabled={oracleCredits <= 0}
+          disabled={!canOracle}
         />
 
         <div className="flex items-center gap-3">
           <Button
             type="button"
             onClick={handleAskOracle}
-            disabled={oracleLoading || oracleCredits <= 0}
-            className={oracleCredits > 0 ? "bg-amber-600 hover:bg-amber-500 text-white" : ""}
+            disabled={oracleLoading || !canOracle}
+            className={canOracle ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
           >
             {oracleLoading ? t("ai.askOracleLoading") : t("ai.askOracle")}
           </Button>
-          {oracleModel && (
-            <span className="text-xs text-muted-foreground">
-              {t("ai.modelLabel", { model: oracleModel })}
-            </span>
-          )}
         </div>
 
         {oracleError && (
@@ -762,7 +861,9 @@ export function InterpretationView({
         )}
 
         {oracleAnswer && (
-          <div className="rounded-md border bg-background/60 p-3 space-y-2">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 text-[#e8c969]">✦</div>
+            <div className="min-w-0 flex-1 space-y-2 rounded-2xl rounded-bl-sm border border-border bg-secondary p-4">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 {t("ai.answerTitle")}
@@ -795,8 +896,9 @@ export function InterpretationView({
                 {renderInlineMarkdown(getSingleLinePreview(oracleAnswer), "oracle-current-preview")}
               </p>
             ) : (
-              <AiFormattedText text={oracleAnswer} />
+              <AiReading text={oracleAnswer} />
             )}
+            </div>
           </div>
         )}
 
@@ -853,7 +955,7 @@ export function InterpretationView({
                           {renderInlineMarkdown(getSingleLinePreview(entry.answer), `oracle-history-preview-${entryKey}`)}
                         </p>
                       ) : (
-                        <AiFormattedText text={entry.answer} />
+                        <AiReading text={entry.answer} />
                       )}
                     </div>
                   );
@@ -863,95 +965,64 @@ export function InterpretationView({
           </div>
         )}
       </div>
+      )}
+
+      {mode !== "oracle" && (<>
+      {/* Visual overview: Big Three hero + elemental balance + exploration progress */}
+      <BigThree chart={chart} />
+      <ChartOverview
+        chart={chart}
+        explored={exploredCount}
+        total={blocks.length}
+        unlocked={interpretationsUnlocked}
+      />
 
       {/* Sign-based interpretation blocks */}
       {signBlocks.map((block) => {
         const blockId = getBlockInstanceKey(block);
-        const deepText = deepTexts[blockId];
-        const deepError = deepErrors[blockId];
-        const deepLoading = deepLoadingKey === blockId;
-        const isDeepDiveCollapsed = collapsedDeepDive[blockId] ?? false;
+        const accent = getBlockColor(block);
+        const elementKey = block.tags[0] as ElementKey;
+        const elementName =
+          elementKey in ELEMENT_COLORS ? t(`interpretation.overview.elements.${elementKey}`, elementKey) : null;
 
         return (
-          <div
+          <article
             key={blockId}
-            className="border-l-2 pl-4"
-            style={{ borderColor: getBlockColor(block) }}
+            className="relative overflow-hidden rounded-2xl border bg-[var(--surface)] p-4 sm:p-6"
+            style={{ borderColor: hexToRgba(accent, 0.25) }}
           >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t(`interpretation.categories.${block.category}`)}
-                </span>
-              </div>
-              <h3 className="text-lg font-semibold">
-                {t(`${block.key}.title`)}
-              </h3>
-              
-              {!hasPremiumPdf ? (
-                <div className="relative">
-                  <p className="text-sm text-muted-foreground leading-relaxed blur-[1px] opacity-80 select-none">
-                    {getSingleLinePreview(t(`${block.key}.text`))}...
-                  </p>
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
-                  <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
-                    <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
-                    <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
-                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($1.99)")}
-                    </Button>
-                  </div>
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-24"
+              style={{ background: `linear-gradient(180deg, ${hexToRgba(accent, 0.16)} 0%, transparent 100%)` }}
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-3 -bottom-7 select-none font-serif text-[130px] leading-none opacity-[0.06]"
+              style={{ color: accent }}
+            >
+              {getBlockGlyph(block)}
+            </span>
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-11 w-11 flex-none items-center justify-center rounded-full border font-serif text-2xl sm:h-12 sm:w-12"
+                  style={{ color: accent, borderColor: hexToRgba(accent, 0.5), background: hexToRgba(accent, 0.1) }}
+                >
+                  {getBlockGlyph(block)}
                 </div>
-              ) : (
-                <>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {t(`${block.key}.text`)}
-                  </p>
-
-                  <div className="pt-1">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        void handleDeepDive(block);
-                      }}
-                      disabled={deepLoading}
-                    >
-                      {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
-                    </Button>
+                <div className="min-w-0">
+                  <div className="ds-interp-cat">
+                    {t(`interpretation.categories.${block.category}`)}
+                    {elementName ? ` · ${elementName}` : ""}
                   </div>
-
-                  {deepError && (
-                    <p className="text-sm text-destructive">{deepError}</p>
-                  )}
-
-                  {deepText && (
-                    <div className="rounded-md border bg-background/60 p-3 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                          {t("ai.deepDiveTitle")}
-                        </p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setCollapsedDeepDive((prev) => ({
-                              ...prev,
-                              [blockId]: !isDeepDiveCollapsed,
-                            }))
-                          }
-                        >
-                          {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                        </Button>
-                      </div>
-                      {!isDeepDiveCollapsed && <AiFormattedText text={deepText} />}
-                    </div>
-                  )}
-                </>
-              )}
+                  <h3 className="font-serif text-lg leading-tight text-[var(--ink)] sm:text-xl">
+                    {t(`${block.key}.title`)}
+                  </h3>
+                </div>
+              </div>
+              {renderBlockBody(block)}
             </div>
-          </div>
+          </article>
         );
       })}
 
@@ -963,7 +1034,7 @@ export function InterpretationView({
       {/* Aspect blocks */}
       {aspectBlocks.length > 0 && (
         <div className="space-y-1">
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="ds-interp-cat">
             {t("interpretation.categories.aspect")}
           </span>
         </div>
@@ -972,100 +1043,53 @@ export function InterpretationView({
       {aspectBlocks.map((block) => {
         const aspect = block.aspect;
         const blockId = getBlockInstanceKey(block);
-        const deepText = deepTexts[blockId];
-        const deepError = deepErrors[blockId];
-        const deepLoading = deepLoadingKey === blockId;
-        const isDeepDiveCollapsed = collapsedDeepDive[blockId] ?? false;
+        const accent = getBlockColor(block);
 
         return (
-          <div
+          <article
             key={blockId}
-            className="border-l-2 pl-4"
-            style={{ borderColor: getBlockColor(block) }}
+            className="relative overflow-hidden rounded-2xl border bg-[var(--surface)] p-4 sm:p-6"
+            style={{ borderColor: hexToRgba(accent, 0.25) }}
           >
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">
-                <span style={{ color: getBlockColor(block) }}>
-                  {ASPECT_GLYPHS[block.tags[0]] ?? ""}{" "}
-                </span>
-                {t(`${block.key}.title`)}
-              </h3>
-              {aspect && (
-                <p className="text-sm font-medium">
-                  {PLANET_GLYPHS[aspect.a] ?? ""} {aspect.a}{" "}
-                  {ASPECT_GLYPHS[aspect.type] ?? ""}{" "}
-                  {PLANET_GLYPHS[aspect.b] ?? ""} {aspect.b}{" "}
-                  <span className="text-muted-foreground">
-                    ({aspect.orb.toFixed(1)}&deg; orb)
-                  </span>
-                </p>
-              )}
-              {!hasPremiumPdf ? (
-                <div className="relative mt-2">
-                  <p className="text-sm text-muted-foreground leading-relaxed blur-[1px] opacity-80 select-none">
-                    {getSingleLinePreview(t(`${block.key}.text`))}...
-                  </p>
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
-                  <div className="mt-2 relative z-10 flex flex-col items-start gap-2">
-                    <p className="text-xs text-amber-500 font-medium">{t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}</p>
-                    <Button type="button" size="sm" variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={onPurchasePremium}>
-                      {t("premium.buyPdf", "Get Full Interpretations & PDF ($1.99)")}
-                    </Button>
-                  </div>
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-24"
+              style={{ background: `linear-gradient(180deg, ${hexToRgba(accent, 0.16)} 0%, transparent 100%)` }}
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-3 -bottom-7 select-none font-serif text-[130px] leading-none opacity-[0.06]"
+              style={{ color: accent }}
+            >
+              {getBlockGlyph(block)}
+            </span>
+            <div className="relative space-y-2">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-11 w-11 flex-none items-center justify-center rounded-full border font-serif text-2xl sm:h-12 sm:w-12"
+                  style={{ color: accent, borderColor: hexToRgba(accent, 0.5), background: hexToRgba(accent, 0.1) }}
+                >
+                  {getBlockGlyph(block)}
                 </div>
-              ) : (
-                <>
-                  <p className="text-sm text-muted-foreground leading-relaxed mt-2">
-                    {t(`${block.key}.text`)}
-                  </p>
-
-                  <div className="pt-1 mt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        void handleDeepDive(block);
-                      }}
-                      disabled={deepLoading}
-                    >
-                      {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
-                    </Button>
-                  </div>
-
-                  {deepError && (
-                    <p className="text-sm text-destructive mt-2">{deepError}</p>
+                <div className="min-w-0">
+                  <h3 className="font-serif text-lg leading-tight text-[var(--ink)] sm:text-xl">
+                    {t(`${block.key}.title`)}
+                  </h3>
+                  {aspect && (
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {PLANET_GLYPHS[aspect.a] ?? ""} {aspect.a}{" "}
+                      {ASPECT_GLYPHS[aspect.type] ?? ""}{" "}
+                      {PLANET_GLYPHS[aspect.b] ?? ""} {aspect.b}{" "}
+                      <span className="text-muted-foreground/70">({aspect.orb.toFixed(1)}&deg;)</span>
+                    </p>
                   )}
-
-                  {deepText && (
-                    <div className="rounded-md border bg-background/60 p-3 space-y-2 mt-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                          {t("ai.deepDiveTitle")}
-                        </p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setCollapsedDeepDive((prev) => ({
-                              ...prev,
-                              [blockId]: !isDeepDiveCollapsed,
-                            }))
-                          }
-                        >
-                          {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                        </Button>
-                      </div>
-                      {!isDeepDiveCollapsed && <AiFormattedText text={deepText} />}
-                    </div>
-                  )}
-                </>
-              )}
+                </div>
+              </div>
+              {renderBlockBody(block)}
             </div>
-          </div>
+          </article>
         );
       })}
+      </>)}
     </div>
   );
 }

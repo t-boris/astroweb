@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
 import { useDeviceId } from "@/hooks/useDeviceId";
-import { getProfile, deleteProfile, updateProfile } from "@/api/profiles";
+import { getProfile, archiveProfile, updateProfile } from "@/api/profiles";
 import { getChart } from "@/api/charts";
 import { createCheckoutSession } from "@/api/stripe";
+import { STAR_PACKS } from "@/lib/tokens";
+import { getWalletInfo } from "@/api/wallet";
+import { signLabel } from "@/lib/signs";
 import { motion } from "framer-motion";
-import { Astrolabe } from "@/components/Astrolabe";
 import PlaceSearch from "@/components/PlaceSearch";
 import NatalChart from "@/components/chart/NatalChart";
+import { ForecastView } from "@/components/chart/ForecastView";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
 import { AspectsTable } from "@/components/chart/AspectsTable";
 import { InterpretationView } from "@/components/chart/InterpretationView";
 import { HouseAreasView } from "@/components/chart/HouseAreasView";
 import { RelationshipView } from "@/components/chart/RelationshipView";
+import AstrologerPanel from "@/components/AstrologerPanel";
+import LettersInbox from "@/components/LettersInbox";
+import { listLetters } from "@/api/letters";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -93,6 +99,15 @@ function readStoredRelocation(profileId: string): StoredRelocation | null {
   }
 }
 
+const SIGN_ORDER = [
+  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+];
+function signFromLongitude(lon: number): string {
+  const n = ((lon % 360) + 360) % 360;
+  return SIGN_ORDER[Math.floor(n / 30)];
+}
+
 export default function ProfileDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -112,10 +127,66 @@ export default function ProfileDetail() {
   const [relocationLng, setRelocationLng] = useState<number | null>(null);
   const [relocationSaving, setRelocationSaving] = useState(false);
   const [relocationSaveError, setRelocationSaveError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("chart");
+  const [searchParams] = useSearchParams();
+  const validTabs = ["chart", "planets", "aspects", "houses", "interpretation", "oracle", "compatibility", "transits", "astrologer", "premium"];
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(
+    tabParam && validTabs.includes(tabParam) ? tabParam : "chart",
+  );
+
+  // Keep the active tab in sync with the ?tab= query param. Without this, the
+  // top-nav links (Oracle / Transits / Compatibility) only change the URL when
+  // we're already on a profile page — the component never remounts, so the
+  // useState initializer above doesn't re-run and the tab wouldn't switch.
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // One-time first-reading discount eligibility (drives the store price label).
+  const [firstReadingAvailable, setFirstReadingAvailable] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    getWalletInfo(deviceId)
+      .then((w) => {
+        if (!cancelled) setFirstReadingAvailable(w.firstReadingAvailable);
+      })
+      .catch(() => {
+        if (!cancelled) setFirstReadingAvailable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [deviceId]);
+
+  // Unread astrologer letters → badge on the Astrologer tab. Silently 0 when
+  // the user isn't signed in or has no letters (listLetters throws/empty).
+  const [unreadLetters, setUnreadLetters] = useState(0);
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    listLetters(id)
+      .then((letters) => {
+        if (!cancelled) setUnreadLetters(letters.filter((l) => l.status !== "read").length);
+      })
+      .catch(() => {
+        if (!cancelled) setUnreadLetters(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  // Opening the tab renders the inbox, which marks every letter read — so clear
+  // the badge immediately for a consistent UI.
+  useEffect(() => {
+    if (activeTab === "astrologer") setUnreadLetters(0);
+  }, [activeTab]);
 
   function getErrorMessage(err: unknown, fallbackKey: string): string {
     if (err instanceof FirebaseError) {
@@ -168,19 +239,26 @@ export default function ProfileDetail() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, deviceId]);
 
+  // Re-fetch the profile after an unlock so token balance + flags update.
+  async function reloadProfile() {
+    if (!id) return;
+    try {
+      const data = await getProfile(id, deviceId);
+      setProfile(data);
+    } catch {
+      /* ignore */
+    }
+  }
+
   // Fetch chart (after profile loads, or on chart retry)
   useEffect(() => {
     if (!profile || !id) return;
     let cancelled = false;
 
     async function fetchChart() {
-      if (relocationEnabled && (relocationLat === null || relocationLng === null)) {
-        setChartData(null);
-        setChartLoading(false);
-        setChartError(t("profile.detail.relocationPlaceRequired"));
-        return;
-      }
-
+      // Relocation on but no place picked yet: don't dead-end the screen — fall
+      // back to the base natal chart so the tabs (and the place picker inside
+      // the Chart tab) still render. A gentle prompt there asks for a place.
       setChartLoading(true);
       setChartError(null);
       try {
@@ -302,7 +380,7 @@ export default function ProfileDetail() {
     setDeleting(true);
 
     try {
-      await deleteProfile(id, deviceId);
+      await archiveProfile(id, deviceId, true);
       navigate("/");
     } catch (err) {
       setError(getErrorMessage(err, "errors.profileDeleteFailed"));
@@ -311,11 +389,11 @@ export default function ProfileDetail() {
     }
   }
 
-  async function handleCheckout(tier: "pdf" | "oracle" | "compatibility") {
+  async function handleBuyPack(packId: string) {
     if (!id) return;
-    setCheckoutLoading(tier);
+    setCheckoutLoading(packId);
     try {
-      const { url } = await createCheckoutSession({ profileId: id, ownerDeviceId: deviceId, tier });
+      const { url } = await createCheckoutSession({ profileId: id, ownerDeviceId: deviceId, packId });
       window.location.href = url;
     } catch (err) {
       console.error("Checkout failed:", err);
@@ -392,130 +470,27 @@ export default function ProfileDetail() {
 
   return (
     <div className="space-y-6 relative z-10">
-      {/* Background Astrolabe shifted to the side */}
-      <div className="fixed top-0 left-0 w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] -translate-x-1/2 -translate-y-1/4 opacity-10 pointer-events-none -z-10">
-        <Astrolabe className="w-full h-full" />
-      </div>
-
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="flex items-center justify-between"
       >
-        <h1 className="text-3xl font-serif font-bold tracking-tight text-gold-gradient">{profile.name}</h1>
+        <div className="mb-1 text-xs uppercase tracking-[0.28em] text-[#8fb6ff]">
+          ✦ {t("profile.detail.title")}
+        </div>
+        <h1 className="font-serif text-4xl tracking-tight text-foreground">{profile.name}</h1>
       </motion.div>
 
-      {/* Birth Data Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.1 }}
-      >
-        <Card className="art-deco-card">
-          <CardHeader className="border-b border-primary/20">
-            <CardTitle className="font-serif text-primary">{t("profile.detail.birthData")}</CardTitle>
-          </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <dt className="font-medium text-muted-foreground">
-              {t("profile.detail.birthDate")}
-            </dt>
-            <dd>{profile.birthDate}</dd>
-
-            <dt className="font-medium text-muted-foreground">
-              {t("profile.detail.birthTime")}
-            </dt>
-            <dd>
-              {profile.timeUnknown ? (
-                <span className="italic text-muted-foreground">
-                  {t("profile.detail.timeUnknown")}
-                </span>
-              ) : (
-                profile.birthTime
-              )}
-            </dd>
-
-            <dt className="font-medium text-muted-foreground">
-              {t("profile.detail.birthPlace")}
-            </dt>
-            <dd>{profile.birthPlace}</dd>
-
-            <dt className="font-medium text-muted-foreground">
-              {t("profile.detail.timezone")}
-            </dt>
-            <dd>{profile.timezone}</dd>
-
-            <dt className="font-medium text-muted-foreground">
-              {t("profile.detail.coordinates")}
-            </dt>
-            <dd>
-              {profile.lat.toFixed(4)}, {profile.lng.toFixed(4)}
-            </dd>
-          </dl>
-        </CardContent>
-      </Card>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-      <Card className="art-deco-card">
-        <CardHeader className="border-b border-primary/20">
-          <CardTitle className="font-serif text-primary">{t("profile.detail.chartModeTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Switch
-              id="relocation-mode"
-              checked={relocationEnabled}
-              onCheckedChange={handleRelocationToggle}
-            />
-            <Label htmlFor="relocation-mode">
-              {relocationEnabled
-                ? t("profile.detail.relocationMode")
-                : t("profile.detail.natalMode")}
-            </Label>
-          </div>
-
-          {relocationEnabled && (
-            <div className="space-y-2">
-              <Label>{t("profile.detail.relocationSearchLabel")}</Label>
-              <PlaceSearch
-                onSelect={handleRelocationSelect}
-                initialValue={relocationPlace || undefined}
-                selectedLat={relocationLat}
-                selectedLng={relocationLng}
-              />
-              {relocationPlace && relocationLat !== null && relocationLng !== null && (
-                <p className="text-sm text-muted-foreground">
-                  {t("profile.detail.relocationCurrent")}: {relocationPlace} ({relocationLat.toFixed(4)}, {relocationLng.toFixed(4)})
-                </p>
-              )}
-              {relocationSaving && (
-                <p className="text-sm text-muted-foreground">
-                  {t("profile.detail.relocationSaving")}
-                </p>
-              )}
-              {relocationSaveError && (
-                <p className="text-sm text-destructive">{relocationSaveError}</p>
-              )}
-            </div>
-          )}
-
-          <p className="text-xs text-muted-foreground">
-            {relocationEnabled
-              ? t("profile.detail.relocationHintOn")
-              : t("profile.detail.relocationHintOff")}
-          </p>
-        </CardContent>
-      </Card>
-      </motion.div>
+      {/* Compact birth-info strip */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+        <span>📅 {profile.birthDate}</span>
+        <span>🕐 {profile.timeUnknown ? t("profile.detail.timeUnknown") : profile.birthTime}</span>
+        <span>📍 {profile.birthPlace}</span>
+        <span>🌐 {profile.lat.toFixed(2)}, {profile.lng.toFixed(2)}</span>
+      </div>
 
       {/* Action Buttons */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.3 }}
@@ -525,11 +500,11 @@ export default function ProfileDetail() {
           <Link to={`/profile/${id}/edit`}>{t("profile.detail.edit")}</Link>
         </Button>
         <Button
-          variant="destructive"
-          className="bg-red-900/40 text-red-200 border border-red-800 hover:bg-red-900/60"
+          variant="outline"
+          className="border border-border text-muted-foreground hover:border-primary hover:text-foreground"
           onClick={() => setShowDeleteDialog(true)}
         >
-          {t("profile.detail.delete")}
+          {t("profile.detail.archive", "Archive")}
         </Button>
         <Button variant="outline" className="border border-primary/50 text-primary hover:bg-primary/10" asChild>
           <Link to="/">{t("profile.detail.back")}</Link>
@@ -551,25 +526,108 @@ export default function ProfileDetail() {
         </div>
       )}
       {chartData && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex w-full overflow-x-auto scrollbar-hidden">
-            <TabsTrigger value="chart" className="flex-1 min-w-fit">{t("tabs.chart")}</TabsTrigger>
-            <TabsTrigger value="planets" className="flex-1 min-w-fit">{t("tabs.planets")}</TabsTrigger>
-            <TabsTrigger value="aspects" className="flex-1 min-w-fit">{t("tabs.aspects")}</TabsTrigger>
-            <TabsTrigger value="houses" className="flex-1 min-w-fit">{t("tabs.houses")}</TabsTrigger>
-            <TabsTrigger value="interpretation" className="flex-1 min-w-fit">{t("tabs.interpretation")}</TabsTrigger>
-            <TabsTrigger value="compatibility" className="flex-1 min-w-fit">{t("tabs.compatibility")}</TabsTrigger>
-            <TabsTrigger value="premium" className="flex-1 min-w-fit text-amber-500 font-semibold flex items-center gap-2">
-              <span className="text-lg">✧</span> Premium
-            </TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full gap-4">
+          <TabsList className="flex h-auto w-full flex-wrap items-start justify-start gap-1.5 rounded-none border-b border-border/40 bg-transparent p-0 pb-3 group-data-[orientation=horizontal]/tabs:h-auto">
+            {[
+              ["chart", t("tabs.chart")],
+              ["planets", t("tabs.planets")],
+              ["aspects", t("tabs.aspects")],
+              ["houses", t("tabs.houses")],
+              ["interpretation", t("tabs.interpretation")],
+              ["oracle", t("tabs.oracle", "Oracle")],
+              ["transits", t("tabs.transits", "Transits")],
+              ["compatibility", t("tabs.compatibility")],
+              ["astrologer", t("tabs.astrologer", "✦ Astrologer")],
+            ].map(([v, label]) => (
+              <TabsTrigger
+                key={v}
+                value={v}
+                className="h-auto flex-none grow-0 rounded-full border border-border/50 bg-transparent px-3 py-1.5 text-[13px] text-muted-foreground shadow-none transition-colors after:hidden hover:border-primary/60 hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-primary/15 data-[state=active]:text-[#8fb6ff] data-[state=active]:shadow-none"
+              >
+                {label}
+                {v === "astrologer" && unreadLetters > 0 && (
+                  <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8c969] px-1 text-[10px] font-semibold leading-none text-[#1a1606]">
+                    {unreadLetters}
+                  </span>
+                )}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="chart">
-            <NatalChart chart={chartData} />
+            <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_0.85fr]">
+              <Card className="ds-card">
+                <CardContent className="pt-6">
+                  <NatalChart chart={chartData} />
+                </CardContent>
+              </Card>
+              <div className="space-y-5">
+                <Card className="ds-card">
+                  <CardHeader className="border-b border-border/40">
+                    <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.bigThree", "The Big Three")}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-5">
+                    {[
+                      { glyph: "☉", label: t("profile.detail.sun", "Sun"), sign: signLabel(t, chartData.points.find((p) => p.body === "Sun")?.sign) },
+                      { glyph: "☽", label: t("profile.detail.moon", "Moon"), sign: signLabel(t, chartData.points.find((p) => p.body === "Moon")?.sign) },
+                      { glyph: "↑", label: t("profile.detail.rising", "Rising"), sign: chartData.houses.asc !== null && !profile.timeUnknown ? signLabel(t, signFromLongitude(chartData.houses.asc)) : "—" },
+                    ].map((b) => (
+                      <div key={b.label} className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-primary/40 font-serif text-lg text-[#8fb6ff]">{b.glyph}</div>
+                        <div>
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{b.label}</div>
+                          <div className="font-serif text-lg">{b.sign}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="ds-card">
+                  <CardHeader className="border-b border-border/40">
+                    <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.chartModeTitle")}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 pt-5">
+                    {/* Current residence — always visible (place of living, used by transits/letters) */}
+                    <div className="space-y-2">
+                      <Label>{t("profile.detail.residenceLabel", "Current residence (where you live now)")}</Label>
+                      <PlaceSearch
+                        onSelect={handleRelocationSelect}
+                        initialValue={relocationPlace || undefined}
+                        selectedLat={relocationLat}
+                        selectedLng={relocationLng}
+                      />
+                      {relocationPlace && relocationLat !== null && relocationLng !== null ? (
+                        <p className="text-sm text-muted-foreground">
+                          {t("profile.detail.relocationCurrent")}: {relocationPlace} ({relocationLat.toFixed(4)}, {relocationLng.toFixed(4)})
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          {t("profile.detail.residenceHint", "Not set — defaults to your birthplace. Set it for accurate transits, weather and local news.")}
+                        </p>
+                      )}
+                      {relocationSaving && <p className="text-sm text-muted-foreground">{t("profile.detail.relocationSaving")}</p>}
+                      {relocationSaveError && <p className="text-sm text-destructive">{relocationSaveError}</p>}
+                    </div>
+
+                    {/* Relocate the displayed chart to the current residence */}
+                    <div className="flex items-center gap-3 border-t border-border/40 pt-3">
+                      <Switch id="relocation-mode" checked={relocationEnabled} onCheckedChange={handleRelocationToggle} />
+                      <Label htmlFor="relocation-mode">
+                        {relocationEnabled ? t("profile.detail.relocationMode") : t("profile.detail.natalMode")}
+                      </Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {relocationEnabled ? t("profile.detail.relocationHintOn") : t("profile.detail.relocationHintOff")}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="planets">
-            <Card className="art-deco-card">
+            <Card className="ds-card">
               <CardContent className="pt-6">
                 <PlanetsTable points={chartData.points} />
               </CardContent>
@@ -577,7 +635,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="aspects">
-            <Card className="art-deco-card">
+            <Card className="ds-card">
               <CardContent className="pt-6">
                 <AspectsTable aspects={chartData.aspects} />
               </CardContent>
@@ -585,7 +643,7 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="houses">
-            <Card className="art-deco-card">
+            <Card className="ds-card">
               <CardContent className="pt-6">
                 <HouseAreasView chart={chartData} />
               </CardContent>
@@ -593,15 +651,17 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="interpretation">
-            <Card className="art-deco-card">
+            <Card className="ds-card">
               <CardContent className="pt-6">
                 <InterpretationView
+                  mode="interpretation"
                   chart={chartData}
                   profileId={id!}
                   profileName={profile.name}
                   ownerDeviceId={deviceId}
-                  oracleCredits={profile.oracleCredits || 0}
-                  hasPremiumPdf={profile.hasPremiumPdf || false}
+                  tokens={profile.tokens || 0}
+                  interpretationsUnlocked={profile.hasPremiumPdf || false}
+                  onUnlocked={reloadProfile}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
                   onPurchasePremium={() => setActiveTab("premium")}
@@ -610,93 +670,170 @@ export default function ProfileDetail() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="oracle">
+            <Card className="ds-card">
+              <CardContent className="pt-6">
+                <InterpretationView
+                  mode="oracle"
+                  chart={chartData}
+                  profileId={id!}
+                  profileName={profile.name}
+                  ownerDeviceId={deviceId}
+                  tokens={profile.tokens || 0}
+                  interpretationsUnlocked={profile.hasPremiumPdf || false}
+                  onUnlocked={reloadProfile}
+                  relocationLat={relocationEnabled ? relocationLat : null}
+                  relocationLng={relocationEnabled ? relocationLng : null}
+                  onPurchasePremium={() => setActiveTab("premium")}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transits">
+            <ForecastView profileId={id!} ownerDeviceId={deviceId} />
+          </TabsContent>
+
           <TabsContent value="compatibility">
-            <Card className="art-deco-card">
+            <Card className="ds-card">
               <CardContent className="pt-6">
                 <RelationshipView
                   profileId={id!}
                   ownerDeviceId={deviceId}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
-                  hasPremiumCompatibility={profile.hasPremiumCompatibility || false}
+                  tokens={profile.tokens || 0}
+                  compatibilityIncluded={profile.hasPremiumCompatibility || false}
+                  onUnlocked={reloadProfile}
                   onPurchasePremium={() => setActiveTab("premium")}
                 />
               </CardContent>
             </Card>
           </TabsContent>
 
+          <TabsContent value="astrologer">
+            <div className="space-y-6">
+              <AstrologerPanel profileId={id!} />
+              <LettersInbox profileId={id!} />
+            </div>
+          </TabsContent>
+
           <TabsContent value="premium">
-            <Card className="art-deco-card overflow-hidden relative border-amber-500/50">
-              <div className="absolute inset-0 bg-background/60 backdrop-blur-[4px] z-10 flex flex-col items-center justify-center p-6 text-center">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 ring-2 ring-amber-500/50 shadow-[0_0_30px_rgba(217,119,6,0.2)]">
-                  <span className="text-4xl text-amber-500">✦</span>
+            <Card className="ds-card border-[#e8c969]/40 p-5 sm:p-7">
+              <div className="text-center">
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#e8c969]/10 ring-2 ring-[#e8c969]/50 shadow-[0_0_30px_rgba(232,201,105,0.2)]">
+                  <span className="text-3xl text-[#e8c969]">✦</span>
                 </div>
-                <h3 className="mb-2 text-3xl font-serif font-bold tracking-tight text-gold-gradient">
+                <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight text-gold-gradient sm:text-3xl">
                   {t("premium.title", "Unlock Your Cosmic Destiny")}
                 </h3>
-                
-                {/* Credits Indicator */}
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-sm font-medium text-amber-500">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e8c969]/30 bg-[#e8c969]/10 px-4 py-1.5 text-sm font-medium text-[#e8c969]">
                   <span>✦</span>
-                  {t("premium.oracleCredits", { count: profile.oracleCredits || 0, defaultValue: `Oracle Credits: ${profile.oracleCredits || 0}` })}
+                  {t("premium.balance", { count: profile.tokens || 0, defaultValue: `Stars: ${profile.tokens || 0}` })}
                 </div>
-
-                <p className="mb-6 max-w-md text-sm text-muted-foreground leading-relaxed">
-                  {t("premium.description", "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.")}
+                <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+                  {t("premium.storeDescription", "Pick what you want — readings unlock per profile, stars never expire.")}
                 </p>
-                
-                {/* Success Banner */}
-                {window.location.search.includes("checkout=success") && (
-                  <div className="mb-6 rounded-md bg-green-500/20 px-4 py-3 text-sm text-green-400 border border-green-500/30">
-                    {t("premium.success", "Purchase successful! Your premium features have been updated.")}
-                  </div>
-                )}
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-                  <Button
-                    onClick={() => handleCheckout("pdf")}
-                    disabled={checkoutLoading !== null || profile.hasPremiumPdf}
-                    className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumPdf ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
-                  >
-                    {checkoutLoading === "pdf" ? t("premium.redirecting", "Redirecting...") : (
-                      profile.hasPremiumPdf ? t("premium.pdfActivated", "Interpretations Unlocked") : t("premium.buyPdf", "Interpretations & PDF ($1.99)")
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => handleCheckout("compatibility")}
-                    disabled={checkoutLoading !== null || profile.hasPremiumCompatibility}
-                    className={`text-white shadow-[0_0_15px_rgba(217,119,6,0.5)] ${profile.hasPremiumCompatibility ? "bg-amber-800/50 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-500"}`}
-                  >
-                    {checkoutLoading === "compatibility" ? t("premium.redirecting", "Redirecting...") : (
-                      profile.hasPremiumCompatibility ? t("premium.compatibilityActivated", "Compatibility Unlocked") : t("premium.buyCompatibility", "Unlock Compatibility ($0.99)")
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleCheckout("oracle")}
-                    disabled={checkoutLoading !== null}
-                    className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
-                  >
-                    {checkoutLoading === "oracle" ? t("premium.redirecting", "Redirecting...") : t("premium.buyOracle", "Ask Oracle ($0.99)")}
-                  </Button>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust1", "One-time payment")}</span>
+                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust2", "Stars never expire")}</span>
+                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust3", "Unlocks forever")}</span>
                 </div>
               </div>
 
-              <CardContent className="pt-6 opacity-30 select-none pointer-events-none blur-[4px]">
-                <div className="space-y-6">
-                  <div className="h-8 w-1/3 rounded bg-muted animate-pulse"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
-                    <div className="h-4 w-5/6 rounded bg-muted animate-pulse"></div>
-                    <div className="h-4 w-4/6 rounded bg-muted animate-pulse"></div>
-                  </div>
-                  <div className="h-64 w-full rounded bg-muted/50 border border-muted animate-pulse"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
-                    <div className="h-4 w-full rounded bg-muted animate-pulse"></div>
-                  </div>
+              {window.location.search.includes("checkout=success") && (
+                <div className="mt-5 rounded-md border border-green-500/30 bg-green-500/20 px-4 py-3 text-center text-sm text-green-400">
+                  {t("premium.success", "Purchase successful! Your premium features have been updated.")}
                 </div>
-              </CardContent>
+              )}
+
+              {firstReadingAvailable && (
+                <button
+                  type="button"
+                  onClick={() => handleBuyPack("reading")}
+                  disabled={checkoutLoading !== null}
+                  className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#e8c969]/60 bg-gradient-to-r from-[#e8c969]/15 to-transparent p-4 text-left transition-colors hover:from-[#e8c969]/25"
+                >
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#e8c969]/20 text-xl">🎁</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-[#e8c969]">{t("premium.firstBannerTitle", "First reading just $1.99")}</span>
+                    <span className="block text-xs text-muted-foreground">{t("premium.firstBannerDesc", "Full chart reading + dig deeper + PDF — one-time welcome price.")}</span>
+                  </span>
+                  <span className="flex-none text-right leading-none">
+                    <span className="font-serif text-xl font-bold text-[#e8c969]">$1.99</span>
+                    <span className="ml-1 text-xs text-muted-foreground line-through">$3.99</span>
+                  </span>
+                </button>
+              )}
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {STAR_PACKS.map((pack) => {
+                  const showFirst = Boolean(pack.firstPriceUsd && firstReadingAvailable);
+                  const price = showFirst ? pack.firstPriceUsd! : pack.priceUsd;
+                  return (
+                    <div
+                      key={pack.id}
+                      className={`relative flex flex-col rounded-2xl border p-4 ${
+                        pack.popular
+                          ? "border-[#e8c969]/60 bg-[#e8c969]/[0.07] shadow-[0_0_30px_-12px_rgba(232,201,105,0.5)] sm:col-span-2"
+                          : "border-border/60 bg-background/30"
+                      }`}
+                    >
+                      {pack.popular && (
+                        <span className="absolute -top-2.5 left-4 rounded-full bg-[#e8c969] px-2.5 py-0.5 text-[11px] font-semibold text-[#1a1606]">
+                          {t("premium.popular", "Most popular")}
+                        </span>
+                      )}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-serif text-base text-foreground">
+                            {t(`premium.packs.${pack.id}.title`, pack.id)}
+                          </p>
+                          <p className="mt-0.5 text-sm text-muted-foreground">
+                            {t(`premium.packs.${pack.id}.desc`, "")}
+                          </p>
+                          <p className="mt-1.5 text-xs font-medium text-[#e8c969]">
+                            ✦{pack.stars}
+                            {pack.bonusStars
+                              ? ` +${pack.bonusStars} ${t("premium.bonusStar", "bonus")}`
+                              : ""}
+                          </p>
+                        </div>
+                        <div className="flex-none text-right">
+                          {showFirst && (
+                            <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#e8c969]">
+                              {t("premium.firstOffer", "First reading")}
+                            </div>
+                          )}
+                          <div className="leading-none">
+                            <span className="font-serif text-xl font-bold text-foreground">
+                              ${price.toFixed(2)}
+                            </span>
+                            {showFirst && (
+                              <span className="ml-1.5 text-sm text-muted-foreground line-through">
+                                ${pack.priceUsd.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => handleBuyPack(pack.id)}
+                        disabled={checkoutLoading !== null}
+                        className={`mt-3 ${
+                          pack.popular
+                            ? "bg-[#e8c969] text-[#1a1606] shadow-[0_0_15px_rgba(232,201,105,0.5)] hover:bg-[#f2dd9a]"
+                            : "bg-[#e8c969]/15 text-[#e8c969] border border-[#e8c969]/40 hover:bg-[#e8c969]/25"
+                        }`}
+                      >
+                        {checkoutLoading === pack.id
+                          ? t("premium.redirecting", "Redirecting...")
+                          : t("premium.buy", "Get it")}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
             </Card>
           </TabsContent>
         </Tabs>
@@ -712,10 +849,10 @@ export default function ProfileDetail() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("profile.detail.deleteConfirmTitle")}
+              {t("profile.detail.archiveConfirmTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("profile.detail.deleteConfirmMessage", {
+              {t("profile.detail.archiveConfirmMessage", {
                 name: profile.name,
               })}
             </AlertDialogDescription>
@@ -725,11 +862,10 @@ export default function ProfileDetail() {
               {t("profile.detail.deleteConfirmCancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {t("profile.detail.deleteConfirmAction")}
+              {t("profile.detail.archiveConfirmAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

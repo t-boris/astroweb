@@ -30,3 +30,15 @@ export async function deleteProfile(profileId: string, ownerDeviceId: string): P
   const fn = httpsCallable<{ profileId: string; ownerDeviceId: string }, void>(functions, "deleteProfile");
   await fn({ profileId, ownerDeviceId });
 }
+
+export async function archiveProfile(
+  profileId: string,
+  ownerDeviceId: string,
+  archived: boolean,
+): Promise<void> {
+  const fn = httpsCallable<{ profileId: string; ownerDeviceId: string; archived: boolean }, void>(
+    functions,
+    "archiveProfile",
+  );
+  await fn({ profileId, ownerDeviceId, archived });
+}

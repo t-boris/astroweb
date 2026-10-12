@@ -7,7 +7,11 @@ import {
   normalizeLanguage,
 } from "../services/anthropic";
 import { getProfileById } from "../services/profile";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { TOKEN_COST } from "../services/tokens";
+import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
+import { ownerCtx, ownsProfile } from "../services/owner";
+import { getDossierSummaryText, recordOracleHistory } from "../services/dossier";
+import { extractAndStoreFacts } from "../services/factExtraction";
 
 export const askOracle = onCall({
   timeoutSeconds: 180,
@@ -41,36 +45,47 @@ export const askOracle = onCall({
     throw new HttpsError("invalid-argument", "question is too long");
   }
 
-    // Check oracle credits
+    // Ownership check
+    const ctx = ownerCtx(request);
     const profile = await getProfileById(profileId);
     if (!profile) {
       throw new HttpsError("not-found", "Profile not found");
     }
-    
-    if (profile.ownerDeviceId !== ownerDeviceId) {
+
+    if (!ownsProfile(profile, ctx)) {
       throw new HttpsError("permission-denied", "Not authorized");
     }
 
-    if (!profile.oracleCredits || profile.oracleCredits <= 0) {
-      throw new HttpsError("permission-denied", "No oracle credits available. Please purchase more.");
-    }
-
-    // Deduct one credit
-    await getFirestore().collection("profiles").doc(profileId).update({
-      oracleCredits: FieldValue.increment(-1)
-    });
+    // Spend stars up front from the user's wallet (throws failed-precondition
+    // "INSUFFICIENT_TOKENS").
+    const walletKey = walletKeyFromCtx(ctx);
+    await spendFromWallet(walletKey, TOKEN_COST.oracle);
 
   try {
     const { chart } = await resolveOwnedChart({
       profileId,
       ownerDeviceId,
+      uid: ctx.uid,
       relocationLat,
       relocationLng,
     });
+
+    // Person-aware answers: inject the dossier summary when this chart has one
+    // (only meaningful for signed-in accounts that own the dossier).
+    let dossierSummary = "";
+    if (ctx.uid) {
+      try {
+        dossierSummary = await getDossierSummaryText(profileId);
+      } catch {
+        /* dossier optional */
+      }
+    }
+
     const basePrompt = buildOraclePrompt({
       chart,
       question: trimmedQuestion,
       language,
+      dossierSummary,
     });
 
     logger.info("askOracle request", {
@@ -91,11 +106,38 @@ export const askOracle = onCall({
       answerWords: result.text.split(/\s+/).filter(Boolean).length,
     });
 
+    // Server-side history + background fact extraction (signed-in accounts only).
+    if (ctx.uid) {
+      try {
+        await recordOracleHistory(profileId, {
+          question: trimmedQuestion,
+          answer: result.text,
+          model: result.model,
+          channel: "web",
+        });
+        await extractAndStoreFacts(profileId, ctx.uid, trimmedQuestion, null);
+      } catch (e) {
+        logger.warn("askOracle post-processing failed", { profileId, error: (e as Error).message });
+      }
+    }
+
     return {
       answer: result.text,
       model: result.model,
     };
   } catch (error) {
+    // Generation failed after tokens were spent — refund so the user isn't
+    // charged for an answer they didn't receive. Best-effort.
+    try {
+      await refundToWallet(walletKey, TOKEN_COST.oracle);
+      logger.info("askOracle refunded tokens after failure", { profileId });
+    } catch (refundError) {
+      logger.error("askOracle failed to refund tokens", {
+        profileId,
+        error: (refundError as Error).message,
+      });
+    }
+
     if (error instanceof HttpsError) {
       throw error;
     }

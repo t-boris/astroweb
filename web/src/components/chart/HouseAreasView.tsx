@@ -351,7 +351,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
   return (
     <div className="space-y-6">
       {chart.meta.timeUsed === null && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+        <div className="rounded-md border border-[#e8c969]/40 bg-[#e8c969]/10 p-3 text-sm text-[#f2dd9a]">
           {t("houseAreas.timeUnknownWarning")}
         </div>
       )}

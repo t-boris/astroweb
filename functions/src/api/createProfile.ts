@@ -21,6 +21,11 @@ export const createProfile = onCall(async (request) => {
       data.timezone = getTimezoneFromCoords(data.lat, data.lng);
     }
 
+    // Bind to the signed-in account when present (cross-device, money-safe).
+    if (request.auth?.uid) {
+      data.ownerUid = request.auth.uid;
+    }
+
     const profile = await profileService.createProfile(data);
     return profile;
   } catch (error) {

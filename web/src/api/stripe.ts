@@ -4,7 +4,10 @@ import { functions } from "@/lib/firebase";
 export interface CreateCheckoutSessionPayload {
   profileId: string;
   ownerDeviceId: string;
-  tier: "pdf" | "oracle" | "compatibility";
+  /** Outcome-framed pack id; price + credited stars resolved server-side. */
+  packId?: string;
+  /** Legacy fallback: raw number of stars to buy ($0.99 each). */
+  quantity?: number;
 }
 
 export interface CreateCheckoutSessionResult {

@@ -3,6 +3,8 @@
 export interface Profile {
   id: string;
   ownerDeviceId: string;
+  ownerUid?: string;
+  archived?: boolean;
   name: string;
   birthDate: string; // YYYY-MM-DD
   birthTime: string | null; // HH:mm or null
@@ -13,6 +15,7 @@ export interface Profile {
   timezone: string; // IANA timezone (e.g., "America/Chicago")
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
+  tokens?: number;
   hasPremiumPdf?: boolean;
   hasPremiumCompatibility?: boolean;
   oracleCredits?: number;
@@ -24,6 +27,7 @@ export interface Profile {
 
 export interface CreateProfilePayload {
   ownerDeviceId: string;
+  ownerUid?: string;
   name: string;
   birthDate: string;
   birthTime: string | null;
@@ -104,4 +108,54 @@ export interface ApiError {
   code: string; // Machine-readable: "INVALID_PAYLOAD", "NOT_FOUND", "FORBIDDEN"
   message: string; // Human-readable description
   field?: string; // Which field failed validation (optional)
+}
+
+// ---- Personal Astrologer -----------------------------------------------------
+
+/** Learned communication register (each 0..1). Evolves via EMA. */
+export interface StyleProfile {
+  humor: number;
+  seriousness: number;
+  formality: number;
+  warmth: number;
+  brevity: number;
+  mysticism: number;
+  emoji: number;
+}
+
+export type AddressForm = "masculine" | "feminine" | "neutral";
+export type RelationshipStatus = "single" | "relationship" | "married" | "complicated";
+
+/** Resolved per-chart dossier summary (one doc per profile). */
+export interface Dossier {
+  profileId: string;
+  ownerUid: string;
+  language: "ru" | "en";
+  addressForm: AddressForm | null;
+  locationCurrent: { place: string; lat: number; lng: number; timezone: string } | null;
+  relationshipStatus: RelationshipStatus | null;
+  hasKids: boolean | null;
+  occupation: string | null;
+  interests: string[];
+  goals: string[];
+  openLoops: string[];
+  styleProfile: StyleProfile | null;
+  styleNudge: "more_serious" | "more_playful" | null;
+  consentSensitive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A single provenance-tracked fact in the dossier facts log. */
+export interface DossierFact {
+  id: string;
+  key: string; // e.g. "relationshipStatus", "occupation", or a free-form key
+  value: string;
+  source: "onboarding" | "tap" | "inferred";
+  sourceRef: string | null; // questionId / letterId that produced it
+  sensitive: boolean;
+  confirmed: boolean; // sensitive facts require confirmed=true to be used
+  confidence: number; // 0..1
+  createdAt: string;
+  supersededAt: string | null;
 }

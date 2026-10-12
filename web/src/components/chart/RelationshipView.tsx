@@ -1,20 +1,40 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toAppLanguage } from "@/lib/language";
 import { FirebaseError } from "firebase/app";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { askRelationship } from "@/api/ai";
 import PlaceSearch from "@/components/PlaceSearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { TOKEN_COST } from "@/lib/tokens";
+import { AiReading } from "@/components/AiReading";
 
 interface RelationshipViewProps {
   profileId: string;
   ownerDeviceId: string;
   relocationLat?: number | null;
   relocationLng?: number | null;
-  hasPremiumCompatibility?: boolean;
+  tokens?: number;
+  compatibilityIncluded?: boolean;
+  onUnlocked?: () => void;
   onPurchasePremium?: () => void;
+}
+
+/** A paid compatibility reading — persisted so it survives tab switches. */
+interface CompatEntry {
+  partnerName: string;
+  partnerBirthDate: string;
+  partnerBirthPlace: string;
+  answer: string;
+  partnerTimezone: string | null;
+  generatedAt: string;
+}
+
+function compatStorageKey(profileId: string): string {
+  return `astroweb:compat:v1:${profileId}`;
 }
 
 function cleanAiArtifacts(input: string): string {
@@ -26,88 +46,18 @@ function cleanAiArtifacts(input: string): string {
     .trim();
 }
 
-function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  const boldPattern = /(\*\*[^*]+?\*\*|__[^_]+?__)/g;
-  let lastIndex = 0;
-  let keyIndex = 0;
-
-  for (const match of text.matchAll(boldPattern)) {
-    const full = match[0];
-    const start = match.index ?? 0;
-
-    if (start > lastIndex) {
-      nodes.push(text.slice(lastIndex, start));
-    }
-
-    const content = full.slice(2, -2).trim();
-    if (content.length > 0) {
-      nodes.push(
-        <strong key={`${keyPrefix}-b-${keyIndex}`}>
-          {content}
-        </strong>,
-      );
-      keyIndex += 1;
-    }
-
-    lastIndex = start + full.length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
-
-  return nodes.length > 0 ? nodes : [text];
-}
-
-function RelationshipText({ text }: { text: string }) {
-  const lines = text.split("\n");
-
-  return (
-    <div className="space-y-3">
-      {lines.map((line, index) => {
-        const trimmed = line.trim();
-        if (!trimmed) return null;
-
-        if (/^#{1,6}\s+/.test(trimmed)) {
-          const title = trimmed.replace(/^#{1,6}\s+/, "");
-          return (
-            <h4 key={`h-${index}`} className="text-sm font-semibold">
-              {renderInlineMarkdown(title, `h-${index}`)}
-            </h4>
-          );
-        }
-
-        if (/^(-|\*|\d+\.)\s+/.test(trimmed)) {
-          const item = trimmed.replace(/^(-|\*|\d+\.)\s+/, "");
-          return (
-            <p key={`li-${index}`} className="text-sm leading-relaxed pl-4">
-              •{" "}
-              {renderInlineMarkdown(item, `li-${index}`)}
-            </p>
-          );
-        }
-
-        return (
-          <p key={`p-${index}`} className="text-sm leading-relaxed whitespace-pre-wrap">
-            {renderInlineMarkdown(trimmed, `p-${index}`)}
-          </p>
-        );
-      })}
-    </div>
-  );
-}
-
 export function RelationshipView({
   profileId,
   ownerDeviceId,
   relocationLat,
   relocationLng,
-  hasPremiumCompatibility,
+  tokens = 0,
+  onUnlocked,
   onPurchasePremium,
 }: RelationshipViewProps) {
   const { t, i18n } = useTranslation();
-  const language = i18n.resolvedLanguage?.startsWith("ru") ? "ru" : "en";
+  const language = toAppLanguage(i18n.resolvedLanguage);
+  const canAfford = tokens >= TOKEN_COST.compatibility;
 
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -120,9 +70,35 @@ export function RelationshipView({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [model, setModel] = useState<string | null>(null);
-  const [partnerTimezone, setPartnerTimezone] = useState<string | null>(null);
+  const [history, setHistory] = useState<CompatEntry[]>([]);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  // Restore previously generated (paid) readings on mount so they survive tab
+  // switches and reloads — nothing the user paid for should silently vanish.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(compatStorageKey(profileId));
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as CompatEntry[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setHistory(parsed);
+      }
+    } catch {
+      /* ignore corrupt cache */
+    }
+  }, [profileId]);
+
+  // Persist whenever the history changes.
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        compatStorageKey(profileId),
+        JSON.stringify(history.slice(0, 20)),
+      );
+    } catch {
+      /* storage full / unavailable — non-fatal */
+    }
+  }, [history, profileId]);
 
   function handlePlaceSelect(place: { name: string; lat: number; lng: number }) {
     setBirthPlace(place.name);
@@ -156,6 +132,10 @@ export function RelationshipView({
 
   async function handleGenerate() {
     if (!validate()) return;
+    if (!canAfford) {
+      onPurchasePremium?.();
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -178,12 +158,40 @@ export function RelationshipView({
         },
       });
 
-      setAnswer(cleanAiArtifacts(response.answer));
-      setModel(response.model);
-      setPartnerTimezone(response.partnerTimezone);
+      const entry: CompatEntry = {
+        partnerName: name.trim(),
+        partnerBirthDate: birthDate,
+        partnerBirthPlace: birthPlace,
+        answer: cleanAiArtifacts(response.answer),
+        partnerTimezone: response.partnerTimezone,
+        generatedAt: new Date().toISOString(),
+      };
+
+      // Persist straight to storage first — if the user switched tabs while the
+      // ✦2 reading was generating, this component has unmounted and setHistory
+      // below is a no-op. The paid reading must survive regardless.
+      try {
+        const raw = localStorage.getItem(compatStorageKey(profileId));
+        const prev = raw ? (JSON.parse(raw) as CompatEntry[]) : [];
+        localStorage.setItem(
+          compatStorageKey(profileId),
+          JSON.stringify([entry, ...(Array.isArray(prev) ? prev : [])].slice(0, 20)),
+        );
+      } catch {
+        /* storage unavailable — fall back to state-only persistence */
+      }
+
+      setHistory((prev) => [entry, ...prev].slice(0, 20));
+
+      // ✦2 was spent server-side — refresh the inline balance and header.
+      onUnlocked?.();
+      window.dispatchEvent(new Event("astroweb:stars-changed"));
     } catch (err) {
       if (err instanceof FirebaseError && err.message.includes("invalid-argument")) {
         setError(t("errors.invalidProfileData"));
+      } else if (err instanceof FirebaseError && err.message.includes("failed-precondition")) {
+        // INSUFFICIENT_TOKENS — balance changed under us; steer to purchase.
+        onPurchasePremium?.();
       } else {
         setError(t("errors.aiFailed"));
       }
@@ -264,35 +272,70 @@ export function RelationshipView({
       </div>
 
       <div className="flex items-center gap-3">
-        {!hasPremiumCompatibility ? (
-          <Button type="button" onClick={onPurchasePremium} className="bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]">
-            {t("premium.buyCompatibility", "Unlock Compatibility ($0.99)")}
-          </Button>
-        ) : (
-          <Button type="button" onClick={handleGenerate} disabled={loading}>
-            {loading ? t("ai.relationshipGenerating") : t("ai.relationshipGenerate")}
-          </Button>
-        )}
-        {model && (
-          <span className="text-xs text-muted-foreground">
-            {t("ai.modelLabel", { model })}
-          </span>
-        )}
+        <Button
+          type="button"
+          onClick={canAfford ? handleGenerate : onPurchasePremium}
+          disabled={loading}
+        >
+          {loading
+            ? t("ai.relationshipGenerating")
+            : canAfford
+              ? `${t("ai.relationshipGenerate")} ✦${TOKEN_COST.compatibility}`
+              : t("premium.needStars", { count: TOKEN_COST.compatibility, defaultValue: `Need ✦${TOKEN_COST.compatibility} — buy stars` })}
+        </Button>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {answer && (
-        <div className="rounded-md border bg-background/60 p-4 space-y-2">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            {t("ai.relationshipAnswerTitle")}
-          </p>
-          {partnerTimezone && (
-            <p className="text-xs text-muted-foreground">
-              {t("ai.relationshipPartnerTimezone", { timezone: partnerTimezone })}
-            </p>
-          )}
-          <RelationshipText text={answer} />
+      {history.length > 0 && (
+        <div className="space-y-3">
+          {history.map((entry) => {
+            const key = `${entry.generatedAt}-${entry.partnerName}`;
+            const isCollapsed = collapsed[key] ?? false;
+            return (
+              <div key={key} className="rounded-md border bg-background/60 p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t("ai.relationshipAnswerTitle")}
+                    </p>
+                    <p className="font-serif text-sm text-[#8fb6ff]">
+                      {entry.partnerName}
+                      {entry.partnerBirthDate ? ` · ${entry.partnerBirthDate}` : ""}
+                    </p>
+                    {entry.partnerTimezone && (
+                      <p className="text-xs text-muted-foreground">
+                        {t("ai.relationshipPartnerTimezone", { timezone: entry.partnerTimezone })}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+                      title={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+                      onClick={() => setCollapsed((prev) => ({ ...prev, [key]: !isCollapsed }))}
+                    >
+                      {isCollapsed ? <ChevronDown /> : <ChevronUp />}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={t("common.delete", "Delete")}
+                      title={t("common.delete", "Delete")}
+                      onClick={() => setHistory((prev) => prev.filter((e) => `${e.generatedAt}-${e.partnerName}` !== key))}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </div>
+                {!isCollapsed && <AiReading text={entry.answer} />}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

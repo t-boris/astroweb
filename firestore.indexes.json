@@ -23,6 +23,14 @@
         { "fieldPath": "profileId", "order": "ASCENDING" },
         { "fieldPath": "inputHash", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "subscriptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "nextLetterAt", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

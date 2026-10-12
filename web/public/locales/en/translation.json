@@ -5,7 +5,22 @@
   },
   "nav": {
     "home": "Home",
-    "createProfile": "Create Profile"
+    "createProfile": "Create Profile",
+    "stars": "Stars",
+    "charts": "Charts",
+    "oracle": "Oracle",
+    "transits": "Transits",
+    "compatibility": "Compatibility",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "account": "Account"
+  },
+  "forecast": {
+    "eyebrow": "Forecast",
+    "title": "Transits & Cosmic Weather",
+    "subtitle": "How today's sky touches your natal chart.",
+    "todayTitle": "Today's cosmic weather",
+    "loading": "Reading today's sky…"
   },
   "home": {
     "title": "Profiles",
@@ -16,7 +31,11 @@
     "deleteConfirmTitle": "Delete Profile",
     "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "deleteConfirmAction": "Delete",
-    "deleteConfirmCancel": "Cancel"
+    "deleteConfirmCancel": "Cancel",
+    "archiveConfirmTitle": "Archive profile?",
+    "archiveConfirmMessage": "This profile will be moved to your archive. You can restore it anytime.",
+    "archiveConfirmAction": "Archive",
+    "archivedSection": "Archived"
   },
   "profile": {
     "create": {
@@ -54,7 +73,19 @@
       "relocationSaving": "Saving current place...",
       "relocationHintOff": "Showing base natal chart for birth place.",
       "relocationHintOn": "Houses, ASC, and MC are recalculated for current place. Natal planets and aspects stay the same.",
-      "relocationPlaceRequired": "Select your current place of living for relocation mode."
+      "relocationPlaceRequired": "Select your current place of living for relocation mode.",
+      "archive": "Archive",
+      "unarchive": "Restore",
+      "archivedBadge": "Archived",
+      "sun": "Sun",
+      "moon": "Moon",
+      "rising": "Rising",
+      "bigThree": "The Big Three",
+      "archiveConfirmTitle": "Archive profile?",
+      "archiveConfirmMessage": "\"{{name}}\" will be moved to your archive. You can restore it anytime from the menu.",
+      "archiveConfirmAction": "Archive",
+      "residenceLabel": "Current residence (where you live now)",
+      "residenceHint": "Not set — defaults to your birthplace. Set it for accurate transits, weather and local news."
     },
     "form": {
       "name": "Name",
@@ -88,7 +119,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "loading": "Loading...",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "archive": "Archive",
+    "unarchive": "Restore"
   },
   "chart": {
     "aspects": {
@@ -106,7 +139,10 @@
     "houses": "Houses",
     "compatibility": "Compatibility",
     "interpretation": "Interpretation",
-    "interpretationPlaceholder": "Interpretations coming soon."
+    "oracle": "Oracle",
+    "transits": "Transits",
+    "interpretationPlaceholder": "Interpretations coming soon.",
+    "astrologer": "✦ Astrologer"
   },
   "ai": {
     "deepDive": "Dig Deeper",
@@ -118,8 +154,8 @@
     "askOracle": "Ask the Oracle",
     "askOracleLoading": "Oracle is answering...",
     "answerTitle": "Oracle Answer",
-    "creditsLabel": "Credits",
-    "oracleNoCredits": "You need Oracle Credits to ask a question. Purchase them in the Premium tab.",
+    "creditsLabel": "Stars",
+    "oracleNoCredits": "You need stars to ask a question. Buy them in the Premium tab.",
     "modelLabel": "Model: {{model}}",
     "oracleHistoryTitle": "Oracle History",
     "relationshipTitle": "Relationship Reading",
@@ -452,6 +488,19 @@
       "midheaven": "Career & Public Image",
       "aspect": "Key Aspects"
     },
+    "overview": {
+      "balanceTitle": "Elemental balance",
+      "explored": "Explored",
+      "bigThreeSun": "Sun",
+      "bigThreeMoon": "Moon",
+      "bigThreeRising": "Rising",
+      "elements": {
+        "fire": "Fire",
+        "earth": "Earth",
+        "air": "Air",
+        "water": "Water"
+      }
+    },
     "topAspectsTitle": "Top Aspects",
     "aspectBetween": "{{a}} {{type}} {{b}} ({{orb}}° orb)"
   },
@@ -472,6 +521,9 @@
   "landing": {
     "hero": {
       "title": "Discover Your Cosmic Blueprint",
+      "titleLead": "Discover Your",
+      "titleAccent": "Cosmic Blueprint",
+      "eyebrow": "Natal Astrology · Swiss Ephemeris",
       "subtitle": "Explore your natal chart to uncover the celestial forces that shape your personality, relationships, and destiny. Powered by Swiss Ephemeris precision.",
       "cta": "Create Your Chart",
       "ctaSecondary": "Learn More"
@@ -532,6 +584,9 @@
   "premium": {
     "title": "Unlock Your Cosmic Destiny",
     "oracleCredits": "Oracle Credits: {{count}}",
+    "balance": "Stars: {{count}}",
+    "tokensDescription": "Buy stars (✦ $0.99 each) and spend them on readings: Oracle question ✦1, Compatibility ✦2, Interpretation + PDF ✦4.",
+    "needStars": "Need ✦{{count}} — buy stars",
     "description": "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.",
     "success": "Purchase successful! Your premium features have been updated.",
     "redirecting": "Redirecting...",
@@ -541,6 +596,7 @@
     "pdfReadyDescription": "Download the unlocked interpretation as a PDF report.",
     "downloadPdf": "Download PDF",
     "downloadPdfLoading": "Preparing PDF...",
+    "pdfGenerating": "Generating your premium report… this can take up to 2 minutes. Please keep this page open.",
     "downloadPdfFailed": "Failed to generate PDF. Please try again.",
     "pdfTitle": "Premium Interpretation: {{name}}",
     "pdfSubtitle": "Prepared for {{name}}",
@@ -548,10 +604,158 @@
     "buyOracle": "Ask Oracle ($0.99)",
     "buyCompatibility": "Unlock Compatibility ($0.99)",
     "compatibilityActivated": "Compatibility Unlocked",
-    "unlockRequired": "Unlock Premium to read full deep interpretation."
+    "unlockRequired": "Unlock Premium to read full deep interpretation.",
+    "storeDescription": "Pick what you want. Readings unlock per profile, and stars never expire.",
+    "trust1": "One-time payment",
+    "trust2": "Stars never expire",
+    "trust3": "Unlocks forever",
+    "firstBannerTitle": "First reading just $1.99",
+    "firstBannerDesc": "Full chart reading + dig deeper + PDF — one-time welcome price.",
+    "popular": "Most popular",
+    "buy": "Get it",
+    "bonusStar": "bonus",
+    "firstOffer": "First reading",
+    "packs": {
+      "question": {
+        "title": "Oracle question",
+        "desc": "One Oracle question about your chart"
+      },
+      "pair": {
+        "title": "Compatibility check",
+        "desc": "Full compatibility reading of two charts"
+      },
+      "reading": {
+        "title": "Full chart reading",
+        "desc": "Full interpretation + dig deeper + PDF"
+      },
+      "reading_pair": {
+        "title": "Reading + Pair",
+        "desc": "Full chart reading and compatibility"
+      },
+      "all": {
+        "title": "Everything",
+        "desc": "Reading + compatibility + an Oracle question"
+      }
+    },
+    "tab": "Premium"
   },
   "language": {
     "en": "English",
     "ru": "Russian"
+  },
+  "signs": {
+    "Aries": "Aries",
+    "Taurus": "Taurus",
+    "Gemini": "Gemini",
+    "Cancer": "Cancer",
+    "Leo": "Leo",
+    "Virgo": "Virgo",
+    "Libra": "Libra",
+    "Scorpio": "Scorpio",
+    "Sagittarius": "Sagittarius",
+    "Capricorn": "Capricorn",
+    "Aquarius": "Aquarius",
+    "Pisces": "Pisces"
+  },
+  "notes": {
+    "title": "What your astrologer knows",
+    "register": "Talks to you in a",
+    "registerNeutral": "warm, balanced tone",
+    "stillLearning": "still getting to know you",
+    "warm": "warm",
+    "playful": "lightly playful",
+    "serious": "grounded",
+    "concise": "concise",
+    "interests": "Your interests",
+    "noInterests": "No interests yet",
+    "addInterest": "Add an interest…",
+    "facts": "Notes about you",
+    "noFacts": "Nothing learned yet — ask the oracle and it will get to know you.",
+    "pending": "needs your OK",
+    "youToldUs": "You told us",
+    "inferred": "Your astrologer inferred this from your question",
+    "confirm": "Confirm",
+    "forgetConfirm": "Delete everything your astrologer knows about this chart?",
+    "forgetYes": "Forget all",
+    "forget": "Forget everything",
+    "link": "What the astrologer knows"
+  },
+  "letters": {
+    "title": "Letters from your astrologer",
+    "generating": "Writing…",
+    "generateSample": "Generate a letter",
+    "empty": "No letters yet. Generate one to see how your astrologer writes for you.",
+    "askPlaceholder": "Ask about this letter… (✦1)",
+    "feedback": "Did this resonate?",
+    "link": "Astrologer letters",
+    "open": "Open letters"
+  },
+  "hub": {
+    "title": "Personal Astrologer",
+    "link": "Personal Astrologer",
+    "statusLine": "Status",
+    "nextLetter": "Next letter",
+    "cancelsAt": "Cancels at period end",
+    "openLetters": "Open letters",
+    "openNotes": "What it knows",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "cancelNote": "Canceling stops billing at period end — your astrologer keeps everything it knows, and your ✦ stay.",
+    "intro": "Hire a personal astrologer for this chart — it writes you a letter on your schedule, learns about you, and answers your questions.",
+    "cadence": "How often",
+    "period": "Billing",
+    "monthly": "Monthly",
+    "annual": "Annual (2 months free)",
+    "emailDelivery": "Also email me each letter",
+    "name": "Name your astrologer",
+    "random": "Random",
+    "hire": "Hire",
+    "year": "yr",
+    "month": "mo",
+    "cadDaily": "Daily",
+    "cadEvery2": "Every 2 days",
+    "cadEvery5": "Every 5 days",
+    "cadWeekly": "Weekly",
+    "cadEvery2w": "Every 2 weeks",
+    "perMonth": "/mo",
+    "signInRequired": "Sign in to hire a personal astrologer.",
+    "status_active": "active",
+    "status_paused": "paused",
+    "status_past_due": "past due",
+    "popular": "popular",
+    "perk1": "+1 ✦ with every letter",
+    "tryFreeTitle": "Not sure? Your first letter is free",
+    "tryFreeDesc": "Get a sample letter from your astrologer — no payment, no subscription.",
+    "tryFree": "Get a free letter",
+    "tryFreeLoading": "Writing your letter…",
+    "tryFreeError": "Couldn't write the letter. Please try again.",
+    "emailPlaceholder": "name@example.com",
+    "emailRecipientsHint": "Leave empty to use your account email. Separate several addresses with commas.",
+    "editEmails": "change",
+    "perk2": "learns about you over time",
+    "perk3": "cancel anytime",
+    "scheduleLine": "Letters: {{cadence}}, in the morning your local time",
+    "scheduleHint": "First letter right after you hire, then {{cadence}} — in the morning, your local time.",
+    "emailTo": "Email to",
+    "emailSignIn": "Sign in — letters go to your account email.",
+    "cancelConfirm": "Cancel the subscription? Billing stops at period end; nothing is refunded for the current period. Your astrologer keeps everything it knows and your ✦ stay.",
+    "cancelYes": "Yes, cancel",
+    "cancelNo": "Keep it"
+  },
+  "account": {
+    "title": "Your account",
+    "signInIntro": "Sign in to manage your account, subscriptions and stars.",
+    "balance": "Star balance",
+    "buyStars": "Buy stars",
+    "astrologers": "Your astrologers",
+    "noSubs": "No active astrologers. Hire one from a chart's ✦ Astrologer tab.",
+    "manage": "Manage",
+    "notifications": "Notifications",
+    "notificationsNote": "New letters appear in the ✦ Astrologer inbox, by email, and — if you enable it — as a push notification.",
+    "language": "Language",
+    "pushEnable": "Enable push notifications",
+    "pushOn": "Push notifications are on",
+    "pushUnsupported": "Push isn't supported here. On iPhone, add AstroWeb to your Home Screen first."
   }
 }

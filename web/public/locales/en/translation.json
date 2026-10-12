@@ -825,5 +825,13 @@
       "body": "Use the button to reopen the choice. Declining switches analytics off and removes the Google Analytics cookies from this site.",
       "button": "Change cookie settings"
     }
+  },
+  "signInGate": {
+    "askOracle": "Sign in to ask the Oracle",
+    "compatibility": "Sign in to generate the reading"
+  },
+  "signInNotice": {
+    "text": "Your profiles are stored only in this browser. They may be lost if you switch browser or clear its data.",
+    "action": "Sign in to save"
   }
 }

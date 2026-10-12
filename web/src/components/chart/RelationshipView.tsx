@@ -12,6 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TOKEN_COST } from "@/lib/tokens";
 import { AiReading } from "@/components/AiReading";
+import { deleteProfileContentItem } from "@/api/profileContent";
+import { auth } from "@/lib/firebase";
+import { useAuthUser } from "@/lib/useAuthUser";
+import { ensureSignedIn, loadProfileContent, type CompatItem } from "@/lib/contentSync";
+import { cleanAiArtifacts, keepLocally, readLocalContent, writeLocalContent } from "@/lib/localContent";
 
 interface RelationshipViewProps {
   profileId: string;
@@ -24,28 +29,10 @@ interface RelationshipViewProps {
   onPurchasePremium?: () => void;
 }
 
-/** A paid compatibility reading — persisted so it survives tab switches. */
-interface CompatEntry {
-  partnerName: string;
-  partnerBirthDate: string;
-  partnerBirthPlace: string;
-  answer: string;
-  partnerTimezone: string | null;
-  generatedAt: string;
-}
+/** A paid compatibility reading: stored on the server for a signed-in owner (REQ-002). */
+type CompatEntry = CompatItem;
 
-function compatStorageKey(profileId: string): string {
-  return `astroweb:compat:v1:${profileId}`;
-}
-
-function cleanAiArtifacts(input: string): string {
-  return input
-    .replace(/\r\n/g, "\n")
-    .replace(/\[END_OF_REPORT\]/g, "")
-    .replace(/\*Continuation:\*\s*/gi, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
+const entryKey = (e: CompatEntry) => e.id ?? `${e.generatedAt}-${e.partnerName}`;
 
 export function RelationshipView({
   profileId,
@@ -78,33 +65,53 @@ export function RelationshipView({
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<CompatEntry[]>([]);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const { user, ready: authReady } = useAuthUser();
+  const needsSignIn = authReady && !user;
+  const [contentSource, setContentSource] = useState<"server" | "local">("local");
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const [contentTick, setContentTick] = useState(0);
 
-  // Restore previously generated (paid) readings on mount so they survive tab
-  // switches and reloads — nothing the user paid for should silently vanish.
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(compatStorageKey(profileId));
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as CompatEntry[];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setHistory(parsed);
-      }
-    } catch {
-      /* ignore corrupt cache */
-    }
-  }, [profileId]);
+    const onSignedIn = () => setContentTick((n) => n + 1);
+    window.addEventListener("astroweb:signed-in", onSignedIn);
+    return () => window.removeEventListener("astroweb:signed-in", onSignedIn);
+  }, []);
 
-  // Persist whenever the history changes.
+  // Readings come from the server for a signed-in owner, from this browser for
+  // anonymous users; nothing the user paid for may silently vanish.
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        compatStorageKey(profileId),
-        JSON.stringify(history.slice(0, 20)),
-      );
-    } catch {
-      /* storage full / unavailable — non-fatal */
+    let cancelled = false;
+    setLoadedFor(null);
+    setHistory([]);
+    void loadProfileContent(profileId, ownerDeviceId, language).then((content) => {
+      if (cancelled) return;
+      setContentSource(content.source);
+      setHistory((prev) => {
+        const ids = new Set(content.compatibilityReadings.map(entryKey));
+        return [...prev.filter((e) => !ids.has(entryKey(e))), ...content.compatibilityReadings];
+      });
+      setLoadedFor(profileId);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, ownerDeviceId, contentTick, user?.uid]);
+
+  useEffect(() => {
+    if (contentSource !== "local" || loadedFor !== profileId) return;
+    const current = readLocalContent(localStorage, profileId);
+    writeLocalContent(localStorage, profileId, { ...current, compatibilityReadings: history });
+  }, [contentSource, loadedFor, profileId, history]);
+
+  function deleteReading(entry: CompatEntry) {
+    const key = entryKey(entry);
+    setHistory((prev) => prev.filter((e) => entryKey(e) !== key));
+    // DEC-008: a stored reading is deleted on the server, so it is gone everywhere.
+    if (entry.id && contentSource === "server") {
+      void deleteProfileContentItem(profileId, ownerDeviceId, "compatibility", entry.id).catch(() => setContentTick((n) => n + 1));
     }
-  }, [history, profileId]);
+  }
 
   function handlePlaceSelect(place: { name: string; lat: number; lng: number }) {
     setBirthPlace(place.name);
@@ -138,7 +145,14 @@ export function RelationshipView({
 
   async function handleGenerate() {
     if (!validate()) return;
-    if (!canAfford) {
+    // A reading costs stars: an anonymous visitor signs in first (REQ-006).
+    // The popup has to open in this click, before any other await.
+    let justSignedIn = false;
+    if (!auth.currentUser) {
+      if (!(await ensureSignedIn(ownerDeviceId))) return;
+      justSignedIn = true;
+    }
+    if (!canAfford && !justSignedIn) {
       onPurchasePremium?.();
       return;
     }
@@ -166,29 +180,25 @@ export function RelationshipView({
       });
 
       const entry: CompatEntry = {
+        ...(response.readingId ? { id: response.readingId } : {}),
         partnerName: name.trim(),
         partnerBirthDate: birthDate,
         partnerBirthPlace: birthPlace,
         answer: cleanAiArtifacts(response.answer),
         partnerTimezone: response.partnerTimezone,
-        generatedAt: new Date().toISOString(),
+        generatedAt: response.generatedAt ?? new Date().toISOString(),
       };
 
-      // Persist straight to storage first — if the user switched tabs while the
-      // ✦2 reading was generating, this component has unmounted and setHistory
-      // below is a no-op. The paid reading must survive regardless.
-      try {
-        const raw = localStorage.getItem(compatStorageKey(profileId));
-        const prev = raw ? (JSON.parse(raw) as CompatEntry[]) : [];
-        localStorage.setItem(
-          compatStorageKey(profileId),
-          JSON.stringify([entry, ...(Array.isArray(prev) ? prev : [])].slice(0, 20)),
-        );
-      } catch {
-        /* storage unavailable — fall back to state-only persistence */
+      // The server stored the paid reading (REQ-002), so it survives a tab
+      // switch and shows up on other devices. If that write failed, keep it in
+      // this browser until the next upload: a paid reading must never vanish.
+      if (!response.persisted) {
+        const { id: _id, ...local } = entry;
+        void _id;
+        keepLocally(localStorage, profileId, { compat: local });
       }
 
-      setHistory((prev) => [entry, ...prev].slice(0, 20));
+      setHistory((prev) => [entry, ...prev]);
 
       // ✦2 was spent server-side — refresh the inline balance and header.
       onUnlocked?.();
@@ -281,12 +291,14 @@ export function RelationshipView({
       <div className="flex items-center gap-3">
         <Button
           type="button"
-          onClick={canAfford ? handleGenerate : onPurchasePremium}
+          onClick={canAfford || needsSignIn ? handleGenerate : onPurchasePremium}
           disabled={loading}
         >
           {loading
             ? t("ai.relationshipGenerating")
-            : canAfford
+            : needsSignIn
+              ? t("signInGate.compatibility")
+              : canAfford
               ? `${t("ai.relationshipGenerate")} ✦${TOKEN_COST.compatibility}`
               : t("premium.needStars", { count: TOKEN_COST.compatibility, defaultValue: `Need ✦${TOKEN_COST.compatibility} — buy stars` })}
         </Button>
@@ -297,7 +309,7 @@ export function RelationshipView({
       {history.length > 0 && (
         <div className="space-y-3">
           {history.map((entry) => {
-            const key = `${entry.generatedAt}-${entry.partnerName}`;
+            const key = entryKey(entry);
             const isCollapsed = collapsed[key] ?? false;
             return (
               <div key={key} className="rounded-md border bg-background/60 p-4 space-y-2">
@@ -333,7 +345,7 @@ export function RelationshipView({
                       size="icon-xs"
                       aria-label={t("common.delete", "Delete")}
                       title={t("common.delete", "Delete")}
-                      onClick={() => setHistory((prev) => prev.filter((e) => `${e.generatedAt}-${e.partnerName}` !== key))}
+                      onClick={() => deleteReading(entry)}
                     >
                       <Trash2 />
                     </Button>

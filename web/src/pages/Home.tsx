@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Profile } from "@/types";
+import SignInNotice from "@/components/SignInNotice";
 
 const QUESTION_ICONS = { Sun, Heart, Compass, Zap, Clock, Sparkles } as const;
 const QUESTION_KEYS = ["personality", "relationships", "career", "challenges", "timing", "purpose"] as const;
@@ -158,6 +159,7 @@ function FeaturesSection() {
 
 interface ProfilesMenuProps {
   profiles: Profile[];
+  deviceId: string;
   onDelete: (id: string) => void;
   onUnarchive: (id: string) => void;
 }
@@ -167,7 +169,7 @@ interface ProfilesMenuProps {
  * (xl+, where there is gutter room), and an off-canvas drawer toggled by a
  * button on smaller screens — so it never covers the central hero artwork.
  */
-function ProfilesMenu({ profiles, onDelete, onUnarchive }: ProfilesMenuProps) {
+function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive }: ProfilesMenuProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
@@ -203,6 +205,7 @@ function ProfilesMenu({ profiles, onDelete, onUnarchive }: ProfilesMenuProps) {
         <h2 className="mb-3 px-1 font-serif text-xs uppercase tracking-[0.15em] text-primary/70">
           {t("landing.profiles.title")}
         </h2>
+        <SignInNotice deviceId={deviceId} profileCount={profiles.length} />
         <Button
           size="sm"
           className="mb-4 w-full border border-primary bg-primary/20 text-primary hover:bg-primary/30"
@@ -344,7 +347,7 @@ export default function Home() {
   return (
     <>
       {!loading && !error && profiles.length > 0 && (
-        <ProfilesMenu profiles={profiles} onDelete={setDeletingId} onUnarchive={handleUnarchive} />
+        <ProfilesMenu profiles={profiles} deviceId={deviceId} onDelete={setDeletingId} onUnarchive={handleUnarchive} />
       )}
 
       {error && (

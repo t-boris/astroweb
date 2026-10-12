@@ -26,6 +26,11 @@ import {
 } from "@/api/pdf";
 import { Button } from "@/components/ui/button";
 import { unlockFeature } from "@/api/unlock";
+import { deleteProfileContentItem } from "@/api/profileContent";
+import { auth } from "@/lib/firebase";
+import { useAuthUser } from "@/lib/useAuthUser";
+import { ensureSignedIn, loadProfileContent, type OracleItem } from "@/lib/contentSync";
+import { cleanAiArtifacts, keepLocally, readLocalContent, writeLocalContent } from "@/lib/localContent";
 import { trackEvent, trackOnce } from "@/lib/analytics";
 import { TOKEN_COST } from "@/lib/tokens";
 import type { ChartResult } from "@/types";
@@ -45,44 +50,7 @@ interface InterpretationViewProps {
   relocationLng?: number | null;
 }
 
-interface OracleEntry {
-  question: string;
-  answer: string;
-  model: string;
-  askedAt: string;
-}
-
-interface InterpretationAiState {
-  deepTexts: Record<string, string>;
-  oracleHistory: OracleEntry[];
-}
-
-function cleanAiArtifacts(input: string): string {
-  const filteredLines = input
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .filter((line) => {
-      const normalized = line.trim().toLowerCase();
-      return !(
-        normalized.startsWith("of fragment to start from") ||
-        normalized.startsWith("*continuation:*") ||
-        normalized.startsWith("last generated fragment:") ||
-        normalized.startsWith("continue the same answer")
-      );
-    });
-
-  return filteredLines
-    .join("\n")
-    .replace(/\*Continuation:\*\s*/gi, "")
-    .replace(/\[END_OF_REPORT\]/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-
-function getAiStorageKey(profileId: string): string {
-  return `astroweb:ai:v4:${profileId}`;
-}
+type OracleEntry = OracleItem;
 
 function getOracleEntryKey(entry: OracleEntry): string {
   return `${entry.askedAt}-${entry.question}`;
@@ -114,52 +82,6 @@ function saveBase64Pdf(base64: string, fileName: string, contentType: string): v
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
-}
-
-function readStoredAiState(profileId: string): InterpretationAiState {
-  try {
-    const raw = localStorage.getItem(getAiStorageKey(profileId));
-    if (!raw) {
-      return { deepTexts: {}, oracleHistory: [] };
-    }
-
-    const parsed = JSON.parse(raw) as Partial<InterpretationAiState>;
-    return {
-      deepTexts:
-        parsed.deepTexts && typeof parsed.deepTexts === "object"
-          ? Object.fromEntries(
-              Object.entries(parsed.deepTexts).map(([key, value]) => [
-                key,
-                typeof value === "string" ? cleanAiArtifacts(value) : "",
-              ]),
-            )
-          : {},
-      oracleHistory: Array.isArray(parsed.oracleHistory)
-        ? parsed.oracleHistory
-            .filter(
-              (item): item is OracleEntry =>
-                typeof item?.question === "string" &&
-                typeof item?.answer === "string" &&
-                typeof item?.model === "string" &&
-                typeof item?.askedAt === "string",
-            )
-            .map((item) => ({
-              ...item,
-              answer: cleanAiArtifacts(item.answer),
-            }))
-        : [],
-    };
-  } catch {
-    return { deepTexts: {}, oracleHistory: [] };
-  }
-}
-
-function writeStoredAiState(profileId: string, state: InterpretationAiState): void {
-  try {
-    localStorage.setItem(getAiStorageKey(profileId), JSON.stringify(state));
-  } catch {
-    // Ignore quota/storage errors.
-  }
 }
 
 function getBlockColor(block: InterpretationBlock): string {
@@ -365,6 +287,13 @@ export function InterpretationView({
   const blocks = useMemo(() => generateInterpretations(chart), [chart]);
   const language = toAppLanguage(i18n.resolvedLanguage);
 
+  const { user, ready: authReady } = useAuthUser();
+  const needsSignIn = authReady && !user;
+  // Where this profile's content comes from: the server for a signed-in owner,
+  // this browser for anonymous users (REQ-002..004, DEC-004).
+  const [contentSource, setContentSource] = useState<"server" | "local">("local");
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const [contentTick, setContentTick] = useState(0);
   const [deepLoadingKey, setDeepLoadingKey] = useState<string | null>(null);
   const [deepTexts, setDeepTexts] = useState<Record<string, string>>({});
   const [deepErrors, setDeepErrors] = useState<Record<string, string>>({});
@@ -385,27 +314,55 @@ export function InterpretationView({
   const aspectBlocks = blocks.filter((b) => b.category === "aspect");
   const exploredCount = blocks.filter((b) => Boolean(deepTexts[getBlockInstanceKey(b)])).length;
   const oracleHistoryWithoutCurrent = oracleAnswer
-    ? oracleHistory.slice(1)
+    ? oracleHistory.filter((entry) => getOracleEntryKey(entry) !== currentOracleEntryKey)
     : oracleHistory;
 
+  // Reload after a sign-in anywhere in the app (the content source changes).
   useEffect(() => {
-    const stored = readStoredAiState(profileId);
-    setDeepTexts(stored.deepTexts);
-    setOracleHistory(stored.oracleHistory);
+    const onSignedIn = () => setContentTick((n) => n + 1);
+    window.addEventListener("astroweb:signed-in", onSignedIn);
+    return () => window.removeEventListener("astroweb:signed-in", onSignedIn);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadedFor(null);
+    setDeepTexts({});
+    setOracleHistory([]);
     setOracleAnswer(null);
     setCurrentOracleEntryKey(null);
     setPdfError(null);
     setPdfLoading(false);
     setCollapsedDeepDive({});
     setCurrentOracleCollapsed(false);
-    setCollapsedOracleAnswers(
-      Object.fromEntries(stored.oracleHistory.map((entry) => [getOracleEntryKey(entry), true])),
-    );
-  }, [profileId]);
+    void loadProfileContent(profileId, ownerDeviceId, language).then((content) => {
+      if (cancelled) return;
+      setContentSource(content.source);
+      // Keep anything added while loading (e.g. an answer that arrived first).
+      setDeepTexts((prev) => ({ ...content.deepTexts, ...prev }));
+      setOracleHistory((prev) => {
+        const loaded = new Set(content.oracleHistory.map(getOracleEntryKey));
+        const loadedIds = new Set(content.oracleHistory.map((e) => e.id).filter(Boolean));
+        return [...prev.filter((e) => !loaded.has(getOracleEntryKey(e)) && !(e.id && loadedIds.has(e.id))), ...content.oracleHistory];
+      });
+      setCollapsedOracleAnswers(
+        Object.fromEntries(content.oracleHistory.map((entry) => [getOracleEntryKey(entry), true])),
+      );
+      setLoadedFor(profileId);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // language is only a hint for the one-time upload; a change must not reload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, ownerDeviceId, contentTick, user?.uid]);
 
+  // Anonymous users: this browser stays the place where the content lives.
   useEffect(() => {
-    writeStoredAiState(profileId, { deepTexts, oracleHistory });
-  }, [profileId, deepTexts, oracleHistory]);
+    if (contentSource !== "local" || loadedFor !== profileId) return;
+    const current = readLocalContent(localStorage, profileId);
+    writeLocalContent(localStorage, profileId, { ...current, deepTexts, oracleHistory });
+  }, [contentSource, loadedFor, profileId, deepTexts, oracleHistory]);
 
   function buildPdfSections(): PdfReportSection[] {
     return blocks.map((block) => {
@@ -530,9 +487,13 @@ export function InterpretationView({
         language,
         relocationLat: relocationLat ?? undefined,
         relocationLng: relocationLng ?? undefined,
+        blockKey: blockId,
       });
 
       const cleanedText = cleanAiArtifacts(response.text);
+      if (contentSource === "server" && !response.persisted) {
+        keepLocally(localStorage, profileId, { deepText: { blockKey: blockId, text: cleanedText } });
+      }
       setDeepTexts((prev) => ({
         ...prev,
         [blockId]: cleanedText,
@@ -556,6 +517,13 @@ export function InterpretationView({
     if (!question) {
       setOracleError(t("errors.oracleQuestionRequired"));
       return;
+    }
+
+    // Asking the Oracle is paid: an anonymous visitor signs in first (REQ-004).
+    // The popup has to open in this click, before any other await.
+    if (!auth.currentUser) {
+      const signedIn = await ensureSignedIn(ownerDeviceId);
+      if (!signedIn) return;
     }
 
     setOracleLoading(true);
@@ -582,30 +550,26 @@ export function InterpretationView({
       }
 
       const newEntry: OracleEntry = {
+        ...(response.entryId ? { id: response.entryId } : {}),
         question,
         answer: finalAnswer,
         model: response.model,
         askedAt: new Date().toISOString(),
       };
 
-      // Persist straight to storage first. If the user switched tabs while the
-      // answer was generating, this component has unmounted and the setState
-      // calls below are no-ops — but the user paid ✦1, so the answer must never
-      // be lost. The load effect restores it when they return to the tab.
-      try {
-        const stored = readStoredAiState(profileId);
-        writeStoredAiState(profileId, {
-          deepTexts: stored.deepTexts,
-          oracleHistory: [newEntry, ...stored.oracleHistory].slice(0, 20),
+      // The server stored the Q/A (REQ-004), so it survives a tab switch or
+      // another device. If that write failed, keep it here until the next upload:
+      // the user paid ✦1 and the answer must never be lost.
+      if (!response.persisted) {
+        keepLocally(localStorage, profileId, {
+          oracle: { question, answer: finalAnswer, model: response.model, askedAt: newEntry.askedAt },
         });
-      } catch {
-        /* storage unavailable — fall back to state-only persistence */
       }
 
       setOracleAnswer(finalAnswer);
       setCurrentOracleEntryKey(getOracleEntryKey(newEntry));
       setCurrentOracleCollapsed(false);
-      setOracleHistory((prev) => [newEntry, ...prev].slice(0, 20));
+      setOracleHistory((prev) => [newEntry, ...prev]);
       setCollapsedOracleAnswers((prev) => {
         const next = Object.fromEntries(
           Object.entries(prev).map(([key]) => [key, true]),
@@ -621,7 +585,10 @@ export function InterpretationView({
       window.dispatchEvent(new Event("astroweb:stars-changed"));
     } catch (error) {
       if (error instanceof FirebaseError) {
-        if (error.message.includes("permission-denied")) {
+        if (error.message.includes("failed-precondition")) {
+          // Not enough stars on the account: go to the store.
+          onPurchasePremium?.();
+        } else if (error.message.includes("permission-denied")) {
           setOracleError(t("errors.permissionDenied"));
         } else if (error.message.includes("not-found")) {
           setOracleError(t("errors.profileNotFound"));
@@ -636,8 +603,19 @@ export function InterpretationView({
     }
   }
 
+  /** DEC-008: a server-stored entry is deleted on the server, so it is gone on every device. */
+  function deleteOracleOnServer(entryKey: string) {
+    const entry = oracleHistory.find((e) => getOracleEntryKey(e) === entryKey);
+    if (entry?.id && contentSource === "server") {
+      void deleteProfileContentItem(profileId, ownerDeviceId, "oracle", entry.id).catch(() => {
+        setContentTick((n) => n + 1); // could not delete: show the server state again
+      });
+    }
+  }
+
   function handleDeleteCurrentOracleAnswer() {
     if (currentOracleEntryKey) {
+      deleteOracleOnServer(currentOracleEntryKey);
       setOracleHistory((prev) =>
         prev.filter((entry) => getOracleEntryKey(entry) !== currentOracleEntryKey),
       );
@@ -654,6 +632,7 @@ export function InterpretationView({
   }
 
   function handleDeleteOracleHistoryEntry(entryKey: string) {
+    deleteOracleOnServer(entryKey);
     setOracleHistory((prev) => prev.filter((entry) => getOracleEntryKey(entry) !== entryKey));
     setCollapsedOracleAnswers((prev) => {
       const next = { ...prev };
@@ -682,6 +661,11 @@ export function InterpretationView({
   }, [mode, interpretationsUnlocked, canOracle, profileId]);
 
   async function handleUnlock() {
+    // Unlocking spends stars: an anonymous visitor signs in first (REQ-006).
+    if (!auth.currentUser) {
+      const signedIn = await ensureSignedIn(ownerDeviceId);
+      if (!signedIn) return;
+    }
     setUnlocking(true);
     try {
       const unlocked = await unlockFeature({ profileId, ownerDeviceId, feature: "interpretations" });
@@ -852,19 +836,20 @@ export function InterpretationView({
               setOracleError(null);
             }
           }}
-          placeholder={canOracle ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
+          placeholder={canOracle || needsSignIn ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
           maxLength={1000}
-          disabled={!canOracle}
+          disabled={!canOracle && !needsSignIn}
         />
 
         <div className="flex items-center gap-3">
           <Button
             type="button"
             onClick={handleAskOracle}
-            disabled={oracleLoading || !canOracle}
-            className={canOracle ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
+            disabled={oracleLoading || (!canOracle && !needsSignIn)}
+            className={canOracle || needsSignIn ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
+            data-testid="oracle-ask"
           >
-            {oracleLoading ? t("ai.askOracleLoading") : t("ai.askOracle")}
+            {oracleLoading ? t("ai.askOracleLoading") : needsSignIn ? t("signInGate.askOracle") : t("ai.askOracle")}
           </Button>
         </div>
 

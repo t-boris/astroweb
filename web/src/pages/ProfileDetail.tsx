@@ -8,6 +8,8 @@ import { getChart } from "@/api/charts";
 import { createCheckoutSession } from "@/api/stripe";
 import { STAR_PACKS } from "@/lib/tokens";
 import { getCheckoutAnalytics, trackEvent, trackOnce } from "@/lib/analytics";
+import { auth } from "@/lib/firebase";
+import { ensureSignedIn } from "@/lib/contentSync";
 import { PROFILE_TABS, type ProfileTab } from "@/lib/analyticsEvents";
 import { getWalletInfo } from "@/api/wallet";
 import { signLabel } from "@/lib/signs";
@@ -406,6 +408,12 @@ export default function ProfileDetail() {
 
   async function handleBuyPack(packId: string) {
     if (!id) return;
+    // Buying stars needs an account (REQ-006, DEC-001): the popup opens in this
+    // click, the device's profiles and wallet are claimed, then checkout goes on.
+    if (!auth.currentUser) {
+      if (!(await ensureSignedIn(deviceId))) return;
+      void reloadProfile();
+    }
     setCheckoutLoading(packId);
     try {
       const pack = STAR_PACKS.find((p) => p.id === packId);

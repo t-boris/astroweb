@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { createFakeFirestore, type FakeFirestore } from "./helpers/fakeFirestore";
 
 const h = vi.hoisted(() => ({
   fake: null as unknown as FakeFirestore,
-  create: undefined as unknown as ReturnType<typeof import("vitest").vi.fn>,
+  create: undefined as unknown as Mock,
 }));
 
 vi.mock("stripe", () => ({

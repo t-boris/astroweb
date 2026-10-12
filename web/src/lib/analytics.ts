@@ -162,10 +162,16 @@ function clientIdFromGtag(timeoutMs: number): Promise<string | undefined> {
   });
 }
 
+/**
+ * Never blocks checkout for long: if analytics could not load (ad blocker,
+ * unsupported browser) it returns at once without a client_id; otherwise the
+ * `_ga` cookie is used, falling back to a short gtag lookup.
+ */
 export async function getCheckoutAnalytics(): Promise<CheckoutAnalytics> {
   if (getConsent() !== "granted" || !analyticsConfigured) return { consent: "denied" };
-  await load();
-  const clientId = (await clientIdFromGtag(1200)) ?? clientIdFromCookie();
+  const loaded = await load();
+  if (!loaded) return { consent: "granted" };
+  const clientId = clientIdFromCookie() ?? (await clientIdFromGtag(800));
   return clientId ? { consent: "granted", clientId } : { consent: "granted" };
 }
 

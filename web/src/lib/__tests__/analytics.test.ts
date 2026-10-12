@@ -158,6 +158,18 @@ describe("analytics runtime", () => {
     expect(sdk.logEvent).not.toHaveBeenCalled();
   });
 
+  it("keeps working when analytics is blocked: no throw, checkout is not delayed", async () => {
+    const { consent, analytics } = await freshModules();
+    consent.setConsent("granted");
+    sdk.isSupported.mockRejectedValueOnce(new Error("blocked by client"));
+    expect(() => analytics.trackEvent("profile_created")).not.toThrow();
+    const started = Date.now();
+    expect(await analytics.getCheckoutAnalytics()).toEqual({ consent: "granted" });
+    expect(Date.now() - started).toBeLessThan(500);
+    expect(() => analytics.trackPageView("/")).not.toThrow();
+    expect(() => analytics.setAnalyticsUser("u1")).not.toThrow();
+  });
+
   it("reads the GA client_id from the _ga cookie for checkout calls", async () => {
     const { consent, analytics } = await freshModules();
     consent.setConsent("granted");

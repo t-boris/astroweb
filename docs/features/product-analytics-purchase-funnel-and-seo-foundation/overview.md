@@ -2,7 +2,7 @@
 type: feature
 id: product-analytics-purchase-funnel-and-seo-foundation
 title: Product analytics, purchase funnel and SEO foundation
-status: implementing
+status: verified
 owner: Boris Tsekinovsky
 created: 2026-10-12
 provenance: Created from the quick feature intake
@@ -11,13 +11,13 @@ understanding:
   Target Users: known
   Primary Workflow: known
   Permissions: known
-  Failure Scenarios: partial
+  Failure Scenarios: known
   Data Model: known
   Notifications: n/a
   Security: known
   Analytics: known
   Dependencies: known
-  Acceptance Criteria: partial
+  Acceptance Criteria: known
 intake: quick
 questions_left: 0
 issue: "#2"
@@ -90,14 +90,14 @@ Made by the AI where the request left a choice open; correct them in the discuss
 
 ## Acceptance Criteria
 
-- [ ] Given the user has not accepted the consent banner, when any page loads, then no GA cookies are set and no analytics hits are sent (verified in GA DebugView / network tab).
-- [ ] Given consent is accepted, when the user navigates between SPA routes, then exactly one page_view per route change appears in GA4 DebugView with the correct page_path (profile IDs replaced by a template such as /profile/:id).
-- [ ] Each funnel event (profile_create_start, profile_created, chart_viewed, paywall_viewed, begin_checkout, unlock_feature, astrologer_subscribe_start) fires once at the defined trigger with the documented parameters and no PII.
-- [ ] Given a successful Stripe star-pack checkout, when stripeWebhook processes checkout.session.completed, then a GA4 'purchase' event is sent server-side with transaction_id = Stripe session id, value and currency matching purchases/{id}, and a redelivered webhook does not send a duplicate.
-- [ ] Subscription start, renewal (invoice.payment_succeeded) and cancellation (customer.subscription.deleted) each produce a server-side GA4 event.
-- [ ] A GA4 funnel exploration 'Visit → Profile created → Chart viewed → Paywall viewed → Checkout started → Purchase' is configured and documented, and shows step-by-step drop-off.
-- [ ] The /admin Business tab shows, for a selectable period (7d/30d/90d/all): revenue, number of purchases, paying users, ARPPU, new profiles, active/past_due/canceled subscriptions and stars spent per feature, and its revenue, per currency, equals the sum of purchases.amountTotal of live-mode (livemode=true) purchases in that currency for that period, with periods bucketed in UTC.
-- [ ] The adminStats callable rejects any caller who is not the verified admin (same assertAdmin rule as existing admin functions).
-- [ ] The landing pages / (EN) and /ru (RU) served by Hosting each contain their own localized title, meta description, canonical, Open Graph and Twitter tags and reciprocal hreflang links; /robots.txt and /sitemap.xml (listing /, /ru, /privacy, /ru/privacy) are served; the consent banner and footer link to /privacy (or /ru/privacy); /admin, /account and /profile/* carry noindex.
-- [ ] The site is verified in Google Search Console and the sitemap is submitted without errors.
-- [ ] With analytics blocked by an ad blocker, all app features including checkout continue to work without errors.
+- [x] Given the user has not accepted the consent banner, when any page loads, then no GA cookies are set and no analytics hits are sent (verified in GA DebugView / network tab).
+- [x] Given consent is accepted, when the user navigates between SPA routes, then exactly one page_view per route change appears in GA4 DebugView with the correct page_path (profile IDs replaced by a template such as /profile/:id).
+- [x] Each funnel event (profile_create_start, profile_created, chart_viewed, paywall_viewed, begin_checkout, unlock_feature, astrologer_subscribe_start) fires once at the defined trigger with the documented parameters and no PII.
+- [x] Given a successful Stripe star-pack checkout, when stripeWebhook processes checkout.session.completed, then a GA4 'purchase' event is sent server-side with transaction_id = Stripe session id, value and currency matching purchases/{id}, and a redelivered webhook does not send a duplicate.
+- [x] Subscription start, renewal (invoice.payment_succeeded) and cancellation (customer.subscription.deleted) each produce a server-side GA4 event.
+- [ ] A GA4 funnel exploration 'Visit → Profile created → Chart viewed → Paywall viewed → Checkout started → Purchase' is configured and documented, and shows step-by-step drop-off. — pending (DEC-019): the exploration exists; Explore had not processed any data yet, the last step needs the first real payment
+- [x] The /admin Business tab shows, for a selectable period (7d/30d/90d/all): revenue, number of purchases, paying users, ARPPU, new profiles, active/past_due/canceled subscriptions and stars spent per feature, and its revenue, per currency, equals the sum of purchases.amountTotal of live-mode (livemode=true) purchases in that currency for that period, with periods bucketed in UTC.
+- [x] The adminStats callable rejects any caller who is not the verified admin (same assertAdmin rule as existing admin functions).
+- [x] The landing pages / (EN) and /ru (RU) served by Hosting each contain their own localized title, meta description, canonical, Open Graph and Twitter tags and reciprocal hreflang links; /robots.txt and /sitemap.xml (listing /, /ru, /privacy, /ru/privacy) are served; the consent banner and footer link to /privacy (or /ru/privacy); /admin, /account and /profile/* carry noindex.
+- [ ] The site is verified in Google Search Console and the sitemap is submitted without errors. — pending (DEC-019): ownership is verified and the sitemap is submitted, Search Console still shows 'Couldn't fetch' (empty 'Last read'); Google's live test says the file is available
+- [x] With analytics blocked by an ad blocker, all app features including checkout continue to work without errors.

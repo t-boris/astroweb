@@ -157,3 +157,9 @@ Checked it (sign-in works in Chrome). The feature can be closed.
 ### AI · 2026-10-12
 
 Recorded as DEC-019. The remaining owner steps are in `docs/ga4-setup-checklist.md` section 10.
+
+### AI · 2026-10-12
+
+Statuses set at the owner's request: the feature is `verified`; every requirement keeps `approved` and now points at issue #2; questions are `answered`, decisions `accepted`, findings `resolved`; plan items are `implemented` (I-4 `superseded` by I-10). Acceptance-criteria boxes are ticked where the behaviour is covered by the unit tests, the hosting checks or the live walkthrough. Not ticked, as agreed in DEC-019: the sitemap status 'Success' (REQ-007 and the overview), the Search Console link to GA4, and the funnel exploration showing drop-off data.
+
+Not exercised on the live site, covered by unit tests and code review only: `unlock_feature`, `astrologer_subscribe_start`, `ai_reading_requested`, `letter_opened`, the astrologer subscription renewal and cancel webhooks, and the Business tab with data as the admin.

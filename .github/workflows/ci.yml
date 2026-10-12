@@ -1,0 +1,41 @@
+name: CI
+
+# Read-only checks: builds and tests. Deployment is separate (firebase-deploy.yml).
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install Dependencies (Root & Workspaces)
+        run: npm ci
+
+      - name: Build Functions
+        run: npm run build:functions
+
+      - name: Test Functions
+        run: npm test --workspace=functions
+
+      - name: Test Web
+        run: npm test --workspace=web
+
+      - name: Build Web
+        run: npm run build:web

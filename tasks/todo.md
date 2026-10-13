@@ -24,6 +24,13 @@ Shipped as 2.21.0 in PR #11 (merged, issue #10 closed). The CI deploy run 383202
   - The "Sign in to save" notice appears in English and Russian.
 - Not checked here: the signed-in flows, because Google sign-in does not complete in MarkView. They are on the owner's Chrome checklist.
 - Deviation from the plan: the planned `useProfileContent` hook became `loadProfileContent` in `lib/contentSync.ts`, which each view calls. Its result also controls whether the view writes content back to the browser (anonymous) or not (signed in).
+- Owner walkthrough (Chrome + MarkView, 2026-10-12):
+  - Signed-in Oracle answer, compatibility reading, unlock and deep text: each stored on the server.
+  - Cross-device: shown on a second device without a browser copy.
+  - Single-entry delete: removed on the server.
+  - One-time upload of real legacy content (profile `VPq31…`): stored with `source: upload`, no duplicates, stars unchanged.
+  - Not checked live (DEC-010): the purchase gate (the Google popup needs the owner) and profile deletion (the UI only archives). Both are covered by unit tests. Feature set to verified.
+- Found, older than this release: a claimed profile opened after sign-out shows a generic error instead of asking the visitor to sign in.
 - Test data: anonymous profile "Walkthrough Test 3" (`4NnkkxALYciufg1PXJX3`), left on the MarkView browser's device.
 (filled in at the end)
 

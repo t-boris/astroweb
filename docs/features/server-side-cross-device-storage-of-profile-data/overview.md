@@ -2,7 +2,7 @@
 type: feature
 id: server-side-cross-device-storage-of-profile-data
 title: Server-side, cross-device storage of profile data and AI readings
-status: review
+status: verified
 owner: Boris Tsekinovsky
 created: 2026-10-12
 provenance: Created from the feature intake

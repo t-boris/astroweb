@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,6 +18,8 @@ import ProfileSwitcher from "@/components/ProfileSwitcher";
 import Cosmos from "@/components/Cosmos";
 import ConsentBanner from "@/components/ConsentBanner";
 import SiteFooter from "@/components/SiteFooter";
+import { HelpBubble } from "@/components/HelpBubble";
+import { HelpFocusScope, HelpFocusScopeContext } from "@/lib/helpFocusScope";
 import AnalyticsRuntime from "@/components/AnalyticsRuntime";
 import { syncHeadForPath } from "@/seo/head";
 import { homePath, publicRoute } from "@/seo/routes";
@@ -44,6 +46,8 @@ export default function Layout() {
     if (target) navigate(`/profile/${target}?tab=premium`);
     else navigate(home);
   }
+  // One scope per page: the first element of each help term is a tab stop (REQ-005), the repeats are not.
+  const helpFocusScope = useMemo(() => new HelpFocusScope(), []);
   const deviceId = useDeviceId();
   const isHome = publicRoute(location.pathname)?.kind === "landing";
   const [stars, setStars] = useState<number | null>(null);
@@ -123,41 +127,53 @@ export default function Layout() {
               </Link>
             </nav>
             {stars !== null && (
-              <button
-                type="button"
-                onClick={openPremium}
-                title={t("premium.tab", "Premium")}
-                className="inline-flex flex-none items-center gap-1 rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 px-2.5 py-1.5 text-[13px] font-semibold text-[#e8c969] transition-colors hover:bg-[#e8c969]/20"
-              >
-                ✦ {stars} <span className="hidden sm:inline">{t("nav.stars", "Stars")}</span>
-              </button>
+              <HelpBubble helpKey="nav.stars" actionable badge label={t("nav.stars", "Stars")}>
+                <button
+                  type="button"
+                  onClick={openPremium}
+                  aria-label={`${t("nav.stars", "Stars")}: ${stars}`}
+                  className="inline-flex flex-none items-center gap-1 rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 px-2.5 py-1.5 text-[13px] font-semibold text-[#e8c969] transition-colors hover:bg-[#e8c969]/20"
+                >
+                  ✦ {stars} <span className="hidden sm:inline">{t("nav.stars", "Stars")}</span>
+                </button>
+              </HelpBubble>
             )}
             <LanguageSwitcher />
             {authReady && (
               user ? (
-                <Link to="/account" className="flex items-center gap-2" title={user.email ?? t("account.title", "Account")}>
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="" className="h-7 w-7 rounded-full border border-border" />
-                  ) : (
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs text-primary">{(user.email ?? "?")[0]?.toUpperCase()}</span>
-                  )}
-                  <span className={`${navLink} hidden sm:inline`}>{t("nav.account", "Account")}</span>
-                </Link>
+                <HelpBubble helpKey="nav.account" actionable badge label={t("nav.account", "Account")}>
+                  <Link
+                    to="/account"
+                    className="flex items-center gap-2"
+                    aria-label={user.email ? `${t("nav.account", "Account")}: ${user.email}` : t("nav.account", "Account")}
+                  >
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="" className="h-7 w-7 rounded-full border border-border" />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs text-primary">{(user.email ?? "?")[0]?.toUpperCase()}</span>
+                    )}
+                    <span className={`${navLink} hidden sm:inline`}>{t("nav.account", "Account")}</span>
+                  </Link>
+                </HelpBubble>
               ) : (
-                <Button
-                  size="sm"
-                  onClick={handleSignIn}
-                  className="rounded-full bg-primary px-4 text-primary-foreground hover:bg-[#8fb6ff]"
-                >
-                  {t("nav.signIn", "Sign in")}
-                </Button>
+                <HelpBubble helpKey="nav.signIn" actionable badge label={t("nav.signIn", "Sign in")}>
+                  <Button
+                    size="sm"
+                    onClick={handleSignIn}
+                    className="rounded-full bg-primary px-4 text-primary-foreground hover:bg-[#8fb6ff]"
+                  >
+                    {t("nav.signIn", "Sign in")}
+                  </Button>
+                </HelpBubble>
               )
             )}
           </div>
         </div>
       </header>
       <main className={`relative z-10 ${isHome ? "" : "mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10"}`}>
-        <Outlet />
+        <HelpFocusScopeContext.Provider value={helpFocusScope}>
+          <Outlet />
+        </HelpFocusScopeContext.Provider>
       </main>
       {location.pathname !== "/admin" && <SiteFooter />}
       <ConsentBanner />

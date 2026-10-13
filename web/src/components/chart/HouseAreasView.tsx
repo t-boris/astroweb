@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChartAspect, ChartResult } from "@/types";
 import {
@@ -18,6 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { HelpBubble } from "@/components/HelpBubble";
+import {
+  aspectHelpKey,
+  houseHelpKey,
+  houseSystemHelpKey,
+  planetHelpKey,
+  signHelpKey,
+} from "@/lib/helpKeys";
 
 type TraditionalPlanet =
   | "Sun"
@@ -138,6 +146,12 @@ const AREA_HOUSES: Record<AreaSummary["key"], number[]> = {
   home: [4],
 };
 const HOUSE_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
+/** `houseAreas.houseSystemNames.*` key of each house system the server can report. */
+const HOUSE_SYSTEM_NAME_KEYS: Record<ChartResult["meta"]["houseSystem"], string> = {
+  placidus: "placidus",
+  koch: "koch",
+  "whole-sign": "wholeSign",
+};
 
 function emptyScores(): Record<TraditionalPlanet, number> {
   return {
@@ -180,10 +194,49 @@ function formatPlanet(planet: string): string {
   return `${PLANET_GLYPHS[planet] ?? ""} ${planet}`.trim();
 }
 
-function formatSign(sign: string, degreeInSign: number): string {
+function formatSignName(sign: string): string {
+  return `${ZODIAC_GLYPHS[sign] ?? ""} ${sign}`.trim();
+}
+
+function formatDegree(degreeInSign: number): string {
   const deg = Math.floor(degreeInSign);
   const min = Math.round((degreeInSign % 1) * 60);
-  return `${ZODIAC_GLYPHS[sign] ?? ""} ${sign} ${deg}\u00b0${String(min).padStart(2, "0")}'`.trim();
+  return `${deg}\u00b0${String(min).padStart(2, "0")}'`;
+}
+
+/** A planet as "glyph name" with its help bubble. */
+function PlanetName({ planet }: { planet: string }) {
+  return (
+    <HelpBubble helpKey={planetHelpKey(planet)}>
+      <span>{formatPlanet(planet)}</span>
+    </HelpBubble>
+  );
+}
+
+/** Planets joined by a separator, each one with its own help bubble. */
+function PlanetList({ planets, separator }: { planets: string[]; separator: string }) {
+  return (
+    <>
+      {planets.map((planet, index) => (
+        <Fragment key={planet}>
+          {index > 0 && separator}
+          <PlanetName planet={planet} />
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+/** "glyph Sign 12°30'" with the help bubble on the sign. */
+function SignPosition({ sign, degreeInSign }: { sign: string; degreeInSign: number }) {
+  return (
+    <>
+      <HelpBubble helpKey={signHelpKey(sign)}>
+        <span>{formatSignName(sign)}</span>
+      </HelpBubble>{" "}
+      {formatDegree(degreeInSign)}
+    </>
+  );
 }
 
 function formatTopScores(scores: Record<TraditionalPlanet, number>): string {
@@ -332,11 +385,13 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
     return (
       <div key={key} className="rounded-md border bg-background/40 px-3 py-2 space-y-1">
         <p className="text-sm">
-          {formatPlanet(aspect.a)}{" "}
-          <span style={{ color }} className="font-semibold">
-            {glyph}
-          </span>{" "}
-          {formatPlanet(aspect.b)}
+          <PlanetName planet={aspect.a} />{" "}
+          <HelpBubble helpKey={aspectHelpKey(aspect.type)}>
+            <span style={{ color }} className="font-semibold">
+              {glyph}
+            </span>
+          </HelpBubble>{" "}
+          <PlanetName planet={aspect.b} />
         </p>
         <p className="text-xs text-muted-foreground">
           <span style={{ color }} className="font-semibold">
@@ -350,6 +405,17 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
 
   return (
     <div className="space-y-6">
+      {HOUSE_SYSTEM_NAME_KEYS[chart.meta.houseSystem] && (
+        <HelpBubble helpKey={houseSystemHelpKey(chart.meta.houseSystem)}>
+          <p className="w-fit text-sm text-muted-foreground">
+            {t("houseAreas.houseSystemLabel")}:{" "}
+            <span className="font-medium text-foreground">
+              {t(`houseAreas.houseSystemNames.${HOUSE_SYSTEM_NAME_KEYS[chart.meta.houseSystem]}`)}
+            </span>
+          </p>
+        </HelpBubble>
+      )}
+
       {chart.meta.timeUsed === null && (
         <div className="rounded-md border border-[#e8c969]/40 bg-[#e8c969]/10 p-3 text-sm text-[#f2dd9a]">
           {t("houseAreas.timeUnknownWarning")}
@@ -365,38 +431,51 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {allHouses.map((houseData) => {
+            {allHouses.map((houseData, houseIndex) => {
               const signColor = ELEMENT_COLORS[SIGN_ELEMENTS[houseData.sign]]?.text;
+              const first = houseIndex === 0;
               return (
                 <div
                   key={`house-full-${houseData.house}`}
                   className="rounded-md border bg-background/30 p-3 space-y-2"
                 >
-                  <p className="text-sm font-semibold">
-                    {houseData.house} {t("houseAreas.houseShort")}:{" "}
-                    {t(`houseAreas.houseNames.${houseData.house}`)}
-                  </p>
+                  <HelpBubble helpKey={houseHelpKey(houseData.house)}>
+                    <p className="w-fit text-sm font-semibold">
+                      {houseData.house} {t("houseAreas.houseShort")}:{" "}
+                      {t(`houseAreas.houseNames.${houseData.house}`)}
+                    </p>
+                  </HelpBubble>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {t(`houseAreas.houseDescriptions.${houseData.house}`)}
                   </p>
                   <p className="text-sm" style={{ color: signColor }}>
-                    <span className="text-muted-foreground">{t("houseAreas.table.cusp")}: </span>
-                    {formatSign(houseData.sign, houseData.degreeInSign)}
+                    <HelpBubble helpKey="terms.cusp" enabled={first}>
+                      <span className="text-muted-foreground">{t("houseAreas.table.cusp")}: </span>
+                    </HelpBubble>
+                    <SignPosition sign={houseData.sign} degreeInSign={houseData.degreeInSign} />
                   </p>
                   <p className="text-sm">
-                    <span className="text-muted-foreground">{t("houseAreas.table.ruler")}: </span>
-                    {formatPlanet(houseData.ruler)}
+                    <HelpBubble helpKey="terms.ruler" enabled={first}>
+                      <span className="text-muted-foreground">{t("houseAreas.table.ruler")}: </span>
+                    </HelpBubble>
+                    <PlanetName planet={houseData.ruler} />
                   </p>
                   <p className="text-sm">
-                    <span className="text-muted-foreground">{t("houseAreas.almutenLabel")}: </span>
-                    {houseData.almuten.map(formatPlanet).join(" / ")}
+                    <HelpBubble helpKey="terms.almuten" enabled={first}>
+                      <span className="text-muted-foreground">{t("houseAreas.almutenLabel")}: </span>
+                    </HelpBubble>
+                    <PlanetList planets={houseData.almuten} separator=" / " />
                     <span className="text-muted-foreground"> ({houseData.score})</span>
                   </p>
                   <p className="text-sm">
-                    <span className="text-muted-foreground">{t("houseAreas.table.planets")}: </span>
-                    {houseData.planetsInHouse.length > 0
-                      ? houseData.planetsInHouse.map(formatPlanet).join(", ")
-                      : "\u2014"}
+                    <HelpBubble helpKey="terms.planetsInHouse" enabled={first}>
+                      <span className="text-muted-foreground">{t("houseAreas.table.planets")}: </span>
+                    </HelpBubble>
+                    {houseData.planetsInHouse.length > 0 ? (
+                      <PlanetList planets={houseData.planetsInHouse} separator=", " />
+                    ) : (
+                      "\u2014"
+                    )}
                   </p>
                 </div>
               );
@@ -416,10 +495,16 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 {t("houseAreas.people.communication")}
               </p>
               <p className="text-sm mt-1">
-                3 {t("houseAreas.houseShort")}: {formatSign(peopleInsights.house3.sign, peopleInsights.house3.degreeInSign)}
+                <HelpBubble helpKey={houseHelpKey(3)}>
+                  <span>3 {t("houseAreas.houseShort")}</span>
+                </HelpBubble>
+                : <SignPosition sign={peopleInsights.house3.sign} degreeInSign={peopleInsights.house3.degreeInSign} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {t("houseAreas.almutenLabel")}: {peopleInsights.house3.almuten.map(formatPlanet).join(" / ")}
+                <HelpBubble helpKey="terms.almuten">
+                  <span>{t("houseAreas.almutenLabel")}:</span>
+                </HelpBubble>{" "}
+                <PlanetList planets={peopleInsights.house3.almuten} separator=" / " />
               </p>
             </div>
             <div className="rounded-md border p-3">
@@ -427,10 +512,14 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 {t("houseAreas.people.partnership")}
               </p>
               <p className="text-sm mt-1">
-                7 {t("houseAreas.houseShort")}: {formatSign(peopleInsights.house7.sign, peopleInsights.house7.degreeInSign)}
+                <HelpBubble helpKey={houseHelpKey(7)}>
+                  <span>7 {t("houseAreas.houseShort")}</span>
+                </HelpBubble>
+                : <SignPosition sign={peopleInsights.house7.sign} degreeInSign={peopleInsights.house7.degreeInSign} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {t("houseAreas.almutenLabel")}: {peopleInsights.house7.almuten.map(formatPlanet).join(" / ")}
+                {t("houseAreas.almutenLabel")}:{" "}
+                <PlanetList planets={peopleInsights.house7.almuten} separator=" / " />
               </p>
             </div>
             <div className="rounded-md border p-3">
@@ -438,10 +527,14 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 {t("houseAreas.people.groups")}
               </p>
               <p className="text-sm mt-1">
-                11 {t("houseAreas.houseShort")}: {formatSign(peopleInsights.house11.sign, peopleInsights.house11.degreeInSign)}
+                <HelpBubble helpKey={houseHelpKey(11)}>
+                  <span>11 {t("houseAreas.houseShort")}</span>
+                </HelpBubble>
+                : <SignPosition sign={peopleInsights.house11.sign} degreeInSign={peopleInsights.house11.degreeInSign} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {t("houseAreas.almutenLabel")}: {peopleInsights.house11.almuten.map(formatPlanet).join(" / ")}
+                {t("houseAreas.almutenLabel")}:{" "}
+                <PlanetList planets={peopleInsights.house11.almuten} separator=" / " />
               </p>
             </div>
           </div>
@@ -459,7 +552,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
         </CardContent>
       </Card>
 
-      {areas.map((area) => (
+      {areas.map((area, areaIndex) => (
         <Card key={area.key} className="glass-card">
           <CardHeader>
             <CardTitle>{t(`houseAreas.sections.${area.key}`)}</CardTitle>
@@ -467,8 +560,10 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
           <CardContent className="space-y-4">
             <div className="rounded-md border p-3 text-sm">
               <p>
-                <span className="text-muted-foreground">{t("houseAreas.almutenLabel")}: </span>
-                {area.areaAlmuten.map(formatPlanet).join(" / ")}
+                <HelpBubble helpKey="terms.almuten" enabled={areaIndex === 0}>
+                  <span className="text-muted-foreground">{t("houseAreas.almutenLabel")}: </span>
+                </HelpBubble>
+                <PlanetList planets={area.areaAlmuten} separator=" / " />
                 <span className="text-muted-foreground"> ({area.areaScore})</span>
               </p>
               <p className="text-muted-foreground mt-1">
@@ -480,11 +575,21 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
               <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("houseAreas.table.house")}</TableHead>
-                    <TableHead>{t("houseAreas.table.cusp")}</TableHead>
-                    <TableHead>{t("houseAreas.table.ruler")}</TableHead>
-                    <TableHead>{t("houseAreas.table.almuten")}</TableHead>
-                    <TableHead>{t("houseAreas.table.planets")}</TableHead>
+                    <HelpBubble helpKey="terms.house" enabled={areaIndex === 0}>
+                      <TableHead>{t("houseAreas.table.house")}</TableHead>
+                    </HelpBubble>
+                    <HelpBubble helpKey="terms.cusp" enabled={areaIndex === 0}>
+                      <TableHead>{t("houseAreas.table.cusp")}</TableHead>
+                    </HelpBubble>
+                    <HelpBubble helpKey="terms.ruler" enabled={areaIndex === 0}>
+                      <TableHead>{t("houseAreas.table.ruler")}</TableHead>
+                    </HelpBubble>
+                    <HelpBubble helpKey="terms.almuten" enabled={areaIndex === 0}>
+                      <TableHead>{t("houseAreas.table.almuten")}</TableHead>
+                    </HelpBubble>
+                    <HelpBubble helpKey="terms.planetsInHouse" enabled={areaIndex === 0}>
+                      <TableHead>{t("houseAreas.table.planets")}</TableHead>
+                    </HelpBubble>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -492,19 +597,25 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                     const signColor = ELEMENT_COLORS[SIGN_ELEMENTS[houseData.sign]]?.text;
                     return (
                       <TableRow key={`${area.key}-${houseData.house}`} className="hover:bg-muted/50">
-                        <TableCell>{houseData.house}</TableCell>
+                        <HelpBubble helpKey={houseHelpKey(houseData.house)}>
+                          <TableCell>{houseData.house}</TableCell>
+                        </HelpBubble>
                         <TableCell style={{ color: signColor }}>
-                          {formatSign(houseData.sign, houseData.degreeInSign)}
+                          <SignPosition sign={houseData.sign} degreeInSign={houseData.degreeInSign} />
                         </TableCell>
-                        <TableCell>{formatPlanet(houseData.ruler)}</TableCell>
                         <TableCell>
-                          {houseData.almuten.map(formatPlanet).join(" / ")}
+                          <PlanetName planet={houseData.ruler} />
+                        </TableCell>
+                        <TableCell>
+                          <PlanetList planets={houseData.almuten} separator=" / " />
                           <span className="text-muted-foreground"> ({houseData.score})</span>
                         </TableCell>
                         <TableCell>
-                          {houseData.planetsInHouse.length > 0
-                            ? houseData.planetsInHouse.map(formatPlanet).join(", ")
-                            : "\u2014"}
+                          {houseData.planetsInHouse.length > 0 ? (
+                            <PlanetList planets={houseData.planetsInHouse} separator=", " />
+                          ) : (
+                            "\u2014"
+                          )}
                         </TableCell>
                       </TableRow>
                     );

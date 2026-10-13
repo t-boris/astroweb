@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { ASPECT_COLORS, ASPECT_GLYPHS } from "./utils/constants";
+import { aspectHelpKey } from "@/lib/helpKeys";
+import { HelpBubble } from "@/components/HelpBubble";
 
 interface AspectFiltersProps {
   activeFilters: Set<string>;
@@ -24,22 +26,28 @@ export default function AspectFilters({
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-2">
       {ASPECT_TYPES.map((type) => (
-        <button
+        <HelpBubble
           key={type}
-          onClick={() => onToggle(type)}
-          className={cn(
-            "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
-            activeFilters.has(type)
-              ? "border-current opacity-100"
-              : "border-white/10 opacity-40",
-          )}
-          style={{
-            color: ASPECT_COLORS[type],
-          }}
+          helpKey={aspectHelpKey(type)}
+          actionable
+          label={t(`chart.aspects.${type}`)}
         >
-          <span>{ASPECT_GLYPHS[type]}</span>
-          <span>{t(`chart.aspects.${type}`)}</span>
-        </button>
+          <button
+            onClick={() => onToggle(type)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
+              activeFilters.has(type)
+                ? "border-current opacity-100"
+                : "border-white/10 opacity-40",
+            )}
+            style={{
+              color: ASPECT_COLORS[type],
+            }}
+          >
+            <span>{ASPECT_GLYPHS[type]}</span>
+            <span>{t(`chart.aspects.${type}`)}</span>
+          </button>
+        </HelpBubble>
       ))}
     </div>
   );

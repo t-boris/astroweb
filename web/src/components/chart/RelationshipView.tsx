@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { askRelationship } from "@/api/ai";
 import { trackEvent, trackOnce } from "@/lib/analytics";
 import PlaceSearch from "@/components/PlaceSearch";
+import { HelpBubble } from "@/components/HelpBubble";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -217,10 +218,20 @@ export function RelationshipView({
     }
   }
 
+  const generateLabel = loading
+    ? t("ai.relationshipGenerating")
+    : needsSignIn
+      ? t("signInGate.compatibility")
+      : canAfford
+        ? `${t("ai.relationshipGenerate")} ✦${TOKEN_COST.compatibility}`
+        : t("premium.needStars", { count: TOKEN_COST.compatibility, defaultValue: `Need ✦${TOKEN_COST.compatibility} — buy stars` });
+
   return (
     <div className="space-y-5">
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold">{t("ai.relationshipTitle")}</h3>
+        <HelpBubble helpKey="compatibility.title">
+          <h3 className="text-lg font-semibold">{t("ai.relationshipTitle")}</h3>
+        </HelpBubble>
         <p className="text-sm text-muted-foreground">{t("ai.relationshipDescription")}</p>
       </div>
 
@@ -250,22 +261,28 @@ export function RelationshipView({
 
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <Switch
-            id="relationship-time-unknown"
-            checked={timeUnknown}
-            onCheckedChange={(checked) => {
-              setTimeUnknown(checked);
-              if (checked) {
-                setBirthTime("");
-              }
-            }}
-          />
+          <HelpBubble helpKey="compatibility.timeUnknown" actionable label={t("ai.partnerTimeUnknown")}>
+            <Switch
+              id="relationship-time-unknown"
+              checked={timeUnknown}
+              onCheckedChange={(checked) => {
+                setTimeUnknown(checked);
+                if (checked) {
+                  setBirthTime("");
+                }
+              }}
+            />
+          </HelpBubble>
           <Label htmlFor="relationship-time-unknown">{t("ai.partnerTimeUnknown")}</Label>
         </div>
 
         {!timeUnknown && (
           <div className="space-y-2 md:max-w-xs">
-            <Label htmlFor="relationship-time">{t("ai.partnerBirthTimeLabel")}</Label>
+            <div>
+              <HelpBubble helpKey="compatibility.birthTime" actionable label={t("ai.partnerBirthTimeLabel")}>
+                <Label htmlFor="relationship-time">{t("ai.partnerBirthTimeLabel")}</Label>
+              </HelpBubble>
+            </div>
             <Input
               id="relationship-time"
               type="time"
@@ -278,39 +295,45 @@ export function RelationshipView({
       </div>
 
       <div className="space-y-2">
-        <Label>{t("ai.partnerBirthPlaceLabel")}</Label>
+        <HelpBubble helpKey="compatibility.birthPlace">
+          <Label>{t("ai.partnerBirthPlaceLabel")}</Label>
+        </HelpBubble>
         <PlaceSearch onSelect={handlePlaceSelect} initialValue={birthPlace || undefined} />
         {errors.birthPlace && <p className="text-sm text-destructive">{errors.birthPlace}</p>}
         {lat !== null && lng !== null && (
-          <p className="text-xs text-muted-foreground">
-            {t("ai.partnerCoordinatesLabel")}: {lat.toFixed(4)}, {lng.toFixed(4)}
-          </p>
+          <HelpBubble helpKey="profile.coordinates">
+            <p className="text-xs text-muted-foreground">
+              {t("ai.partnerCoordinatesLabel")}: {lat.toFixed(4)}, {lng.toFixed(4)}
+            </p>
+          </HelpBubble>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          onClick={canAfford || needsSignIn ? handleGenerate : onPurchasePremium}
-          disabled={loading}
-        >
-          {loading
-            ? t("ai.relationshipGenerating")
-            : needsSignIn
-              ? t("signInGate.compatibility")
-              : canAfford
-              ? `${t("ai.relationshipGenerate")} ✦${TOKEN_COST.compatibility}`
-              : t("premium.needStars", { count: TOKEN_COST.compatibility, defaultValue: `Need ✦${TOKEN_COST.compatibility} — buy stars` })}
-        </Button>
+        <HelpBubble helpKey="compatibility.generate" actionable label={generateLabel}>
+          <Button
+            type="button"
+            onClick={canAfford || needsSignIn ? handleGenerate : onPurchasePremium}
+            disabled={loading}
+          >
+            {generateLabel}
+          </Button>
+        </HelpBubble>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {history.length > 0 && (
         <div className="space-y-3">
-          {history.map((entry) => {
+          {history.map((entry, index) => {
             const key = entryKey(entry);
             const isCollapsed = collapsed[key] ?? false;
+            const toggleLabel = isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation");
+            const timezoneLine = (
+              <p className="text-xs text-muted-foreground">
+                {t("ai.relationshipPartnerTimezone", { timezone: entry.partnerTimezone })}
+              </p>
+            );
             return (
               <div key={key} className="rounded-md border bg-background/60 p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
@@ -322,33 +345,36 @@ export function RelationshipView({
                       {entry.partnerName}
                       {entry.partnerBirthDate ? ` · ${entry.partnerBirthDate}` : ""}
                     </p>
-                    {entry.partnerTimezone && (
-                      <p className="text-xs text-muted-foreground">
-                        {t("ai.relationshipPartnerTimezone", { timezone: entry.partnerTimezone })}
-                      </p>
-                    )}
+                    {entry.partnerTimezone &&
+                      (index === 0 ? (
+                        <HelpBubble helpKey="compatibility.timezone">{timezoneLine}</HelpBubble>
+                      ) : (
+                        timezoneLine
+                      ))}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                      title={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                      onClick={() => setCollapsed((prev) => ({ ...prev, [key]: !isCollapsed }))}
-                    >
-                      {isCollapsed ? <ChevronDown /> : <ChevronUp />}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label={t("common.delete", "Delete")}
-                      title={t("common.delete", "Delete")}
-                      onClick={() => deleteReading(entry)}
-                    >
-                      <Trash2 />
-                    </Button>
+                    <HelpBubble helpKey="compatibility.toggle" actionable label={toggleLabel}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        aria-label={toggleLabel}
+                        onClick={() => setCollapsed((prev) => ({ ...prev, [key]: !isCollapsed }))}
+                      >
+                        {isCollapsed ? <ChevronDown /> : <ChevronUp />}
+                      </Button>
+                    </HelpBubble>
+                    <HelpBubble helpKey="compatibility.delete" actionable label={t("common.delete", "Delete")}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        aria-label={t("common.delete", "Delete")}
+                        onClick={() => deleteReading(entry)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </HelpBubble>
                   </div>
                 </div>
                 {!isCollapsed && <AiReading text={entry.answer} />}

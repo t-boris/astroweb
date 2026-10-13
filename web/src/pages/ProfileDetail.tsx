@@ -13,8 +13,10 @@ import { ensureSignedIn } from "@/lib/contentSync";
 import { PROFILE_TABS, type ProfileTab } from "@/lib/analyticsEvents";
 import { getWalletInfo } from "@/api/wallet";
 import { signLabel } from "@/lib/signs";
+import { planetHelpKey, signHelpKey, tabHelpKey } from "@/lib/helpKeys";
 import { motion } from "framer-motion";
 import PlaceSearch from "@/components/PlaceSearch";
+import { HelpBubble } from "@/components/HelpBubble";
 import NatalChart from "@/components/chart/NatalChart";
 import { ForecastView } from "@/components/chart/ForecastView";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
@@ -511,9 +513,13 @@ export default function ProfileDetail() {
       {/* Compact birth-info strip */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
         <span>📅 {profile.birthDate}</span>
-        <span>🕐 {profile.timeUnknown ? t("profile.detail.timeUnknown") : profile.birthTime}</span>
+        <HelpBubble helpKey="profile.birthTime">
+          <span>🕐 {profile.timeUnknown ? t("profile.detail.timeUnknown") : profile.birthTime}</span>
+        </HelpBubble>
         <span>📍 {profile.birthPlace}</span>
-        <span>🌐 {profile.lat.toFixed(2)}, {profile.lng.toFixed(2)}</span>
+        <HelpBubble helpKey="profile.coordinates">
+          <span>🌐 {profile.lat.toFixed(2)}, {profile.lng.toFixed(2)}</span>
+        </HelpBubble>
       </div>
 
       {/* Action Buttons */}
@@ -566,18 +572,19 @@ export default function ProfileDetail() {
               ["compatibility", t("tabs.compatibility")],
               ["astrologer", t("tabs.astrologer", "✦ Astrologer")],
             ].map(([v, label]) => (
-              <TabsTrigger
-                key={v}
-                value={v}
-                className="h-auto flex-none grow-0 rounded-full border border-border/50 bg-transparent px-3 py-1.5 text-[13px] text-muted-foreground shadow-none transition-colors after:hidden hover:border-primary/60 hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-primary/15 data-[state=active]:text-[#8fb6ff] data-[state=active]:shadow-none"
-              >
-                {label}
-                {v === "astrologer" && unreadLetters > 0 && (
-                  <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8c969] px-1 text-[10px] font-semibold leading-none text-[#1a1606]">
-                    {unreadLetters}
-                  </span>
-                )}
-              </TabsTrigger>
+              <HelpBubble key={v} helpKey={tabHelpKey(v)} actionable label={label.replace("✦ ", "")}>
+                <TabsTrigger
+                  value={v}
+                  className="h-auto flex-none grow-0 rounded-full border border-border/50 bg-transparent px-3 py-1.5 text-[13px] text-muted-foreground shadow-none transition-colors after:hidden hover:border-primary/60 hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-primary/15 data-[state=active]:text-[#8fb6ff] data-[state=active]:shadow-none"
+                >
+                  {label}
+                  {v === "astrologer" && unreadLetters > 0 && (
+                    <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e8c969] px-1 text-[10px] font-semibold leading-none text-[#1a1606]">
+                      {unreadLetters}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </HelpBubble>
             ))}
           </TabsList>
 
@@ -591,33 +598,50 @@ export default function ProfileDetail() {
               <div className="space-y-5">
                 <Card className="ds-card">
                   <CardHeader className="border-b border-border/40">
-                    <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.bigThree", "The Big Three")}</CardTitle>
+                    <HelpBubble helpKey="terms.bigThree">
+                      <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.bigThree", "The Big Three")}</CardTitle>
+                    </HelpBubble>
                   </CardHeader>
                   <CardContent className="space-y-4 pt-5">
                     {[
-                      { glyph: "☉", label: t("profile.detail.sun", "Sun"), sign: signLabel(t, chartData.points.find((p) => p.body === "Sun")?.sign) },
-                      { glyph: "☽", label: t("profile.detail.moon", "Moon"), sign: signLabel(t, chartData.points.find((p) => p.body === "Moon")?.sign) },
-                      { glyph: "↑", label: t("profile.detail.rising", "Rising"), sign: chartData.houses.asc !== null && !profile.timeUnknown ? signLabel(t, signFromLongitude(chartData.houses.asc)) : "—" },
-                    ].map((b) => (
-                      <div key={b.label} className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-primary/40 font-serif text-lg text-[#8fb6ff]">{b.glyph}</div>
-                        <div>
-                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{b.label}</div>
-                          <div className="font-serif text-lg">{b.sign}</div>
+                      { body: "Sun", glyph: "☉", label: t("profile.detail.sun", "Sun"), sign: chartData.points.find((p) => p.body === "Sun")?.sign },
+                      { body: "Moon", glyph: "☽", label: t("profile.detail.moon", "Moon"), sign: chartData.points.find((p) => p.body === "Moon")?.sign },
+                      { body: "ASC", glyph: "↑", label: t("profile.detail.rising", "Rising"), sign: chartData.houses.asc !== null && !profile.timeUnknown ? signFromLongitude(chartData.houses.asc) : undefined },
+                    ].map((b) => {
+                      const signText = <div className="font-serif text-lg">{signLabel(t, b.sign)}</div>;
+                      return (
+                        <div key={b.label} className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-primary/40 font-serif text-lg text-[#8fb6ff]">{b.glyph}</div>
+                          <div>
+                            <HelpBubble helpKey={planetHelpKey(b.body)}>
+                              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{b.label}</div>
+                            </HelpBubble>
+                            {b.sign ? (
+                              <HelpBubble helpKey={signHelpKey(b.sign)}>{signText}</HelpBubble>
+                            ) : b.body === "ASC" ? (
+                              <HelpBubble helpKey="profile.risingUnknown">{signText}</HelpBubble>
+                            ) : (
+                              signText
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </CardContent>
                 </Card>
 
                 <Card className="ds-card">
                   <CardHeader className="border-b border-border/40">
-                    <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.chartModeTitle")}</CardTitle>
+                    <HelpBubble helpKey="chart.mode">
+                      <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.chartModeTitle")}</CardTitle>
+                    </HelpBubble>
                   </CardHeader>
                   <CardContent className="space-y-3 pt-5">
                     {/* Current residence — always visible (place of living, used by transits/letters) */}
                     <div className="space-y-2">
-                      <Label>{t("profile.detail.residenceLabel", "Current residence (where you live now)")}</Label>
+                      <HelpBubble helpKey="chart.residence">
+                        <Label>{t("profile.detail.residenceLabel", "Current residence (where you live now)")}</Label>
+                      </HelpBubble>
                       <PlaceSearch
                         onSelect={handleRelocationSelect}
                         initialValue={relocationPlace || undefined}
@@ -629,9 +653,11 @@ export default function ProfileDetail() {
                           {t("profile.detail.relocationCurrent")}: {relocationPlace} ({relocationLat.toFixed(4)}, {relocationLng.toFixed(4)})
                         </p>
                       ) : (
-                        <p className="text-xs text-muted-foreground">
-                          {t("profile.detail.residenceHint", "Not set — defaults to your birthplace. Set it for accurate transits, weather and local news.")}
-                        </p>
+                        <HelpBubble helpKey="chart.residenceHint">
+                          <p className="text-xs text-muted-foreground">
+                            {t("profile.detail.residenceHint", "Not set — defaults to your birthplace. Set it for accurate transits, weather and local news.")}
+                          </p>
+                        </HelpBubble>
                       )}
                       {relocationSaving && <p className="text-sm text-muted-foreground">{t("profile.detail.relocationSaving")}</p>}
                       {relocationSaveError && <p className="text-sm text-destructive">{relocationSaveError}</p>}
@@ -639,14 +665,22 @@ export default function ProfileDetail() {
 
                     {/* Relocate the displayed chart to the current residence */}
                     <div className="flex items-center gap-3 border-t border-border/40 pt-3">
-                      <Switch id="relocation-mode" checked={relocationEnabled} onCheckedChange={handleRelocationToggle} />
+                      <HelpBubble
+                        helpKey="chart.relocationSwitch"
+                        actionable
+                        label={relocationEnabled ? t("profile.detail.relocationMode") : t("profile.detail.natalMode")}
+                      >
+                        <Switch id="relocation-mode" checked={relocationEnabled} onCheckedChange={handleRelocationToggle} />
+                      </HelpBubble>
                       <Label htmlFor="relocation-mode">
                         {relocationEnabled ? t("profile.detail.relocationMode") : t("profile.detail.natalMode")}
                       </Label>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {relocationEnabled ? t("profile.detail.relocationHintOn") : t("profile.detail.relocationHintOff")}
-                    </p>
+                    <HelpBubble helpKey="chart.relocationHint">
+                      <p className="text-xs text-muted-foreground">
+                        {relocationEnabled ? t("profile.detail.relocationHintOn") : t("profile.detail.relocationHintOff")}
+                      </p>
+                    </HelpBubble>
                   </CardContent>
                 </Card>
               </div>
@@ -751,21 +785,27 @@ export default function ProfileDetail() {
                 <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#e8c969]/10 ring-2 ring-[#e8c969]/50 shadow-[0_0_30px_rgba(232,201,105,0.2)]">
                   <span className="text-3xl text-[#e8c969]">✦</span>
                 </div>
-                <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight text-gold-gradient sm:text-3xl">
-                  {t("premium.title", "Unlock Your Cosmic Destiny")}
-                </h3>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e8c969]/30 bg-[#e8c969]/10 px-4 py-1.5 text-sm font-medium text-[#e8c969]">
-                  <span>✦</span>
-                  {t("premium.balance", { count: profile.tokens || 0, defaultValue: `Stars: ${profile.tokens || 0}` })}
-                </div>
+                <HelpBubble helpKey={tabHelpKey("premium")}>
+                  <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight text-gold-gradient sm:text-3xl">
+                    {t("premium.title", "Unlock Your Cosmic Destiny")}
+                  </h3>
+                </HelpBubble>
+                <HelpBubble helpKey="premium.balance">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e8c969]/30 bg-[#e8c969]/10 px-4 py-1.5 text-sm font-medium text-[#e8c969]">
+                    <span>✦</span>
+                    {t("premium.balance", { count: profile.tokens || 0, defaultValue: `Stars: ${profile.tokens || 0}` })}
+                  </div>
+                </HelpBubble>
                 <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
                   {t("premium.storeDescription", "Pick what you want — readings unlock per profile, stars never expire.")}
                 </p>
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
-                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust1", "One-time payment")}</span>
-                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust2", "Stars never expire")}</span>
-                  <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust3", "Unlocks forever")}</span>
-                </div>
+                <HelpBubble helpKey="premium.trust">
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust1", "One-time payment")}</span>
+                    <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust2", "Stars never expire")}</span>
+                    <span className="inline-flex items-center gap-1"><span className="text-[#8fb6ff]">✓</span>{t("premium.trust3", "Unlocks forever")}</span>
+                  </div>
+                </HelpBubble>
               </div>
 
               {window.location.search.includes("checkout=success") && (
@@ -775,26 +815,28 @@ export default function ProfileDetail() {
               )}
 
               {firstReadingAvailable && (
-                <button
-                  type="button"
-                  onClick={() => handleBuyPack("reading")}
-                  disabled={checkoutLoading !== null}
-                  className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#e8c969]/60 bg-gradient-to-r from-[#e8c969]/15 to-transparent p-4 text-left transition-colors hover:from-[#e8c969]/25"
-                >
-                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#e8c969]/20 text-xl">🎁</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold text-[#e8c969]">{t("premium.firstBannerTitle", "First reading just $1.99")}</span>
-                    <span className="block text-xs text-muted-foreground">{t("premium.firstBannerDesc", "Full chart reading + dig deeper + PDF — one-time welcome price.")}</span>
-                  </span>
-                  <span className="flex-none text-right leading-none">
-                    <span className="font-serif text-xl font-bold text-[#e8c969]">$1.99</span>
-                    <span className="ml-1 text-xs text-muted-foreground line-through">$3.99</span>
-                  </span>
-                </button>
+                <HelpBubble helpKey="premium.firstOffer" actionable label={t("premium.firstBannerTitle", "First reading just $1.99")}>
+                  <button
+                    type="button"
+                    onClick={() => handleBuyPack("reading")}
+                    disabled={checkoutLoading !== null}
+                    className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#e8c969]/60 bg-gradient-to-r from-[#e8c969]/15 to-transparent p-4 text-left transition-colors hover:from-[#e8c969]/25"
+                  >
+                    <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#e8c969]/20 text-xl">🎁</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-[#e8c969]">{t("premium.firstBannerTitle", "First reading just $1.99")}</span>
+                      <span className="block text-xs text-muted-foreground">{t("premium.firstBannerDesc", "Full chart reading + dig deeper + PDF — one-time welcome price.")}</span>
+                    </span>
+                    <span className="flex-none text-right leading-none">
+                      <span className="font-serif text-xl font-bold text-[#e8c969]">$1.99</span>
+                      <span className="ml-1 text-xs text-muted-foreground line-through">$3.99</span>
+                    </span>
+                  </button>
+                </HelpBubble>
               )}
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {STAR_PACKS.map((pack) => {
+                {STAR_PACKS.map((pack, index) => {
                   const showFirst = Boolean(pack.firstPriceUsd && firstReadingAvailable);
                   const price = showFirst ? pack.firstPriceUsd! : pack.priceUsd;
                   return (
@@ -807,9 +849,11 @@ export default function ProfileDetail() {
                       }`}
                     >
                       {pack.popular && (
-                        <span className="absolute -top-2.5 left-4 rounded-full bg-[#e8c969] px-2.5 py-0.5 text-[11px] font-semibold text-[#1a1606]">
-                          {t("premium.popular", "Most popular")}
-                        </span>
+                        <HelpBubble helpKey="premium.popular">
+                          <span className="absolute -top-2.5 left-4 rounded-full bg-[#e8c969] px-2.5 py-0.5 text-[11px] font-semibold text-[#1a1606]">
+                            {t("premium.popular", "Most popular")}
+                          </span>
+                        </HelpBubble>
                       )}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -820,17 +864,30 @@ export default function ProfileDetail() {
                             {t(`premium.packs.${pack.id}.desc`, "")}
                           </p>
                           <p className="mt-1.5 text-xs font-medium text-[#e8c969]">
-                            ✦{pack.stars}
-                            {pack.bonusStars
-                              ? ` +${pack.bonusStars} ${t("premium.bonusStar", "bonus")}`
-                              : ""}
+                            {index === 0 ? (
+                              <HelpBubble helpKey="premium.packStars">
+                                <span>✦{pack.stars}</span>
+                              </HelpBubble>
+                            ) : (
+                              <>✦{pack.stars}</>
+                            )}
+                            {pack.bonusStars ? (
+                              <>
+                                {" "}
+                                <HelpBubble helpKey="premium.bonusStar">
+                                  <span>+{pack.bonusStars} {t("premium.bonusStar", "bonus")}</span>
+                                </HelpBubble>
+                              </>
+                            ) : null}
                           </p>
                         </div>
                         <div className="flex-none text-right">
                           {showFirst && (
-                            <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#e8c969]">
-                              {t("premium.firstOffer", "First reading")}
-                            </div>
+                            <HelpBubble helpKey="premium.firstOffer">
+                              <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#e8c969]">
+                                {t("premium.firstOffer", "First reading")}
+                              </div>
+                            </HelpBubble>
                           )}
                           <div className="leading-none">
                             <span className="font-serif text-xl font-bold text-foreground">

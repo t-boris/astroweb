@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
@@ -8,6 +8,7 @@ import { useDeviceId } from "@/hooks/useDeviceId";
 import { listProfiles, archiveProfile } from "@/api/profiles";
 import { Button } from "@/components/ui/button";
 import { Mandala } from "@/components/Cosmos";
+import { HelpBubble } from "@/components/HelpBubble";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +24,18 @@ import SignInNotice from "@/components/SignInNotice";
 
 const QUESTION_ICONS = { Sun, Heart, Compass, Zap, Clock, Sparkles } as const;
 const QUESTION_KEYS = ["personality", "relationships", "career", "challenges", "timing", "purpose"] as const;
+
+/**
+ * Only the cards whose sentence leans on a term a newcomer cannot guess get a bubble, and it sits on the
+ * whole description (R5): the Big Three, the Midheaven, transits and the North Node.
+ */
+function QuestionDescription({ id, children }: { id: (typeof QUESTION_KEYS)[number]; children: ReactElement }) {
+  if (id === "personality") return <HelpBubble helpKey="terms.bigThree">{children}</HelpBubble>;
+  if (id === "career") return <HelpBubble helpKey="terms.midheaven">{children}</HelpBubble>;
+  if (id === "timing") return <HelpBubble helpKey="home.transits">{children}</HelpBubble>;
+  if (id === "purpose") return <HelpBubble helpKey="home.northNode">{children}</HelpBubble>;
+  return children;
+}
 
 function HeroSection() {
   const { t } = useTranslation();
@@ -41,7 +54,10 @@ function HeroSection() {
         className="relative z-10 mx-auto max-w-3xl"
       >
         <div className="mb-4 text-xs uppercase tracking-[0.28em] text-[#8fb6ff]">
-          ✦ {t("landing.hero.eyebrow", "Natal Astrology · Swiss Ephemeris")}
+          ✦{" "}
+          <HelpBubble helpKey="home.eyebrow">
+            <span>{t("landing.hero.eyebrow", "Natal Astrology · Swiss Ephemeris")}</span>
+          </HelpBubble>
         </div>
         <h1 className="font-serif text-5xl leading-[1.03] sm:text-6xl md:text-7xl">
           <span className="text-foreground">{t("landing.hero.titleLead")}</span>
@@ -118,9 +134,11 @@ function QuestionsSection() {
                 <h3 className="mb-3 text-xl font-serif font-semibold text-primary">
                   {t(`landing.questions.${key}.title`)}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {t(`landing.questions.${key}.description`)}
-                </p>
+                <QuestionDescription id={key}>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {t(`landing.questions.${key}.description`)}
+                  </p>
+                </QuestionDescription>
               </motion.div>
             );
           })}
@@ -143,9 +161,17 @@ function FeaturesSection() {
         <div className="grid gap-8 sm:grid-cols-3">
           {featureKeys.map((key) => (
             <div key={key} className="text-center">
-              <h3 className="mb-2 text-lg font-serif font-semibold text-gold-gradient">
-                {t(`landing.features.${key}.title`)}
-              </h3>
+              {key === "precision" ? (
+                <HelpBubble helpKey="home.swissEphemeris">
+                  <h3 className="mb-2 text-lg font-serif font-semibold text-gold-gradient">
+                    {t(`landing.features.${key}.title`)}
+                  </h3>
+                </HelpBubble>
+              ) : (
+                <h3 className="mb-2 text-lg font-serif font-semibold text-gold-gradient">
+                  {t(`landing.features.${key}.title`)}
+                </h3>
+              )}
               <p className="text-sm text-muted-foreground">
                 {t(`landing.features.${key}.description`)}
               </p>
@@ -180,14 +206,18 @@ function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive }: ProfilesMen
   return (
     <>
       {/* Toggle (hidden on xl, where the sidebar is always shown) */}
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-label={t("landing.profiles.title")}
-        className="fixed left-3 top-20 z-50 rounded-md border border-primary/30 bg-background/80 p-2 text-primary backdrop-blur-sm xl:hidden"
-      >
-        {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-      </button>
+      <div className="fixed left-3 top-20 z-50 flex items-center gap-1 xl:hidden">
+        <HelpBubble helpKey="home.menu" actionable label={t("landing.profiles.title")}>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={t("landing.profiles.title")}
+            className="rounded-md border border-primary/30 bg-background/80 p-2 text-primary backdrop-blur-sm"
+          >
+            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
+        </HelpBubble>
+      </div>
 
       {/* Backdrop on mobile when open */}
       {open && (
@@ -221,21 +251,24 @@ function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive }: ProfilesMen
               <Link
                 to={`/profile/${profile.id}`}
                 onClick={() => setOpen(false)}
-                className="ds-card block p-2.5 pr-9 transition-colors hover:border-primary/60"
+                className="ds-card block p-2.5 pr-9 pointer-coarse:pr-16 transition-colors hover:border-primary/60"
               >
                 <p className="truncate font-serif text-sm text-primary">{profile.name}</p>
                 <p className="truncate text-[11px] text-muted-foreground">{profile.birthDate}</p>
                 <p className="truncate text-[11px] text-muted-foreground">{profile.birthPlace}</p>
               </Link>
-              <button
-                type="button"
-                onClick={() => onDelete(profile.id)}
-                aria-label={t("common.archive")}
-                title={t("common.archive")}
-                className="absolute right-1.5 top-1.5 rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-              >
-                <Archive className="h-3.5 w-3.5" />
-              </button>
+              <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
+                <HelpBubble helpKey="home.archive" actionable label={t("common.archive")}>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(profile.id)}
+                    aria-label={t("common.archive")}
+                    className="rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <Archive className="h-3.5 w-3.5" />
+                  </button>
+                </HelpBubble>
+              </div>
             </div>
           ))}
 
@@ -249,20 +282,23 @@ function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive }: ProfilesMen
                   <Link
                     to={`/profile/${profile.id}`}
                     onClick={() => setOpen(false)}
-                    className="ds-card block p-2.5 pr-9 opacity-55 transition-opacity hover:opacity-100"
+                    className="ds-card block p-2.5 pr-9 pointer-coarse:pr-16 opacity-55 transition-opacity hover:opacity-100"
                   >
                     <p className="truncate font-serif text-sm text-muted-foreground">{profile.name}</p>
                     <p className="truncate text-[11px] text-muted-foreground/70">{profile.birthDate}</p>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => onUnarchive(profile.id)}
-                    aria-label={t("common.unarchive")}
-                    title={t("common.unarchive")}
-                    className="absolute right-1.5 top-1.5 rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                  >
-                    <ArchiveRestore className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
+                    <HelpBubble helpKey="home.restore" actionable label={t("common.unarchive")}>
+                      <button
+                        type="button"
+                        onClick={() => onUnarchive(profile.id)}
+                        aria-label={t("common.unarchive")}
+                        className="rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                      >
+                        <ArchiveRestore className="h-3.5 w-3.5" />
+                      </button>
+                    </HelpBubble>
+                  </div>
                 </div>
               ))}
             </div>

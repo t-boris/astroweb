@@ -184,3 +184,44 @@ after clicking through the funnel found it. For analytics work always check the 
 ## A paid action that needs sign-in must open the popup first
 
 The browser lets a popup open only from the click itself. A gate that awaits anything before `signInWithPopup` gets blocked. Call `ensureSignedIn` first in the click handler, then claim, then continue the action. Check a gate by its result: nothing is charged and the user's input stays in place when the popup is closed.
+
+## Radix `asChild` / Slot: never pass an explicit `undefined` prop to the child
+
+`<PopoverAnchor asChild tabIndex={cond ? 0 : undefined}>` wiped the roving `tabindex` of every Radix tab: Radix items
+spread their props AFTER their own `tabIndex`, so an explicit `undefined` overrides it (all tabs lost `tabindex`, arrow keys
+stopped working). Build the props conditionally (`...(cond ? { tabIndex: 0 } : {})`) so a key is absent, not undefined.
+A server-rendered test with a child that sets its own `tabIndex` and spreads props after it catches it.
+
+## A `display: contents` wrapper silently drops layout
+
+Wrapping elements in an always-present `<span class="contents">` (only the touch "?" button was meant to differ) loses the
+margins a parent gives with `space-y-*` and breaks `w-full` children on touch. Decide with a media-query hook
+(`useSyncExternalStore` on `(pointer: coarse)`) and render the wrapper only where it is needed: the desktop DOM then stays
+exactly as it was. Measure the width of the page against an untouched copy to see what an addition costs.
+
+## `:focus-visible` is not enough to decide "opened by keyboard"
+
+It always matches text fields (a click into a field opened its help bubble and kept it open while typing) and it does not match
+in embedded views without window focus (the MarkView browser: `document.hasFocus()` is false, the engine is WebKit). Track the
+last input (key press vs pointer down, two passive capture listeners) and open on focus only after a key press.
+
+## Count the tab stops of a screen, not only the elements
+
+Making every plain-text term keyboard-focusable gave the Houses tab 245 tab stops. A registry that makes only the first
+element of each help key per page a tab stop brought it to 46, one per distinct concept, and hover and tap still work on every
+element. Measure with `querySelectorAll('[tabindex="0"]')` in the browser.
+
+## The Functions emulator needs a matching firebase-tools; mock the callables when it does not
+
+`firebase-tools` 13 cannot load functions built on `firebase-functions` 7 ("functions.config() has been removed"), and
+firebase-tools 15 needs Java 21 for Firestore. For a UI check a 70-line Node server that speaks the callable protocol
+(`POST /<project>/<region>/<name>` with `{data}`, answers `{result}`) and computes the chart with `functions/lib/astro/chart.js`
+is enough, and no production data is touched. Vite dev mode forces the emulator ports (5001, 8080), so the mock listens on 5001.
+Public Firebase web config for dev goes into the git-ignored `web/.env.development.local`.
+
+## Fan-out work on shared JSON files: write fragments, merge with one idempotent script
+
+Four parallel workers adding texts to `translation.json` would overwrite each other. Each wrote `{en, ru}` fragment files; one
+locked, idempotent merge script rebuilt `help.*`, checked EN/RU key parity, refused duplicate keys with different values and
+never overwrote existing UI strings. An independent proofreading pass afterwards found factual errors that tests cannot (a
+help text contradicting what the code deletes, charges or sends), so review text against the code before it ships.

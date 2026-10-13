@@ -2,7 +2,7 @@
 type: feature
 id: contextual-help-tooltips-across-the-ui
 title: Contextual help tooltips across the UI
-status: implementing
+status: implemented
 owner: Boris Tsekinovsky
 created: 2026-10-13
 provenance: Created from the feature intake

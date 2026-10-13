@@ -1,3 +1,24 @@
+# Contextual help tooltips across the UI (issue #13)
+
+Spec: `docs/features/contextual-help-tooltips-across-the-ui/` (REQ-001..005, DEC-001..008, Q-001..008).
+Branch: `feat/contextual-help-tooltips-across-the-ui`. Started on the explicit /goal from Boris on 2026-10-13.
+Answers recorded from Boris: Q-007 -> DEC-007 (house-system label, no selector), Q-008 -> DEC-008 (AstrologerNotes covered, no-help check is Admin only).
+Deploy: the CI auto-deploy runs when the PR is merged to main.
+
+- [ ] **WP1 Component (I-1, REQ-005):** shadcn `ui/popover.tsx` (Radix Popover), pure open/close rules (`lib/helpBubble.ts`), `HelpBubble` (hover with delay, keyboard focus, Escape, tap, "?" on touch for actionable elements, viewport-safe, screen-reader description, no setting, no analytics).
+- [ ] **WP2 i18n (I-2, REQ-004):** `help.*` in en/ru `translation.json`, key builders in `lib/helpKeys.ts`, EN/RU parity + non-empty + used-keys test, language switch without reload.
+- [ ] **WP3 Astrology terms (I-3, REQ-001, DEC-007):** planets, signs, houses, aspect types, house systems, orb, exactness; PlanetsTable, AspectsTable, HouseAreasView, AspectFilters, house-system label.
+- [ ] **WP4 Profile tabs (I-4, REQ-002):** every tab in ProfileDetail, Premium store heading.
+- [ ] **WP5 Profile controls (I-5, REQ-003):** icon-only buttons (native `title` replaced), Oracle model label, stars/Premium indicators, relocation, chart mode.
+- [ ] **WP6 Other end-user screens (I-6, REQ-003, REQ-005, DEC-008):** Layout, Home, ProfileCreate, Account, Letters, AstrologerHub/Panel, AstrologerNotes; test that Admin has no help bubbles.
+- [ ] **WP7 Verify:** web tests + build + lint at baseline, local walkthrough, acceptance criteria ticked in the spec.
+- [ ] **WP8 Ship:** commits, PR with test plan, CI green, merge, version bump, CI deploy, confirm the live version, live walkthrough in the MarkView browser, manual checklist for Boris.
+
+## Review
+(filled in at the end)
+
+---
+
 # Server-side, cross-device storage of profile data (issue #10)
 
 Spec: `docs/features/server-side-cross-device-storage-of-profile-data/` (REQ-001..009, DEC-001..009).

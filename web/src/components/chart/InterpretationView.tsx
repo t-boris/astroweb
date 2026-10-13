@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { dateLocale, toAppLanguage } from "@/lib/language";
 import { FirebaseError } from "firebase/app";
@@ -17,6 +17,8 @@ import {
   SIGN_ELEMENTS,
 } from "@/components/chart/utils/constants";
 import { signLabel } from "@/lib/signs";
+import { aspectHelpKey, elementHelpKey, planetHelpKey, signHelpKey } from "@/lib/helpKeys";
+import { HelpBubble } from "@/components/HelpBubble";
 import { AiReading, renderInlineMarkdown } from "@/components/AiReading";
 import { deepenInterpretation, askOracle } from "@/api/ai";
 import {
@@ -134,6 +136,22 @@ function signFromLongitude(longitude: number): string {
   return ZODIAC_SIGNS[Math.floor(normalized / 30)];
 }
 
+/** Help bubble of a reading category heading (one literal key per category). */
+function CategoryHelp({ category, children }: { category: InterpretationBlock["category"]; children: ReactElement }) {
+  switch (category) {
+    case "sun":
+      return <HelpBubble helpKey="interpretation.categorySun">{children}</HelpBubble>;
+    case "moon":
+      return <HelpBubble helpKey="interpretation.categoryMoon">{children}</HelpBubble>;
+    case "ascendant":
+      return <HelpBubble helpKey="interpretation.categoryAscendant">{children}</HelpBubble>;
+    case "midheaven":
+      return <HelpBubble helpKey="interpretation.categoryMidheaven">{children}</HelpBubble>;
+    case "aspect":
+      return <HelpBubble helpKey="interpretation.categoryAspect">{children}</HelpBubble>;
+  }
+}
+
 /** Sun / Moon / Rising hero strip — a quick visual anchor for the chart. */
 function BigThree({ chart }: { chart: ChartResult }) {
   const { t } = useTranslation();
@@ -142,10 +160,10 @@ function BigThree({ chart }: { chart: ChartResult }) {
   const risingSign = chart.houses.asc !== null ? signFromLongitude(chart.houses.asc) : null;
 
   const items = [
-    sun && { glyph: PLANET_GLYPHS.Sun, label: t("interpretation.overview.bigThreeSun", "Sun"), sign: sun.sign },
-    moon && { glyph: PLANET_GLYPHS.Moon, label: t("interpretation.overview.bigThreeMoon", "Moon"), sign: moon.sign },
-    risingSign && { glyph: "↑", label: t("interpretation.overview.bigThreeRising", "Rising"), sign: risingSign },
-  ].filter(Boolean) as { glyph: string; label: string; sign: string }[];
+    sun && { body: "Sun", glyph: PLANET_GLYPHS.Sun, label: t("interpretation.overview.bigThreeSun", "Sun"), sign: sun.sign },
+    moon && { body: "Moon", glyph: PLANET_GLYPHS.Moon, label: t("interpretation.overview.bigThreeMoon", "Moon"), sign: moon.sign },
+    risingSign && { body: "ASC", glyph: "↑", label: t("interpretation.overview.bigThreeRising", "Rising"), sign: risingSign },
+  ].filter(Boolean) as { body: string; glyph: string; label: string; sign: string }[];
 
   if (items.length === 0) return null;
 
@@ -166,10 +184,14 @@ function BigThree({ chart }: { chart: ChartResult }) {
             >
               {it.glyph}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</div>
+            <HelpBubble helpKey={planetHelpKey(it.body)}>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</div>
+            </HelpBubble>
             <div className="flex items-center justify-center gap-1 font-serif text-sm text-[var(--ink)] sm:text-base">
               <span style={{ color: c }}>{ZODIAC_GLYPHS[it.sign]}</span>
-              <span className="truncate">{signLabel(t, it.sign)}</span>
+              <HelpBubble helpKey={signHelpKey(it.sign)}>
+                <span className="truncate">{signLabel(t, it.sign)}</span>
+              </HelpBubble>
             </div>
           </div>
         );
@@ -184,28 +206,30 @@ function ProgressRing({ done, total, label }: { done: number; total: number; lab
   const circumference = 2 * Math.PI * radius;
   const pct = total > 0 ? done / total : 0;
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative h-11 w-11">
-        <svg viewBox="0 0 40 40" className="h-11 w-11 -rotate-90">
-          <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
-          <circle
-            cx="20"
-            cy="20"
-            r={radius}
-            fill="none"
-            stroke="#e8c969"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - pct)}
-          />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-[#e8c969]">
-          {done}/{total}
-        </span>
+    <HelpBubble helpKey="interpretation.explored">
+      <div className="flex items-center gap-2">
+        <div className="relative h-11 w-11">
+          <svg viewBox="0 0 40 40" className="h-11 w-11 -rotate-90">
+            <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+            <circle
+              cx="20"
+              cy="20"
+              r={radius}
+              fill="none"
+              stroke="#e8c969"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={circumference * (1 - pct)}
+            />
+          </svg>
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-[#e8c969]">
+            {done}/{total}
+          </span>
+        </div>
+        <span className="text-xs text-muted-foreground">{label}</span>
       </div>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
+    </HelpBubble>
   );
 }
 
@@ -238,30 +262,36 @@ function ChartOverview({
   return (
     <div className="ds-card p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="font-serif text-base text-[#8fb6ff] sm:text-lg">
-          {t("interpretation.overview.balanceTitle", "Elemental balance")}
-        </h3>
+        <HelpBubble helpKey="interpretation.balance">
+          <h3 className="font-serif text-base text-[#8fb6ff] sm:text-lg">
+            {t("interpretation.overview.balanceTitle", "Elemental balance")}
+          </h3>
+        </HelpBubble>
         {unlocked && total > 0 && (
           <ProgressRing done={explored} total={total} label={t("interpretation.overview.explored", "Explored")} />
         )}
       </div>
-      <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted/40">
-        {order.map((el) =>
-          counts[el] > 0 ? (
-            <div
-              key={el}
-              style={{ width: `${(counts[el] / totalPlanets) * 100}%`, background: ELEMENT_COLORS[el].stroke }}
-            />
-          ) : null,
-        )}
-      </div>
+      <HelpBubble helpKey="interpretation.balanceBar">
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted/40">
+          {order.map((el) =>
+            counts[el] > 0 ? (
+              <div
+                key={el}
+                style={{ width: `${(counts[el] / totalPlanets) * 100}%`, background: ELEMENT_COLORS[el].stroke }}
+              />
+            ) : null,
+          )}
+        </div>
+      </HelpBubble>
       <div className="mt-3 grid grid-cols-4 gap-2">
         {order.map((el) => (
           <div key={el} className="flex flex-col items-center gap-0.5">
-            <span className="inline-flex items-center gap-1 text-xs" style={{ color: ELEMENT_COLORS[el].text }}>
-              <span className="h-2 w-2 rounded-full" style={{ background: ELEMENT_COLORS[el].stroke }} />
-              {t(`interpretation.overview.elements.${el}`, el)}
-            </span>
+            <HelpBubble helpKey={elementHelpKey(el)}>
+              <span className="inline-flex items-center gap-1 text-xs" style={{ color: ELEMENT_COLORS[el].text }}>
+                <span className="h-2 w-2 rounded-full" style={{ background: ELEMENT_COLORS[el].stroke }} />
+                {t(`interpretation.overview.elements.${el}`, el)}
+              </span>
+            </HelpBubble>
             <span className="text-sm font-semibold text-[var(--ink)]">{counts[el]}</span>
           </div>
         ))}
@@ -313,6 +343,14 @@ export function InterpretationView({
   const signBlocks = blocks.filter((b) => b.category !== "aspect");
   const aspectBlocks = blocks.filter((b) => b.category === "aspect");
   const exploredCount = blocks.filter((b) => Boolean(deepTexts[getBlockInstanceKey(b)])).length;
+  // The unlock note, Dig Deeper and the Deep Reading controls repeat in every card of a list:
+  // only the first card that shows each of them carries the help bubble.
+  const firstHelpBlocks = (list: InterpretationBlock[]) => ({
+    cta: list.find((b) => !interpretationsUnlocked || !deepTexts[getBlockInstanceKey(b)]),
+    deep: list.find((b) => interpretationsUnlocked && Boolean(deepTexts[getBlockInstanceKey(b)])),
+  });
+  const signFirst = firstHelpBlocks(signBlocks);
+  const aspectFirst = firstHelpBlocks(aspectBlocks);
   const oracleHistoryWithoutCurrent = oracleAnswer
     ? oracleHistory.filter((entry) => getOracleEntryKey(entry) !== currentOracleEntryKey)
     : oracleHistory;
@@ -653,6 +691,12 @@ export function InterpretationView({
   const canPdf = interpretationsUnlocked;
   const canUnlock = tokens >= TOKEN_COST.pdf;
   const [unlocking, setUnlocking] = useState(false);
+  const askOracleLabel = oracleLoading
+    ? t("ai.askOracleLoading")
+    : needsSignIn
+      ? t("signInGate.askOracle")
+      : t("ai.askOracle");
+  const currentToggleLabel = currentOracleCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation");
 
   // Funnel: the paywall of this view is on screen (once per profile and feature).
   useEffect(() => {
@@ -682,7 +726,7 @@ export function InterpretationView({
   }
 
   /** Reading body (blurred unlock CTA or full text + deep dive) shared by sign and aspect cards. */
-  function renderBlockBody(block: InterpretationBlock) {
+  function renderBlockBody(block: InterpretationBlock, first: ReturnType<typeof firstHelpBlocks>) {
     const blockId = getBlockInstanceKey(block);
     const deepText = deepTexts[blockId];
     const deepError = deepErrors[blockId];
@@ -690,6 +734,11 @@ export function InterpretationView({
     const isDeepDiveCollapsed = collapsedDeepDive[blockId] ?? false;
 
     if (!interpretationsUnlocked) {
+      const unlockLabel = unlocking
+        ? t("premium.unlocking", "Unlocking…")
+        : canUnlock
+          ? t("premium.unlockInterpretations", `Unlock Interpretations + PDF ✦${TOKEN_COST.pdf}`)
+          : t("premium.needStars", { count: TOKEN_COST.pdf, defaultValue: `Need ✦${TOKEN_COST.pdf} — buy stars` });
       return (
         <div className="relative">
           <p className="text-sm leading-relaxed text-muted-foreground opacity-80 blur-[1px] select-none">
@@ -697,22 +746,22 @@ export function InterpretationView({
           </p>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
           <div className="relative z-10 mt-2 flex flex-col items-start gap-2">
-            <p className="text-xs font-medium text-[#e8c969]">
-              {t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}
-            </p>
-            <Button
-              type="button"
-              size="sm"
-              disabled={unlocking}
-              className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]"
-              onClick={canUnlock ? handleUnlock : onPurchasePremium}
-            >
-              {unlocking
-                ? t("premium.unlocking", "Unlocking…")
-                : canUnlock
-                  ? t("premium.unlockInterpretations", `Unlock Interpretations + PDF ✦${TOKEN_COST.pdf}`)
-                  : t("premium.needStars", { count: TOKEN_COST.pdf, defaultValue: `Need ✦${TOKEN_COST.pdf} — buy stars` })}
-            </Button>
+            <HelpBubble enabled={first.cta === block} helpKey="interpretation.locked">
+              <p className="text-xs font-medium text-[#e8c969]">
+                {t("premium.unlockRequired", "Unlock Premium to read full deep interpretation.")}
+              </p>
+            </HelpBubble>
+            <HelpBubble enabled={first.cta === block} helpKey="interpretation.unlock" actionable label={unlockLabel}>
+              <Button
+                type="button"
+                size="sm"
+                disabled={unlocking}
+                className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]"
+                onClick={canUnlock ? handleUnlock : onPurchasePremium}
+              >
+                {unlockLabel}
+              </Button>
+            </HelpBubble>
           </div>
         </div>
       );
@@ -726,37 +775,48 @@ export function InterpretationView({
             regenerated near-identical text and left the button looking active. */}
         {!deepText && (
           <div className="pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                void handleDeepDive(block);
-              }}
-              disabled={deepLoading}
-            >
-              {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
-            </Button>
+            <HelpBubble enabled={first.cta === block} helpKey="interpretation.digDeeper" actionable label={t("ai.deepDive")}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void handleDeepDive(block);
+                }}
+                disabled={deepLoading}
+              >
+                {deepLoading ? t("ai.deepDiveLoading") : t("ai.deepDive")}
+              </Button>
+            </HelpBubble>
           </div>
         )}
         {deepError && <p className="text-sm text-destructive">{deepError}</p>}
         {deepText && (
           <div className="space-y-2 rounded-xl border bg-background/60 p-3">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("ai.deepDiveTitle")}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  setCollapsedDeepDive((prev) => ({
-                    ...prev,
-                    [blockId]: !isDeepDiveCollapsed,
-                  }))
-                }
+              <HelpBubble enabled={first.deep === block} helpKey="interpretation.deepReading">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("ai.deepDiveTitle")}</p>
+              </HelpBubble>
+              <HelpBubble
+                enabled={first.deep === block}
+                helpKey="interpretation.collapse"
+                actionable
+                label={isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
               >
-                {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setCollapsedDeepDive((prev) => ({
+                      ...prev,
+                      [blockId]: !isDeepDiveCollapsed,
+                    }))
+                  }
+                >
+                  {isDeepDiveCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
+                </Button>
+              </HelpBubble>
             </div>
             {!isDeepDiveCollapsed && <AiReading text={deepText} />}
           </div>
@@ -777,19 +837,21 @@ export function InterpretationView({
               {t("premium.pdfReadyDescription")}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              void handleDownloadPdf();
-            }}
-            disabled={pdfLoading}
-            className="border-[#e8c969]/50 text-[#e8c969] hover:bg-[#e8c969]/10"
-          >
-            <Download />
-            {pdfLoading ? t("premium.downloadPdfLoading") : t("premium.downloadPdf")}
-          </Button>
+          <HelpBubble helpKey="interpretation.pdf" actionable label={t("premium.downloadPdf")}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void handleDownloadPdf();
+              }}
+              disabled={pdfLoading}
+              className="border-[#e8c969]/50 text-[#e8c969] hover:bg-[#e8c969]/10"
+            >
+              <Download />
+              {pdfLoading ? t("premium.downloadPdfLoading") : t("premium.downloadPdf")}
+            </Button>
+          </HelpBubble>
           {pdfLoading && pdfProgress && (
             <p className="text-sm text-[#e8c969]/80 sm:basis-full">{pdfProgress}</p>
           )}
@@ -811,46 +873,59 @@ export function InterpretationView({
               ✦
             </div>
             <div className="min-w-0">
-              <h3 className="font-serif text-lg text-[#8fb6ff] sm:text-xl">{t("ai.oracleTitle")}</h3>
+              <HelpBubble helpKey="oracle.title">
+                <h3 className="font-serif text-lg text-[#8fb6ff] sm:text-xl">{t("ai.oracleTitle")}</h3>
+              </HelpBubble>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {t("ai.oracleDescription")}
               </p>
             </div>
           </div>
           <div className="flex flex-none flex-col items-end">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-              {t("ai.creditsLabel", "Stars")} · ✦{TOKEN_COST.oracle}
-            </span>
-            <div className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium border ${canOracle ? "bg-[#e8c969]/10 text-[#e8c969] border-[#e8c969]/30" : "bg-muted/50 text-muted-foreground border-border"}`}>
-              <span className="mr-1.5">✦</span> {tokens}
-            </div>
+            <HelpBubble helpKey="oracle.cost">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                {t("ai.creditsLabel", "Stars")} · ✦{TOKEN_COST.oracle}
+              </span>
+            </HelpBubble>
+            <HelpBubble helpKey="oracle.balance">
+              <div className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium border ${canOracle ? "bg-[#e8c969]/10 text-[#e8c969] border-[#e8c969]/30" : "bg-muted/50 text-muted-foreground border-border"}`}>
+                <span className="mr-1.5">✦</span> {tokens}
+              </div>
+            </HelpBubble>
           </div>
         </div>
 
-        <textarea
-          className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8c969]"
-          value={oracleQuestion}
-          onChange={(e) => {
-            setOracleQuestion(e.target.value);
-            if (oracleError) {
-              setOracleError(null);
-            }
-          }}
-          placeholder={canOracle || needsSignIn ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
-          maxLength={1000}
-          disabled={!canOracle && !needsSignIn}
-        />
+        {/* The flex column keeps the card's vertical spacing and the field's full width (the bubble's wrapper has no box). */}
+        <div className="flex flex-col">
+          <HelpBubble helpKey="oracle.question" actionable label={t("a11y.oracleQuestion")} side="top">
+            <textarea
+              className="w-full min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#e8c969]"
+              value={oracleQuestion}
+              onChange={(e) => {
+                setOracleQuestion(e.target.value);
+                if (oracleError) {
+                  setOracleError(null);
+                }
+              }}
+              placeholder={canOracle || needsSignIn ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
+              maxLength={1000}
+              disabled={!canOracle && !needsSignIn}
+            />
+          </HelpBubble>
+        </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            onClick={handleAskOracle}
-            disabled={oracleLoading || (!canOracle && !needsSignIn)}
-            className={canOracle || needsSignIn ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
-            data-testid="oracle-ask"
-          >
-            {oracleLoading ? t("ai.askOracleLoading") : needsSignIn ? t("signInGate.askOracle") : t("ai.askOracle")}
-          </Button>
+          <HelpBubble helpKey="oracle.ask" actionable label={askOracleLabel}>
+            <Button
+              type="button"
+              onClick={handleAskOracle}
+              disabled={oracleLoading || (!canOracle && !needsSignIn)}
+              className={canOracle || needsSignIn ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
+              data-testid="oracle-ask"
+            >
+              {askOracleLabel}
+            </Button>
+          </HelpBubble>
         </div>
 
         {oracleError && (
@@ -862,30 +937,34 @@ export function InterpretationView({
             <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 text-[#e8c969]">✦</div>
             <div className="min-w-0 flex-1 space-y-2 rounded-2xl rounded-bl-sm border border-border bg-secondary p-4">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                {t("ai.answerTitle")}
-              </p>
+              <HelpBubble helpKey="oracle.answer">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                  {t("ai.answerTitle")}
+                </p>
+              </HelpBubble>
               <div className="flex items-center gap-1 shrink-0">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label={currentOracleCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                  title={currentOracleCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                  onClick={() => setCurrentOracleCollapsed((prev) => !prev)}
-                >
-                  {currentOracleCollapsed ? <ChevronDown /> : <ChevronUp />}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label={t("common.delete")}
-                  title={t("common.delete")}
-                  onClick={handleDeleteCurrentOracleAnswer}
-                >
-                  <Trash2 />
-                </Button>
+                <HelpBubble helpKey="oracle.toggle" actionable label={currentToggleLabel}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={currentToggleLabel}
+                    onClick={() => setCurrentOracleCollapsed((prev) => !prev)}
+                  >
+                    {currentOracleCollapsed ? <ChevronDown /> : <ChevronUp />}
+                  </Button>
+                </HelpBubble>
+                <HelpBubble helpKey="oracle.delete" actionable label={t("common.delete")}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={t("common.delete")}
+                    onClick={handleDeleteCurrentOracleAnswer}
+                  >
+                    <Trash2 />
+                  </Button>
+                </HelpBubble>
               </div>
             </div>
             {currentOracleCollapsed ? (
@@ -901,14 +980,17 @@ export function InterpretationView({
 
         {oracleHistoryWithoutCurrent.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              {t("ai.oracleHistoryTitle")}
-            </p>
+            <HelpBubble helpKey="oracle.history">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                {t("ai.oracleHistoryTitle")}
+              </p>
+            </HelpBubble>
             <div className="space-y-2">
               {oracleHistoryWithoutCurrent.map((entry) => (
                 (() => {
                   const entryKey = getOracleEntryKey(entry);
                   const isCollapsed = collapsedOracleAnswers[entryKey] ?? true;
+                  const toggleLabel = isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation");
 
                   return (
                     <div
@@ -920,31 +1002,33 @@ export function InterpretationView({
                           {entry.question}
                         </p>
                         <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            aria-label={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                            title={isCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation")}
-                            onClick={() =>
-                              setCollapsedOracleAnswers((prev) => ({
-                                ...prev,
-                                [entryKey]: !isCollapsed,
-                              }))
-                            }
-                          >
-                            {isCollapsed ? <ChevronDown /> : <ChevronUp />}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            aria-label={t("common.delete")}
-                            title={t("common.delete")}
-                            onClick={() => handleDeleteOracleHistoryEntry(entryKey)}
-                          >
-                            <Trash2 />
-                          </Button>
+                          <HelpBubble helpKey="oracle.toggle" actionable label={toggleLabel}>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              aria-label={toggleLabel}
+                              onClick={() =>
+                                setCollapsedOracleAnswers((prev) => ({
+                                  ...prev,
+                                  [entryKey]: !isCollapsed,
+                                }))
+                              }
+                            >
+                              {isCollapsed ? <ChevronDown /> : <ChevronUp />}
+                            </Button>
+                          </HelpBubble>
+                          <HelpBubble helpKey="oracle.delete" actionable label={t("common.delete")}>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              aria-label={t("common.delete")}
+                              onClick={() => handleDeleteOracleHistoryEntry(entryKey)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          </HelpBubble>
                         </div>
                       </div>
                       {isCollapsed ? (
@@ -1008,16 +1092,18 @@ export function InterpretationView({
                   {getBlockGlyph(block)}
                 </div>
                 <div className="min-w-0">
-                  <div className="ds-interp-cat">
-                    {t(`interpretation.categories.${block.category}`)}
-                    {elementName ? ` · ${elementName}` : ""}
-                  </div>
+                  <CategoryHelp category={block.category}>
+                    <div className="ds-interp-cat">
+                      {t(`interpretation.categories.${block.category}`)}
+                      {elementName ? ` · ${elementName}` : ""}
+                    </div>
+                  </CategoryHelp>
                   <h3 className="font-serif text-lg leading-tight text-[var(--ink)] sm:text-xl">
                     {t(`${block.key}.title`)}
                   </h3>
                 </div>
               </div>
-              {renderBlockBody(block)}
+              {renderBlockBody(block, signFirst)}
             </div>
           </article>
         );
@@ -1031,9 +1117,11 @@ export function InterpretationView({
       {/* Aspect blocks */}
       {aspectBlocks.length > 0 && (
         <div className="space-y-1">
-          <span className="ds-interp-cat">
-            {t("interpretation.categories.aspect")}
-          </span>
+          <CategoryHelp category="aspect">
+            <span className="ds-interp-cat">
+              {t("interpretation.categories.aspect")}
+            </span>
+          </CategoryHelp>
         </div>
       )}
 
@@ -1041,6 +1129,11 @@ export function InterpretationView({
         const aspect = block.aspect;
         const blockId = getBlockInstanceKey(block);
         const accent = getBlockColor(block);
+        const aspectTitle = (
+          <h3 className="font-serif text-lg leading-tight text-[var(--ink)] sm:text-xl">
+            {t(`${block.key}.title`)}
+          </h3>
+        );
 
         return (
           <article
@@ -1068,20 +1161,28 @@ export function InterpretationView({
                   {getBlockGlyph(block)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-serif text-lg leading-tight text-[var(--ink)] sm:text-xl">
-                    {t(`${block.key}.title`)}
-                  </h3>
+                  {aspect ? (
+                    <HelpBubble helpKey={aspectHelpKey(aspect.type)}>{aspectTitle}</HelpBubble>
+                  ) : (
+                    aspectTitle
+                  )}
                   {aspect && (
                     <p className="text-sm font-medium text-muted-foreground">
-                      {PLANET_GLYPHS[aspect.a] ?? ""} {aspect.a}{" "}
+                      <HelpBubble helpKey={planetHelpKey(aspect.a)}>
+                        <span>{PLANET_GLYPHS[aspect.a] ?? ""} {aspect.a}</span>
+                      </HelpBubble>{" "}
                       {ASPECT_GLYPHS[aspect.type] ?? ""}{" "}
-                      {PLANET_GLYPHS[aspect.b] ?? ""} {aspect.b}{" "}
-                      <span className="text-muted-foreground/70">({aspect.orb.toFixed(1)}&deg;)</span>
+                      <HelpBubble helpKey={planetHelpKey(aspect.b)}>
+                        <span>{PLANET_GLYPHS[aspect.b] ?? ""} {aspect.b}</span>
+                      </HelpBubble>{" "}
+                      <HelpBubble helpKey="terms.orb">
+                        <span className="text-muted-foreground/70">({aspect.orb.toFixed(1)}&deg;)</span>
+                      </HelpBubble>
                     </p>
                   )}
                 </div>
               </div>
-              {renderBlockBody(block)}
+              {renderBlockBody(block, aspectFirst)}
             </div>
           </article>
         );

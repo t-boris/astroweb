@@ -1,3 +1,31 @@
+# Contextual help tooltips across the UI (issue #13)
+
+Spec: `docs/features/contextual-help-tooltips-across-the-ui/` (REQ-001..005, DEC-001..011, Q-001..009).
+Branch: `feat/contextual-help-tooltips-across-the-ui`. Started on the explicit /goal from Boris on 2026-10-13.
+Answers recorded from Boris: Q-007 -> DEC-007 (house-system label, no selector), Q-008 -> DEC-008 (AstrologerNotes covered, no-help check is Admin only), Q-009 -> DEC-011 (Oracle indicators, no model name). DEC-009 and DEC-010 are my design decisions and stay proposed until Boris accepts them.
+Deploy: the CI auto-deploy runs when the PR is merged to main.
+
+- [x] **WP1 Component (I-1, REQ-005):** shadcn `ui/popover.tsx` (Radix Popover), pure open/close rules (`lib/helpBubble.ts`, `helpFocusScope.ts`, `helpPointer.ts`, `inputModality.ts`), `HelpBubble` (hover with delay, keyboard focus, Escape, tap, "?" on touch for actionable elements, viewport-safe, screen-reader description, no setting, no analytics).
+- [x] **WP2 i18n (I-2, REQ-004):** `help.*` in en/ru `translation.json`, key builders in `lib/helpKeys.ts`, EN/RU parity + non-empty + used-keys test, language switch without reload.
+- [x] **WP3 Astrology terms (I-3, REQ-001, DEC-007):** planets, signs, houses, aspect types, house systems, orb, exactness; PlanetsTable, AspectsTable, HouseAreasView, AspectFilters, house-system label.
+- [x] **WP4 Profile tabs (I-4, REQ-002):** every tab in ProfileDetail, Premium store heading.
+- [x] **WP5 Profile controls (I-5, REQ-003):** icon-only buttons (native `title` replaced), Oracle indicators (no model name, DEC-011), stars/Premium indicators, relocation, chart mode.
+- [x] **WP6 Other end-user screens (I-6, REQ-003, REQ-005, DEC-008):** Layout, Home, ProfileCreate, Account, Letters, AstrologerHub/Panel, AstrologerNotes; test that Admin has no help bubbles.
+- [x] **WP7 Verify:** web tests + build + lint at baseline, local walkthrough, acceptance criteria ticked in the spec.
+- [ ] **WP8 Ship:** commits, PR with test plan, CI green, merge, version bump, CI deploy, confirm the live version, live walkthrough in the MarkView browser, manual checklist for Boris.
+
+## Review (before the deploy; the live results are added after it)
+
+- Built: one `HelpBubble` (Radix Popover, no new dependency) used on every covered screen; 180 EN+RU help texts under `help.*`, 9 accessible names under `a11y.*`; version 2.22.0.
+- Tests: functions 205, web 121 (new: open/close rules, tab-stop registry, markup for pointer and touch devices, EN/RU parity, text rules, used-keys, no help in Admin, nothing tracked or stored). Builds green. Web lint 8 errors against 9 at `origin/main`, none new.
+- Browser (local dev server, mocked callables, MarkView browser): hover with delay, keyboard focus (real Tab key), Escape, language switch without reload, tab tap still switches, `?` button and tap-to-open on a simulated touch device at 375 px, bubble stays inside the viewport, a click into a text field does not open its bubble, no console errors.
+- Found and fixed on the way: the first version removed the roving `tabindex` of the tabs (Radix Slot, explicit `undefined`); the touch `?` button crowded the header (corner badge variant); text fields opened their bubble on click; the Houses tab had 245 tab stops (now 46).
+- Spec contradictions with the code, asked and answered: no house-system toggle (Q-007), AstrologerNotes is an end-user page (Q-008), no Oracle model label (Q-009).
+- Found, not changed (existing UI, for the owner): the annual-plan label says "2 months free" (`hub.annual`) while the price is nine times the monthly price (3 months free) and the badge says "-3 mo"; planet and sign names are English in the Russian UI in several tables; the landing text promises the North Node, which the chart does not contain; `/forecast` sends only the natal chart and the date to the AI (no computed transits); the RU account strings use "ты" while the rest uses "вы"; the header is already crowded at 375 px with a long profile name.
+- Known limit: a screen-reader user who browses by element hears the help text only when the term gets keyboard focus (the first element of each term is a tab stop).
+
+---
+
 # Server-side, cross-device storage of profile data (issue #10)
 
 Spec: `docs/features/server-side-cross-device-storage-of-profile-data/` (REQ-001..009, DEC-001..009).

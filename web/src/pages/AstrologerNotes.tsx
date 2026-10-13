@@ -12,6 +12,7 @@ import {
 import type { Dossier, DossierFact, StyleProfile } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { HelpBubble } from "@/components/HelpBubble";
 
 const SUGGESTED = ["career", "money", "love", "health", "creativity", "sport", "tech", "travel", "family", "spirituality"];
 
@@ -101,8 +102,9 @@ export default function AstrologerNotes() {
     await load();
   }
 
+  const toldByUser = (f: DossierFact) => f.source === "tap" || f.source === "onboarding";
   function provenance(f: DossierFact): string {
-    if (f.source === "tap" || f.source === "onboarding") return t("notes.youToldUs", "You told us");
+    if (toldByUser(f)) return t("notes.youToldUs", "You told us");
     return t("notes.inferred", "Your astrologer inferred this from your question");
   }
 
@@ -113,11 +115,17 @@ export default function AstrologerNotes() {
 
   const interestTags = dossier.interests;
   const suggestions = SUGGESTED.filter((s) => !interestTags.includes(s));
+  // The same words repeat on every note, so each bubble sits on the first note that shows them.
+  const firstToldId = facts.find((f) => toldByUser(f))?.id;
+  const firstInferredId = facts.find((f) => !toldByUser(f))?.id;
+  const firstPendingId = facts.find((f) => f.sensitive && !f.confirmed)?.id;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif text-2xl text-[#8fb6ff]">{t("notes.title", "What your astrologer knows")}</h1>
+        <HelpBubble helpKey="notes.title">
+          <h1 className="font-serif text-2xl text-[#8fb6ff]">{t("notes.title", "What your astrologer knows")}</h1>
+        </HelpBubble>
         <Button variant="outline" size="sm" asChild>
           <Link to={`/profile/${id}`}>{t("profile.detail.back", "Back")}</Link>
         </Button>
@@ -125,53 +133,81 @@ export default function AstrologerNotes() {
 
       {/* Register */}
       <div className="ds-card p-4">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.register", "Talks to you in a")}</p>
+        <HelpBubble helpKey="notes.register">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.register", "Talks to you in a")}</p>
+        </HelpBubble>
         <p className="font-serif text-lg">{registerLine(dossier.styleProfile, (k, d) => t(k, { defaultValue: d }))}</p>
       </div>
 
       {/* Interest tags */}
       <div className="ds-card space-y-3 p-4">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.interests", "Your interests")}</p>
+        <HelpBubble helpKey="notes.interests">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.interests", "Your interests")}</p>
+        </HelpBubble>
         <div className="flex flex-wrap gap-2">
           {interestTags.map((tag) => (
             <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-[#8fb6ff]">
               {tag}
-              <button type="button" onClick={() => removeTag(tag)} aria-label="remove"><X className="h-3 w-3" /></button>
+              <HelpBubble helpKey="notes.removeTag" actionable label={t("a11y.notesRemoveTag", { tag })}>
+                <button type="button" onClick={() => removeTag(tag)} aria-label={t("a11y.notesRemoveTag", { tag })}><X className="h-3 w-3" /></button>
+              </HelpBubble>
             </span>
           ))}
           {interestTags.length === 0 && <span className="text-sm text-muted-foreground">{t("notes.noInterests", "No interests yet")}</span>}
         </div>
         <div className="flex items-center gap-2">
           <Input value={newTag} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTag(newTag)} placeholder={t("notes.addInterest", "Add an interest…")} className="h-9 max-w-xs" />
-          <Button size="sm" variant="outline" onClick={() => addTag(newTag)}><Plus className="h-4 w-4" /></Button>
+          <HelpBubble helpKey="notes.addInterest" actionable label={t("a11y.notesAddInterest")}>
+            <Button size="sm" variant="outline" onClick={() => addTag(newTag)} aria-label={t("a11y.notesAddInterest")}><Plus className="h-4 w-4" /></Button>
+          </HelpBubble>
         </div>
         {suggestions.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {suggestions.map((s) => (
-              <button key={s} type="button" onClick={() => addTag(s)} className="rounded-full border border-border/50 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground">+ {s}</button>
-            ))}
-          </div>
+          <HelpBubble helpKey="notes.suggestions" actionable label={t("a11y.notesSuggestions")}>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {suggestions.map((s) => (
+                <button key={s} type="button" onClick={() => addTag(s)} className="rounded-full border border-border/50 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground">+ {s}</button>
+              ))}
+            </div>
+          </HelpBubble>
         )}
       </div>
 
       {/* Facts */}
       <div className="ds-card space-y-2 p-4">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.facts", "Notes about you")}</p>
+        <HelpBubble helpKey="notes.facts">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("notes.facts", "Notes about you")}</p>
+        </HelpBubble>
         {facts.length === 0 && <p className="text-sm text-muted-foreground">{t("notes.noFacts", "Nothing learned yet — ask the oracle and it will get to know you.")}</p>}
         {facts.map((f) => (
           <div key={f.id} className="flex items-start justify-between gap-2 border-b border-border/40 py-2 last:border-0">
             <div className="min-w-0">
               <p className="text-sm text-foreground">
                 <span className="text-muted-foreground">{f.key}:</span> {f.value}
-                {f.sensitive && !f.confirmed && <span className="ml-2 rounded bg-[#e8c969]/15 px-1.5 py-0.5 text-[11px] text-[#e8c969]">{t("notes.pending", "needs your OK")}</span>}
+                {f.sensitive && !f.confirmed && (
+                  <HelpBubble enabled={f.id === firstPendingId} helpKey="notes.pending">
+                    <span className="ml-2 rounded bg-[#e8c969]/15 px-1.5 py-0.5 text-[11px] text-[#e8c969]">{t("notes.pending", "needs your OK")}</span>
+                  </HelpBubble>
+                )}
               </p>
-              <p className="text-[11px] text-muted-foreground">{provenance(f)}</p>
+              {toldByUser(f) ? (
+                <HelpBubble enabled={f.id === firstToldId} helpKey="notes.youToldUs">
+                  <p className="text-[11px] text-muted-foreground">{provenance(f)}</p>
+                </HelpBubble>
+              ) : (
+                <HelpBubble enabled={f.id === firstInferredId} helpKey="notes.inferred">
+                  <p className="text-[11px] text-muted-foreground">{provenance(f)}</p>
+                </HelpBubble>
+              )}
             </div>
             <div className="flex flex-none items-center gap-1">
               {f.sensitive && !f.confirmed && (
-                <button type="button" onClick={() => handleConfirm(f.id)} title={t("notes.confirm", "Confirm")} className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:border-primary hover:text-primary"><Check className="h-3.5 w-3.5" /></button>
+                <HelpBubble helpKey="notes.confirm" actionable label={t("notes.confirm", "Confirm")}>
+                  <button type="button" onClick={() => handleConfirm(f.id)} aria-label={t("notes.confirm", "Confirm")} className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:border-primary hover:text-primary"><Check className="h-3.5 w-3.5" /></button>
+                </HelpBubble>
               )}
-              <button type="button" onClick={() => handleDeleteFact(f.id)} title={t("common.delete", "Delete")} className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:border-destructive hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+              <HelpBubble helpKey="notes.delete" actionable label={t("common.delete", "Delete")}>
+                <button type="button" onClick={() => handleDeleteFact(f.id)} aria-label={t("common.delete", "Delete")} className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:border-destructive hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+              </HelpBubble>
             </div>
           </div>
         ))}
@@ -186,7 +222,9 @@ export default function AstrologerNotes() {
             <Button size="sm" variant="outline" onClick={() => setConfirming(false)}>{t("common.cancel", "Cancel")}</Button>
           </div>
         ) : (
-          <Button size="sm" variant="outline" className="text-muted-foreground" onClick={() => setConfirming(true)}>{t("notes.forget", "Forget everything")}</Button>
+          <HelpBubble helpKey="notes.forget" actionable label={t("notes.forget", "Forget everything")} side="top">
+            <Button size="sm" variant="outline" className="text-muted-foreground" onClick={() => setConfirming(true)}>{t("notes.forget", "Forget everything")}</Button>
+          </HelpBubble>
         )}
       </div>
     </div>

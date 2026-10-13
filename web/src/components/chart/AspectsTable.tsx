@@ -5,6 +5,8 @@ import {
   PLANET_GLYPHS,
   ASPECT_COLORS,
 } from "@/components/chart/utils/constants";
+import { aspectHelpKey, planetHelpKey } from "@/lib/helpKeys";
+import { HelpBubble } from "@/components/HelpBubble";
 
 interface AspectsTableProps {
   aspects: ChartAspect[];
@@ -23,11 +25,11 @@ export function AspectsTable({ aspects }: AspectsTableProps) {
       <table className="ds-table min-w-[520px]">
         <thead>
           <tr>
-            <th>{t("tables.aspects.bodyA")}</th>
-            <th>{t("tables.aspects.type")}</th>
-            <th>{t("tables.aspects.bodyB")}</th>
-            <th>{t("tables.aspects.orb")}</th>
-            <th>{t("tables.aspects.exactness")}</th>
+            <HelpBubble helpKey="terms.body"><th>{t("tables.aspects.bodyA")}</th></HelpBubble>
+            <HelpBubble helpKey="terms.aspect"><th>{t("tables.aspects.type")}</th></HelpBubble>
+            <HelpBubble helpKey="terms.body"><th>{t("tables.aspects.bodyB")}</th></HelpBubble>
+            <HelpBubble helpKey="terms.orb"><th>{t("tables.aspects.orb")}</th></HelpBubble>
+            <HelpBubble helpKey="terms.exactness"><th>{t("tables.aspects.exactness")}</th></HelpBubble>
           </tr>
         </thead>
         <tbody>
@@ -37,22 +39,28 @@ export function AspectsTable({ aspects }: AspectsTableProps) {
             return (
               <tr key={`${aspect.a}-${aspect.b}-${aspect.type}`}>
                 <td>
-                  <span className="ds-glyph-cell">
-                    <span className="g">{PLANET_GLYPHS[aspect.a] ?? ""}</span>
-                    {aspect.a}
-                  </span>
+                  <HelpBubble helpKey={planetHelpKey(aspect.a)}>
+                    <span className="ds-glyph-cell">
+                      <span className="g">{PLANET_GLYPHS[aspect.a] ?? ""}</span>
+                      {aspect.a}
+                    </span>
+                  </HelpBubble>
                 </td>
                 <td>
-                  <span className="ds-chip">
-                    <span className="dotline" style={{ borderColor: aspectColor }} />
-                    {t(`chart.aspects.${aspect.type}`)}
-                  </span>
+                  <HelpBubble helpKey={aspectHelpKey(aspect.type)}>
+                    <span className="ds-chip">
+                      <span className="dotline" style={{ borderColor: aspectColor }} />
+                      {t(`chart.aspects.${aspect.type}`)}
+                    </span>
+                  </HelpBubble>
                 </td>
                 <td>
-                  <span className="ds-glyph-cell">
-                    <span className="g">{PLANET_GLYPHS[aspect.b] ?? ""}</span>
-                    {aspect.b}
-                  </span>
+                  <HelpBubble helpKey={planetHelpKey(aspect.b)}>
+                    <span className="ds-glyph-cell">
+                      <span className="g">{PLANET_GLYPHS[aspect.b] ?? ""}</span>
+                      {aspect.b}
+                    </span>
+                  </HelpBubble>
                 </td>
                 <td style={{ fontVariantNumeric: "tabular-nums" }}>{aspect.orb.toFixed(1)}&deg;</td>
                 <td>

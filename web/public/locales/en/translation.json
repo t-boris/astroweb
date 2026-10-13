@@ -239,6 +239,12 @@
       "ruler": "Ruler",
       "almuten": "Almuten",
       "planets": "Planets in house"
+    },
+    "houseSystemLabel": "House system",
+    "houseSystemNames": {
+      "placidus": "Placidus",
+      "koch": "Koch",
+      "wholeSign": "Whole Sign"
     }
   },
   "tables": {
@@ -833,5 +839,244 @@
   "signInNotice": {
     "text": "Your profiles are stored only in this browser. They may be lost if you switch browser or clear its data.",
     "action": "Sign in to save"
+  },
+  "help": {
+    "nav": {
+      "stars": "Your star balance. Stars are the app's currency: one wallet for all your profiles, and they never expire. Click to open the Premium tab and buy more.",
+      "account": "Your account page: star balance, astrologer subscriptions, notifications and language. When you are signed in, your profiles, stars and readings are available to you on any device.",
+      "signIn": "Sign in with your Google account to link the profiles from this browser to it. Your profiles, stars and readings then follow you to any browser or device instead of staying in this one."
+    },
+    "home": {
+      "eyebrow": "Natal astrology studies the positions of the planets at the moment and place of your birth. This app takes those positions from Swiss Ephemeris, a standard astronomical data set.",
+      "swissEphemeris": "An ephemeris is a table of where the planets are at any date and time. Swiss Ephemeris is a precise astronomical reference used by professional astrologers, and this app uses it to place the planets in your chart.",
+      "transits": "Transits compare where the planets are now with where they stood at your birth. Astrologers use them to judge timing: when a theme in your chart becomes more active.",
+      "northNode": "The North Node is not a planet but a point in the chart: where the Moon's orbit crosses the Sun's apparent path heading north. Astrologers read it as a direction of growth, the qualities a person is invited to develop.",
+      "menu": "Opens or closes the list of your saved profiles. From there you can open a chart, create a new profile, or archive one you no longer need and restore it later.",
+      "archive": "Archive moves this profile out of the main list into an Archived section lower in this menu. Nothing is deleted, and you can restore it at any time.",
+      "restore": "Restore brings this archived profile back to your main list, with its chart and readings as they were.",
+      "signInSave": "Opens a Google sign-in window. Once you are signed in, the profiles from this browser are linked to your account, so they, your stars and your readings are available on any device."
+    },
+    "create": {
+      "timeUnknown": "Turn this on if you don't know your birth time. The chart is then calculated for noon: planets and aspects are still shown, but the Rising sign, the Midheaven and each planet's house are not calculated, and the Moon may be a few degrees off.",
+      "birthTime": "Enter the local clock time of your birth. It decides your Rising sign and the houses, and the Rising sign changes about every two hours, so even a few minutes can matter. If you don't know it, use “Time unknown” instead.",
+      "birthPlace": "Where you were born. The place gives the time zone for your birth time and the spot on Earth the houses and Rising sign are calculated for. Search by name or click the map; hold Cmd or Ctrl while scrolling to zoom.",
+      "coordinates": "The latitude and longitude of the chosen place, filled in automatically. They pinpoint the spot on Earth that the time zone and the houses are worked out from."
+    },
+    "account": {
+      "balance": "Your stars: one balance shared by all your profiles, and they never expire. Spend them on Oracle questions (1 star each), compatibility readings (2 stars) and unlocking a profile's full interpretation with the PDF (4 stars).",
+      "buyStars": "Opens the Premium tab of your first profile, where you choose a star pack. The stars you buy go into your shared balance and can be spent on any of your profiles.",
+      "astrologers": "Your Personal Astrologer subscriptions, one per profile. The astrologer is an AI that writes you letters on your chosen schedule and learns about you over time. Here you see its name, the profile and when the next letter is due.",
+      "manage": "Opens this profile's Astrologer tab, where you can read the letters, change the email addresses they go to, pause or resume the subscription, or cancel it.",
+      "push": "Push notifications are short messages that appear on your device when a new letter arrives, even if the site is not open. Your browser will ask for permission first, and you can turn them off later in its settings."
+    },
+    "letters": {
+      "title": "Letters are short personal readings written by an AI from your natal chart, the current sky and what your astrologer has learned about you. They appear in this list, and each one can include a few short questions.",
+      "generate": "An AI writes a letter for this chart right now, without waiting for the schedule. It costs no stars and needs no subscription. If a letter was already written today, you get that one instead.",
+      "options": "Short questions your astrologer asks to get to know you. Tapping an answer is free: it is saved to your notes and used in later letters, and you can see or delete it on the “What it knows” page.",
+      "ask": "Ask your astrologer any question about your chart. An AI writes the answer from your natal chart and what your astrologer already knows about you, and each question costs one star. Facts you mention may be saved to your notes.",
+      "askButton": "Sends your question. One star is taken when you send it and given back if no answer can be written.",
+      "feedback": "A quick check on whether this letter felt true to you. Use the thumbs to say it resonated or missed; your answer is saved with the letter, and you can change it at any time.",
+      "thumbUp": "Marks this letter as one that resonated with you. The answer is saved with the letter, and you can change it with the other thumb.",
+      "thumbDown": "Marks this letter as one that missed the mark for you. The answer is saved with the letter, and you can change it with the other thumb."
+    },
+    "astrologer": {
+      "title": "A Personal Astrologer writes you regular letters for this chart. Each letter is written by an AI from your natal chart, the current sky and what your astrologer has learned about you, and you can answer its questions and ask your own.",
+      "intro": "Choose how often letters arrive, or try a free sample first. An AI writes them; each scheduled letter adds one star to your wallet, and each question you ask costs one star. You can review and delete its notes about you at any time.",
+      "freeLetter": "An AI writes a sample letter for this chart with no payment and no subscription, then your letters open. If a letter was already written today, you see that one instead.",
+      "cadence": "How often your astrologer writes to you. The monthly price grows with the number of letters, and the option marked popular is the suggested starting point. Every scheduled letter also adds one star to your wallet.",
+      "period": "Pay month by month or once a year. The annual price is nine times the monthly one, so three of the twelve months are free. Both plans renew automatically until you cancel.",
+      "schedule": "Your astrologer writes to you at the interval you chose. The first letter comes right after you hire, and each later one follows the same rhythm.",
+      "email": "When this is on, each letter is also sent to your email, in addition to appearing in the app. Leave the address field empty to use your account email, or enter several addresses separated by commas.",
+      "name": "The name your astrologer uses in its letters and emails. Pick any name you like, or press Random for a suggestion; you set it when you hire.",
+      "hire": "Takes you to a secure checkout page to start the subscription at the price shown. Your first letter is written right after you hire, then letters follow the rhythm you chose. The subscription renews until you cancel.",
+      "perkStars": "Each letter your astrologer sends on schedule adds one star to your wallet. Stars pay for questions and readings, and they never expire.",
+      "perkLearns": "Your astrologer remembers your interests and the answers you give, including facts you mention in questions, and uses them in later letters. You can review, confirm and delete all of it on the “What it knows” page.",
+      "status": "Active means letters arrive on schedule. Paused means no new letters and no charges until you resume. Past due means the last payment did not go through, so letters wait until it does.",
+      "nextLetter": "When your astrologer's next scheduled letter is due. It is written automatically and shows up in your letters; while the subscription is paused or past due, no letter is written.",
+      "editEmails": "Choose which addresses receive each letter by email. Leave the field empty to use your account email, or enter several addresses separated by commas.",
+      "cancelsAt": "You have canceled this subscription. Letters keep coming until the end of the period you already paid for, and nothing is charged after that date.",
+      "pause": "Pause stops new letters and puts billing on hold until you resume. Your notes and stars stay as they are. When you resume, the next letter is written shortly after.",
+      "cancel": "Cancel stops the subscription at the end of the period you have already paid for. Letters keep coming until then, nothing is refunded for the current period, and your notes and stars are kept.",
+      "openLetters": "Opens the letters your astrologer has written for this chart, newest first. There you can answer its questions, ask your own and mark each letter as resonating or not.",
+      "openNotes": "Opens what your astrologer has learned about you: your interests, the notes it keeps and the tone it writes in. You can add interests, confirm notes and delete anything you do not want kept."
+    },
+    "notes": {
+      "title": "The notes your astrologer keeps about this chart: your interests, and facts it has picked up from your answers and questions. They personalize your letters and answers, and you can review, confirm or delete them here.",
+      "register": "The tone of voice your astrologer uses when it writes to you, for example warm, lightly playful or concise. While it says it is still getting to know you, a warm, balanced default tone is used.",
+      "interests": "Topics you care about, such as career, love or travel. Your astrologer uses them to decide what to write about and which current news to mention in your letters.",
+      "removeTag": "Removes this interest from your list, so your astrologer no longer uses it to choose topics and news.",
+      "addInterest": "Adds the interest you typed to your list. Pressing Enter does the same.",
+      "suggestions": "Ready-made ideas for interests. Tap one to add it to your list; once it is added, it disappears from here.",
+      "facts": "Facts your astrologer has noted about you, either because you told it or because it guessed them from your questions. Confirmed notes personalize letters and answers for this chart; notes marked \"needs your OK\" stay unused until you confirm them.",
+      "youToldUs": "You gave this yourself, by tapping an answer in a letter or choosing it during setup, so it counts as confirmed.",
+      "inferred": "Your astrologer guessed this from a question you asked, so it may be wrong. If it is, delete the note.",
+      "pending": "A guess about a sensitive topic, such as health, relationships or beliefs. It stays unused until you confirm it with the check button, and you can delete it if it is wrong.",
+      "confirm": "Confirms that this note is correct, so your astrologer can start using it in letters and answers.",
+      "delete": "Deletes this note from your list. Use it when a note is wrong or you would rather not have it kept.",
+      "forget": "Deletes everything your astrologer has learned about this chart: interests, notes and tone, plus your saved Oracle questions and answers on all devices. This cannot be undone. Your letters, stars and subscription stay as they are."
+    },
+    "profile": {
+      "birthTime": "The time of day this person was born. The exact time decides the Rising sign and which house each planet falls in. When it is unknown, the chart is calculated for noon, those are left out and the Houses tab is only approximate.",
+      "coordinates": "The latitude and longitude of the birth place, in degrees. Together with the date and time they fix the point on Earth the sky is measured from, which sets the Rising sign and the houses.",
+      "risingUnknown": "A dash means the Rising sign could not be worked out. It depends on the exact birth time, and that time is unknown. Add the time by editing the profile to see it."
+    },
+    "chart": {
+      "mode": "Chooses which version of the chart you see: the natal chart for the place you were born, or a relocated chart for the place you live now. The choice also applies to the Oracle, the interpretation, compatibility and the PDF.",
+      "residence": "The place where you live now, not where you were born. Choosing a place turns relocation on, and your Personal Astrologer also uses it for local weather and news in the letters.",
+      "residenceHint": "Your current residence is used to relocate the houses of your chart and, in your astrologer's letters, for local weather and news. Until you set a place, the app uses your birth place.",
+      "relocationSwitch": "Switches between your natal chart, drawn for your birth place, and a relocated chart for the place you live now. Relocation recalculates the houses, Rising sign and Midheaven for that place; the planets keep their zodiac positions. It needs a current residence.",
+      "relocationHint": "ASC is the Ascendant, which is your Rising sign, and MC is the Midheaven, the highest point of the chart. They and the houses depend on the place the chart is drawn for, so relocating moves them while the planets stay where they are."
+    },
+    "premium": {
+      "balance": "Your star balance. Stars are the app's currency: one star pays for an Oracle question, two for a compatibility reading, and four unlock the full interpretation with the PDF for one profile. Stars never expire and are shared by all your profiles.",
+      "trust": "A star pack is a one-time payment, not a subscription. Stars never expire, and a reading unlocked for a profile stays unlocked forever.",
+      "firstOffer": "A one-time welcome price on the Full chart reading pack, lower than the regular price shown crossed out. It applies to your first purchase of that pack only, and the stars arrive in your balance like with any other pack.",
+      "packStars": "A star pack adds the number of stars shown to your balance in one payment. Stars are spent on readings: an Oracle question, a compatibility reading or the full interpretation with the PDF.",
+      "bonusStar": "A bonus star is a free extra star credited on top of the stars the pack already contains.",
+      "popular": "The store highlights this pack as its headline offer: a full chart reading with Dig Deeper and the PDF for one profile."
+    },
+    "interpretation": {
+      "balance": "Counts your planets by the element of the sign they are in: fire, earth, air or water. It shows the mix of temperaments in your chart, and no mix is better or worse than another.",
+      "balanceBar": "Each color is one element, and its width is the share of your planets that sit in signs of that element. The legend below names the colors and shows how many planets each element has.",
+      "explored": "How many of the readings on this page you have already explored in more depth with Dig Deeper, out of the total. It is only a progress counter.",
+      "categorySun": "This reading is about your Sun sign, which describes your core identity: who you are at heart and what drives you. The word after the dot is the element of that sign, such as fire or water.",
+      "categoryMoon": "This reading is about your Moon sign, which describes your emotional nature: how you feel, what makes you feel safe and how you react. The word after the dot is the element of that sign.",
+      "categoryAscendant": "This reading is about your Rising sign, the zodiac sign that was rising on the eastern horizon at your birth. It describes the first impression you make and how you meet new situations. It appears only when the birth time is known.",
+      "categoryMidheaven": "This reading is about your Midheaven, the highest point of the chart, and its sign. It describes your public image and the direction of your career and calling. It appears only when the birth time is known.",
+      "categoryAspect": "Aspects are angles between two points of your chart, such as a trine or a square, and they show how those planets work together. This page shows up to five of the most exact ones, which are the strongest.",
+      "locked": "The full text of this reading is locked. Paying four stars once unlocks every reading for this profile, along with Dig Deeper and the PDF, with no further charge.",
+      "unlock": "Spends four stars once to unlock all the readings, Dig Deeper and the PDF for this profile. If you are signed out, you are asked to sign in first; with fewer than four stars the button takes you to the Premium tab.",
+      "digDeeper": "Asks an AI to write a longer, more detailed reading of this one topic from your chart, in plain language. It is included in your unlock, so it costs no extra stars, and the text is saved for later.",
+      "deepReading": "The longer reading you asked for with Dig Deeper, written by an AI from your chart for this one topic. It explains the terms in plain words and adds a short practice to try.",
+      "collapse": "Hides or shows the text of this deeper reading. Hiding it only tucks it away, and the reading stays saved.",
+      "pdf": "Builds a PDF report of your full reading, written up by an AI from your chart and the readings on this page, including any deeper ones you generated. Free for an unlocked profile; it can take a couple of minutes, so keep the page open."
+    },
+    "oracle": {
+      "title": "The Oracle answers questions about your life using your natal chart. The answer is written by an AI from the positions in your chart, so treat it as food for thought, not a prediction. Each question costs one star.",
+      "cost": "One question costs one star. The answer is written by an AI from your chart, and if no answer can be produced, the star is returned to your balance.",
+      "balance": "Your star balance. The Oracle's answers are written by an AI from your chart, and each one costs one star, so this is how many questions you can still ask. You can buy more stars in the Premium tab.",
+      "question": "Write your question in your own words, up to 1000 characters. The Oracle works from your natal chart, so questions about your character, choices and patterns fit best, and it does not predict events.",
+      "ask": "Sends your question and spends one star. An AI then writes the answer from your natal chart. If it fails to answer, the star is refunded, and if you are signed out, you are asked to sign in first.",
+      "answer": "The Oracle's reply to your latest question, written by an AI from your natal chart. Use it as a prompt for reflection rather than a prediction. When you ask the next question, it moves to your history.",
+      "history": "Your earlier questions and the answers you received for this profile. They are saved, so you can read them again later, and when you are signed in, on your other devices too.",
+      "toggle": "Shows or hides the full text of this answer. Hiding it leaves a one-line preview, and the answer stays saved.",
+      "delete": "Permanently deletes this question and answer together with the stored copy, so when you are signed in it disappears from your other devices too. The star it cost is not refunded."
+    },
+    "compatibility": {
+      "title": "A relationship reading compares your natal chart with another person's. An AI writes it from the two charts and describes how they fit together. Each reading costs two stars.",
+      "timeUnknown": "Turn this on if you do not know what time the other person was born. The reading then leaves out their Rising sign and houses, which depend on the exact time, and compares the rest of the chart.",
+      "birthTime": "The time of day the other person was born. It decides their Rising sign and houses, so the more exact it is, the more complete the comparison. If you do not know it, use the switch above.",
+      "birthPlace": "The city where the other person was born. Together with the date and time, the place fixes their chart, and the coordinates and time zone are found from it automatically.",
+      "generate": "An AI compares both natal charts and describes how they fit together. It costs two stars, refunded if the reading fails. If you are signed out you are asked to sign in first; with fewer than two stars the button takes you to the Premium tab.",
+      "timezone": "The time zone of the other person's birth place, found automatically from the place you chose. It is used to turn their local birth time into universal time before their chart is calculated.",
+      "toggle": "Shows or hides the full text of this reading. Hiding it only folds it away, and the reading stays saved.",
+      "delete": "Permanently deletes this reading together with the stored copy, so when you are signed in it disappears from your other devices too. The two stars it cost are not refunded."
+    },
+    "transits": {
+      "title": "Transits compare today's sky with your birth chart, like changing weather around the fixed picture of your birth. The text below is a short mood-of-the-day note written by an AI from your chart and today's date, not from calculated planet positions.",
+      "today": "A short forecast for today, written by an AI from your natal chart and today's date. It describes the mood of the day and the themes in focus, not events that will happen. It is free and is made once a day for each profile."
+    },
+    "planets": {
+      "Sun": "In astrology the Sun stands for the core of who you are: identity, vitality and sense of purpose. Its sign is the “sun sign” people usually mean when they name their zodiac sign, and its house shows where that energy is most at work.",
+      "Moon": "The Moon stands for your emotional nature: what helps you feel safe, your moods and your habits. It is the fastest-moving body in the chart and changes sign every two to three days, so the exact birth time matters for it.",
+      "Mercury": "Mercury stands for the mind: how you think, learn, speak and exchange information. Its sign describes your style of communication, and its house shows where that style is used most.",
+      "Venus": "Venus stands for love, affection, beauty and what you value. Its sign describes how you relate to others and what you enjoy, and its house shows where those themes are most active.",
+      "Mars": "Mars stands for energy, drive and the way you assert yourself and go after what you want. Its sign describes your style of taking action, and its house shows where you put that energy to work.",
+      "Jupiter": "Jupiter stands for growth, optimism, learning and opportunity, and is traditionally called the planet of expansion. Its sign and house show where you look for meaning and room to grow.",
+      "Saturn": "Saturn stands for structure, discipline, responsibility and limits. It is linked with patience and long-term effort, and its sign and house point to where steady work matters most.",
+      "Uranus": "Uranus stands for change, originality and breaking with convention. It spends about seven years in each sign, so its sign is shared by a whole generation, while its house shows where the urge for freedom and change is felt personally.",
+      "Neptune": "Neptune stands for imagination, intuition, dreams and ideals, but also for illusion and uncertainty. It spends about 14 years in each sign, so its sign is shared by a whole generation, while its house shows where these themes are felt personally.",
+      "Pluto": "Pluto stands for deep transformation, power and renewal. It moves very slowly, staying in a sign for roughly 12 to 30 years, so its sign is shared by a whole generation, while its house shows where that intensity is felt personally."
+    },
+    "signs": {
+      "Aries": "Aries is a fire sign, linked with initiative, courage and directness. A planet in Aries, or a house that begins in it, is colored by a bold, quick and energetic style.",
+      "Taurus": "Taurus is an earth sign, linked with steadiness, patience, comfort and loyalty. A planet in Taurus, or a house that begins in it, is colored by a calm, practical and persistent style.",
+      "Gemini": "Gemini is an air sign, linked with curiosity, communication and versatility. A planet in Gemini, or a house that begins in it, is colored by a quick, inquisitive and adaptable style.",
+      "Cancer": "Cancer is a water sign, linked with care, emotional sensitivity, home and family. A planet in Cancer, or a house that begins in it, is colored by a protective, intuitive and nurturing style.",
+      "Leo": "Leo is a fire sign, linked with warmth, creativity, generosity and a wish to be seen. A planet in Leo, or a house that begins in it, is colored by a confident, expressive and big-hearted style.",
+      "Virgo": "Virgo is an earth sign, linked with detail, service, analysis and practicality. A planet in Virgo, or a house that begins in it, is colored by a careful, orderly and helpful style.",
+      "Libra": "Libra is an air sign, linked with balance, harmony, fairness and partnership. A planet in Libra, or a house that begins in it, is colored by a diplomatic, cooperative and peace-seeking style.",
+      "Scorpio": "Scorpio is a water sign, linked with intensity, depth, loyalty and transformation. A planet in Scorpio, or a house that begins in it, is colored by a focused, private and determined style.",
+      "Sagittarius": "Sagittarius is a fire sign, linked with optimism, freedom, exploration and a search for meaning. A planet in Sagittarius, or a house that begins in it, is colored by an adventurous, open-minded and candid style.",
+      "Capricorn": "Capricorn is an earth sign, linked with ambition, discipline, responsibility and long-term planning. A planet in Capricorn, or a house that begins in it, is colored by a serious, patient and goal-oriented style.",
+      "Aquarius": "Aquarius is an air sign, linked with independence, originality, friendship and ideals. A planet in Aquarius, or a house that begins in it, is colored by an unconventional, inventive and community-minded style.",
+      "Pisces": "Pisces is a water sign, linked with imagination, empathy, intuition and compassion. A planet in Pisces, or a house that begins in it, is colored by a gentle, dreamy and receptive style."
+    },
+    "houses": {
+      "1": "The first house is about you: your body, appearance, temperament and the way you meet the world. It is closely tied to the Ascendant (Rising sign), so it shapes the first impression you make.",
+      "2": "The second house is about the money you earn, your possessions and what you value. Planets here show how you approach security and material resources.",
+      "3": "The third house is about everyday thinking and communication, learning, siblings and neighbors, and short trips. Planets here show how you take in and share information.",
+      "4": "The fourth house is about home, family, roots and private life. It is the base of the chart and shows what gives you a sense of belonging and inner grounding.",
+      "5": "The fifth house is about creativity, romance, play, children and self-expression. Planets here show what brings you joy and how you express yourself.",
+      "6": "The sixth house is about daily routines, work habits, service and health habits. Planets here show how you organize everyday life and look after yourself.",
+      "7": "The seventh house is about one-to-one partnerships: marriage, close relationships and agreements. Planets here show what you look for in a partner and how you behave in committed bonds.",
+      "8": "The eighth house is about shared resources, joint finances, debts, trust and deep change. Planets here show how you handle closeness and the things you hold together with others.",
+      "9": "The ninth house is about beliefs, higher education, long journeys and the search for meaning. Planets here show how you widen your outlook.",
+      "10": "The tenth house is about career, public role, reputation and ambition. It is linked with the Midheaven (MC) and shows how you wish to be seen in the wider world.",
+      "11": "The eleventh house is about friends, groups, communities and long-term hopes and goals. Planets here show the people and networks you draw support from.",
+      "12": "The twelfth house is about the hidden side of life: solitude, rest, the subconscious and endings. Planets here show how you recharge and what works quietly behind the scenes."
+    },
+    "aspects": {
+      "conjunction": "A conjunction is when two bodies sit at or very near the same point of the zodiac. Their energies blend and intensify each other, so the pair acts as one strong theme.",
+      "opposition": "An opposition is when two bodies are about 180° apart, on opposite sides of the chart. It creates tension, a pull between two needs or viewpoints that asks for conscious balance.",
+      "trine": "A trine is when two bodies are about 120° apart. Their energies flow together easily, which often shows as a natural talent or ease in that area, though it can also be taken for granted.",
+      "square": "A square is when two bodies are about 90° apart. It creates friction and tension that push you to act, and such challenges are often a source of drive and growth.",
+      "sextile": "A sextile is when two bodies are about 60° apart. It is a gentle, supportive link that offers opportunities, which work best when you take the initiative."
+    },
+    "houseSystems": {
+      "placidus": "A house system divides the chart into twelve houses. Placidus is widely used: it is based on time, gives houses of unequal size and cannot be calculated in polar regions. Other systems can put the same planet in a different house.",
+      "koch": "A house system divides the chart into twelve houses. Koch is based on time and gives houses of unequal size; it is this app's default. Where Koch cannot be calculated (extreme latitudes), the app uses Whole Sign instead.",
+      "wholeSign": "A house system divides the chart into twelve houses. In Whole Sign each house is one zodiac sign, starting with the Ascendant's sign. It is one of the oldest methods and works at any latitude, so the app falls back to it when another system fails."
+    },
+    "elements": {
+      "fire": "Fire signs are Aries, Leo and Sagittarius. They stand for energy, enthusiasm and action. Many planets in fire signs suggest a spontaneous, driven temperament.",
+      "earth": "Earth signs are Taurus, Virgo and Capricorn. They stand for practicality, stability and the material world. Many planets in earth signs suggest a grounded, patient temperament.",
+      "air": "Air signs are Gemini, Libra and Aquarius. They stand for thought, communication and social connection. Many planets in air signs suggest a curious, sociable temperament.",
+      "water": "Water signs are Cancer, Scorpio and Pisces. They stand for feeling, intuition and emotional depth. Many planets in water signs suggest a sensitive, empathic temperament."
+    },
+    "terms": {
+      "bigThree": "The Big Three are your Sun sign, Moon sign and Rising sign (Ascendant). Together they give the quickest portrait of a chart: core identity, emotional nature and outward manner. The Rising sign needs a known birth time.",
+      "ascendant": "The Ascendant (ASC), or Rising sign, is the zodiac sign and degree rising over the eastern horizon at the moment of birth. It describes your outward manner and first impressions, and the aspect list treats it like a planet. It needs an accurate birth time.",
+      "midheaven": "The Midheaven (MC) is the point of the zodiac highest in the sky at the moment of birth. It relates to career, public image and life direction, and the aspect list treats it like a planet. It needs an accurate birth time.",
+      "orb": "The orb is how far, in degrees, an aspect is from being exact. Here two bodies form an aspect when they are within 6 degrees of the exact angle; the smaller the orb, the stronger the aspect.",
+      "exactness": "Exactness shows how close an aspect is to perfect, as a percentage: 100% means exact and 0% means a 6 degree orb, the largest allowed. For example, an orb of 3 degrees gives 50%. The higher the figure, the stronger the aspect.",
+      "cusp": "A cusp is the point where a house begins, given as a zodiac sign and degree. The sign on the cusp sets the style of that area of life, and the house runs from there to the next cusp.",
+      "ruler": "The ruler of a house is the planet traditionally linked with the sign on its cusp, such as Mars for Aries or Venus for Taurus. It acts as that area's manager, so its sign, house and aspects show how the area works.",
+      "almuten": "The almuten is the planet with the most points for a house in this app's own scoring, counting only the seven traditional planets. Points go for ruling the cusp sign, its element or its 10-degree section (face), being exalted there, and sitting in the house. Ties show with a slash.",
+      "degree": "The degree is the exact position of the body inside its sign, from 0° to 30°, followed by arc minutes (60 minutes make one degree). Exact degrees are also used to measure the angles between bodies, which are the aspects.",
+      "body": "A body is one of the ten celestial bodies in the chart: the Sun, the Moon and Mercury to Pluto. Astrologers call them all planets; each stands for a different part of personality. The aspect list can also include the Ascendant (ASC) and Midheaven (MC).",
+      "sign": "The sign is the part of the zodiac the body is in: one of twelve equal 30-degree sections, which the Sun passes through during a year. A body's sign describes the style in which its energy is expressed.",
+      "house": "A house is one of the twelve areas of life the chart is divided into, numbered 1 to 12. A body's house shows where in life its energy is most at work. A dash means the birth time is unknown, so houses cannot be placed.",
+      "aspect": "An aspect is the angle between two bodies in the chart. The main ones are conjunction (0°), sextile (60°), square (90°), trine (120°) and opposition (180°), and each shows whether two energies blend, support or challenge each other.",
+      "planetsInHouse": "The planets that sit inside this house. They show which energies are active in that area of life, so a house with several planets usually draws more attention."
+    },
+    "ui": {
+      "title": "Help",
+      "open": "What is this?",
+      "openFor": "Help: {{term}}"
+    },
+    "tabs": {
+      "chart": "Your natal chart is a map of the sky at the moment you were born: where each planet stood among the zodiac signs and houses. Start here for the big picture.",
+      "planets": "A table of the ten planets in your chart with the sign, exact degree and house of each. Use it to see where every planet sits and which area of life it colors.",
+      "aspects": "The angles between your planets, listed from the most exact. Aspects show which planets support each other or pull against each other, and the closer an aspect is to exact, the more strongly it is felt.",
+      "houses": "Your chart is divided into twelve houses, each tied to an area of life such as home, work or relationships. Here you see the ruler of each house and which planets sit in it, grouped by health, relationships, money and home.",
+      "interpretation": "A written reading of your chart: your Sun, Moon and Rising sign, your strongest aspects and the balance of the four elements. The full text unlocks once for this profile with stars, and each block can be expanded further.",
+      "oracle": "Ask any question and get an AI answer based on your natal chart. Each question costs one star, and your earlier answers are kept here.",
+      "transits": "Transits compare today's sky with your natal chart. This tab gives a short outlook for today, written by an AI from your chart and today's date rather than from calculated planet positions.",
+      "compatibility": "Compare your chart with another person's birth data to get a relationship reading. It needs their birth date and place, ideally the time too, and costs two stars.",
+      "astrologer": "Your Personal Astrologer is an AI that writes you letters on the schedule you choose and learns your interests over time. Each scheduled letter also adds one star to your wallet.",
+      "premium": "Stars are the app's currency. Spend them to unlock readings for this profile, ask the Oracle or compare charts; they never expire."
+    }
+  },
+  "a11y": {
+    "lettersAsk": "Send question",
+    "lettersAskField": "Ask your astrologer",
+    "lettersOptions": "Answer options",
+    "lettersThumbUp": "Yes, it resonated",
+    "lettersThumbDown": "No, it missed",
+    "notesRemoveTag": "Remove {{tag}}",
+    "notesAddInterest": "Add interest",
+    "notesSuggestions": "Suggested interests",
+    "oracleQuestion": "Question for the Oracle"
   }
 }

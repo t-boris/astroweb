@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toAppLanguage } from "@/lib/language";
 import { getForecast } from "@/api/forecast";
 import { AiReading } from "@/components/AiReading";
+import { HelpBubble } from "@/components/HelpBubble";
 
 export function ForecastView({ profileId, ownerDeviceId }: { profileId: string; ownerDeviceId: string }) {
   const { t, i18n } = useTranslation();
@@ -56,9 +57,11 @@ export function ForecastView({ profileId, ownerDeviceId }: { profileId: string; 
         <div className="mb-1 text-xs uppercase tracking-[0.28em] text-[#8fb6ff]">
           ✦ {t("forecast.eyebrow", "Forecast")}
         </div>
-        <h2 className="font-serif text-2xl text-foreground">
-          {t("forecast.title", "Transits & Cosmic Weather")}
-        </h2>
+        <HelpBubble helpKey="transits.title">
+          <h2 className="font-serif text-2xl text-foreground">
+            {t("forecast.title", "Transits & Cosmic Weather")}
+          </h2>
+        </HelpBubble>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("forecast.subtitle", "How today's sky touches your natal chart.")}
           {date ? ` · ${date}` : ""}
@@ -77,9 +80,11 @@ export function ForecastView({ profileId, ownerDeviceId }: { profileId: string; 
         >
           <div className="flex items-center gap-3">
             <span className="text-3xl">🌙</span>
-            <h3 className="font-serif text-xl text-[#8fb6ff]">
-              {t("forecast.todayTitle", "Today's cosmic weather")}
-            </h3>
+            <HelpBubble helpKey="transits.today">
+              <h3 className="font-serif text-xl text-[#8fb6ff]">
+                {t("forecast.todayTitle", "Today's cosmic weather")}
+              </h3>
+            </HelpBubble>
           </div>
           <AiReading text={text} />
         </div>

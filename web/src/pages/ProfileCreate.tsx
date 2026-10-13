@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PlaceSearch from "@/components/PlaceSearch";
+import { HelpBubble } from "@/components/HelpBubble";
 import { trackEvent } from "@/lib/analytics";
 
 export default function ProfileCreate() {
@@ -229,11 +230,18 @@ export default function ProfileCreate() {
               {/* Time Unknown + Birth Time */}
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <Switch
-                    id="timeUnknown"
-                    checked={timeUnknown}
-                    onCheckedChange={handleTimeUnknownChange}
-                  />
+                  <HelpBubble
+                    helpKey="create.timeUnknown"
+                    actionable
+                    label={t("profile.form.timeUnknown")}
+                    side="top"
+                  >
+                    <Switch
+                      id="timeUnknown"
+                      checked={timeUnknown}
+                      onCheckedChange={handleTimeUnknownChange}
+                    />
+                  </HelpBubble>
                   <Label htmlFor="timeUnknown">
                     {t("profile.form.timeUnknown")}
                   </Label>
@@ -242,12 +250,21 @@ export default function ProfileCreate() {
                 {!timeUnknown && (
                   <div className="space-y-2">
                     <Label htmlFor="birthTime">{t("profile.form.birthTime")}</Label>
-                    <Input
-                      id="birthTime"
-                      type="time"
-                      value={birthTime}
-                      onChange={(e) => setBirthTime(e.target.value)}
-                    />
+                    <div className="flex items-center gap-1">
+                      <HelpBubble
+                        helpKey="create.birthTime"
+                        actionable
+                        label={t("profile.form.birthTime")}
+                        side="top"
+                      >
+                        <Input
+                          id="birthTime"
+                          type="time"
+                          value={birthTime}
+                          onChange={(e) => setBirthTime(e.target.value)}
+                        />
+                      </HelpBubble>
+                    </div>
                     {errors.birthTime && (
                       <p className="text-sm text-destructive">{errors.birthTime}</p>
                     )}
@@ -257,7 +274,9 @@ export default function ProfileCreate() {
 
               {/* Birth Place (PlaceSearch) */}
               <div className="space-y-2">
-                <Label>{t("profile.form.birthPlace")}</Label>
+                <HelpBubble helpKey="create.birthPlace" side="top">
+                  <Label>{t("profile.form.birthPlace")}</Label>
+                </HelpBubble>
                 <PlaceSearch
                   onSelect={handlePlaceSelect}
                   initialValue={isEdit ? birthPlace : undefined}
@@ -272,7 +291,9 @@ export default function ProfileCreate() {
               {/* Coordinates preview (read-only) */}
               {lat !== null && lng !== null && (
                 <div className="rounded-md border border-border/40 bg-transparent px-3 py-2 text-sm text-muted-foreground">
-                  <span className="font-medium text-[#8fb6ff]">{t("profile.form.coordinates")}:</span>{" "}
+                  <HelpBubble helpKey="create.coordinates" side="top">
+                    <span className="font-medium text-[#8fb6ff]">{t("profile.form.coordinates")}:</span>
+                  </HelpBubble>{" "}
                   {lat.toFixed(4)}, {lng.toFixed(4)}
                 </div>
               )}

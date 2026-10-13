@@ -12,10 +12,11 @@ import {
   type Letter,
 } from "@/api/letters";
 import { Button } from "@/components/ui/button";
+import { HelpBubble } from "@/components/HelpBubble";
 import { trackEvent, trackOnce } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 
-function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }) {
+function LetterCard({ profileId, letter, first }: { profileId: string; letter: Letter; first: boolean }) {
   const { t } = useTranslation();
   const [questions, setQuestions] = useState(letter.questions ?? []);
   const [feedback, setFeedback] = useState(letter.feedback);
@@ -60,31 +61,32 @@ function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }
       <p className="text-xs text-muted-foreground">{new Date(letter.generatedAt).toLocaleDateString()}</p>
       <div
         className="space-y-3 text-[15px] leading-relaxed text-muted-foreground [&_h3]:mt-1 [&_h3]:font-serif [&_h3]:text-base [&_h3]:text-[#8fb6ff] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_li]:marker:text-[#8fb6ff]/70"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(letter.html, { USE_PROFILES: { html: true } }) }}
       />
 
       {questions.length > 0 && (
         <div className="space-y-3 border-t border-border/40 pt-3">
-          {questions.map((q) => (
+          {questions.map((q, qi) => (
             <div key={q.id} className="space-y-1.5">
               <p className="text-sm text-muted-foreground">{q.text}</p>
-              <div className="flex flex-wrap gap-2">
-                {q.options.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => tap(q.id, opt)}
-                    className={`rounded-full border px-3 py-1 text-sm transition-colors ${
-                      q.answeredOption === opt
-                        ? "border-primary bg-primary/20 text-[#8fb6ff]"
-                        : "border-border/60 text-muted-foreground hover:border-primary hover:text-foreground"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
+              <HelpBubble enabled={first && qi === 0} helpKey="letters.options" actionable label={t("a11y.lettersOptions")}>
+                <div className="flex flex-wrap gap-2">
+                  {q.options.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => tap(q.id, opt)}
+                      className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                        q.answeredOption === opt
+                          ? "border-primary bg-primary/20 text-[#8fb6ff]"
+                          : "border-border/60 text-muted-foreground hover:border-primary hover:text-foreground"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </HelpBubble>
             </div>
           ))}
         </div>
@@ -92,25 +94,35 @@ function LetterCard({ profileId, letter }: { profileId: string; letter: Letter }
 
       <div className="space-y-2 border-t border-border/40 pt-3">
         <div className="flex items-center gap-2">
-          <Input
-            value={ask}
-            onChange={(e) => setAsk(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submitAsk()}
-            placeholder={t("letters.askPlaceholder", "Ask about this letter… (✦1)")}
-            className="h-9"
-          />
-          <Button size="sm" onClick={submitAsk} disabled={asking} className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]">
-            {asking ? "…" : <Sparkles className="h-4 w-4" />}
-          </Button>
+          <HelpBubble enabled={first} helpKey="letters.ask" actionable label={t("a11y.lettersAskField")} wrapperClassName="flex flex-1">
+            <Input
+              value={ask}
+              onChange={(e) => setAsk(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitAsk()}
+              placeholder={t("letters.askPlaceholder", "Ask about this letter… (✦1)")}
+              className="h-9"
+            />
+          </HelpBubble>
+          <HelpBubble helpKey="letters.askButton" actionable label={t("a11y.lettersAsk")}>
+            <Button size="sm" onClick={submitAsk} disabled={asking} aria-label={t("a11y.lettersAsk")} className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]">
+              {asking ? "…" : <Sparkles className="h-4 w-4" />}
+            </Button>
+          </HelpBubble>
         </div>
         {askErr && <p className="text-xs text-destructive">{askErr}</p>}
         {answer && <div className="rounded-md border border-border/40 bg-background/40 p-3 text-sm whitespace-pre-wrap">{answer}</div>}
       </div>
 
       <div className="flex items-center gap-2 border-t border-border/40 pt-3">
-        <span className="text-xs text-muted-foreground">{t("letters.feedback", "Did this resonate?")}</span>
-        <button type="button" onClick={() => fb("resonated")} className={`rounded-md p-1.5 ${feedback === "resonated" ? "text-[#8fb6ff]" : "text-muted-foreground hover:text-foreground"}`}><ThumbsUp className="h-4 w-4" /></button>
-        <button type="button" onClick={() => fb("missed")} className={`rounded-md p-1.5 ${feedback === "missed" ? "text-[#8fb6ff]" : "text-muted-foreground hover:text-foreground"}`}><ThumbsDown className="h-4 w-4" /></button>
+        <HelpBubble enabled={first} helpKey="letters.feedback">
+          <span className="text-xs text-muted-foreground">{t("letters.feedback", "Did this resonate?")}</span>
+        </HelpBubble>
+        <HelpBubble helpKey="letters.thumbUp" actionable label={t("a11y.lettersThumbUp")}>
+          <button type="button" onClick={() => fb("resonated")} aria-label={t("a11y.lettersThumbUp")} className={`rounded-md p-1.5 ${feedback === "resonated" ? "text-[#8fb6ff]" : "text-muted-foreground hover:text-foreground"}`}><ThumbsUp className="h-4 w-4" /></button>
+        </HelpBubble>
+        <HelpBubble helpKey="letters.thumbDown" actionable label={t("a11y.lettersThumbDown")}>
+          <button type="button" onClick={() => fb("missed")} aria-label={t("a11y.lettersThumbDown")} className={`rounded-md p-1.5 ${feedback === "missed" ? "text-[#8fb6ff]" : "text-muted-foreground hover:text-foreground"}`}><ThumbsDown className="h-4 w-4" /></button>
+        </HelpBubble>
       </div>
     </div>
   );
@@ -166,18 +178,22 @@ export default function LettersInbox({ profileId }: { profileId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-serif text-lg text-[#8fb6ff]">{t("letters.title", "Letters from your astrologer")}</h2>
-        <Button size="sm" onClick={generate} disabled={generating} className="bg-primary/20 border border-primary text-primary hover:bg-primary/30">
-          {generating ? t("letters.generating", "Writing…") : t("letters.generateSample", "Generate a letter")}
-        </Button>
+        <HelpBubble helpKey="letters.title">
+          <h2 className="font-serif text-lg text-[#8fb6ff]">{t("letters.title", "Letters from your astrologer")}</h2>
+        </HelpBubble>
+        <HelpBubble helpKey="letters.generate" actionable label={t("letters.generateSample", "Generate a letter")}>
+          <Button size="sm" onClick={generate} disabled={generating} className="bg-primary/20 border border-primary text-primary hover:bg-primary/30">
+            {generating ? t("letters.generating", "Writing…") : t("letters.generateSample", "Generate a letter")}
+          </Button>
+        </HelpBubble>
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       {loading && <p className="py-8 text-center text-muted-foreground">{t("common.loading", "Loading…")}</p>}
       {!loading && letters.length === 0 && (
         <div className="ds-card p-8 text-center text-muted-foreground">{t("letters.empty", "No letters yet. Generate one to see how your astrologer writes for you.")}</div>
       )}
-      {letters.map((l) => (
-        <LetterCard key={l.id} profileId={profileId} letter={l} />
+      {letters.map((l, i) => (
+        <LetterCard key={l.id} profileId={profileId} letter={l} first={i === 0} />
       ))}
     </div>
   );

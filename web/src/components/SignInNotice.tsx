@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { HelpBubble } from "@/components/HelpBubble";
 import { useAuthUser } from "@/lib/useAuthUser";
 import { ensureSignedIn } from "@/lib/contentSync";
 import { shouldShowSignInNotice } from "@/lib/signInNotice";
@@ -26,9 +27,11 @@ export default function SignInNotice({ deviceId, profileCount }: { deviceId: str
   return (
     <div className="mb-3 rounded-lg border border-[#e8c969]/30 bg-[#e8c969]/5 p-2.5 text-[11px] leading-snug text-muted-foreground" data-testid="signin-notice">
       <p>{t("signInNotice.text")}</p>
-      <Button size="xs" variant="outline" className="mt-2 w-full" onClick={() => void save()} disabled={busy}>
-        {t("signInNotice.action")}
-      </Button>
+      <HelpBubble helpKey="home.signInSave" actionable label={t("signInNotice.action")}>
+        <Button size="xs" variant="outline" className="mt-2 w-full" onClick={() => void save()} disabled={busy}>
+          {t("signInNotice.action")}
+        </Button>
+      </HelpBubble>
     </div>
   );
 }

@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { HelpBubble } from "@/components/HelpBubble";
 
 const RANDOM_NAMES = ["Vega", "Lyra", "Orion", "Selene", "Cassio", "Astra", "Sol"];
 
@@ -139,12 +140,16 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
 
   const quickLinks = (
     <div className="flex flex-wrap gap-2 pt-1">
-      <Button asChild size="sm" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
-        <Link to={`/profile/${profileId}/letters`}><MessageCircle className="mr-1.5 h-4 w-4" />{t("hub.openLetters")}</Link>
-      </Button>
-      <Button asChild size="sm" variant="outline" className="border-border/60 text-muted-foreground hover:border-primary hover:text-foreground">
-        <Link to={`/profile/${profileId}/notes`}>{t("hub.openNotes")}</Link>
-      </Button>
+      <HelpBubble helpKey="astrologer.openLetters" actionable label={t("hub.openLetters")}>
+        <Button asChild size="sm" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
+          <Link to={`/profile/${profileId}/letters`}><MessageCircle className="mr-1.5 h-4 w-4" />{t("hub.openLetters")}</Link>
+        </Button>
+      </HelpBubble>
+      <HelpBubble helpKey="astrologer.openNotes" actionable label={t("hub.openNotes")}>
+        <Button asChild size="sm" variant="outline" className="border-border/60 text-muted-foreground hover:border-primary hover:text-foreground">
+          <Link to={`/profile/${profileId}/notes`}>{t("hub.openNotes")}</Link>
+        </Button>
+      </HelpBubble>
     </div>
   );
 
@@ -161,13 +166,20 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
           <div>
             <p className="font-serif text-xl text-foreground">{sub.astrologerName}</p>
             <p className="text-sm text-muted-foreground">
-              <span className="text-[#8fb6ff]">{statusLabel(sub.status)}</span> · {t(`hub.cad${cadKey(sub.cadence)}`)} · {t(`hub.${sub.billingPeriod}`)}
+              <HelpBubble helpKey="astrologer.status">
+                <span className="text-[#8fb6ff]">{statusLabel(sub.status)}</span>
+              </HelpBubble>{" "}
+              · {t(`hub.cad${cadKey(sub.cadence)}`)} · {t(`hub.${sub.billingPeriod}`)}
             </p>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.scheduleLine", { cadence: cadenceLabel(sub.cadence), defaultValue: `Letters: {{cadence}}, in the morning your local time` })}</span>
-          <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.nextLetter")}: {new Date(sub.nextLetterAt).toLocaleString()}</span>
+          <HelpBubble helpKey="astrologer.schedule">
+            <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.scheduleLine", { cadence: cadenceLabel(sub.cadence), defaultValue: `Letters: {{cadence}}, in the morning your local time` })}</span>
+          </HelpBubble>
+          <HelpBubble helpKey="astrologer.nextLetter">
+            <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.nextLetter")}: {new Date(sub.nextLetterAt).toLocaleString()}</span>
+          </HelpBubble>
           {sub.channels?.email && (
             editEmails === null ? (
               <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -176,13 +188,15 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
                 {sub.recipientEmails && sub.recipientEmails.length > 0
                   ? sub.recipientEmails.join(", ")
                   : userEmail ?? "—"}
-                <button
-                  type="button"
-                  className="text-[#8fb6ff] underline underline-offset-2 hover:text-[#dfeaff]"
-                  onClick={() => setEditEmails((sub.recipientEmails ?? []).join(", "))}
-                >
-                  {t("hub.editEmails", "change")}
-                </button>
+                <HelpBubble helpKey="astrologer.editEmails" actionable label={t("hub.editEmails", "change")}>
+                  <button
+                    type="button"
+                    className="text-[#8fb6ff] underline underline-offset-2 hover:text-[#dfeaff]"
+                    onClick={() => setEditEmails((sub.recipientEmails ?? []).join(", "))}
+                  >
+                    {t("hub.editEmails", "change")}
+                  </button>
+                </HelpBubble>
               </span>
             ) : (
               <span className="flex flex-col gap-1.5">
@@ -200,7 +214,11 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
               </span>
             )
           )}
-          {sub.canceledAt && <span className="rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 px-2.5 py-1 text-[#e8c969]">{t("hub.cancelsAt")} · {new Date(sub.currentPeriodEnd).toLocaleDateString()}</span>}
+          {sub.canceledAt && (
+            <HelpBubble helpKey="astrologer.cancelsAt">
+              <span className="rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 px-2.5 py-1 text-[#e8c969]">{t("hub.cancelsAt")} · {new Date(sub.currentPeriodEnd).toLocaleDateString()}</span>
+            </HelpBubble>
+          )}
         </div>
         {quickLinks}
 
@@ -213,9 +231,17 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
           </div>
         ) : (
           <div className="mt-4 flex flex-wrap gap-2 border-t border-border/40 pt-4">
-            {sub.status === "active" && <Button size="sm" variant="outline" disabled={busy} onClick={() => act(pauseSubscription)}>{t("hub.pause")}</Button>}
+            {sub.status === "active" && (
+              <HelpBubble helpKey="astrologer.pause" actionable label={t("hub.pause")}>
+                <Button size="sm" variant="outline" disabled={busy} onClick={() => act(pauseSubscription)}>{t("hub.pause")}</Button>
+              </HelpBubble>
+            )}
             {sub.status === "paused" && <Button size="sm" variant="outline" disabled={busy} onClick={() => act(resumeSubscription)}>{t("hub.resume")}</Button>}
-            {!sub.canceledAt && <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive" disabled={busy} onClick={() => setConfirmCancel(true)}>{t("hub.cancel")}</Button>}
+            {!sub.canceledAt && (
+              <HelpBubble helpKey="astrologer.cancel" actionable label={t("hub.cancel")}>
+                <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive" disabled={busy} onClick={() => setConfirmCancel(true)}>{t("hub.cancel")}</Button>
+              </HelpBubble>
+            )}
           </div>
         )}
         <p className="mt-3 text-[11px] text-muted-foreground">{t("hub.cancelNote")}</p>
@@ -232,8 +258,12 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
       <div className="flex items-start gap-4">
         <div className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-[#5b8def]/30 to-[#e8c969]/20 ring-1 ring-[#8fb6ff]/30 text-3xl text-[#dfeaff] shadow-[0_0_24px_rgba(91,141,239,0.35)]">✦</div>
         <div>
-          <h2 className="font-serif text-2xl text-foreground">{t("hub.title")}</h2>
-          <p className="mt-1 max-w-prose text-sm text-muted-foreground">{t("hub.intro")}</p>
+          <HelpBubble helpKey="astrologer.title">
+            <h2 className="font-serif text-2xl text-foreground">{t("hub.title")}</h2>
+          </HelpBubble>
+          <HelpBubble helpKey="astrologer.intro">
+            <p className="mt-1 max-w-prose text-sm text-muted-foreground">{t("hub.intro")}</p>
+          </HelpBubble>
         </div>
       </div>
 
@@ -247,19 +277,23 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
           </div>
         </div>
         {trialErr && <p className="mt-2 text-xs text-destructive">{trialErr}</p>}
-        <Button
-          onClick={tryFreeLetter}
-          disabled={trialBusy}
-          variant="outline"
-          className="mt-3 w-full border-[#8fb6ff]/50 text-[#8fb6ff] hover:bg-[#8fb6ff]/10"
-        >
-          {trialBusy ? t("hub.tryFreeLoading", "Writing your letter…") : t("hub.tryFree", "Get a free letter")}
-        </Button>
+        <HelpBubble helpKey="astrologer.freeLetter" actionable label={t("hub.tryFree", "Get a free letter")} wrapperClassName="flex">
+          <Button
+            onClick={tryFreeLetter}
+            disabled={trialBusy}
+            variant="outline"
+            className="mt-3 w-full border-[#8fb6ff]/50 text-[#8fb6ff] hover:bg-[#8fb6ff]/10"
+          >
+            {trialBusy ? t("hub.tryFreeLoading", "Writing your letter…") : t("hub.tryFree", "Get a free letter")}
+          </Button>
+        </HelpBubble>
       </div>
 
       {/* Cadence */}
       <div className="mt-6 space-y-2">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.cadence")}</p>
+        <HelpBubble helpKey="astrologer.cadence">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.cadence")}</p>
+        </HelpBubble>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {CADENCES.map((c) => {
             const active = cadence === c.value;
@@ -285,7 +319,9 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
 
       {/* Billing */}
       <div className="mt-5 space-y-2">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.period")}</p>
+        <HelpBubble helpKey="astrologer.period">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.period")}</p>
+        </HelpBubble>
         <div className="grid grid-cols-2 gap-2">
           <button type="button" onClick={() => setPeriod("monthly")} className={`rounded-xl border p-3 text-center transition-all ${period === "monthly" ? "border-primary bg-primary/15" : "border-border/50 hover:border-primary/60"}`}>
             <span className="block text-sm text-foreground">{t("hub.monthly")}</span>
@@ -300,16 +336,20 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
       </div>
 
       {/* Schedule clarity */}
-      <p className="mt-5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />
-        {t("hub.scheduleHint", { cadence: cadenceLabel(cadence), defaultValue: "First letter right after you hire, then {{cadence}} — in the morning, your local time." })}
-      </p>
+      <HelpBubble helpKey="astrologer.schedule">
+        <p className="mt-5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />
+          {t("hub.scheduleHint", { cadence: cadenceLabel(cadence), defaultValue: "First letter right after you hire, then {{cadence}} — in the morning, your local time." })}
+        </p>
+      </HelpBubble>
 
       {/* Email */}
       <div className="mt-3 rounded-xl border border-border/40 bg-background/40 px-4 py-3">
         <div className="flex items-center gap-3">
           <Mail className="h-4 w-4 text-[#8fb6ff]" />
-          <span className="flex-1 text-sm text-foreground">{t("hub.emailDelivery")}</span>
+          <HelpBubble helpKey="astrologer.email">
+            <span className="flex-1 text-sm text-foreground">{t("hub.emailDelivery")}</span>
+          </HelpBubble>
           <Switch checked={email} onCheckedChange={setEmail} />
         </div>
         {email && (
@@ -328,7 +368,9 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
       </div>
 
       <div className="mt-4 space-y-2">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.name")}</p>
+        <HelpBubble helpKey="astrologer.name">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8fb6ff]">{t("hub.name")}</p>
+        </HelpBubble>
         <div className="flex items-center gap-2">
           <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 max-w-xs" />
           <Button type="button" size="sm" variant="outline" onClick={() => setName(RANDOM_NAMES[Math.floor(Date.now() / 1000) % RANDOM_NAMES.length])}>
@@ -338,22 +380,28 @@ export default function AstrologerPanel({ profileId }: { profileId: string }) {
       </div>
 
       {/* Hire CTA */}
-      <Button
-        disabled={busy}
-        onClick={hire}
-        className="mt-6 h-12 w-full bg-gradient-to-r from-[#5b8def] to-[#8fb6ff] text-base font-semibold text-white shadow-[0_0_30px_-8px_rgba(91,141,239,0.7)] hover:opacity-95"
-      >
-        {busy ? "…" : (
-          <span className="inline-flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            {t("hub.hire")} — ${price.toFixed(2)}/{period === "annual" ? t("hub.year") : t("hub.month")}
-          </span>
-        )}
-      </Button>
+      <HelpBubble helpKey="astrologer.hire" actionable label={t("hub.hire")} side="top" wrapperClassName="flex">
+        <Button
+          disabled={busy}
+          onClick={hire}
+          className="mt-6 h-12 w-full bg-gradient-to-r from-[#5b8def] to-[#8fb6ff] text-base font-semibold text-white shadow-[0_0_30px_-8px_rgba(91,141,239,0.7)] hover:opacity-95"
+        >
+          {busy ? "…" : (
+            <span className="inline-flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              {t("hub.hire")} — ${price.toFixed(2)}/{period === "annual" ? t("hub.year") : t("hub.month")}
+            </span>
+          )}
+        </Button>
+      </HelpBubble>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.perk1", "+1 ✦ each letter")}</span>
-        <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.perk2", "learns about you")}</span>
+        <HelpBubble helpKey="astrologer.perkStars" side="top">
+          <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.perk1", "+1 ✦ each letter")}</span>
+        </HelpBubble>
+        <HelpBubble helpKey="astrologer.perkLearns" side="top">
+          <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.perk2", "learns about you")}</span>
+        </HelpBubble>
         <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-[#8fb6ff]" />{t("hub.perk3", "cancel anytime")}</span>
       </div>
 

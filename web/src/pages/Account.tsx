@@ -12,6 +12,7 @@ import { Mail, Calendar, Sparkles, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { enablePush, pushSupported, notificationPermission } from "@/lib/push";
+import { HelpBubble } from "@/components/HelpBubble";
 
 interface SubRow extends Subscription {
   profileName: string;
@@ -45,9 +46,13 @@ function NotificationsCard() {
       ) : perm === "granted" ? (
         <p className="inline-flex items-center gap-1.5 text-sm text-[#8fb6ff]"><Bell className="h-4 w-4" />{t("account.pushOn", "Push notifications are on")}</p>
       ) : (
-        <Button size="sm" onClick={turnOn} disabled={busy} className="bg-primary/20 border border-primary text-primary hover:bg-primary/30">
-          {busy ? "…" : t("account.pushEnable", "Enable push notifications")}
-        </Button>
+        <div className="flex">
+          <HelpBubble helpKey="account.push" actionable label={t("account.pushEnable", "Enable push notifications")}>
+            <Button size="sm" onClick={turnOn} disabled={busy} className="bg-primary/20 border border-primary text-primary hover:bg-primary/30">
+              {busy ? "…" : t("account.pushEnable", "Enable push notifications")}
+            </Button>
+          </HelpBubble>
+        </div>
       )}
       {err && <p className="text-xs text-destructive">{err}</p>}
     </div>
@@ -93,6 +98,10 @@ export default function Account() {
 
   const cadenceLabel = (c: string) => t(`hub.cad${({ daily: "Daily", every_2_days: "Every2", every_5_days: "Every5", weekly: "Weekly", every_2_weeks: "Every2w" } as Record<string, string>)[c]}`);
 
+  const manageButton = (s: SubRow) => (
+    <Button asChild size="sm" variant="outline"><Link to={`/profile/${s.profileId}?tab=astrologer`}>{t("account.manage", "Manage")}</Link></Button>
+  );
+
   async function handleSignIn() {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
@@ -130,25 +139,38 @@ export default function Account() {
       {/* Stars */}
       <div className="ds-card flex items-center justify-between gap-3 p-5">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("account.balance", "Star balance")}</p>
+          <HelpBubble helpKey="account.balance">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("account.balance", "Star balance")}</p>
+          </HelpBubble>
           <p className="font-serif text-2xl text-[#e8c969]">✦ {stars ?? "…"}</p>
         </div>
         {firstId && (
-          <Button asChild className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]">
-            <Link to={`/profile/${firstId}?tab=premium`}><Sparkles className="mr-1.5 h-4 w-4" />{t("account.buyStars", "Buy stars")}</Link>
-          </Button>
+          <HelpBubble helpKey="account.buyStars" actionable label={t("account.buyStars", "Buy stars")}>
+            <Button asChild className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]">
+              <Link to={`/profile/${firstId}?tab=premium`}><Sparkles className="mr-1.5 h-4 w-4" />{t("account.buyStars", "Buy stars")}</Link>
+            </Button>
+          </HelpBubble>
         )}
       </div>
 
       {/* Subscriptions */}
       <div className="ds-card space-y-3 p-5">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("account.astrologers", "Your astrologers")}</p>
+        <HelpBubble helpKey="account.astrologers">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("account.astrologers", "Your astrologers")}</p>
+        </HelpBubble>
         {subs.length === 0 && <p className="text-sm text-muted-foreground">{t("account.noSubs", "No active astrologers. Hire one from a chart's ✦ Astrologer tab.")}</p>}
-        {subs.map((s) => (
+        {subs.map((s, i) => (
           <div key={s.profileId} className="rounded-xl border border-border/40 p-3">
             <div className="flex items-center justify-between gap-2">
               <p className="font-serif text-foreground">{s.astrologerName} <span className="text-sm text-muted-foreground">· {s.profileName}</span></p>
-              <Button asChild size="sm" variant="outline"><Link to={`/profile/${s.profileId}?tab=astrologer`}>{t("account.manage", "Manage")}</Link></Button>
+              {/* The same words repeat in every row: only the first one carries the bubble. */}
+              {i === 0 ? (
+                <HelpBubble helpKey="account.manage" actionable label={t("account.manage", "Manage")}>
+                  {manageButton(s)}
+                </HelpBubble>
+              ) : (
+                manageButton(s)
+              )}
             </div>
             <div className="mt-1.5 grid gap-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{cadenceLabel(s.cadence)} · {t("hub.nextLetter", "Next letter")}: {new Date(s.nextLetterAt).toLocaleDateString()}</span>

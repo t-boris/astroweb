@@ -1,8 +1,6 @@
 import { logger } from "firebase-functions/v2";
-import { generateClaudeText } from "./anthropic";
+import { buildFactExtractionPrompt, generateClaudeText } from "./anthropic";
 import { appendFact } from "./dossier";
-
-const EXTRACTION_MODEL = "claude-haiku-4-5"; // cheap background pass
 
 export interface CandidateFact {
   key: string;
@@ -48,17 +46,7 @@ export async function extractAndStoreFacts(
 ): Promise<void> {
   try {
     const responseText = await generateClaudeText(
-      {
-        model: EXTRACTION_MODEL,
-        temperature: 0,
-        maxOutputTokens: 500,
-        systemInstruction:
-          "You extract durable personal facts from a user's astrology question. Return ONLY a JSON array " +
-          '(can be empty) of objects: {"key":string,"value":string,"sensitive":boolean,"confidence":0..1}. ' +
-          "Keys are canonical camelCase (e.g. occupation, relationshipStatus, hasKids, goals, interests, openLoops, location). " +
-          "Mark sensitive=true for relationship/health/orientation/religion. Only durable facts about the person, not the question itself. No narration.",
-        userPrompt: text.slice(0, 2000),
-      },
+      buildFactExtractionPrompt({ text }),
       { sanitizeOutput: false },
     );
     const facts = parseJsonArray(responseText).slice(0, 6);

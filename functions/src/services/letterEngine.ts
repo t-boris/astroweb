@@ -6,6 +6,7 @@ import { getDossier, getDossierSummaryText } from "./dossier";
 import { computeTransits } from "./transits";
 import { buildNewsDigest } from "./newsDigest";
 import { callClaudeRaw, extractJson, usageCostUsd } from "./claudeRaw";
+import { buildLetterAnalysisPrompt, buildLetterGenerationPrompt } from "./anthropic";
 import type { StyleProfile } from "../types";
 
 const OPUS = "claude-opus-4-8";
@@ -185,39 +186,30 @@ export async function generateLetter(profileId: string): Promise<LetterContent> 
   let usd = digest.costUsd;
 
   // ---- Analysis pass (Opus) --------------------------------------------------
-  const analysisSystem =
-    "Аналитический движок письма личного астролога. ТОЛЬКО JSON: " +
-    '{"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],' +
-    '"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},' +
-    '"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. ' +
-    "Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. " +
-    "КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. " +
-    "effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).";
-  const analysisUser = [
-    `ДОСЬЕ: ${JSON.stringify({ language: lang, addressForm: dossier.addressForm, interests: dossier.interests, goals: dossier.goals, openLoops: dossier.openLoops, styleProfile: style, styleNudge: dossier.styleNudge })}`,
-    knownText ? `ЧТО УЖЕ ИЗВЕСТНО (НЕ переспрашивай это):\n${knownText}` : "",
-    askedKeys.length ? `УЖЕ СПРАШИВАЛ (не повторяй эти темы): ${askedKeys.join(", ")}` : "",
-    `НАТАЛ (дома релоцированы на ${residence.place}): ${chart.points.map((p) => `${p.body} ${p.sign} ${Math.floor(p.degreeInSign)}°${p.house ? ` д${p.house}` : ""}`).join(" · ")}`,
-    `ТЕКУЩИЕ ПОЗИЦИИ: ${transit.positions}`,
-    `ТРАНЗИТНЫЕ АСПЕКТЫ:\n${transit.aspects}`,
-    `НОВОСТИ (дайджест): ${JSON.stringify(digest.hooks)}`,
-    recentQ ? `НЕДАВНИЙ ВОПРОС: "${recentQ}"` : "Это первое письмо (cold start) — вопросы мягко знакомятся.",
-  ].filter(Boolean).join("\n");
-
-  const a = await callClaudeRaw({ model: OPUS, system: analysisSystem, user: analysisUser, maxTokens: 1500 });
+  const analysis = buildLetterAnalysisPrompt({
+    language: lang,
+    addressForm: dossier.addressForm,
+    interests: dossier.interests,
+    goals: dossier.goals,
+    openLoops: dossier.openLoops,
+    styleProfile: style,
+    styleNudge: dossier.styleNudge,
+    knownText,
+    askedKeys,
+    residencePlace: residence.place,
+    chart,
+    transit,
+    newsHooks: digest.hooks,
+    recentQuestion: recentQ,
+  });
+  const a = await callClaudeRaw({ model: OPUS, system: analysis.systemInstruction, user: analysis.userPrompt, maxTokens: 1500 });
   passes.push({ label: "analysis", model: OPUS, inTok: a.usage.input_tokens, outTok: a.usage.output_tokens });
   usd += usageCostUsd(OPUS, a.usage);
   const brief = extractJson<Brief>(a.text);
 
   // ---- Generation pass (Opus) ------------------------------------------------
-  const genderNote =
-    dossier.addressForm === "feminine" ? "женский род" : dossier.addressForm === "masculine" ? "мужской род" : "нейтральный род";
-  const generationSystem =
-    `Ты — ${name}, личный астролог (одна постоянная личность). Пиши ПИСЬМО на ${lang === "ru" ? "русском" : "английском"}, ${genderNote}. ` +
-    `Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. ` +
-    `Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: ` +
-    '{"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.';
-  const g = await callClaudeRaw({ model: OPUS, system: generationSystem, user: `БРИФ: ${JSON.stringify(brief)}`, maxTokens: 2000 });
+  const generation = buildLetterGenerationPrompt({ astrologerName: name, language: lang, addressForm: dossier.addressForm, brief });
+  const g = await callClaudeRaw({ model: OPUS, system: generation.systemInstruction, user: generation.userPrompt, maxTokens: 2000 });
   passes.push({ label: "generation", model: OPUS, inTok: g.usage.input_tokens, outTok: g.usage.output_tokens });
   usd += usageCostUsd(OPUS, g.usage);
   const letter = extractJson<{ teaser: string; html: string; questions: { text: string; options: string[] }[] }>(g.text);

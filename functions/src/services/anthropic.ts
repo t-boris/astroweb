@@ -828,6 +828,141 @@ export function buildRelationshipPrompt(params: {
   }, outputLanguage);
 }
 
+/** Daily "cosmic weather" forecast prompt (getForecast). */
+export function buildForecastPrompt(params: {
+  chart: ChartResult;
+  today: string;
+  language: SupportedLanguage;
+}): AiGenerateInput {
+  const { chart, today, language } = params;
+  const planetary = buildPlanetaryContext(chart);
+  const system = language === "ru"
+    ? "Ты астролог, описывающий «космическую погоду» дня. Опирайся только на натальную карту и текущую дату. Пиши тепло и понятно, без предсказаний конкретных событий, без медицинских/юридических/финансовых советов."
+    : "You are an astrologer describing today's cosmic weather. Use only the natal chart and today's date. Write warmly and plainly, with no concrete event predictions and no medical/legal/financial advice.";
+  const userPrompt = language === "ru"
+    ? [
+        `Сегодня ${today}. Натальная карта:`,
+        planetary,
+        "Дай краткий прогноз на сегодня в таком формате (используй ## для заголовков):",
+        "## Настроение дня — короткая фраза",
+        "1 абзац (2-3 предложения) об общем тоне дня для этого человека.",
+        "## Что в фокусе",
+        "3 коротких пункта-маркера (-) с конкретными темами дня (энергия, общение, отношения, отдых и т.п.).",
+        "Объем 120-200 слов. Заверши строкой: [END_OF_REPORT]",
+      ].join("\n\n")
+    : [
+        `Today is ${today}. Natal chart:`,
+        planetary,
+        "Give a short forecast for today in this format (use ## for headings):",
+        "## Today's vibe — a short phrase",
+        "1 paragraph (2-3 sentences) about the overall tone of the day for this person.",
+        "## In focus",
+        "3 short bullet points (-) with concrete themes for the day (energy, communication, relationships, rest, etc.).",
+        "120-200 words. End with the line: [END_OF_REPORT]",
+      ].join("\n\n");
+
+  return withOutputLanguage({ systemInstruction: system, userPrompt, temperature: 0.5, maxOutputTokens: 1200 }, language);
+}
+
+/** Inputs of the letter analysis pass (letterEngine.generateLetter). */
+export interface LetterAnalysisPromptInput {
+  language: "ru" | "en";
+  addressForm: string | null;
+  interests: string[];
+  goals: unknown;
+  openLoops: unknown;
+  styleProfile: unknown;
+  styleNudge: unknown;
+  knownText: string;
+  askedKeys: string[];
+  residencePlace: string;
+  chart: ChartResult;
+  transit: { positions: string; aspects: string };
+  newsHooks: unknown;
+  recentQuestion: string | null;
+}
+
+/** Letter analysis pass: picks themes, transits, news hooks and questions as JSON. */
+export function buildLetterAnalysisPrompt(params: LetterAnalysisPromptInput): AiGenerateInput {
+  const { chart, transit, knownText, askedKeys, residencePlace } = params;
+  const lang = params.language;
+  const recentQ = params.recentQuestion;
+  const analysisSystem =
+    "Аналитический движок письма личного астролога. ТОЛЬКО JSON: " +
+    '{"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],' +
+    '"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},' +
+    '"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. ' +
+    "Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. " +
+    "КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. " +
+    "effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).";
+  const analysisUser = [
+    `ДОСЬЕ: ${JSON.stringify({ language: lang, addressForm: params.addressForm, interests: params.interests, goals: params.goals, openLoops: params.openLoops, styleProfile: params.styleProfile, styleNudge: params.styleNudge })}`,
+    knownText ? `ЧТО УЖЕ ИЗВЕСТНО (НЕ переспрашивай это):\n${knownText}` : "",
+    askedKeys.length ? `УЖЕ СПРАШИВАЛ (не повторяй эти темы): ${askedKeys.join(", ")}` : "",
+    `НАТАЛ (дома релоцированы на ${residencePlace}): ${chart.points.map((p) => `${p.body} ${p.sign} ${Math.floor(p.degreeInSign)}°${p.house ? ` д${p.house}` : ""}`).join(" · ")}`,
+    `ТЕКУЩИЕ ПОЗИЦИИ: ${transit.positions}`,
+    `ТРАНЗИТНЫЕ АСПЕКТЫ:\n${transit.aspects}`,
+    `НОВОСТИ (дайджест): ${JSON.stringify(params.newsHooks)}`,
+    recentQ ? `НЕДАВНИЙ ВОПРОС: "${recentQ}"` : "Это первое письмо (cold start) — вопросы мягко знакомятся.",
+  ].filter(Boolean).join("\n");
+
+  return { systemInstruction: analysisSystem, userPrompt: analysisUser, model: OPUS_MODEL, maxOutputTokens: 1500 };
+}
+
+/** Letter writing pass: turns the analysis brief into the letter JSON in the astrologer's voice. */
+export function buildLetterGenerationPrompt(params: {
+  astrologerName: string;
+  language: "ru" | "en";
+  addressForm: string | null;
+  brief: unknown;
+}): AiGenerateInput {
+  const name = params.astrologerName;
+  const lang = params.language;
+  const genderNote =
+    params.addressForm === "feminine" ? "женский род" : params.addressForm === "masculine" ? "мужской род" : "нейтральный род";
+  const generationSystem =
+    `Ты — ${name}, личный астролог (одна постоянная личность). Пиши ПИСЬМО на ${lang === "ru" ? "русском" : "английском"}, ${genderNote}. ` +
+    `Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. ` +
+    `Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: ` +
+    '{"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.';
+
+  return { systemInstruction: generationSystem, userPrompt: `БРИФ: ${JSON.stringify(params.brief)}`, model: OPUS_MODEL, maxOutputTokens: 2000 };
+}
+
+/** News digest for letters: 2-3 fresh news items found with web search, as JSON. */
+export function buildNewsDigestPrompt(params: {
+  interestTags: string[];
+  residence: string;
+  language: "ru" | "en";
+  date: string;
+}): AiGenerateInput {
+  const { interestTags, residence, language, date } = params;
+  const system =
+    (language === "ru"
+      ? "Ты — news scout. Через web_search найди 2-3 СВЕЖИЕ (последние дни) новости по интересам и региону. "
+      : "You are a news scout. Use web_search to find 2-3 FRESH (last few days) news items for the interests and region. ") +
+    'Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.';
+
+  const user = `Interests: ${interestTags.join(", ") || "general"}. Region: ${residence}. Date: ${date}.`;
+
+  return { systemInstruction: system, userPrompt: user, model: PREMIUM_PDF_MODEL, maxOutputTokens: 1200 };
+}
+
+/** Background fact extraction from an Oracle question, as a JSON array. */
+export function buildFactExtractionPrompt(params: { text: string }): AiGenerateInput {
+  return {
+    model: "claude-haiku-4-5",
+    temperature: 0,
+    maxOutputTokens: 500,
+    systemInstruction:
+      "You extract durable personal facts from a user's astrology question. Return ONLY a JSON array " +
+      '(can be empty) of objects: {"key":string,"value":string,"sensitive":boolean,"confidence":0..1}. ' +
+      "Keys are canonical camelCase (e.g. occupation, relationshipStatus, hasKids, goals, interests, openLoops, location). " +
+      "Mark sensitive=true for relationship/health/orientation/religion. Only durable facts about the person, not the question itself. No narration.",
+    userPrompt: params.text.slice(0, 2000),
+  };
+}
+
 function sanitizeAiOutput(input: string): string {
   const rawLines = input
     .replace(/\r\n/g, "\n")

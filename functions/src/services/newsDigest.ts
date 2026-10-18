@@ -1,6 +1,7 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 import { callClaudeRaw, extractJson, usageCostUsd } from "./claudeRaw";
+import { buildNewsDigestPrompt } from "./anthropic";
 
 /**
  * Fresh-news digest via web_search on a cheap model (Sonnet 4.6), keyed on the
@@ -42,19 +43,13 @@ export async function buildNewsDigest(params: {
     return { ...d, costUsd: 0 };
   }
 
-  const system =
-    (language === "ru"
-      ? "Ты — news scout. Через web_search найди 2-3 СВЕЖИЕ (последние дни) новости по интересам и региону. "
-      : "You are a news scout. Use web_search to find 2-3 FRESH (last few days) news items for the interests and region. ") +
-    'Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.';
-
-  const user = `Interests: ${interestTags.join(", ") || "general"}. Region: ${residence}. Date: ${date}.`;
+  const prompt = buildNewsDigestPrompt({ interestTags, residence, language, date });
 
   try {
     const res = await callClaudeRaw({
       model: DIGEST_MODEL,
-      system,
-      user,
+      system: prompt.systemInstruction,
+      user: prompt.userPrompt,
       maxTokens: 1200,
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
     });

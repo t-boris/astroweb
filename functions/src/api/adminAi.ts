@@ -280,7 +280,14 @@ export const adminTestAiTask = onCall({ secrets: AI_SECRETS, timeoutSeconds: 300
 
   // The unsaved settings: the editor sends the complete override it shows.
   const settings = mergeTaskSettings(taskId, override);
-  const prompt = await testPrompt(settings, profileId, language, inputs);
+  let prompt: GenerationPrompt;
+  try {
+    prompt = await testPrompt(settings, profileId, language, inputs);
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    logger.warn("AI test run could not build the prompt", { taskId, by: admin, error: (error as Error).message });
+    throw new HttpsError("internal", `Could not prepare the test: ${(error as Error).message}`);
+  }
   const started = Date.now();
   try {
     const result = await runTask(settings, prompt);

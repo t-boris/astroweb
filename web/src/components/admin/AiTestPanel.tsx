@@ -165,7 +165,7 @@ export default function AiTestPanel({ task, draft, settings, profiles }: Props) 
 
       {result && (
         <div className="space-y-3" data-testid="ai-test-result">
-          <dl className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+          <dl className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
             <div><dt className="text-muted-foreground">Model</dt><dd className="font-mono text-foreground">{result.model}</dd></div>
             <div><dt className="text-muted-foreground">Provider</dt><dd className="text-foreground">{PROVIDER_LABELS[result.provider]}</dd></div>
             <div>
@@ -178,7 +178,7 @@ export default function AiTestPanel({ task, draft, settings, profiles }: Props) 
             <div><dt className="text-muted-foreground">Cost</dt><dd className="text-foreground">{formatUsd(result.costUsd)}</dd></div>
             <div><dt className="text-muted-foreground">Time</dt><dd className="text-foreground">{(result.durationMs / 1000).toFixed(1)} s</dd></div>
           </dl>
-          <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap rounded-md bg-muted/30 p-3 text-sm text-foreground">
+          <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap rounded-md bg-muted/30 p-3 font-sans text-sm leading-relaxed text-foreground">
             {result.text}
           </pre>
           <Button type="button" size="sm" variant="ghost" onClick={() => setShowPrompt((v) => !v)}>

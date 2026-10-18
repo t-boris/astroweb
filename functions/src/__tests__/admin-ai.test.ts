@@ -9,6 +9,7 @@ vi.mock("firebase-admin/firestore", () => ({
 }));
 vi.mock("../services/chartResolver", () => ({
   resolveOwnedChart: async (p: { profileId: string }) => {
+    if (p.profileId === "broken") throw new Error("chart computation failed");
     const snap = await (h.fake.db as any).collection("profiles").doc(p.profileId).get();
     return {
       profile: { id: p.profileId, ...snap.data() },
@@ -177,6 +178,15 @@ describe("adminTestAiTask (REQ-009)", () => {
       inputs: { partnerProfileId: "p2" },
     });
     expect(res.prompt.user).toContain("Сделай расклад на отношения для пары: Anna и Max.");
+  });
+
+  it("reports a failure while preparing the prompt with its reason", async () => {
+    h.fake.seed("profiles", "broken", { ownerUid: "u3", ownerDeviceId: "d3", name: "B", birthDate: "1990-01-01", lat: 1, lng: 2, timezone: "UTC" });
+    await expect(call(adminTestAiTask, admin, { taskId: "forecast", profileId: "broken", override: {}, inputs: {} })).rejects.toMatchObject({
+      code: "internal",
+      message: "Could not prepare the test: chart computation failed",
+    });
+    expect(h.runTask).not.toHaveBeenCalled();
   });
 
   it("reports a failed generation as an error with the prompt that was sent", async () => {

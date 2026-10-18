@@ -242,7 +242,8 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
         {model && (
           <div className="space-y-1 text-xs text-muted-foreground">
             <p>
-              {model.label} · {PROVIDER_LABELS[model.provider]} · {formatPrice(model)} · output limit up to{" "}
+              {model.label} (<span className="font-mono">{model.id}</span>) · {PROVIDER_LABELS[model.provider]} · {formatPrice(model)} ·
+              output limit up to{" "}
               {maxLimit.toLocaleString("en-US")} tokens.
             </p>
             {model.nextPrice && (

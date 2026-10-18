@@ -5,11 +5,10 @@ import * as profileService from "../services/profile";
 import { ownsProfile } from "../services/owner";
 import { requireUid } from "../services/astrologer";
 import { resolveOwnedChart } from "../services/chartResolver";
-import {
-  buildOraclePrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-} from "../services/anthropic";
+import { buildOraclePrompt, normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
+import { runTask } from "../services/ai/run";
+import { loadTaskSettings, textsFor } from "../services/ai/settings";
 import { spendFromWallet, refundToWallet } from "../services/wallet";
 import { TOKEN_COST } from "../services/tokens";
 import {
@@ -103,7 +102,7 @@ export const answerLetterQuestion = onCall(async (request) => {
 
 /** Free-text "ask a question" from inside a letter — costs ✦1, answered with the dossier. */
 export const askInLetter = onCall(
-  { timeoutSeconds: 180, secrets: ["ANTHROPIC_API_KEY"] },
+  { timeoutSeconds: 180, secrets: AI_SECRETS },
   async (request) => {
     const { uid, profileId, ownerDeviceId } = await authorize(request);
     const question = request.data?.question;
@@ -117,12 +116,16 @@ export const askInLetter = onCall(
     try {
       const { chart } = await resolveOwnedChart({ profileId, ownerDeviceId, uid });
       const dossierSummary = await getDossierSummaryText(profileId);
-      const prompt = buildOraclePrompt({ chart, question: trimmed, language, dossierSummary });
-      const result = await generateClaudeTextResult(prompt, {
-        allowContinuation: true,
-        sanitizeOutput: true,
-        requireEndTag: "[END_OF_REPORT]",
+      const settings = await loadTaskSettings("oracleLetter");
+      const prompt = buildOraclePrompt({
+        chart,
+        question: trimmed,
+        language,
+        dossierSummary,
+        taskId: "oracleLetter",
+        texts: textsFor(settings, language),
       });
+      const result = await runTask(settings, prompt);
       try {
         await recordOracleHistory(profileId, { question: trimmed, answer: result.text, model: result.model, channel: "letter" });
         await extractAndStoreFacts(profileId, uid, trimmed, null);

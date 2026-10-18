@@ -225,3 +225,30 @@ Four parallel workers adding texts to `translation.json` would overwrite each ot
 locked, idempotent merge script rebuilt `help.*`, checked EN/RU key parity, refused duplicate keys with different values and
 never overwrote existing UI strings. An independent proofreading pass afterwards found factual errors that tests cannot (a
 help text contradicting what the code deletes, charges or sends), so review text against the code before it ships.
+
+## Turning hard-coded prompts into editable templates: golden copy first, generate the templates
+
+Before moving prompts into templates, snapshot every prompt the builders produce (each task, language and branch) with
+fixed fixtures; the snapshot is the definition of "unchanged". Generate the default templates from the old builder source
+with a script instead of retyping long RU/EN texts, replacing interpolations with `{{placeholders}}`. A replacement for a
+bare data line (`question,` -> `"{{question}}",`) must match the whole line: as a substring it also hit "this specific
+question," inside the prose. Conditional passages become separate fragments, and an empty optional block must disappear
+with its line and the blank lines above it, or the default output gains stray blank lines.
+
+## MarkView skips ids that other files already reference
+
+Writing `resolved_by: DEC-006` into a question before DEC-006 exists makes MarkView create the next decision as DEC-010
+(it treats referenced ids as taken). Create the decision or requirement first, then write the link into the other file.
+
+## A secret bound in code must exist before the deploy; use a placeholder until the real key exists
+
+Binding `OPENAI_API_KEY` / `GEMINI_API_KEY` in `secrets: [...]` fails the functions deploy if the secret is missing in
+Secret Manager. Create it with the value `unset`, the label `firebase-managed=functions` and `secretAccessor` for the
+compute service account (as the existing secrets have), and treat a key without the provider's format as "not
+configured". A key in a local `functions/.env` with the same name as a bound secret breaks a manual deploy (overlap).
+
+## Local UI check of callables: run the compiled handlers with an injected in-memory Firestore
+
+For the admin AI tab the mock backend loaded the real `functions/lib/api/adminAi.js` and put fakes into `require.cache`
+for `firebase-admin/firestore` and the model call (`services/ai/run.js`), so validation, settings and prompt building were
+the production code, with no API call and no production data. The fake store needs `add()` too (the chart cache uses it).

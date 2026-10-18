@@ -6,6 +6,7 @@ import { advance } from "../services/astrologer";
 import { grantToWallet, walletKeyFromProfile } from "../services/wallet";
 import { getProfileById } from "../services/profile";
 import { sendLetterNotifications } from "../services/letterNotify";
+import { AI_SECRETS } from "../services/ai/keys";
 
 /**
  * Letter generation worker. Triggered by a `letterJobs/{jobId}` doc created by
@@ -14,7 +15,7 @@ import { sendLetterNotifications } from "../services/letterNotify";
  * advance (a future sweep can retry).
  */
 export const processLetterJob = onDocumentCreated(
-  { document: "letterJobs/{jobId}", timeoutSeconds: 300, secrets: ["ANTHROPIC_API_KEY", "VAPID_PRIVATE_KEY", "RESEND_API_KEY"] },
+  { document: "letterJobs/{jobId}", timeoutSeconds: 300, secrets: [...AI_SECRETS, "VAPID_PRIVATE_KEY", "RESEND_API_KEY"] },
   async (event) => {
     const snap = event.data;
     if (!snap) return;

@@ -1,11 +1,10 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { resolveOwnedChart } from "../services/chartResolver";
-import {
-  buildOraclePrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-} from "../services/anthropic";
+import { buildOraclePrompt, normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
+import { runTask } from "../services/ai/run";
+import { loadTaskSettings, textsFor } from "../services/ai/settings";
 import { getProfileById } from "../services/profile";
 import { TOKEN_COST } from "../services/tokens";
 import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
@@ -15,7 +14,7 @@ import { extractAndStoreFacts } from "../services/factExtraction";
 
 export const askOracle = onCall({
   timeoutSeconds: 180,
-  secrets: ["ANTHROPIC_API_KEY"],
+  secrets: AI_SECRETS,
 }, async (request) => {
   // Asking the Oracle spends stars: account only (DEC-001, REQ-004). Checked
   // before anything else, so a deviceId-only caller is never charged.
@@ -75,11 +74,13 @@ export const askOracle = onCall({
       /* dossier optional */
     }
 
+    const settings = await loadTaskSettings("oracle");
     const basePrompt = buildOraclePrompt({
       chart,
       question: trimmedQuestion,
       language,
       dossierSummary,
+      texts: textsFor(settings, language),
     });
 
     logger.info("askOracle request", {
@@ -88,11 +89,7 @@ export const askOracle = onCall({
       language,
     });
 
-    const result = await generateClaudeTextResult(basePrompt, {
-      allowContinuation: true,
-      sanitizeOutput: true,
-      requireEndTag: "[END_OF_REPORT]",
-    });
+    const result = await runTask(settings, basePrompt);
 
     logger.info("askOracle success", {
       profileId,

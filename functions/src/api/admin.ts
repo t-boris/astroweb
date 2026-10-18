@@ -5,16 +5,8 @@ import type { Profile } from "../types";
 import { grantToWallet, walletKeyFromProfile } from "../services/wallet";
 import { GROUPINGS, PERIODS, type Grouping, type Period } from "../services/businessStats";
 import { loadBusinessStats } from "../services/businessStatsLoader";
+import { assertAdmin } from "../services/adminAuth";
 
-const ADMIN_EMAIL = "t.boris@gmail.com";
-
-/** Throws unless the caller is the verified admin account. */
-function assertAdmin(request: CallableRequest): void {
-  const token = request.auth?.token as { email?: string; email_verified?: boolean } | undefined;
-  if (!request.auth || token?.email !== ADMIN_EMAIL || token?.email_verified !== true) {
-    throw new HttpsError("permission-denied", "Admin access required");
-  }
-}
 
 export const adminListProfiles = onCall(async (request) => {
   assertAdmin(request);

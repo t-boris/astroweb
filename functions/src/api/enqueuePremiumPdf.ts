@@ -7,7 +7,8 @@ import {
   parsePremiumPdfSections,
   premiumPdfBucket,
 } from "../services/premiumPdf";
-import { normalizeLanguage } from "../services/anthropic";
+import { normalizeLanguage } from "../services/prompts";
+import { loadTaskSettings } from "../services/ai/settings";
 import { ownerCtx, ownsProfile } from "../services/owner";
 
 function requiredString(value: unknown, fieldName: string): string {
@@ -65,6 +66,7 @@ export const enqueuePremiumPdf = onCall(async (request) => {
     relocationLat,
     relocationLng,
     sections,
+    settings: await loadTaskSettings("premiumPdf"),
   });
 
   const db = getFirestore();

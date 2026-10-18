@@ -2,11 +2,10 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { computeNatalChart } from "../astro/chart";
 import { resolveOwnedChart } from "../services/chartResolver";
-import {
-  buildRelationshipPrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-} from "../services/anthropic";
+import { buildRelationshipPrompt, normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
+import { runTask } from "../services/ai/run";
+import { loadTaskSettings, textsFor } from "../services/ai/settings";
 import { getTimezoneFromCoords } from "../utils/timezone";
 import { TOKEN_COST } from "../services/tokens";
 import { spendFromWallet, refundToWallet } from "../services/wallet";
@@ -82,7 +81,7 @@ function parsePartnerInput(raw: unknown): PartnerInput {
 
 export const askRelationship = onCall({
   timeoutSeconds: 180,
-  secrets: ["ANTHROPIC_API_KEY"],
+  secrets: AI_SECRETS,
 }, async (request) => {
   // A compatibility reading costs stars: account only (DEC-001, REQ-006).
   const uid = requireAccount(request);
@@ -123,19 +122,17 @@ export const askRelationship = onCall({
       houseSystem: "koch",
     });
 
-    const result = await generateClaudeTextResult(
+    const settings = await loadTaskSettings("compatibility");
+    const result = await runTask(
+      settings,
       buildRelationshipPrompt({
         chartA,
         chartB,
         personAName: profile.name,
         personBName: partner.name,
         language,
+        texts: textsFor(settings, language),
       }),
-      {
-        allowContinuation: true,
-        sanitizeOutput: true,
-        requireEndTag: "[END_OF_REPORT]",
-      },
     );
 
     logger.info("askRelationship success", {

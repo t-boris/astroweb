@@ -1,0 +1,1523 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`prompt defaults (golden copy) > deepen.en.aspect 1`] = `
+{
+  "maxOutputTokens": 2600,
+  "model": "claude-sonnet-4-6",
+  "system": "You are an astrology analyst. Provide a deep but STRICTLY focused reading only for the requested topic. Do not turn it into a full-chart overview. Write for a non-expert: explain each astrology term in plain language. Use only provided chart data. No external facts, transits, diagnoses, or medical/legal advice.",
+  "temperature": 0.4,
+  "user": "Create a focused deep interpretation for the topic below.
+
+Focus: Sun trine Mars
+
+Base interpretation:
+
+Energy flows easily.
+
+Planetary chart context:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Response requirements (strict):
+
+1) English, 150-250 words.
+
+2) Focus primarily on THIS requested aspect (its planets, signs, houses, and orb).
+
+3) Write for non-experts: explain every astrology term (aspect, house, orb, etc.) in plain language right away.
+
+4) Include a mandatory section 'In plain language' that explains the meaning in everyday life without jargon.
+
+5) Use 2-3 short Markdown sections (### ...).
+
+6) Mention 1-2 supporting factors only if directly tied to the topic.
+
+7) Add 1-2 everyday examples involving human interactions.
+
+8) End with a 'Practice' section containing 2 actionable steps.
+
+9) No tables, no long detours, no repetition.
+
+10) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > deepen.en.topic 1`] = `
+{
+  "maxOutputTokens": 2600,
+  "model": "claude-sonnet-4-6",
+  "system": "You are an astrology analyst. Provide a deep but STRICTLY focused reading only for the requested topic. Do not turn it into a full-chart overview. Write for a non-expert: explain each astrology term in plain language. Use only provided chart data. No external facts, transits, diagnoses, or medical/legal advice.",
+  "temperature": 0.4,
+  "user": "Create a focused deep interpretation for the topic below.
+
+Focus: Sun in Aries
+
+Base interpretation:
+
+You lead with courage.
+
+Planetary chart context:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Response requirements (strict):
+
+1) English, 150-250 words.
+
+2) Focus ONLY on the requested topic, no full-chart overview.
+
+3) Write for non-experts: explain every astrology term (aspect, house, orb, etc.) in plain language right away.
+
+4) Include a mandatory section 'In plain language' that explains the meaning in everyday life without jargon.
+
+5) Use 2-3 short Markdown sections (### ...).
+
+6) Mention 1-2 supporting factors only if directly tied to the topic.
+
+7) Add 1-2 everyday examples involving human interactions.
+
+8) End with a 'Practice' section containing 2 actionable steps.
+
+9) No tables, no long detours, no repetition.
+
+10) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > deepen.ru.aspect 1`] = `
+{
+  "maxOutputTokens": 2600,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты астрологический аналитик. Дай глубокий, но СТРОГО фокусный разбор только по запрошенной теме. Не превращай ответ в общий обзор всей карты. Пиши понятным языком для человека без астрологической подготовки: каждый термин сразу объясняй простыми словами. Используй только предоставленные данные карты. Не добавляй внешние факты, транзиты, диагнозы и мед/юр советы.",
+  "temperature": 0.4,
+  "user": "Сделай фокусный глубокий разбор по теме ниже.
+
+Фокус: Sun trine Mars
+
+Базовая интерпретация:
+
+Energy flows easily.
+
+Планетарный контекст карты:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Требования к формату ответа (строго):
+
+1) Русский язык, объем 150-250 слов.
+
+2) Раскрывай в первую очередь ИМЕННО этот аспект (с его планетами, знаками, домами и орбом).
+
+3) Пиши для новичка: каждый термин (аспект, дом, орб и т.п.) сразу поясняй простыми словами.
+
+4) Обязательно добавь раздел 'Простыми словами': коротко, что это значит в обычной жизни без астросленга.
+
+5) Структура: 2-3 коротких раздела Markdown (### ...).
+
+6) Разрешено упомянуть 1-2 поддерживающих фактора, но только если они напрямую связаны с темой.
+
+7) Добавь 1-2 бытовых примера проявления темы.
+
+8) В конце блок: 'Практика' с 2 конкретными шагами по теме.
+
+9) Без таблиц, без длинных отступлений, без повторов.
+
+10) Заверши ответ строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > deepen.ru.topic 1`] = `
+{
+  "maxOutputTokens": 2600,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты астрологический аналитик. Дай глубокий, но СТРОГО фокусный разбор только по запрошенной теме. Не превращай ответ в общий обзор всей карты. Пиши понятным языком для человека без астрологической подготовки: каждый термин сразу объясняй простыми словами. Используй только предоставленные данные карты. Не добавляй внешние факты, транзиты, диагнозы и мед/юр советы.",
+  "temperature": 0.4,
+  "user": "Сделай фокусный глубокий разбор по теме ниже.
+
+Фокус: Sun in Aries
+
+Базовая интерпретация:
+
+You lead with courage.
+
+Планетарный контекст карты:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Требования к формату ответа (строго):
+
+1) Русский язык, объем 150-250 слов.
+
+2) Раскрывай ТОЛЬКО указанную тему, без общего разбора всей карты.
+
+3) Пиши для новичка: каждый термин (аспект, дом, орб и т.п.) сразу поясняй простыми словами.
+
+4) Обязательно добавь раздел 'Простыми словами': коротко, что это значит в обычной жизни без астросленга.
+
+5) Структура: 2-3 коротких раздела Markdown (### ...).
+
+6) Разрешено упомянуть 1-2 поддерживающих фактора, но только если они напрямую связаны с темой.
+
+7) Добавь 1-2 бытовых примера проявления темы.
+
+8) В конце блок: 'Практика' с 2 конкретными шагами по теме.
+
+9) Без таблиц, без длинных отступлений, без повторов.
+
+10) Заверши ответ строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > factExtraction 1`] = `
+{
+  "maxOutputTokens": 500,
+  "model": "claude-haiku-4-5",
+  "system": "You extract durable personal facts from a user's astrology question. Return ONLY a JSON array (can be empty) of objects: {"key":string,"value":string,"sensitive":boolean,"confidence":0..1}. Keys are canonical camelCase (e.g. occupation, relationshipStatus, hasKids, goals, interests, openLoops, location). Mark sensitive=true for relationship/health/orientation/religion. Only durable facts about the person, not the question itself. No narration.",
+  "temperature": 0,
+  "user": "I am a designer and want to move to Spain with my kids.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > factExtraction.long 1`] = `
+{
+  "maxOutputTokens": 500,
+  "model": "claude-haiku-4-5",
+  "system": "You extract durable personal facts from a user's astrology question. Return ONLY a JSON array (can be empty) of objects: {"key":string,"value":string,"sensitive":boolean,"confidence":0..1}. Keys are canonical camelCase (e.g. occupation, relationshipStatus, hasKids, goals, interests, openLoops, location). Mark sensitive=true for relationship/health/orientation/religion. Only durable facts about the person, not the question itself. No narration.",
+  "temperature": 0,
+  "user": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+}
+`;
+
+exports[`prompt defaults (golden copy) > forecast.en 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "You are an astrologer describing today's cosmic weather. Use only the natal chart and today's date. Write warmly and plainly, with no concrete event predictions and no medical/legal/financial advice.",
+  "temperature": 0.5,
+  "user": "Today is 2026-10-18. Natal chart:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Give a short forecast for today in this format (use ## for headings):
+
+## Today's vibe — a short phrase
+
+1 paragraph (2-3 sentences) about the overall tone of the day for this person.
+
+## In focus
+
+3 short bullet points (-) with concrete themes for the day (energy, communication, relationships, rest, etc.).
+
+120-200 words. End with the line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > forecast.ru 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты астролог, описывающий «космическую погоду» дня. Опирайся только на натальную карту и текущую дату. Пиши тепло и понятно, без предсказаний конкретных событий, без медицинских/юридических/финансовых советов.",
+  "temperature": 0.5,
+  "user": "Сегодня 2026-10-18. Натальная карта:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Дай краткий прогноз на сегодня в таком формате (используй ## для заголовков):
+
+## Настроение дня — короткая фраза
+
+1 абзац (2-3 предложения) об общем тоне дня для этого человека.
+
+## Что в фокусе
+
+3 коротких пункта-маркера (-) с конкретными темами дня (энергия, общение, отношения, отдых и т.п.).
+
+Объем 120-200 слов. Заверши строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterAnalysis.en.coldStart 1`] = `
+{
+  "maxOutputTokens": 1500,
+  "model": "claude-opus-4-8",
+  "system": "Аналитический движок письма личного астролога. ТОЛЬКО JSON: {"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).",
+  "temperature": null,
+  "user": "ДОСЬЕ: {"language":"en","addressForm":"feminine","interests":["travel","music"],"goals":["new job"],"openLoops":["moving abroad"],"styleProfile":{"humor":0.4,"seriousness":0.5,"formality":0.2,"warmth":0.6,"brevity":0.6,"mysticism":0.4,"emoji":0.2},"styleNudge":null}
+НАТАЛ (дома релоцированы на Berlin, Germany): Sun Aries 12° д10 · Moon Leo 5° д2 · Venus Pisces 20° д9 · Mars Sagittarius 12°
+ТЕКУЩИЕ ПОЗИЦИИ: Sun Libra 25° · Moon Gemini 3°
+ТРАНЗИТНЫЕ АСПЕКТЫ:
+Sun square natal Moon (orb 1.2)
+НОВОСТИ (дайджест): [{"headline":"Jazz festival opens","oneLine":"A city-wide jazz festival starts this weekend."}]
+Это первое письмо (cold start) — вопросы мягко знакомятся.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterAnalysis.en.full 1`] = `
+{
+  "maxOutputTokens": 1500,
+  "model": "claude-opus-4-8",
+  "system": "Аналитический движок письма личного астролога. ТОЛЬКО JSON: {"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).",
+  "temperature": null,
+  "user": "ДОСЬЕ: {"language":"en","addressForm":"feminine","interests":["travel","music"],"goals":["new job"],"openLoops":["moving abroad"],"styleProfile":{"humor":0.4,"seriousness":0.5,"formality":0.2,"warmth":0.6,"brevity":0.6,"mysticism":0.4,"emoji":0.2},"styleNudge":null}
+ЧТО УЖЕ ИЗВЕСТНО (НЕ переспрашивай это):
+Профессия: дизайнер
+УЖЕ СПРАШИВАЛ (не повторяй эти темы): occupation, Do you like travel?
+НАТАЛ (дома релоцированы на Berlin, Germany): Sun Aries 12° д10 · Moon Leo 5° д2 · Venus Pisces 20° д9 · Mars Sagittarius 12°
+ТЕКУЩИЕ ПОЗИЦИИ: Sun Libra 25° · Moon Gemini 3°
+ТРАНЗИТНЫЕ АСПЕКТЫ:
+Sun square natal Moon (orb 1.2)
+НОВОСТИ (дайджест): [{"headline":"Jazz festival opens","oneLine":"A city-wide jazz festival starts this weekend."}]
+НЕДАВНИЙ ВОПРОС: "Will I move abroad?"",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterAnalysis.ru.coldStart 1`] = `
+{
+  "maxOutputTokens": 1500,
+  "model": "claude-opus-4-8",
+  "system": "Аналитический движок письма личного астролога. ТОЛЬКО JSON: {"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).",
+  "temperature": null,
+  "user": "ДОСЬЕ: {"language":"ru","addressForm":"feminine","interests":["travel","music"],"goals":["new job"],"openLoops":["moving abroad"],"styleProfile":{"humor":0.4,"seriousness":0.5,"formality":0.2,"warmth":0.6,"brevity":0.6,"mysticism":0.4,"emoji":0.2},"styleNudge":null}
+НАТАЛ (дома релоцированы на Berlin, Germany): Sun Aries 12° д10 · Moon Leo 5° д2 · Venus Pisces 20° д9 · Mars Sagittarius 12°
+ТЕКУЩИЕ ПОЗИЦИИ: Sun Libra 25° · Moon Gemini 3°
+ТРАНЗИТНЫЕ АСПЕКТЫ:
+Sun square natal Moon (orb 1.2)
+НОВОСТИ (дайджест): [{"headline":"Jazz festival opens","oneLine":"A city-wide jazz festival starts this weekend."}]
+Это первое письмо (cold start) — вопросы мягко знакомятся.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterAnalysis.ru.full 1`] = `
+{
+  "maxOutputTokens": 1500,
+  "model": "claude-opus-4-8",
+  "system": "Аналитический движок письма личного астролога. ТОЛЬКО JSON: {"themes":[1-2],"chosenTransits":[string],"newsHooks":[string],"callbacks":[],"effectiveRegister":{"humor":0..1,"seriousness":0..1,"warmth":0..1,"note":string},"questions":[{"text":string,"options":[2-3],"dossierKey":string,"sensitive":bool}]}. Выбери 2-3 значимых транзита из списка; newsHooks бери из дайджеста; ≤3 коротких вопроса, заполняющих ТОЛЬКО пробелы досье. КРИТИЧНО: НЕ задавай вопросы, ответы на которые уже есть в 'ЧТО УЖЕ ИЗВЕСТНО', и НЕ повторяй темы из 'УЖЕ СПРАШИВАЛ'. Если новых пробелов нет — верни пустой массив questions. effectiveRegister = styleProfile ⊕ контекст: серьёзный/тревожный недавний вопрос → приглуши humor, подними seriousness/warmth (read the room).",
+  "temperature": null,
+  "user": "ДОСЬЕ: {"language":"ru","addressForm":"feminine","interests":["travel","music"],"goals":["new job"],"openLoops":["moving abroad"],"styleProfile":{"humor":0.4,"seriousness":0.5,"formality":0.2,"warmth":0.6,"brevity":0.6,"mysticism":0.4,"emoji":0.2},"styleNudge":null}
+ЧТО УЖЕ ИЗВЕСТНО (НЕ переспрашивай это):
+Профессия: дизайнер
+УЖЕ СПРАШИВАЛ (не повторяй эти темы): occupation, Do you like travel?
+НАТАЛ (дома релоцированы на Berlin, Germany): Sun Aries 12° д10 · Moon Leo 5° д2 · Venus Pisces 20° д9 · Mars Sagittarius 12°
+ТЕКУЩИЕ ПОЗИЦИИ: Sun Libra 25° · Moon Gemini 3°
+ТРАНЗИТНЫЕ АСПЕКТЫ:
+Sun square natal Moon (orb 1.2)
+НОВОСТИ (дайджест): [{"headline":"Jazz festival opens","oneLine":"A city-wide jazz festival starts this weekend."}]
+НЕДАВНИЙ ВОПРОС: "Will I move abroad?"",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.en.feminine 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на английском, женский род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.en.masculine 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на английском, мужской род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.en.neutral 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на английском, нейтральный род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.ru.feminine 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на русском, женский род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.ru.masculine 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на русском, мужской род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > letterGeneration.ru.neutral 1`] = `
+{
+  "maxOutputTokens": 2000,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Vega, личный астролог (одна постоянная личность). Пиши ПИСЬМО на русском, нейтральный род. Выдерживай effectiveRegister из брифа. Структура по темам; вплетай транзит→смысл→действие→крючок из новостей. Континуитет: сошлись на открытые темы, если есть. Read the room. ТОЛЬКО JSON: {"teaser":string(≤180),"html":string(чистый HTML ~250-360 слов, без <script>),"questions":[{"text":string,"options":[2-3]}](≤3)}. Дисклеймер строкой.",
+  "temperature": null,
+  "user": "БРИФ: {"themes":["career"],"questions":[]}",
+}
+`;
+
+exports[`prompt defaults (golden copy) > newsDigest.en 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "You are a news scout. Use web_search to find 2-3 FRESH (last few days) news items for the interests and region. Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.",
+  "temperature": null,
+  "user": "Interests: music, travel. Region: Berlin, Germany. Date: 2026-10-18.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > newsDigest.en.noInterests 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "You are a news scout. Use web_search to find 2-3 FRESH (last few days) news items for the interests and region. Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.",
+  "temperature": null,
+  "user": "Interests: general. Region: Berlin, Germany. Date: 2026-10-18.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > newsDigest.ru 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты — news scout. Через web_search найди 2-3 СВЕЖИЕ (последние дни) новости по интересам и региону. Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.",
+  "temperature": null,
+  "user": "Interests: music, travel. Region: Berlin, Germany. Date: 2026-10-18.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > newsDigest.ru.noInterests 1`] = `
+{
+  "maxOutputTokens": 1200,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты — news scout. Через web_search найди 2-3 СВЕЖИЕ (последние дни) новости по интересам и региону. Return ONLY JSON: {"hooks":[{"headline":string,"oneLine":string}],"note":string}. oneLine <= 25 words. Do not narrate.",
+  "temperature": null,
+  "user": "Interests: general. Region: Berlin, Germany. Date: 2026-10-18.",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.en.dossier 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "You are a natal-chart Oracle: a thoughtful astrologer-psychologist who speaks to the person directly, warmly, and to the point. You rely solely on the provided planetary positions, houses, and aspects of THIS specific chart — never on generic sign horoscopes. You do not invent events or dates, do not use transits or external facts, and do not act as a doctor, lawyer, or financial advisor. You explain every astrological term so a layperson understands it, without turning the answer into a textbook.
+
+What is known about this person (use it to personalize, address them directly):
+Профессия: дизайнер
+Интересы: музыка",
+  "temperature": null,
+  "user": "User question:
+
+Will I find a new job?
+
+Natal chart data (the only source of truth):
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Your task: give a cohesive, deep, and honest answer to this specific question, grounded in concrete chart factors.
+
+Quality guidance (these are criteria, not a rigid template — shape the answer to be maximally useful):
+
+- Open with a clear, direct conclusion on the substance of the question.
+
+- Show the chart logic: which exact planets, signs, houses, and aspects (considering orbs and strength) you rely on and why they answer this question.
+
+- Be honest: name both the real supports and the risks or blind spots visible in the chart.
+
+- Close with a practical focus: a few concrete steps directly tied to the cited factors.
+
+If context about this person is given above, take it into account and address them personally, but do not invent anything not present in it.
+
+Form of the answer:
+
+- Structure the answer with Markdown subheadings (### ...), e.g.: ### Conclusion, ### Chart logic, ### Risks and supports, ### Practical focus. Adapt the names to the question if useful.
+
+- Write in living, human language: no bureaucratese, no fluff, no generic horoscope phrases. Explain each term in plain words as you go.
+
+- Length: as much as a substantive answer needs, aim for 300-550 words; do not pad for length.
+
+- Use only this chart's data. No transits, dates, or external events. No quotes or continuation artifacts.
+
+- End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.en.plain 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "You are a natal-chart Oracle: a thoughtful astrologer-psychologist who speaks to the person directly, warmly, and to the point. You rely solely on the provided planetary positions, houses, and aspects of THIS specific chart — never on generic sign horoscopes. You do not invent events or dates, do not use transits or external facts, and do not act as a doctor, lawyer, or financial advisor. You explain every astrological term so a layperson understands it, without turning the answer into a textbook.",
+  "temperature": null,
+  "user": "User question:
+
+Will I find a new job?
+
+Natal chart data (the only source of truth):
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Your task: give a cohesive, deep, and honest answer to this specific question, grounded in concrete chart factors.
+
+Quality guidance (these are criteria, not a rigid template — shape the answer to be maximally useful):
+
+- Open with a clear, direct conclusion on the substance of the question.
+
+- Show the chart logic: which exact planets, signs, houses, and aspects (considering orbs and strength) you rely on and why they answer this question.
+
+- Be honest: name both the real supports and the risks or blind spots visible in the chart.
+
+- Close with a practical focus: a few concrete steps directly tied to the cited factors.
+
+If context about this person is given above, take it into account and address them personally, but do not invent anything not present in it.
+
+Form of the answer:
+
+- Structure the answer with Markdown subheadings (### ...), e.g.: ### Conclusion, ### Chart logic, ### Risks and supports, ### Practical focus. Adapt the names to the question if useful.
+
+- Write in living, human language: no bureaucratese, no fluff, no generic horoscope phrases. Explain each term in plain words as you go.
+
+- Length: as much as a substantive answer needs, aim for 300-550 words; do not pad for length.
+
+- Use only this chart's data. No transits, dates, or external events. No quotes or continuation artifacts.
+
+- End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.ru.dossier 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Оракул натальной карты: вдумчивый астролог-психолог, который говорит с человеком прямо, тепло и по существу. Ты опираешься исключительно на предоставленные позиции планет, дома и аспекты ИМЕННО ЭТОЙ карты — никогда на общие гороскопы по знаку. Ты не выдумываешь события и даты, не используешь транзиты и внешние факты, не выступаешь как врач, юрист или финансовый консультант. Каждый астрологический термин ты раскрываешь так, чтобы он стал понятен человеку без подготовки, не превращая ответ в учебник.
+
+Что известно об этом человеке (учитывай при ответе, обращайся лично и по делу):
+Профессия: дизайнер
+Интересы: музыка",
+  "temperature": null,
+  "user": "Вопрос пользователя:
+
+Will I find a new job?
+
+Данные натальной карты (единственный источник истины):
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Твоя задача: дать цельный, глубокий и честный ответ именно на этот вопрос, опираясь на конкретные факторы карты.
+
+Ориентиры по качеству (это критерии, а не жёсткий шаблон — выстраивай ответ так, чтобы он был максимально полезным):
+
+- Начни с ясного, прямого вывода по сути вопроса.
+
+- Покажи логику карты: на какие именно планеты, знаки, дома и аспекты (учитывая орбы и силу) ты опираешься и почему они отвечают на этот вопрос.
+
+- Будь честным: назови и реальные опоры, и риски или слепые зоны, которые видны в карте.
+
+- Заверши практическим фокусом: несколько конкретных шагов, прямо связанных с названными факторами.
+
+Если выше дан контекст об этом человеке — учитывай его и обращайся лично, но не додумывай того, чего в нём нет.
+
+Форма ответа:
+
+- Структурируй ответ Markdown-подзаголовками (### ...), например: ### Вывод, ### Логика карты, ### Риски и опоры, ### Практический фокус. Названия можно адаптировать под суть вопроса.
+
+- Пиши живым человеческим языком: без канцелярита, воды и общих гороскопных фраз. Каждый термин поясняй простыми словами по ходу.
+
+- Объём — сколько нужно для содержательного ответа, ориентир 300-550 слов; не растягивай ради объёма.
+
+- Только данные этой карты. Без транзитов, дат и внешних событий. Без цитат и технических артефактов.
+
+- Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.ru.plain 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты — Оракул натальной карты: вдумчивый астролог-психолог, который говорит с человеком прямо, тепло и по существу. Ты опираешься исключительно на предоставленные позиции планет, дома и аспекты ИМЕННО ЭТОЙ карты — никогда на общие гороскопы по знаку. Ты не выдумываешь события и даты, не используешь транзиты и внешние факты, не выступаешь как врач, юрист или финансовый консультант. Каждый астрологический термин ты раскрываешь так, чтобы он стал понятен человеку без подготовки, не превращая ответ в учебник.",
+  "temperature": null,
+  "user": "Вопрос пользователя:
+
+Will I find a new job?
+
+Данные натальной карты (единственный источник истины):
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Твоя задача: дать цельный, глубокий и честный ответ именно на этот вопрос, опираясь на конкретные факторы карты.
+
+Ориентиры по качеству (это критерии, а не жёсткий шаблон — выстраивай ответ так, чтобы он был максимально полезным):
+
+- Начни с ясного, прямого вывода по сути вопроса.
+
+- Покажи логику карты: на какие именно планеты, знаки, дома и аспекты (учитывая орбы и силу) ты опираешься и почему они отвечают на этот вопрос.
+
+- Будь честным: назови и реальные опоры, и риски или слепые зоны, которые видны в карте.
+
+- Заверши практическим фокусом: несколько конкретных шагов, прямо связанных с названными факторами.
+
+Если выше дан контекст об этом человеке — учитывай его и обращайся лично, но не додумывай того, чего в нём нет.
+
+Форма ответа:
+
+- Структурируй ответ Markdown-подзаголовками (### ...), например: ### Вывод, ### Логика карты, ### Риски и опоры, ### Практический фокус. Названия можно адаптировать под суть вопроса.
+
+- Пиши живым человеческим языком: без канцелярита, воды и общих гороскопных фраз. Каждый термин поясняй простыми словами по ходу.
+
+- Объём — сколько нужно для содержательного ответа, ориентир 300-550 слов; не растягивай ради объёма.
+
+- Только данные этой карты. Без транзитов, дат и внешних событий. Без цитат и технических артефактов.
+
+- Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.en.aspects 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write only one premium PDF section for Anna.
+
+Write the section about every major aspect in the list. For each aspect name the planets, type and orb, then explain the inner dynamic: conflict, support, amplification or opportunity. Explain sextiles, squares, trines, oppositions and conjunctions fully, with no empty labels.
+
+The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.
+
+Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.
+
+Length: 800-1200 words.
+
+Markdown headings ## and ### are allowed. No tables.
+
+Chart data:
+
+Person data:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Cancer
+MC: 0.00° Aries
+Planet positions:
+Sun: 12.50° Aries, house 10 (career, status, vocation, public role)
+Moon: 5.25° Leo, house 2 (resources, money, self-worth)
+Venus: 20.10° Pisces, house 9 (beliefs, travel, higher study, meaning)
+Mars: 12.75° Sagittarius, house unknown
+Houses:
+1: 10.00° Cancer; identity, body, manner of acting; no planets in this house
+2: 5.00° Leo; resources, money, self-worth; Moon
+3: 0.00° Virgo; learning, siblings, communication; no planets in this house
+4: 0.00° Libra; home, family roots, inner foundation; no planets in this house
+5: 5.00° Scorpio; creativity, romance, children, play; no planets in this house
+6: 10.00° Sagittarius; work rhythm, health, craft, service; no planets in this house
+7: 10.00° Capricorn; partnership, marriage, open mirrors; no planets in this house
+8: 5.00° Aquarius; shared resources, intimacy, crisis, trust; no planets in this house
+9: 0.00° Pisces; beliefs, travel, higher study, meaning; Venus
+10: 0.00° Aries; career, status, vocation, public role; Sun
+11: 5.00° Taurus; friends, networks, hopes, community; no planets in this house
+12: 10.00° Gemini; subconscious, solitude, endings, spirit; no planets in this house
+Major aspects:
+Sun trine Mars; orb 0.25°; exactness 97%
+Moon square Venus; orb 5.15°; exactness 52%
+Sun trine Moon; orb 7.25°; exactness 40%
+
+Existing interface text may be used only as additional context. Do not copy generic wording:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+End with a separate line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.en.houses 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write only one premium PDF section for Anna.
+
+Write the section about houses. If birth time is known, cover all 12 houses: house meaning, cusp sign, planets inside and their meaning. If a house has no planets, explain that the topic is not absent; it works through the cusp sign and circumstances. If time is unknown, explain the limitation.
+
+The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.
+
+Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.
+
+Length: 900-1300 words.
+
+Markdown headings ## and ### are allowed. No tables.
+
+Chart data:
+
+Person data:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Cancer
+MC: 0.00° Aries
+Planet positions:
+Sun: 12.50° Aries, house 10 (career, status, vocation, public role)
+Moon: 5.25° Leo, house 2 (resources, money, self-worth)
+Venus: 20.10° Pisces, house 9 (beliefs, travel, higher study, meaning)
+Mars: 12.75° Sagittarius, house unknown
+Houses:
+1: 10.00° Cancer; identity, body, manner of acting; no planets in this house
+2: 5.00° Leo; resources, money, self-worth; Moon
+3: 0.00° Virgo; learning, siblings, communication; no planets in this house
+4: 0.00° Libra; home, family roots, inner foundation; no planets in this house
+5: 5.00° Scorpio; creativity, romance, children, play; no planets in this house
+6: 10.00° Sagittarius; work rhythm, health, craft, service; no planets in this house
+7: 10.00° Capricorn; partnership, marriage, open mirrors; no planets in this house
+8: 5.00° Aquarius; shared resources, intimacy, crisis, trust; no planets in this house
+9: 0.00° Pisces; beliefs, travel, higher study, meaning; Venus
+10: 0.00° Aries; career, status, vocation, public role; Sun
+11: 5.00° Taurus; friends, networks, hopes, community; no planets in this house
+12: 10.00° Gemini; subconscious, solitude, endings, spirit; no planets in this house
+Major aspects:
+Sun trine Mars; orb 0.25°; exactness 97%
+Moon square Venus; orb 5.15°; exactness 52%
+Sun trine Moon; orb 7.25°; exactness 40%
+
+Existing interface text may be used only as additional context. Do not copy generic wording:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+End with a separate line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.en.planets 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write only one premium PDF section for Anna.
+
+Write the section about planets as active psychological forces. Cover every planet in the chart data: Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto. For each planet explain the psychological meaning, sign, house, concrete life sphere and behavioral expression. Do not reduce it to a dictionary definition.
+
+The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.
+
+Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.
+
+Length: 900-1300 words.
+
+Markdown headings ## and ### are allowed. No tables.
+
+Chart data:
+
+Person data:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Cancer
+MC: 0.00° Aries
+Planet positions:
+Sun: 12.50° Aries, house 10 (career, status, vocation, public role)
+Moon: 5.25° Leo, house 2 (resources, money, self-worth)
+Venus: 20.10° Pisces, house 9 (beliefs, travel, higher study, meaning)
+Mars: 12.75° Sagittarius, house unknown
+Houses:
+1: 10.00° Cancer; identity, body, manner of acting; no planets in this house
+2: 5.00° Leo; resources, money, self-worth; Moon
+3: 0.00° Virgo; learning, siblings, communication; no planets in this house
+4: 0.00° Libra; home, family roots, inner foundation; no planets in this house
+5: 5.00° Scorpio; creativity, romance, children, play; no planets in this house
+6: 10.00° Sagittarius; work rhythm, health, craft, service; no planets in this house
+7: 10.00° Capricorn; partnership, marriage, open mirrors; no planets in this house
+8: 5.00° Aquarius; shared resources, intimacy, crisis, trust; no planets in this house
+9: 0.00° Pisces; beliefs, travel, higher study, meaning; Venus
+10: 0.00° Aries; career, status, vocation, public role; Sun
+11: 5.00° Taurus; friends, networks, hopes, community; no planets in this house
+12: 10.00° Gemini; subconscious, solitude, endings, spirit; no planets in this house
+Major aspects:
+Sun trine Mars; orb 0.25°; exactness 97%
+Moon square Venus; orb 5.15°; exactness 52%
+Sun trine Moon; orb 7.25°; exactness 40%
+
+Existing interface text may be used only as additional context. Do not copy generic wording:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+End with a separate line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.en.portrait 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write only one premium PDF section for Anna.
+
+Write a cohesive psychological portrait. Do not repeat the table. Synthesize character, emotional layer, communication style, intimacy style, will, resources, tensions, strengths, vulnerabilities and the mature task of the chart.
+
+The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.
+
+Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.
+
+Length: 900-1300 words.
+
+Markdown headings ## and ### are allowed. No tables.
+
+Chart data:
+
+Person data:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Cancer
+MC: 0.00° Aries
+Planet positions:
+Sun: 12.50° Aries, house 10 (career, status, vocation, public role)
+Moon: 5.25° Leo, house 2 (resources, money, self-worth)
+Venus: 20.10° Pisces, house 9 (beliefs, travel, higher study, meaning)
+Mars: 12.75° Sagittarius, house unknown
+Houses:
+1: 10.00° Cancer; identity, body, manner of acting; no planets in this house
+2: 5.00° Leo; resources, money, self-worth; Moon
+3: 0.00° Virgo; learning, siblings, communication; no planets in this house
+4: 0.00° Libra; home, family roots, inner foundation; no planets in this house
+5: 5.00° Scorpio; creativity, romance, children, play; no planets in this house
+6: 10.00° Sagittarius; work rhythm, health, craft, service; no planets in this house
+7: 10.00° Capricorn; partnership, marriage, open mirrors; no planets in this house
+8: 5.00° Aquarius; shared resources, intimacy, crisis, trust; no planets in this house
+9: 0.00° Pisces; beliefs, travel, higher study, meaning; Venus
+10: 0.00° Aries; career, status, vocation, public role; Sun
+11: 5.00° Taurus; friends, networks, hopes, community; no planets in this house
+12: 10.00° Gemini; subconscious, solitude, endings, spirit; no planets in this house
+Major aspects:
+Sun trine Mars; orb 0.25°; exactness 97%
+Moon square Venus; orb 5.15°; exactness 52%
+Sun trine Moon; orb 7.25°; exactness 40%
+
+Existing interface text may be used only as additional context. Do not copy generic wording:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+End with a separate line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.en.unknownTime.relocated 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "You are the author of a premium astrology booklet and a strict English editor. Write a cohesive, elegant reading for an adult reader: deep, specific, and interpretive rather than encyclopedic. Use only the provided natal chart data. Do not invent events, diagnoses, transits, or medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write only one premium PDF section for Anna.
+
+Write the section about houses. If birth time is known, cover all 12 houses: house meaning, cusp sign, planets inside and their meaning. If a house has no planets, explain that the topic is not absent; it works through the cusp sign and circumstances. If time is unknown, explain the limitation.
+
+The text must be cohesive, with logical transitions, sections and subsections. Do not write phrases like “this is a story”, “story interpretation”, or “in this story”.
+
+Do not use dry phrases such as “The Sun shows identity...” or “the placement describes temperament...”. Explain specifically from the chart data: what the placement means, through which life sphere it expresses itself, and how it may appear in behavior.
+
+Length: 900-1300 words.
+
+Markdown headings ## and ### are allowed. No tables.
+
+Chart data:
+
+Person data:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: birth time unknown
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: relocated
+House system: koch
+Zodiac: tropical
+Planet positions:
+Sun: 12.50° Libra, house unknown
+Moon: 10.00° Aries, house unknown
+Houses:
+Houses, Ascendant and Midheaven are unreliable because birth time is unknown.
+Major aspects:
+Sun opposition Moon; orb 2.50°; exactness 75%
+
+Existing interface text may be used only as additional context. Do not copy generic wording:
+
+none
+
+End with a separate line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.ru.aspects 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+  "temperature": 0.5,
+  "user": "Напиши только одну секцию premium PDF для Anna.
+
+Напиши секцию обо всех мажорных аспектах из списка. Для каждого аспекта назови планеты, тип и орб, затем объясни внутреннюю динамику: конфликт, поддержку, усиление или возможность. Секстиль, квадратуру, тригон, оппозицию и соединение раскрывай полно, без пустых ярлыков.
+
+Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».
+
+Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.
+
+Объем: 800-1200 слов.
+
+Markdown-заголовки ## и ### разрешены. Таблицы запрещены.
+
+Данные карты:
+
+Данные человека:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Рак
+MC: 0.00° Овен
+Положения планет:
+Солнце: 12.50° Овен, 10 дом (карьера, статус, призвание, публичная роль)
+Луна: 5.25° Лев, 2 дом (ресурсы, деньги, самоценность)
+Венера: 20.10° Рыбы, 9 дом (убеждения, путешествия, высшее знание, смысл)
+Марс: 12.75° Стрелец, дом неизвестен
+Дома:
+1: 10.00° Рак; личность, тело, способ действовать; планет в доме нет
+2: 5.00° Лев; ресурсы, деньги, самоценность; Луна
+3: 0.00° Дева; обучение, близкое окружение, коммуникация; планет в доме нет
+4: 0.00° Весы; дом, родовые корни, внутренняя опора; планет в доме нет
+5: 5.00° Скорпион; творчество, романтика, дети, игра; планет в доме нет
+6: 10.00° Стрелец; рабочий ритм, здоровье, мастерство, служение; планет в доме нет
+7: 10.00° Козерог; партнерство, брак, открытые зеркала; планет в доме нет
+8: 5.00° Водолей; общие ресурсы, близость, кризис, доверие; планет в доме нет
+9: 0.00° Рыбы; убеждения, путешествия, высшее знание, смысл; Венера
+10: 0.00° Овен; карьера, статус, призвание, публичная роль; Солнце
+11: 5.00° Телец; друзья, сети, надежды, сообщество; планет в доме нет
+12: 10.00° Близнецы; подсознание, уединение, завершения, дух; планет в доме нет
+Мажорные аспекты:
+Солнце тригон Марс; orb 0.25°; exactness 97%
+Луна квадратура Венера; orb 5.15°; exactness 52%
+Солнце тригон Луна; orb 7.25°; exactness 40%
+
+Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.ru.houses 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+  "temperature": 0.5,
+  "user": "Напиши только одну секцию premium PDF для Anna.
+
+Напиши секцию о домах. Если время рождения известно, раскрой все 12 домов: значение дома, знак на куспиде, планеты внутри и их смысл. Если планет в доме нет, объясни, что тема не исчезает, а работает через знак куспида и обстоятельства. Если время неизвестно, объясни ограничение.
+
+Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».
+
+Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.
+
+Объем: 900-1300 слов.
+
+Markdown-заголовки ## и ### разрешены. Таблицы запрещены.
+
+Данные карты:
+
+Данные человека:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Рак
+MC: 0.00° Овен
+Положения планет:
+Солнце: 12.50° Овен, 10 дом (карьера, статус, призвание, публичная роль)
+Луна: 5.25° Лев, 2 дом (ресурсы, деньги, самоценность)
+Венера: 20.10° Рыбы, 9 дом (убеждения, путешествия, высшее знание, смысл)
+Марс: 12.75° Стрелец, дом неизвестен
+Дома:
+1: 10.00° Рак; личность, тело, способ действовать; планет в доме нет
+2: 5.00° Лев; ресурсы, деньги, самоценность; Луна
+3: 0.00° Дева; обучение, близкое окружение, коммуникация; планет в доме нет
+4: 0.00° Весы; дом, родовые корни, внутренняя опора; планет в доме нет
+5: 5.00° Скорпион; творчество, романтика, дети, игра; планет в доме нет
+6: 10.00° Стрелец; рабочий ритм, здоровье, мастерство, служение; планет в доме нет
+7: 10.00° Козерог; партнерство, брак, открытые зеркала; планет в доме нет
+8: 5.00° Водолей; общие ресурсы, близость, кризис, доверие; планет в доме нет
+9: 0.00° Рыбы; убеждения, путешествия, высшее знание, смысл; Венера
+10: 0.00° Овен; карьера, статус, призвание, публичная роль; Солнце
+11: 5.00° Телец; друзья, сети, надежды, сообщество; планет в доме нет
+12: 10.00° Близнецы; подсознание, уединение, завершения, дух; планет в доме нет
+Мажорные аспекты:
+Солнце тригон Марс; orb 0.25°; exactness 97%
+Луна квадратура Венера; orb 5.15°; exactness 52%
+Солнце тригон Луна; orb 7.25°; exactness 40%
+
+Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.ru.planets 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+  "temperature": 0.5,
+  "user": "Напиши только одну секцию premium PDF для Anna.
+
+Напиши секцию о планетах как действующих силах психики. Разбери каждую планету из данных карты: Солнце, Луну, Меркурий, Венеру, Марс, Юпитер, Сатурн, Уран, Нептун и Плутон. Для каждой планеты объясни психологический смысл, знак, дом, конкретную сферу жизни и поведенческое проявление. Не ограничивайся справочным определением.
+
+Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».
+
+Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.
+
+Объем: 900-1300 слов.
+
+Markdown-заголовки ## и ### разрешены. Таблицы запрещены.
+
+Данные карты:
+
+Данные человека:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Рак
+MC: 0.00° Овен
+Положения планет:
+Солнце: 12.50° Овен, 10 дом (карьера, статус, призвание, публичная роль)
+Луна: 5.25° Лев, 2 дом (ресурсы, деньги, самоценность)
+Венера: 20.10° Рыбы, 9 дом (убеждения, путешествия, высшее знание, смысл)
+Марс: 12.75° Стрелец, дом неизвестен
+Дома:
+1: 10.00° Рак; личность, тело, способ действовать; планет в доме нет
+2: 5.00° Лев; ресурсы, деньги, самоценность; Луна
+3: 0.00° Дева; обучение, близкое окружение, коммуникация; планет в доме нет
+4: 0.00° Весы; дом, родовые корни, внутренняя опора; планет в доме нет
+5: 5.00° Скорпион; творчество, романтика, дети, игра; планет в доме нет
+6: 10.00° Стрелец; рабочий ритм, здоровье, мастерство, служение; планет в доме нет
+7: 10.00° Козерог; партнерство, брак, открытые зеркала; планет в доме нет
+8: 5.00° Водолей; общие ресурсы, близость, кризис, доверие; планет в доме нет
+9: 0.00° Рыбы; убеждения, путешествия, высшее знание, смысл; Венера
+10: 0.00° Овен; карьера, статус, призвание, публичная роль; Солнце
+11: 5.00° Телец; друзья, сети, надежды, сообщество; планет в доме нет
+12: 10.00° Близнецы; подсознание, уединение, завершения, дух; планет в доме нет
+Мажорные аспекты:
+Солнце тригон Марс; orb 0.25°; exactness 97%
+Луна квадратура Венера; orb 5.15°; exactness 52%
+Солнце тригон Луна; orb 7.25°; exactness 40%
+
+Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.ru.portrait 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+  "temperature": 0.5,
+  "user": "Напиши только одну секцию premium PDF для Anna.
+
+Напиши цельный психологический портрет. Не повторяй таблицу. Собери характер, эмоциональный слой, коммуникацию, стиль близости, волю, ресурсы, напряжения, сильные стороны, уязвимости и зрелую задачу карты в связный синтез.
+
+Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».
+
+Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.
+
+Объем: 900-1300 слов.
+
+Markdown-заголовки ## и ### разрешены. Таблицы запрещены.
+
+Данные карты:
+
+Данные человека:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: 14:30
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: natal
+House system: koch
+Zodiac: tropical
+Angles:
+ASC: 10.00° Рак
+MC: 0.00° Овен
+Положения планет:
+Солнце: 12.50° Овен, 10 дом (карьера, статус, призвание, публичная роль)
+Луна: 5.25° Лев, 2 дом (ресурсы, деньги, самоценность)
+Венера: 20.10° Рыбы, 9 дом (убеждения, путешествия, высшее знание, смысл)
+Марс: 12.75° Стрелец, дом неизвестен
+Дома:
+1: 10.00° Рак; личность, тело, способ действовать; планет в доме нет
+2: 5.00° Лев; ресурсы, деньги, самоценность; Луна
+3: 0.00° Дева; обучение, близкое окружение, коммуникация; планет в доме нет
+4: 0.00° Весы; дом, родовые корни, внутренняя опора; планет в доме нет
+5: 5.00° Скорпион; творчество, романтика, дети, игра; планет в доме нет
+6: 10.00° Стрелец; рабочий ритм, здоровье, мастерство, служение; планет в доме нет
+7: 10.00° Козерог; партнерство, брак, открытые зеркала; планет в доме нет
+8: 5.00° Водолей; общие ресурсы, близость, кризис, доверие; планет в доме нет
+9: 0.00° Рыбы; убеждения, путешествия, высшее знание, смысл; Венера
+10: 0.00° Овен; карьера, статус, призвание, публичная роль; Солнце
+11: 5.00° Телец; друзья, сети, надежды, сообщество; планет в доме нет
+12: 10.00° Близнецы; подсознание, уединение, завершения, дух; планет в доме нет
+Мажорные аспекты:
+Солнце тригон Марс; orb 0.25°; exactness 97%
+Луна квадратура Венера; orb 5.15°; exactness 52%
+Солнце тригон Луна; orb 7.25°; exactness 40%
+
+Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:
+
+1. Sun in Aries (planets). Detail: 10th house
+Direct, brave and quick to start.
+
+2. Moon in Leo.
+Needs warmth and recognition.
+
+Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > premiumPdf.ru.unknownTime.relocated 1`] = `
+{
+  "maxOutputTokens": 8000,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты автор премиальной астрологической брошюры и строгий редактор русского языка. Пиши живой связный текст для взрослого читателя: глубоко, конкретно, без канцелярита и без справочного перечисления. Используй только предоставленные данные натальной карты. Не придумывай события, диагнозы, транзиты, медицинские, юридические или финансовые советы.",
+  "temperature": 0.5,
+  "user": "Напиши только одну секцию premium PDF для Anna.
+
+Напиши секцию о домах. Если время рождения известно, раскрой все 12 домов: значение дома, знак на куспиде, планеты внутри и их смысл. Если планет в доме нет, объясни, что тема не исчезает, а работает через знак куспида и обстоятельства. Если время неизвестно, объясни ограничение.
+
+Текст должен быть связанным, с логическими переходами, секциями и подсекциями. Не пиши фразы вроде «это рассказ», «интерпретация как рассказ», «в этой истории».
+
+Не пиши сухие фразы вроде «Солнце показывает личность, жизненная сила...» или «положение описывает, через какой темперамент...». Объясняй конкретно по данным карты: что означает положение, через какую сферу жизни оно проявляется и как это может звучать в поведении человека.
+
+Объем: 900-1300 слов.
+
+Markdown-заголовки ## и ### разрешены. Таблицы запрещены.
+
+Данные карты:
+
+Данные человека:
+Name: Anna
+Birth date: 1990-04-02
+Birth time: время рождения неизвестно
+Birth place: Moscow, Russia
+Timezone: Europe/Moscow
+Chart mode: relocated
+House system: koch
+Zodiac: tropical
+Положения планет:
+Солнце: 12.50° Весы, дом неизвестен
+Луна: 10.00° Овен, дом неизвестен
+Дома:
+Дома, Асцендент и Середина неба ненадежны, потому что время рождения неизвестно.
+Мажорные аспекты:
+Солнце оппозиция Луна; orb 2.50°; exactness 75%
+
+Тексты из интерфейса можно использовать только как дополнительный контекст, если они помогают. Не копируй сухие формулировки:
+
+none
+
+Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > relationship.en 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "You are a synastry (relationship compatibility) astrology analyst. Provide a relationship reading only from two natal charts. Write in plain language for non-experts. No transits, external event claims, diagnoses, or legal/medical/financial expert advice.",
+  "temperature": null,
+  "user": "Create a relationship reading for: Anna and Max.
+
+Anna chart:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Max chart:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+Sun: Libra 12.50 deg (house: unknown)
+Moon: Aries 10.00 deg (house: unknown)
+Major planetary aspects:
+Sun opposition Moon (orb 2.50 deg, exactness 0.75)
+
+Cross-chart synastry aspects:
+
+Anna Sun opposition Max Sun (orb 0.00 deg, exactness 1.00)
+Anna Mars sextile Max Sun (orb 0.25 deg, exactness 0.96)
+Anna Sun conjunction Max Moon (orb 2.50 deg, exactness 0.58)
+Anna Mars trine Max Moon (orb 2.75 deg, exactness 0.54)
+Anna Moon trine Max Moon (orb 4.75 deg, exactness 0.21)
+
+Response requirements:
+
+1) English, 380-700 words.
+
+2) Markdown structure: ### Overall dynamic, ### Attraction and intimacy, ### Communication and conflict, ### Relationship strengths, ### Relationship risks, ### Practice.
+
+3) Include at least 6 concrete references to chart factors (planets, signs, houses, aspects, orbs).
+
+4) Explain each astrology term in plain language immediately.
+
+5) In 'Practice', provide 5 specific actions to improve interactions.
+
+6) No tables, no fluff, no generic horoscope statements.
+
+7) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > relationship.en.noSynastry 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "You are a synastry (relationship compatibility) astrology analyst. Provide a relationship reading only from two natal charts. Write in plain language for non-experts. No transits, external event claims, diagnoses, or legal/medical/financial expert advice.",
+  "temperature": null,
+  "user": "Create a relationship reading for: Anna and Max.
+
+Anna chart:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+Sun: Libra 12.50 deg (house: unknown)
+Moon: Aries 10.00 deg (house: unknown)
+Major planetary aspects:
+Sun opposition Moon (orb 2.50 deg, exactness 0.75)
+
+Max chart:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+
+Major planetary aspects:
+none
+
+Cross-chart synastry aspects:
+
+none
+
+Response requirements:
+
+1) English, 380-700 words.
+
+2) Markdown structure: ### Overall dynamic, ### Attraction and intimacy, ### Communication and conflict, ### Relationship strengths, ### Relationship risks, ### Practice.
+
+3) Include at least 6 concrete references to chart factors (planets, signs, houses, aspects, orbs).
+
+4) Explain each astrology term in plain language immediately.
+
+5) In 'Practice', provide 5 specific actions to improve interactions.
+
+6) No tables, no fluff, no generic horoscope statements.
+
+7) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > relationship.ru 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты астрологический аналитик совместимости (синастрия). Дай разбор отношений только по данным двух натальных карт. Пиши простым языком для не-астролога. Не используй транзиты, внешние события, диагнозы и мед/юр/фин советы.",
+  "temperature": null,
+  "user": "Сделай расклад на отношения для пары: Anna и Max.
+
+Карта Anna:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Карта Max:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+Sun: Libra 12.50 deg (house: unknown)
+Moon: Aries 10.00 deg (house: unknown)
+Major planetary aspects:
+Sun opposition Moon (orb 2.50 deg, exactness 0.75)
+
+Межкартные аспекты (синастрия):
+
+Anna Sun opposition Max Sun (orb 0.00 deg, exactness 1.00)
+Anna Mars sextile Max Sun (orb 0.25 deg, exactness 0.96)
+Anna Sun conjunction Max Moon (orb 2.50 deg, exactness 0.58)
+Anna Mars trine Max Moon (orb 2.75 deg, exactness 0.54)
+Anna Moon trine Max Moon (orb 4.75 deg, exactness 0.21)
+
+Требования к ответу:
+
+1) Русский язык, 380-700 слов.
+
+2) Структура Markdown: ### Общая динамика, ### Притяжение и близость, ### Коммуникация и конфликты, ### Ресурсы пары, ### Риски пары, ### Практика.
+
+3) В тексте используй минимум 6 конкретных ссылок на факторы карт (планеты, знаки, дома, аспекты, орбы).
+
+4) Каждый астрологический термин сразу поясняй простыми словами.
+
+5) В разделе 'Практика' дай 5 конкретных шагов для улучшения взаимодействия.
+
+6) Без таблиц, без воды, без общих гороскопных фраз.
+
+7) Заверши ответ строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > relationship.ru.noSynastry 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты астрологический аналитик совместимости (синастрия). Дай разбор отношений только по данным двух натальных карт. Пиши простым языком для не-астролога. Не используй транзиты, внешние события, диагнозы и мед/юр/фин советы.",
+  "temperature": null,
+  "user": "Сделай расклад на отношения для пары: Anna и Max.
+
+Карта Anna:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+Sun: Libra 12.50 deg (house: unknown)
+Moon: Aries 10.00 deg (house: unknown)
+Major planetary aspects:
+Sun opposition Moon (orb 2.50 deg, exactness 0.75)
+
+Карта Max:
+
+Time known: no
+Zodiac: tropical
+Planet positions:
+
+Major planetary aspects:
+none
+
+Межкартные аспекты (синастрия):
+
+none
+
+Требования к ответу:
+
+1) Русский язык, 380-700 слов.
+
+2) Структура Markdown: ### Общая динамика, ### Притяжение и близость, ### Коммуникация и конфликты, ### Ресурсы пары, ### Риски пары, ### Практика.
+
+3) В тексте используй минимум 6 конкретных ссылок на факторы карт (планеты, знаки, дома, аспекты, орбы).
+
+4) Каждый астрологический термин сразу поясняй простыми словами.
+
+5) В разделе 'Практика' дай 5 конкретных шагов для улучшения взаимодействия.
+
+6) Без таблиц, без воды, без общих гороскопных фраз.
+
+7) Заверши ответ строкой: [END_OF_REPORT]",
+}
+`;

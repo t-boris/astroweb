@@ -6,15 +6,14 @@ import * as profileService from "../services/profile";
 import { hashCacheKey } from "../services/aiCache";
 import { ownerCtx, ownsProfile } from "../services/owner";
 import { saveDeepText } from "../services/profileContent";
-import {
-  buildDeepInterpretationPrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-} from "../services/anthropic";
+import { buildDeepInterpretationPrompt, normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
+import { runTask, settingsKeyPart } from "../services/ai/run";
+import { loadTaskSettings, textsFor } from "../services/ai/settings";
 
 export const deepenInterpretation = onCall({
   timeoutSeconds: 180,
-  secrets: ["ANTHROPIC_API_KEY"],
+  secrets: AI_SECRETS,
 }, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
@@ -57,6 +56,9 @@ export const deepenInterpretation = onCall({
       throw new HttpsError("permission-denied", "Access denied");
     }
 
+    // Cached answers follow the task's settings (DEC-004): a changed model or
+    // prompt gets a new key; on the defaults the key is unchanged.
+    const settings = await loadTaskSettings("deepen");
     const cacheKey = hashCacheKey({
       kind: "deepen",
       profileId,
@@ -71,6 +73,7 @@ export const deepenInterpretation = onCall({
       language,
       focusTopic: trimmedFocus,
       baseInterpretation: trimmedBase,
+      ...settingsKeyPart(settings),
     });
 
     // REQ-003: a signed-in owner's deep text is stored per block for every
@@ -115,18 +118,15 @@ export const deepenInterpretation = onCall({
       relocationLng,
     });
 
-    const result = await generateClaudeTextResult(
+    const result = await runTask(
+      settings,
       buildDeepInterpretationPrompt({
         chart,
         focusTopic: trimmedFocus,
         baseInterpretation: trimmedBase,
         language,
+        texts: textsFor(settings, language),
       }),
-      {
-        allowContinuation: true,
-        sanitizeOutput: true,
-        requireEndTag: "[END_OF_REPORT]",
-      },
     );
 
     await cacheRef.set({

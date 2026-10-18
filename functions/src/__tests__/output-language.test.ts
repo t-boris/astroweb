@@ -4,7 +4,7 @@ import {
   buildOraclePrompt,
   normalizeLanguage,
   promptLanguage,
-} from "../services/anthropic";
+} from "../services/prompts";
 import type { ChartResult } from "../types";
 
 const chart = {

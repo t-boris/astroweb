@@ -11,11 +11,12 @@ import {
 } from "./pdf";
 import {
   buildPremiumPdfNarrativeSectionPrompt,
-  generateClaudeTextResult,
   type PremiumPdfNarrativeSection,
   promptLanguage,
   type SupportedLanguage,
-} from "./anthropic";
+} from "./prompts";
+import { runTask, settingsKeyPart } from "./ai/run";
+import { loadTaskSettings, textsFor, type EffectiveTaskSettings } from "./ai/settings";
 
 const MAX_SECTIONS = 30;
 const MAX_SECTION_BODY_LENGTH = 12000;
@@ -46,6 +47,8 @@ export function computePremiumPdfCacheKey(params: {
   relocationLat?: number;
   relocationLng?: number;
   sections: PremiumPdfSection[];
+  /** Settings of the premiumPdf task: a changed model or prompt gets a new key (DEC-004). */
+  settings: EffectiveTaskSettings;
 }): string {
   const { profile, language, relocationLat, relocationLng, sections } = params;
   const canonical = JSON.stringify({
@@ -67,6 +70,7 @@ export function computePremiumPdfCacheKey(params: {
       category: section.category ?? null,
       detail: section.detail ?? null,
     })),
+    ...settingsKeyPart(params.settings),
   });
   return createHash("sha256").update(canonical).digest("hex");
 }
@@ -166,21 +170,18 @@ function requireCompleteAiNarrative(narrative: PremiumPdfNarrative): void {
 }
 
 /**
- * Generate the full premium PDF: four AI narrative sections in parallel, then render.
- * Pure server-side work — safe to run inside the async job worker (no request deadline).
+ * Generate the four AI narrative sections of the premium PDF in parallel with
+ * the premiumPdf task's settings, and check that none came back empty.
  */
-export async function generatePremiumPdfArtifact(params: {
+export async function generatePremiumPdfNarrative(params: {
   profile: Profile;
   chart: ChartResult;
   language: SupportedLanguage;
   sections: PremiumPdfSection[];
   isRelocated: boolean;
-  title?: string;
-  subtitle?: string;
-  generatedAt?: string;
-}): Promise<{ buffer: Buffer; fileName: string }> {
-  const { profile, chart, language, sections, isRelocated } = params;
-
+  settings: EffectiveTaskSettings;
+}): Promise<PremiumPdfNarrative> {
+  const { profile, chart, language, sections, isRelocated, settings } = params;
   const sectionKeys: PremiumPdfNarrativeSection[] = [
     "planets",
     "houses",
@@ -191,7 +192,8 @@ export async function generatePremiumPdfArtifact(params: {
   const sectionResults = await Promise.all(
     sectionKeys.map(async (section) => {
       try {
-        const result = await generateClaudeTextResult(
+        const result = await runTask(
+          settings,
           buildPremiumPdfNarrativeSectionPrompt({
             profile,
             chart,
@@ -199,12 +201,8 @@ export async function generatePremiumPdfArtifact(params: {
             sections,
             section,
             isRelocated,
+            texts: textsFor(settings, language),
           }),
-          {
-            allowContinuation: true,
-            sanitizeOutput: true,
-            requireEndTag: "[END_OF_REPORT]",
-          },
         );
 
         return { section, text: result.text, model: result.model };
@@ -224,6 +222,26 @@ export async function generatePremiumPdfArtifact(params: {
     },
   );
   requireCompleteAiNarrative(aiNarrative);
+  return aiNarrative;
+}
+
+/**
+ * Generate the full premium PDF: four AI narrative sections in parallel, then render.
+ * Pure server-side work — safe to run inside the async job worker (no request deadline).
+ */
+export async function generatePremiumPdfArtifact(params: {
+  profile: Profile;
+  chart: ChartResult;
+  language: SupportedLanguage;
+  sections: PremiumPdfSection[];
+  isRelocated: boolean;
+  title?: string;
+  subtitle?: string;
+  generatedAt?: string;
+}): Promise<{ buffer: Buffer; fileName: string }> {
+  const { profile, chart, language, sections, isRelocated } = params;
+  const settings = await loadTaskSettings("premiumPdf");
+  const aiNarrative = await generatePremiumPdfNarrative({ profile, chart, language, sections, isRelocated, settings });
 
   logger.info("premium PDF AI narrative generated", {
     profileId: profile.id,

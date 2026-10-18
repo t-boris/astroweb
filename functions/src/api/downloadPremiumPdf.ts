@@ -7,13 +7,10 @@ import {
   type PremiumPdfReport,
   type PremiumPdfSection,
 } from "../services/pdf";
-import {
-  buildPremiumPdfNarrativeSectionPrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-  promptLanguage,
-  type PremiumPdfNarrativeSection,
-} from "../services/anthropic";
+import { normalizeLanguage, promptLanguage } from "../services/prompts";
+import { generatePremiumPdfNarrative } from "../services/premiumPdf";
+import { AI_SECRETS } from "../services/ai/keys";
+import { loadTaskSettings } from "../services/ai/settings";
 
 interface RawPdfSection {
   title?: unknown;
@@ -88,24 +85,10 @@ function optionalCoordinate(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-function requireCompleteAiNarrative(narrative: PremiumPdfNarrative): void {
-  const missing = [
-    ["planets", narrative.planets],
-    ["houses", narrative.houses],
-    ["aspects", narrative.aspects],
-    ["portrait", narrative.portrait],
-  ]
-    .filter(([, value]) => typeof value !== "string" || value.trim().length < 120)
-    .map(([key]) => key);
-
-  if (missing.length > 0) {
-    throw new Error(`Premium PDF AI narrative is incomplete: ${missing.join(", ")}`);
-  }
-}
 
 export const downloadPremiumPdf = onCall({
   timeoutSeconds: 300,
-  secrets: ["ANTHROPIC_API_KEY"],
+  secrets: AI_SECRETS,
 }, async (request) => {
   const profileId = requiredString(request.data?.profileId, "profileId");
   const ownerDeviceId = requiredString(request.data?.ownerDeviceId, "ownerDeviceId");
@@ -132,52 +115,14 @@ export const downloadPremiumPdf = onCall({
 
   let aiNarrative: PremiumPdfNarrative;
   try {
-    const sectionKeys: PremiumPdfNarrativeSection[] = [
-      "planets",
-      "houses",
-      "aspects",
-      "portrait",
-    ];
-    const sectionResults = await Promise.all(
-      sectionKeys.map(async (section) => {
-        try {
-          const result = await generateClaudeTextResult(
-            buildPremiumPdfNarrativeSectionPrompt({
-              profile,
-              chart,
-              language,
-              sections,
-              section,
-              isRelocated,
-            }),
-            {
-              allowContinuation: true,
-              sanitizeOutput: true,
-              requireEndTag: "[END_OF_REPORT]",
-            },
-          );
-
-          return {
-            section,
-            text: result.text,
-            model: result.model,
-          };
-        } catch (error) {
-          throw new Error(`AI section "${section}" failed: ${(error as Error).message}`);
-        }
-      }),
-    );
-
-    aiNarrative = sectionResults.reduce<PremiumPdfNarrative>(
-      (accumulator, result) => ({
-        ...accumulator,
-        [result.section]: result.text,
-      }),
-      {
-        model: Array.from(new Set(sectionResults.map((result) => result.model))).join(", "),
-      },
-    );
-    requireCompleteAiNarrative(aiNarrative);
+    aiNarrative = await generatePremiumPdfNarrative({
+      profile,
+      chart,
+      language,
+      sections,
+      isRelocated,
+      settings: await loadTaskSettings("premiumPdf"),
+    });
 
     logger.info("downloadPremiumPdf AI narrative generated", {
       profileId,

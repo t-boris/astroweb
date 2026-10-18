@@ -12,7 +12,8 @@ import {
 } from "../services/premiumPdf";
 import { getProfileById } from "../services/profile";
 import { refundToWallet, walletKeyFromProfile } from "../services/wallet";
-import { normalizeLanguage } from "../services/anthropic";
+import { normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
 import type { PremiumPdfSection } from "../services/pdf";
 
 export const processPdfJob = onDocumentCreated(
@@ -20,7 +21,7 @@ export const processPdfJob = onDocumentCreated(
     document: "pdfJobs/{jobId}",
     timeoutSeconds: 540,
     memory: "1GiB",
-    secrets: ["ANTHROPIC_API_KEY", "RESEND_API_KEY"],
+    secrets: [...AI_SECRETS, "RESEND_API_KEY"],
   },
   async (event) => {
     const snapshot = event.data;

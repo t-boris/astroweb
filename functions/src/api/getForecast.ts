@@ -2,11 +2,10 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { resolveOwnedChart } from "../services/chartResolver";
-import {
-  buildForecastPrompt,
-  generateClaudeTextResult,
-  normalizeLanguage,
-} from "../services/anthropic";
+import { buildForecastPrompt, normalizeLanguage } from "../services/prompts";
+import { AI_SECRETS } from "../services/ai/keys";
+import { runTask, settingsKeyPart } from "../services/ai/run";
+import { loadTaskSettings, textsFor } from "../services/ai/settings";
 import { hashCacheKey } from "../services/aiCache";
 
 /**
@@ -15,7 +14,7 @@ import { hashCacheKey } from "../services/aiCache";
  */
 export const getForecast = onCall({
   timeoutSeconds: 120,
-  secrets: ["ANTHROPIC_API_KEY"],
+  secrets: AI_SECRETS,
 }, async (request) => {
   const profileId = request.data?.profileId;
   const ownerDeviceId = request.data?.ownerDeviceId;
@@ -31,7 +30,8 @@ export const getForecast = onCall({
   try {
     const { chart } = await resolveOwnedChart({ profileId, ownerDeviceId, uid: request.auth?.uid ?? null });
     const today = new Date().toISOString().slice(0, 10); // server date (YYYY-MM-DD)
-    const cacheKey = hashCacheKey({ kind: "forecast", profileId, today, language });
+    const settings = await loadTaskSettings("forecast");
+    const cacheKey = hashCacheKey({ kind: "forecast", profileId, today, language, ...settingsKeyPart(settings) });
     const db = getFirestore();
     const ref = db.collection("forecastCache").doc(cacheKey);
 
@@ -40,10 +40,7 @@ export const getForecast = onCall({
       return { text: cached.data()!.text, date: today, model: cached.data()!.model ?? "cache" };
     }
 
-    const result = await generateClaudeTextResult(
-      buildForecastPrompt({ chart, today, language }),
-      { allowContinuation: true, sanitizeOutput: true, requireEndTag: "[END_OF_REPORT]" },
-    );
+    const result = await runTask(settings, buildForecastPrompt({ chart, today, language, texts: textsFor(settings, language) }));
 
     await ref.set({
       text: result.text,

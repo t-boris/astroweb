@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parsePremiumPdfNarrative } from "../services/anthropic";
+import { parsePremiumPdfNarrative } from "../services/prompts";
 
 describe("parsePremiumPdfNarrative", () => {
   it("extracts marked premium PDF sections", () => {

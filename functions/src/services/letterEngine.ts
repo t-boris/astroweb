@@ -5,11 +5,12 @@ import { resolveOwnedChart } from "./chartResolver";
 import { getDossier, getDossierSummaryText } from "./dossier";
 import { computeTransits } from "./transits";
 import { buildNewsDigest } from "./newsDigest";
-import { callClaudeRaw, extractJson, usageCostUsd } from "./claudeRaw";
-import { buildLetterAnalysisPrompt, buildLetterGenerationPrompt } from "./anthropic";
+import { buildLetterAnalysisPrompt, buildLetterGenerationPrompt, type LetterAnalysisPromptInput } from "./prompts";
+import type { GenerationResult } from "./ai/generate";
+import { extractJson } from "./ai/json";
+import { runTask } from "./ai/run";
+import { loadTaskSettings, textsFor, type EffectiveTaskSettings } from "./ai/settings";
 import type { StyleProfile } from "../types";
-
-const OPUS = "claude-opus-4-8";
 
 export interface LetterQuestion {
   id: string;
@@ -29,7 +30,7 @@ export interface LetterContent {
   generatedAt: string;
 }
 
-interface Brief {
+export interface Brief {
   themes: string[];
   chosenTransits: string[];
   newsHooks: string[];
@@ -136,12 +137,25 @@ async function astrologerName(profileId: string): Promise<string> {
   return (snap.exists && (snap.data()?.astrologerName as string)) || "Vega";
 }
 
+/** Everything one letter is written from: the person, the chart, transits, news and history. */
+export interface LetterInputs {
+  profileId: string;
+  lang: "ru" | "en";
+  addressForm: string | null;
+  analysis: LetterAnalysisPromptInput;
+  astrologerName: string;
+  digestCostUsd: number;
+  residencePlace: string;
+}
+
 /**
- * Generate one letter for a chart (does NOT persist or deliver — the job does
- * that). Pure: gather inputs → news digest (cheap model) → Opus analysis →
- * Opus generation. Returns the content + measured COGS.
+ * Gather the inputs of a letter. With `dryRun` (admin test run) the news digest
+ * reads its cache but never writes it.
  */
-export async function generateLetter(profileId: string): Promise<LetterContent> {
+export async function prepareLetterInputs(
+  profileId: string,
+  options: { dryRun?: boolean; newsSettings?: EffectiveTaskSettings } = {},
+): Promise<LetterInputs> {
   const profile = await getProfileById(profileId);
   if (!profile) throw new Error("Profile not found");
   const dossier = await getDossier(profileId, profile.ownerUid ?? "", "ru");
@@ -165,12 +179,15 @@ export async function generateLetter(profileId: string): Promise<LetterContent> 
   const now = new Date();
   const transit = computeTransits(chart, residence, now);
   const dateStr = now.toISOString().slice(0, 10);
-  const digest = await buildNewsDigest({
-    interestTags: dossier.interests,
-    residence: residence.place,
-    language: lang,
-    date: dateStr,
-  });
+  const digest = await buildNewsDigest(
+    {
+      interestTags: dossier.interests,
+      residence: residence.place,
+      language: lang,
+      date: dateStr,
+    },
+    { cache: options.dryRun ? "read" : "use", settings: options.newsSettings },
+  );
 
   const recentQ = await recentOracleQuestion(profileId);
   const name = await astrologerName(profileId);
@@ -182,37 +199,83 @@ export async function generateLetter(profileId: string): Promise<LetterContent> 
   const knownText = await getDossierSummaryText(profileId);
   const askedKeys = await recentAskedKeys(profileId);
 
-  const passes: LetterContent["cost"]["passes"] = [];
-  let usd = digest.costUsd;
-
-  // ---- Analysis pass (Opus) --------------------------------------------------
-  const analysis = buildLetterAnalysisPrompt({
-    language: lang,
+  return {
+    profileId,
+    lang,
     addressForm: dossier.addressForm,
-    interests: dossier.interests,
-    goals: dossier.goals,
-    openLoops: dossier.openLoops,
-    styleProfile: style,
-    styleNudge: dossier.styleNudge,
-    knownText,
-    askedKeys,
+    astrologerName: name,
+    digestCostUsd: digest.costUsd,
     residencePlace: residence.place,
-    chart,
-    transit,
-    newsHooks: digest.hooks,
-    recentQuestion: recentQ,
-  });
-  const a = await callClaudeRaw({ model: OPUS, system: analysis.systemInstruction, user: analysis.userPrompt, maxTokens: 1500 });
-  passes.push({ label: "analysis", model: OPUS, inTok: a.usage.input_tokens, outTok: a.usage.output_tokens });
-  usd += usageCostUsd(OPUS, a.usage);
-  const brief = extractJson<Brief>(a.text);
+    analysis: {
+      language: lang,
+      addressForm: dossier.addressForm,
+      interests: dossier.interests,
+      goals: dossier.goals,
+      openLoops: dossier.openLoops,
+      styleProfile: style,
+      styleNudge: dossier.styleNudge,
+      knownText,
+      askedKeys,
+      residencePlace: residence.place,
+      chart,
+      transit,
+      newsHooks: digest.hooks,
+      recentQuestion: recentQ,
+    },
+  };
+}
 
-  // ---- Generation pass (Opus) ------------------------------------------------
-  const generation = buildLetterGenerationPrompt({ astrologerName: name, language: lang, addressForm: dossier.addressForm, brief });
-  const g = await callClaudeRaw({ model: OPUS, system: generation.systemInstruction, user: generation.userPrompt, maxTokens: 2000 });
-  passes.push({ label: "generation", model: OPUS, inTok: g.usage.input_tokens, outTok: g.usage.output_tokens });
-  usd += usageCostUsd(OPUS, g.usage);
-  const letter = extractJson<{ teaser: string; html: string; questions: { text: string; options: string[] }[] }>(g.text);
+/** Analysis pass: themes, transits, news hooks and questions as JSON (task letterAnalysis). */
+export async function runLetterAnalysis(
+  inputs: LetterInputs,
+  settings: EffectiveTaskSettings,
+): Promise<{ brief: Brief; result: GenerationResult }> {
+  const result = await runTask(
+    settings,
+    buildLetterAnalysisPrompt({ ...inputs.analysis, texts: textsFor(settings, inputs.lang) }),
+  );
+  return { brief: extractJson<Brief>(result.text), result };
+}
+
+/** Writing pass: the letter as JSON in the astrologer's voice (task letterWriting). */
+export async function runLetterWriting(
+  inputs: LetterInputs,
+  brief: Brief,
+  settings: EffectiveTaskSettings,
+): Promise<{ letter: { teaser: string; html: string; questions: { text: string; options: string[] }[] }; result: GenerationResult }> {
+  const result = await runTask(
+    settings,
+    buildLetterGenerationPrompt({
+      astrologerName: inputs.astrologerName,
+      language: inputs.lang,
+      addressForm: inputs.addressForm,
+      brief,
+      texts: textsFor(settings, inputs.lang),
+    }),
+  );
+  return {
+    letter: extractJson<{ teaser: string; html: string; questions: { text: string; options: string[] }[] }>(result.text),
+    result,
+  };
+}
+
+/**
+ * Generate one letter for a chart (does NOT persist or deliver — the job does
+ * that). Pure: gather inputs → news digest → analysis pass → writing pass,
+ * each with its task's settings. Returns the content + measured COGS.
+ */
+export async function generateLetter(profileId: string): Promise<LetterContent> {
+  const inputs = await prepareLetterInputs(profileId);
+  const passes: LetterContent["cost"]["passes"] = [];
+  let usd = inputs.digestCostUsd;
+
+  const { brief, result: a } = await runLetterAnalysis(inputs, await loadTaskSettings("letterAnalysis"));
+  passes.push({ label: "analysis", model: a.model, inTok: a.usage.inputTokens, outTok: a.usage.outputTokens });
+  usd += a.costUsd;
+
+  const { letter, result: g } = await runLetterWriting(inputs, brief, await loadTaskSettings("letterWriting"));
+  passes.push({ label: "generation", model: g.model, inTok: g.usage.inputTokens, outTok: g.usage.outputTokens });
+  usd += g.costUsd;
 
   // Merge dossierKey/sensitive from the brief's questions into the rendered ones.
   const questions: LetterQuestion[] = (letter.questions ?? []).slice(0, 3).map((q, i) => ({
@@ -223,15 +286,15 @@ export async function generateLetter(profileId: string): Promise<LetterContent> 
     sensitive: Boolean(brief.questions?.[i]?.sensitive),
   }));
 
-  logger.info("generateLetter done", { profileId, usd: usd.toFixed(4), residence: residence.place });
+  logger.info("generateLetter done", { profileId, usd: usd.toFixed(4), residence: inputs.residencePlace });
 
   return {
     html: letter.html,
     teaserText: letter.teaser,
     questions,
     brief,
-    language: lang,
-    addressForm: dossier.addressForm,
+    language: inputs.lang,
+    addressForm: inputs.addressForm,
     cost: { usd, passes },
     generatedAt: new Date().toISOString(),
   };

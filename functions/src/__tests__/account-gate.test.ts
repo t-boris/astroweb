@@ -11,12 +11,15 @@ vi.mock("firebase-admin/firestore", () => ({
   getFirestore: () => h.fake.db,
   FieldValue: { serverTimestamp: () => "TS" },
 }));
-vi.mock("../services/anthropic", () => ({
+vi.mock("../services/prompts", () => ({
   normalizeLanguage: (l: unknown) => (l === "ru" ? "ru" : "en"),
   buildOraclePrompt: () => "prompt",
   buildRelationshipPrompt: () => "prompt",
   buildDeepInterpretationPrompt: () => "prompt",
-  generateClaudeTextResult: (...a: unknown[]) => h.generate(...a),
+}));
+vi.mock("../services/ai/run", () => ({
+  runTask: (...a: unknown[]) => h.generate(...a),
+  settingsKeyPart: () => ({}),
 }));
 vi.mock("../services/chartResolver", () => ({
   resolveOwnedChart: async (p: { profileId: string; uid?: string | null; ownerDeviceId?: string | null }) => {

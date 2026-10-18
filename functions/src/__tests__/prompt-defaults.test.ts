@@ -9,7 +9,8 @@ import {
   buildOraclePrompt,
   buildPremiumPdfNarrativeSectionPrompt,
   buildRelationshipPrompt,
-} from "../services/anthropic";
+} from "../services/prompts";
+import { taskSpec, type AiTaskId } from "../services/ai/tasks";
 import type { ChartResult, Profile } from "../types";
 
 /**
@@ -70,20 +71,27 @@ const uiSections = [
   { title: "Moon in Leo", body: "Needs warmth and recognition." },
 ];
 
-function snapshotOf(input: {
-  systemInstruction: string;
-  userPrompt: string;
-  model?: string;
-  temperature?: number;
-  maxOutputTokens?: number;
-}) {
+const TASK_OF_CASE: Record<string, AiTaskId> = {
+  oracle: "oracle",
+  relationship: "compatibility",
+  deepen: "deepen",
+  forecast: "forecast",
+  premiumPdf: "premiumPdf",
+  letterAnalysis: "letterAnalysis",
+  letterGeneration: "letterWriting",
+  newsDigest: "newsDigest",
+  factExtraction: "factExtraction",
+};
+
+/** The prompt plus the request parameters the task sends with no admin override. */
+function snapshotOf(caseName: string, prompt: { systemInstruction: string; userPrompt: string }) {
+  const defaults = taskSpec(TASK_OF_CASE[caseName.split(".")[0]]).defaults;
   return {
-    // No model means the transport default (claude-sonnet-4-6; ANTHROPIC_MODEL is not set in production).
-    model: input.model ?? "claude-sonnet-4-6",
-    temperature: input.temperature ?? null,
-    maxOutputTokens: input.maxOutputTokens ?? null,
-    system: input.systemInstruction,
-    user: input.userPrompt,
+    model: defaults.model,
+    temperature: defaults.temperature,
+    maxOutputTokens: defaults.maxOutputTokens,
+    system: prompt.systemInstruction,
+    user: prompt.userPrompt,
   };
 }
 
@@ -102,7 +110,7 @@ const letterAnalysisBase = {
   newsHooks: [{ headline: "Jazz festival opens", oneLine: "A city-wide jazz festival starts this weekend." }],
 };
 
-const cases: Array<[string, () => Parameters<typeof snapshotOf>[0]]> = [];
+const cases: Array<[string, () => { systemInstruction: string; userPrompt: string }]> = [];
 
 for (const language of languages) {
   cases.push([`oracle.${language}.plain`, () => buildOraclePrompt({ chart: chartA, question: "Will I find a new job?", language })]);
@@ -177,7 +185,7 @@ cases.push(["factExtraction", () => buildFactExtractionPrompt({ text: "I am a de
 cases.push(["factExtraction.long", () => buildFactExtractionPrompt({ text: "x".repeat(2100) })]);
 
 describe("prompt defaults (golden copy)", () => {
-  it.each(cases)("%s", (_name, build) => {
-    expect(snapshotOf(build())).toMatchSnapshot();
+  it.each(cases)("%s", (name, build) => {
+    expect(snapshotOf(name, build())).toMatchSnapshot();
   });
 });

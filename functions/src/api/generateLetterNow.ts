@@ -5,6 +5,7 @@ import { ownsProfile } from "../services/owner";
 import { requireUid, isAstrologerEnabled } from "../services/astrologer";
 import { generateLetter, persistLetter, todaysLetterId } from "../services/letterEngine";
 import { sendLetterNotifications } from "../services/letterNotify";
+import { AI_SECRETS } from "../services/ai/keys";
 
 /**
  * Internal/testing + sample-letter trigger: synchronously generate one letter
@@ -14,7 +15,7 @@ import { sendLetterNotifications } from "../services/letterNotify";
  * so a test letter exercises the whole pipeline.
  */
 export const generateLetterNow = onCall(
-  { timeoutSeconds: 180, secrets: ["ANTHROPIC_API_KEY", "VAPID_PRIVATE_KEY", "RESEND_API_KEY"] },
+  { timeoutSeconds: 180, secrets: [...AI_SECRETS, "VAPID_PRIVATE_KEY", "RESEND_API_KEY"] },
   async (request) => {
     const uid = requireUid(request);
     if (!(await isAstrologerEnabled(uid))) {

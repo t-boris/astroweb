@@ -58,17 +58,23 @@ If you want to run Hosting emulator anyway, either:
 
 ## Environment Variables
 
-Cloud Functions use:
+Cloud Functions use the AI provider keys, stored in Secret Manager and bound to every function that runs an AI task:
 
-- `ANTHROPIC_API_KEY` (required for AI endpoints)
-- `ANTHROPIC_MODEL` (optional; defaults to `claude-sonnet-4-6`)
+- `ANTHROPIC_API_KEY` (Claude, used by the default settings)
+- `OPENAI_API_KEY` (OpenAI; the placeholder `unset` keeps its models unavailable)
+- `GEMINI_API_KEY` (Gemini Developer API, key of a billing-enabled project; `unset` keeps its models unavailable)
+
+Which model each AI task uses, its output limit and its prompts are set in the Admin page, AI tab
+(stored in Firestore `aiSettings/{taskId}`; code defaults in `functions/src/services/ai/`).
+`ANTHROPIC_MODEL` is no longer read.
 
 Local setup (example):
 
 ```bash
 cat > functions/.env.local <<'EOF'
 ANTHROPIC_API_KEY=...
-ANTHROPIC_MODEL=claude-sonnet-4-6
+OPENAI_API_KEY=unset
+GEMINI_API_KEY=unset
 EOF
 ```
 

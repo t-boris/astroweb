@@ -1,16 +1,17 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
-import { callClaudeRaw, extractJson, usageCostUsd } from "./claudeRaw";
-import { buildNewsDigestPrompt } from "./anthropic";
+import { buildNewsDigestPrompt } from "./prompts";
+import type { GenerationResult } from "./ai/generate";
+import { extractJson } from "./ai/json";
+import { runTask } from "./ai/run";
+import { loadTaskSettings, textsFor, type EffectiveTaskSettings } from "./ai/settings";
 
 /**
- * Fresh-news digest via web_search on a cheap model (Sonnet 4.6), keyed on the
- * user's interest tags + current residence. Kept on the cheap model so the ~30k
- * retrieved tokens are billed at $3/MTok, not Opus rates. Cached per (tags, day,
- * region) to dedupe across users. (Validated COGS ≈ $0.09.)
+ * Fresh-news digest via the provider's web search (task newsDigest, DEC-016),
+ * keyed on the user's interest tags + current residence. Defaults to a cheaper
+ * model so the ~30k retrieved tokens are not billed at Opus rates. Cached per
+ * (tags, day, region, settings) to dedupe across users.
  */
-
-const DIGEST_MODEL = "claude-sonnet-4-6";
 
 export interface NewsHook {
   headline: string;
@@ -22,20 +23,51 @@ export interface NewsDigest {
   costUsd: number;
 }
 
-function cacheKey(tags: string[], residence: string, date: string): string {
-  const raw = `${date}__${residence}__${[...tags].sort().join("-")}`;
-  return raw.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 480) || "default";
-}
-
-export async function buildNewsDigest(params: {
+export interface NewsDigestParams {
   interestTags: string[];
   residence: string;
   language: "ru" | "en";
   date: string;
-}): Promise<NewsDigest> {
-  const { interestTags, residence, language, date } = params;
+}
+
+function cacheKey(tags: string[], residence: string, date: string, settings: EffectiveTaskSettings): string {
+  // The settings version is appended only when the task runs on non-default settings (DEC-004).
+  const version = settings.version ? `__${settings.version}` : "";
+  const raw = `${date}__${residence}__${[...tags].sort().join("-")}`;
+  return (raw.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 480) || "default") + version;
+}
+
+/** One digest generation, without cache. Throws on failure. */
+export async function generateNewsDigest(
+  params: NewsDigestParams,
+  settings: EffectiveTaskSettings,
+): Promise<{ digest: NewsDigest; result: GenerationResult }> {
+  const result = await runTask(
+    settings,
+    buildNewsDigestPrompt({ ...params, texts: textsFor(settings, params.language) }),
+  );
+  const parsed = extractJson<{ hooks?: NewsHook[]; note?: string }>(result.text);
+  return {
+    digest: {
+      hooks: Array.isArray(parsed.hooks) ? parsed.hooks.slice(0, 3) : [],
+      note: typeof parsed.note === "string" ? parsed.note : "",
+      costUsd: result.costUsd,
+    },
+    result,
+  };
+}
+
+/**
+ * Digest for a letter, never failing the letter: on error it returns an empty
+ * digest. `cache: "read"` (admin test runs) reads the cache but never writes it.
+ */
+export async function buildNewsDigest(
+  params: NewsDigestParams,
+  options: { cache?: "use" | "read"; settings?: EffectiveTaskSettings } = {},
+): Promise<NewsDigest> {
+  const settings = options.settings ?? (await loadTaskSettings("newsDigest"));
   const db = getFirestore();
-  const ref = db.collection("newsCache").doc(cacheKey(interestTags, residence, date));
+  const ref = db.collection("newsCache").doc(cacheKey(params.interestTags, params.residence, params.date, settings));
 
   const cached = await ref.get();
   if (cached.exists) {
@@ -43,24 +75,12 @@ export async function buildNewsDigest(params: {
     return { ...d, costUsd: 0 };
   }
 
-  const prompt = buildNewsDigestPrompt({ interestTags, residence, language, date });
-
   try {
-    const res = await callClaudeRaw({
-      model: DIGEST_MODEL,
-      system: prompt.systemInstruction,
-      user: prompt.userPrompt,
-      maxTokens: 1200,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
-    });
-    const parsed = extractJson<{ hooks?: NewsHook[]; note?: string }>(res.text);
-    const digest: NewsDigest = {
-      hooks: Array.isArray(parsed.hooks) ? parsed.hooks.slice(0, 3) : [],
-      note: typeof parsed.note === "string" ? parsed.note : "",
-      costUsd: usageCostUsd(DIGEST_MODEL, res.usage),
-    };
+    const { digest } = await generateNewsDigest(params, settings);
     // Cache without the per-call cost.
-    await ref.set({ hooks: digest.hooks, note: digest.note, createdAt: new Date().toISOString() });
+    if (options.cache !== "read") {
+      await ref.set({ hooks: digest.hooks, note: digest.note, createdAt: new Date().toISOString() });
+    }
     return digest;
   } catch (err) {
     logger.warn("buildNewsDigest failed — proceeding without news", { error: (err as Error).message });

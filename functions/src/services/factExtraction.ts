@@ -1,5 +1,8 @@
 import { logger } from "firebase-functions/v2";
-import { buildFactExtractionPrompt, generateClaudeText } from "./anthropic";
+import { buildFactExtractionPrompt } from "./prompts";
+import type { GenerationResult } from "./ai/generate";
+import { runTask } from "./ai/run";
+import { loadTaskSettings, textsFor, type EffectiveTaskSettings } from "./ai/settings";
 import { appendFact } from "./dossier";
 
 export interface CandidateFact {
@@ -32,6 +35,21 @@ function parseJsonArray(text: string): CandidateFact[] {
   }
 }
 
+/** Run the fact-extraction task on a question (task factExtraction). Throws on failure. */
+export async function runFactExtraction(
+  text: string,
+  settings: EffectiveTaskSettings,
+): Promise<{ facts: CandidateFact[]; result: GenerationResult }> {
+  // The prompt texts of this task are the same for every language.
+  const result = await runTask(settings, buildFactExtractionPrompt({ text, texts: textsFor(settings, "en") }));
+  return { facts: parseJsonArray(result.text).slice(0, 6), result };
+}
+
+async function extractFacts(text: string): Promise<CandidateFact[]> {
+  const { facts } = await runFactExtraction(text, await loadTaskSettings("factExtraction"));
+  return facts;
+}
+
 /**
  * Background pass: infer dossier facts from a user's free-text question.
  * Non-sensitive facts are auto-appended (low confidence, user-undoable);
@@ -45,11 +63,7 @@ export async function extractAndStoreFacts(
   sourceRef: string | null,
 ): Promise<void> {
   try {
-    const responseText = await generateClaudeText(
-      buildFactExtractionPrompt({ text }),
-      { sanitizeOutput: false },
-    );
-    const facts = parseJsonArray(responseText).slice(0, 6);
+    const facts = await extractFacts(text);
     for (const f of facts) {
       if (!f?.key || !f?.value || typeof f.value !== "string") continue;
       const sensitive = Boolean(f.sensitive) || SENSITIVE_KEYS.has(f.key);

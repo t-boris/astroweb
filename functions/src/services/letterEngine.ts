@@ -2,7 +2,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 import { getProfileById } from "./profile";
 import { resolveOwnedChart } from "./chartResolver";
-import { getDossier, getDossierSummaryText } from "./dossier";
+import { getDossier, getDossierSummaryText, readDossier } from "./dossier";
 import { computeTransits } from "./transits";
 import { buildNewsDigest } from "./newsDigest";
 import { buildLetterAnalysisPrompt, buildLetterGenerationPrompt, type LetterAnalysisPromptInput } from "./prompts";
@@ -152,13 +152,13 @@ export interface LetterInputs {
  * Gather the inputs of a letter. With `dryRun` (admin test run) the news digest
  * reads its cache but never writes it.
  */
-export async function prepareLetterInputs(
-  profileId: string,
-  options: { dryRun?: boolean; newsSettings?: EffectiveTaskSettings } = {},
-): Promise<LetterInputs> {
+/** The person behind a letter: profile, dossier, letter language and place of residence. */
+export async function loadLetterContext(profileId: string, options: { dryRun?: boolean } = {}) {
   const profile = await getProfileById(profileId);
   if (!profile) throw new Error("Profile not found");
-  const dossier = await getDossier(profileId, profile.ownerUid ?? "", "ru");
+  const dossier = options.dryRun
+    ? (await readDossier(profileId, profile.ownerUid ?? "", "ru")).dossier
+    : await getDossier(profileId, profile.ownerUid ?? "", "ru");
   const lang = dossier.language ?? "ru";
 
   // Residence (place of living, not birth) for relocated houses + news + weather.
@@ -167,6 +167,14 @@ export async function prepareLetterInputs(
     (typeof profile.currentLat === "number" && typeof profile.currentLng === "number"
       ? { place: profile.currentPlace ?? profile.birthPlace, lat: profile.currentLat, lng: profile.currentLng, timezone: profile.timezone }
       : { place: profile.birthPlace, lat: profile.lat, lng: profile.lng, timezone: profile.timezone });
+  return { profile, dossier, lang, residence };
+}
+
+export async function prepareLetterInputs(
+  profileId: string,
+  options: { dryRun?: boolean; newsSettings?: EffectiveTaskSettings } = {},
+): Promise<LetterInputs> {
+  const { profile, dossier, lang, residence } = await loadLetterContext(profileId, options);
 
   const { chart } = await resolveOwnedChart({
     profileId,

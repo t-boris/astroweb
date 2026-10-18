@@ -29,9 +29,19 @@ function factsRef(profileId: string) {
 
 /** Read the dossier, creating a default if it does not exist. */
 export async function getDossier(profileId: string, ownerUid: string, language: "ru" | "en" = "ru"): Promise<Dossier> {
-  const ref = dossierRef(profileId);
-  const snap = await ref.get();
-  if (snap.exists) return snap.data() as Dossier;
+  const { dossier, stored } = await readDossier(profileId, ownerUid, language);
+  if (!stored) await dossierRef(profileId).set(dossier);
+  return dossier;
+}
+
+/** The stored dossier, or the default one without storing it (admin test runs write nothing). */
+export async function readDossier(
+  profileId: string,
+  ownerUid: string,
+  language: "ru" | "en" = "ru",
+): Promise<{ dossier: Dossier; stored: boolean }> {
+  const snap = await dossierRef(profileId).get();
+  if (snap.exists) return { dossier: snap.data() as Dossier, stored: true };
 
   const now = new Date().toISOString();
   const fresh: Dossier = {
@@ -52,8 +62,7 @@ export async function getDossier(profileId: string, ownerUid: string, language: 
     createdAt: now,
     updatedAt: now,
   };
-  await ref.set(fresh);
-  return fresh;
+  return { dossier: fresh, stored: false };
 }
 
 /** Patch summary fields directly (used by onboarding / explicit edits). */

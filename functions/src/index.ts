@@ -80,3 +80,6 @@ export {
   adminGrantToWallet,
   adminStats,
 } from "./api/admin";
+
+// Admin AI settings: models, limits and prompts per AI task (gated to the admin)
+export { adminGetAiSettings, adminSaveAiSettings, adminResetAiSettings, adminTestAiTask } from "./api/adminAi";

@@ -235,12 +235,14 @@ export async function generatePremiumPdfArtifact(params: {
   language: SupportedLanguage;
   sections: PremiumPdfSection[];
   isRelocated: boolean;
+  /** Settings of the premiumPdf task; loaded when not given. */
+  settings?: EffectiveTaskSettings;
   title?: string;
   subtitle?: string;
   generatedAt?: string;
 }): Promise<{ buffer: Buffer; fileName: string }> {
   const { profile, chart, language, sections, isRelocated } = params;
-  const settings = await loadTaskSettings("premiumPdf");
+  const settings = params.settings ?? (await loadTaskSettings("premiumPdf"));
   const aiNarrative = await generatePremiumPdfNarrative({ profile, chart, language, sections, isRelocated, settings });
 
   logger.info("premium PDF AI narrative generated", {

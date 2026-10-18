@@ -148,10 +148,6 @@ export interface LetterInputs {
   residencePlace: string;
 }
 
-/**
- * Gather the inputs of a letter. With `dryRun` (admin test run) the news digest
- * reads its cache but never writes it.
- */
 /** The person behind a letter: profile, dossier, letter language and place of residence. */
 export async function loadLetterContext(profileId: string, options: { dryRun?: boolean } = {}) {
   const profile = await getProfileById(profileId);
@@ -170,6 +166,10 @@ export async function loadLetterContext(profileId: string, options: { dryRun?: b
   return { profile, dossier, lang, residence };
 }
 
+/**
+ * Gather the inputs of a letter. With `dryRun` (admin test run) no dossier is
+ * created and the news digest reads its cache but never writes it.
+ */
 export async function prepareLetterInputs(
   profileId: string,
   options: { dryRun?: boolean; newsSettings?: EffectiveTaskSettings } = {},

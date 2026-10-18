@@ -116,7 +116,8 @@ export async function generateText(
     model: usedModel,
     provider: model.provider,
     usage,
-    costUsd: costUsd(model, usage),
+    // Priced by the model that answered when it is a known one (e.g. after Claude's refusal fallback).
+    costUsd: costUsd(findModel(usedModel) ?? model, usage),
   };
 }
 

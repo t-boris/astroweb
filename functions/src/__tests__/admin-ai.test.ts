@@ -9,7 +9,6 @@ vi.mock("firebase-admin/firestore", () => ({
 }));
 vi.mock("../services/chartResolver", () => ({
   resolveOwnedChart: async (p: { profileId: string }) => {
-    if (p.profileId === "broken") throw new Error("chart computation failed");
     const snap = await (h.fake.db as any).collection("profiles").doc(p.profileId).get();
     return {
       profile: { id: p.profileId, ...snap.data() },
@@ -19,6 +18,17 @@ vi.mock("../services/chartResolver", () => ({
         houses: { system: "koch", cusps: [], asc: null, mc: null },
         aspects: [],
       },
+    };
+  },
+}));
+vi.mock("../astro/chart", () => ({
+  computeNatalChart: (input: { lat: number }) => {
+    if (input.lat === 999) throw new Error("chart computation failed");
+    return {
+      meta: { houseSystem: "koch", zodiac: "tropical", timeUsed: "12:00", timezoneUsed: "UTC" },
+      points: [{ body: "Sun", lon: 10, sign: "Aries", degreeInSign: 10, house: 1 }],
+      houses: { system: "koch", cusps: [], asc: null, mc: null },
+      aspects: [],
     };
   },
 }));
@@ -132,7 +142,7 @@ describe("adminSaveAiSettings and adminResetAiSettings (REQ-002..004)", () => {
 describe("adminTestAiTask (REQ-009)", () => {
   const snapshotStore = () =>
     JSON.stringify(
-      ["aiSettings", "wallets", "oracleHistory/p1/items", "deepInterpretationCache", "forecastCache", "dossiers", "profiles"].map((c) => [
+      ["aiSettings", "wallets", "oracleHistory/p1/items", "deepInterpretationCache", "forecastCache", "dossiers", "profiles", "charts", "newsCache"].map((c) => [
         c,
         [...h.fake.all(c).entries()],
       ]),
@@ -181,7 +191,7 @@ describe("adminTestAiTask (REQ-009)", () => {
   });
 
   it("reports a failure while preparing the prompt with its reason", async () => {
-    h.fake.seed("profiles", "broken", { ownerUid: "u3", ownerDeviceId: "d3", name: "B", birthDate: "1990-01-01", lat: 1, lng: 2, timezone: "UTC" });
+    h.fake.seed("profiles", "broken", { ownerUid: "u3", ownerDeviceId: "d3", name: "B", birthDate: "1990-01-01", lat: 999, lng: 2, timezone: "UTC" });
     await expect(call(adminTestAiTask, admin, { taskId: "forecast", profileId: "broken", override: {}, inputs: {} })).rejects.toMatchObject({
       code: "internal",
       message: "Could not prepare the test: chart computation failed",

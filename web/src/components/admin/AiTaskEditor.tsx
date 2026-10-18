@@ -161,6 +161,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
         </p>
       </div>
 
+      <fieldset disabled={saving} className="min-w-0 space-y-5">
       <section className="ds-card space-y-4 p-4" aria-label="Model">
         <div className="flex items-center gap-2">
           <h4 className="font-serif text-lg text-primary">Model</h4>
@@ -216,7 +217,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
               type="number"
               min={settings.limits.minOutputTokens}
               max={maxLimit}
-              step={100}
+              step={1}
               value={Number.isFinite(draft.maxOutputTokens) ? draft.maxOutputTokens : ""}
               onChange={(e) => onChange({ ...draft, maxOutputTokens: e.target.value === "" ? NaN : Number(e.target.value) })}
             />
@@ -292,6 +293,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
           />
         ))}
       </section>
+      </fieldset>
 
       <div className="sticky bottom-0 z-10 space-y-2 border-t border-border/60 bg-background/95 py-3 backdrop-blur">
         {changed && issues.length > 0 && (

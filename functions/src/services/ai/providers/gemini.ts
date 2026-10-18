@@ -68,7 +68,8 @@ export async function callGemini(req: ProviderRequest): Promise<ProviderResult> 
     stopReason: finishReason === "MAX_TOKENS" ? "max_tokens" : "end",
     model: response.modelVersion ?? req.model.id,
     usage: {
-      inputTokens: usage?.promptTokenCount ?? 0,
+      // Search results the model reads are billed as input too.
+      inputTokens: (usage?.promptTokenCount ?? 0) + (usage?.toolUsePromptTokenCount ?? 0),
       // Thinking tokens are billed as output.
       outputTokens: (usage?.candidatesTokenCount ?? 0) + (usage?.thoughtsTokenCount ?? 0),
       webSearches: candidate.groundingMetadata?.webSearchQueries?.length ?? 0,

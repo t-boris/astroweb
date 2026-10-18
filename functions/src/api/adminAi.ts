@@ -1,7 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { assertAdmin } from "../services/adminAuth";
-import { resolveOwnedChart } from "../services/chartResolver";
+import { computeNatalChart } from "../astro/chart";
 import { getProfileById } from "../services/profile";
 import { getDossierSummaryText } from "../services/dossier";
 import { loadLetterContext, prepareLetterInputs, runLetterAnalysis } from "../services/letterEngine";
@@ -181,22 +181,39 @@ function requiredInput(value: unknown, name: string, maxLength: number): string 
   return value.trim().slice(0, maxLength);
 }
 
+/** The profile's natal chart, computed without storing it (a test run writes nothing). */
 async function chartOf(profileId: string) {
   const profile = await getProfileById(profileId);
   if (!profile) throw new HttpsError("not-found", "Profile not found");
-  return resolveOwnedChart({ profileId, ownerDeviceId: profile.ownerDeviceId, uid: profile.ownerUid ?? null });
+  const chart = computeNatalChart({
+    birthDate: profile.birthDate,
+    birthTime: profile.birthTime,
+    timeUnknown: profile.timeUnknown,
+    lat: profile.lat,
+    lng: profile.lng,
+    timezone: profile.timezone,
+    houseSystem: "koch",
+  });
+  return { profile, chart };
+}
+
+interface PreparedTest {
+  prompt: GenerationPrompt;
+  /** What the passes run to prepare the prompt cost (letter analysis, news digest). */
+  preparationCostUsd: number;
 }
 
 /**
  * Build the prompt a task would send for this profile, from read-only data:
  * nothing is charged, cached or written to the person's content.
  */
-async function testPrompt(
+async function prepareTest(
   settings: EffectiveTaskSettings,
   profileId: string,
   language: SupportedLanguage,
   inputs: TestInputs,
-): Promise<GenerationPrompt> {
+): Promise<PreparedTest> {
+  const prompt = (value: GenerationPrompt, preparationCostUsd = 0): PreparedTest => ({ prompt: value, preparationCostUsd });
   const texts = textsFor(settings, language);
   switch (settings.taskId) {
     case "oracle":
@@ -204,68 +221,80 @@ async function testPrompt(
       const { chart } = await chartOf(profileId);
       const dossierSummary = await getDossierSummaryText(profileId).catch(() => "");
       const question = requiredInput(inputs.question, "question", 1000);
-      return buildOraclePrompt({ chart, question, language, dossierSummary, taskId: settings.taskId, texts });
+      return prompt(buildOraclePrompt({ chart, question, language, dossierSummary, taskId: settings.taskId, texts }));
     }
     case "compatibility": {
       const partnerProfileId = requiredInput(inputs.partnerProfileId, "partnerProfileId", 200);
       const [a, b] = await Promise.all([chartOf(profileId), chartOf(partnerProfileId)]);
-      return buildRelationshipPrompt({
-        chartA: a.chart,
-        chartB: b.chart,
-        personAName: a.profile.name,
-        personBName: b.profile.name,
-        language,
-        texts,
-      });
+      return prompt(
+        buildRelationshipPrompt({
+          chartA: a.chart,
+          chartB: b.chart,
+          personAName: a.profile.name,
+          personBName: b.profile.name,
+          language,
+          texts,
+        }),
+      );
     }
     case "deepen": {
       const { chart } = await chartOf(profileId);
-      return buildDeepInterpretationPrompt({
-        chart,
-        focusTopic: requiredInput(inputs.topic, "topic", 200),
-        baseInterpretation: requiredInput(inputs.baseInterpretation, "baseInterpretation", 2000),
-        language,
-        texts,
-      });
+      return prompt(
+        buildDeepInterpretationPrompt({
+          chart,
+          focusTopic: requiredInput(inputs.topic, "topic", 200),
+          baseInterpretation: requiredInput(inputs.baseInterpretation, "baseInterpretation", 2000),
+          language,
+          texts,
+        }),
+      );
     }
     case "forecast": {
       const { chart } = await chartOf(profileId);
-      return buildForecastPrompt({ chart, today: new Date().toISOString().slice(0, 10), language, texts });
+      return prompt(buildForecastPrompt({ chart, today: new Date().toISOString().slice(0, 10), language, texts }));
     }
     case "premiumPdf": {
       const section = inputs.section as PremiumPdfNarrativeSection;
       if (!PDF_SECTIONS.includes(section)) throw new HttpsError("invalid-argument", "section is required");
       const { profile, chart } = await chartOf(profileId);
-      return buildPremiumPdfNarrativeSectionPrompt({ profile, chart, language, sections: [], section, isRelocated: false, texts });
+      return prompt(buildPremiumPdfNarrativeSectionPrompt({ profile, chart, language, sections: [], section, isRelocated: false, texts }));
     }
     case "letterAnalysis": {
       const letterInputs = await prepareLetterInputs(profileId, { dryRun: true });
-      return buildLetterAnalysisPrompt({ ...letterInputs.analysis, texts: textsFor(settings, letterInputs.lang) });
+      return prompt(
+        buildLetterAnalysisPrompt({ ...letterInputs.analysis, texts: textsFor(settings, letterInputs.lang) }),
+        letterInputs.digestCostUsd,
+      );
     }
     case "letterWriting": {
       // The writer needs a brief: the analysis pass runs first with its saved settings.
       const letterInputs = await prepareLetterInputs(profileId, { dryRun: true });
-      const { brief } = await runLetterAnalysis(letterInputs, await loadTaskSettings("letterAnalysis"));
-      return buildLetterGenerationPrompt({
-        astrologerName: letterInputs.astrologerName,
-        language: letterInputs.lang,
-        addressForm: letterInputs.addressForm,
-        brief,
-        texts: textsFor(settings, letterInputs.lang),
-      });
+      const { brief, result } = await runLetterAnalysis(letterInputs, await loadTaskSettings("letterAnalysis"));
+      return prompt(
+        buildLetterGenerationPrompt({
+          astrologerName: letterInputs.astrologerName,
+          language: letterInputs.lang,
+          addressForm: letterInputs.addressForm,
+          brief,
+          texts: textsFor(settings, letterInputs.lang),
+        }),
+        letterInputs.digestCostUsd + result.costUsd,
+      );
     }
     case "newsDigest": {
       const { dossier, lang, residence } = await loadLetterContext(profileId, { dryRun: true });
-      return buildNewsDigestPrompt({
-        interestTags: dossier.interests,
-        residence: residence.place,
-        language: lang,
-        date: new Date().toISOString().slice(0, 10),
-        texts: textsFor(settings, lang),
-      });
+      return prompt(
+        buildNewsDigestPrompt({
+          interestTags: dossier.interests,
+          residence: residence.place,
+          language: lang,
+          date: new Date().toISOString().slice(0, 10),
+          texts: textsFor(settings, lang),
+        }),
+      );
     }
     case "factExtraction":
-      return buildFactExtractionPrompt({ text: requiredInput(inputs.question, "question", 2000), texts });
+      return prompt(buildFactExtractionPrompt({ text: requiredInput(inputs.question, "question", 2000), texts }));
   }
 }
 
@@ -280,24 +309,26 @@ export const adminTestAiTask = onCall({ secrets: AI_SECRETS, timeoutSeconds: 300
 
   // The unsaved settings: the editor sends the complete override it shows.
   const settings = mergeTaskSettings(taskId, override);
-  let prompt: GenerationPrompt;
+  let prepared: PreparedTest;
   try {
-    prompt = await testPrompt(settings, profileId, language, inputs);
+    prepared = await prepareTest(settings, profileId, language, inputs);
   } catch (error) {
     if (error instanceof HttpsError) throw error;
     logger.warn("AI test run could not build the prompt", { taskId, by: admin, error: (error as Error).message });
     throw new HttpsError("internal", `Could not prepare the test: ${(error as Error).message}`);
   }
+  const { prompt, preparationCostUsd } = prepared;
   const started = Date.now();
   try {
     const result = await runTask(settings, prompt);
-    logger.info("AI test run", { taskId, by: admin, model: result.model, costUsd: result.costUsd });
+    logger.info("AI test run", { taskId, by: admin, model: result.model, costUsd: result.costUsd, preparationCostUsd });
     return {
       text: result.text,
       model: result.model,
       provider: result.provider,
       usage: result.usage,
       costUsd: result.costUsd,
+      preparationCostUsd,
       durationMs: Date.now() - started,
       prompt: { system: prompt.systemInstruction, user: prompt.userPrompt },
     };

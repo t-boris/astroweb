@@ -85,6 +85,7 @@ export default function AiTab({ profiles }: { profiles: AdminProfile[] }) {
   }
 
   const task = settings.tasks.find((t) => t.id === selected) ?? settings.tasks[0];
+  const anyUnsaved = settings.tasks.some((t) => drafts[t.id] && draftChanged(t, drafts[t.id]));
   const draft = drafts[task.id];
   const modelLabel = (id: string) => settings.models.find((m) => m.id === id)?.label ?? id;
 
@@ -102,7 +103,14 @@ export default function AiTab({ profiles }: { profiles: AdminProfile[] }) {
             {PROVIDER_LABELS[p]}: {settings.providers[p] ? "configured" : "no API key"}
           </span>
         ))}
-        <Button variant="outline" size="sm" className="ml-auto" onClick={() => void load()} disabled={loading}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          onClick={() => void load()}
+          disabled={loading || anyUnsaved}
+          title={anyUnsaved ? "Save or discard the unsaved changes first" : undefined}
+        >
           {loading ? "…" : "Reload"}
         </Button>
       </div>

@@ -85,6 +85,8 @@ export interface AiTestResult {
   provider: AiProvider;
   usage: { inputTokens: number; outputTokens: number; webSearches: number };
   costUsd: number;
+  /** Passes run to prepare the prompt (letter analysis, news digest). */
+  preparationCostUsd: number;
   durationMs: number;
   prompt: { system: string; user: string };
 }

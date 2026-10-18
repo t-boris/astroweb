@@ -73,8 +73,8 @@ export default function AiTestPanel({ task, draft, settings, profiles }: Props) 
       <div className="space-y-1">
         <h4 className="font-serif text-lg text-primary">Test run</h4>
         <p className="text-xs text-muted-foreground">
-          Runs this task once with the settings in the editor, saved or not. It spends real API tokens; no stars are charged and
-          nothing is cached or saved to the person's content.
+          Runs this task once with the settings in the editor, saved or not. It spends real API tokens; no stars are charged,
+          and no answer is cached or saved to the person's content.
           {task.id === "letterWriting" && " The analysis pass runs first with its saved settings to produce the brief."}
           {task.id === "letterAnalysis" && " The news digest is read from its cache, or generated without being cached."}
         </p>
@@ -175,7 +175,13 @@ export default function AiTestPanel({ task, draft, settings, profiles }: Props) 
                 {result.usage.webSearches > 0 ? ` · ${result.usage.webSearches} searches` : ""}
               </dd>
             </div>
-            <div><dt className="text-muted-foreground">Cost</dt><dd className="text-foreground">{formatUsd(result.costUsd)}</dd></div>
+            <div>
+              <dt className="text-muted-foreground">Cost</dt>
+              <dd className="text-foreground">
+                {formatUsd(result.costUsd)}
+                {result.preparationCostUsd > 0 ? ` + ${formatUsd(result.preparationCostUsd)} preparation` : ""}
+              </dd>
+            </div>
             <div><dt className="text-muted-foreground">Time</dt><dd className="text-foreground">{(result.durationMs / 1000).toFixed(1)} s</dd></div>
           </dl>
           <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap rounded-md bg-muted/30 p-3 font-sans text-sm leading-relaxed text-foreground">

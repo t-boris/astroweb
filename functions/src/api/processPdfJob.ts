@@ -6,10 +6,12 @@ import { generatePremiumPdf } from "../services/pdf";
 import { sendPremiumPdfEmail } from "../services/email";
 import { resolveOwnedChart } from "../services/chartResolver";
 import {
+  computePremiumPdfCacheKey,
   generatePremiumPdfArtifact,
   premiumPdfBucket,
   premiumPdfCacheStoragePath,
 } from "../services/premiumPdf";
+import { loadTaskSettings } from "../services/ai/settings";
 import { getProfileById } from "../services/profile";
 import { refundToWallet, walletKeyFromProfile } from "../services/wallet";
 import { normalizeLanguage } from "../services/prompts";
@@ -73,20 +75,27 @@ async function handleClientDownloadJob(
 
     const report = data.report ?? {};
     const sections = (report.sections ?? []) as PremiumPdfSection[];
+    const language = normalizeLanguage(data.language);
+    const settings = await loadTaskSettings("premiumPdf");
 
     const { buffer, fileName } = await generatePremiumPdfArtifact({
       profile,
       chart,
-      language: normalizeLanguage(data.language),
+      language,
       sections,
       isRelocated,
+      settings,
       title: report.title ?? undefined,
       subtitle: report.subtitle ?? undefined,
       generatedAt: report.generatedAt ?? undefined,
     });
 
-    // Store at the stable cache path so identical future requests reuse it.
-    const cacheKey: string | undefined = data.cacheKey;
+    // Store at the stable cache path so identical future requests reuse it. The key is
+    // recomputed from the settings this PDF was generated with (DEC-004): if the admin
+    // changed them since the job was queued, the file is cached under the new version.
+    const cacheKey: string | undefined = data.cacheKey
+      ? computePremiumPdfCacheKey({ profile, language, relocationLat, relocationLng, sections, settings })
+      : undefined;
     const storagePath = cacheKey
       ? premiumPdfCacheStoragePath(cacheKey)
       : `premium-pdfs/${jobId}.pdf`;

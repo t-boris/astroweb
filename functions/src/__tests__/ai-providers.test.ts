@@ -182,13 +182,13 @@ describe("Gemini transport (DEC-018, REQ-012)", () => {
           groundingMetadata: { webSearchQueries: ["a", "b"] },
         },
       ],
-      usageMetadata: { promptTokenCount: 3, candidatesTokenCount: 4, thoughtsTokenCount: 5 },
+      usageMetadata: { promptTokenCount: 3, toolUsePromptTokenCount: 2, candidatesTokenCount: 4, thoughtsTokenCount: 5 },
     });
     expect(await callGemini(request("gemini-3.8-flash"))).toEqual({
       text: "Answer",
       stopReason: "max_tokens",
       model: "gemini-3.8-flash",
-      usage: { inputTokens: 3, outputTokens: 9, webSearches: 2 },
+      usage: { inputTokens: 5, outputTokens: 9, webSearches: 2 },
     });
   });
 
@@ -232,6 +232,15 @@ describe("generateText", () => {
     expect(params.temperature).toBeUndefined();
     expect(params.max_output_tokens).toBe(1500 + THINKING_HEADROOM_TOKENS);
     expect(h.openAiCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it("prices the answer by the model that gave it (Claude's refusal fallback)", async () => {
+    fetchMock.mockResolvedValue(
+      claudeResponse({ model: "claude-opus-4-8", stop_reason: "end_turn", content: [{ type: "text", text: "Answer" }], usage: { input_tokens: 1000, output_tokens: 1000 } }),
+    );
+    const result = await generateText({ model: "claude-opus-5-5", maxOutputTokens: 1000, temperature: null }, prompt, { continuation: false, sanitize: false });
+    expect(result.model).toBe("claude-opus-4-8");
+    expect(result.costUsd).toBeCloseTo((1000 * 5 + 1000 * 25) / 1_000_000);
   });
 
   it("fails on an empty first answer instead of returning nothing", async () => {

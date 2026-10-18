@@ -15,7 +15,9 @@ let clientKey = "";
 
 function openAiClient(apiKey: string): OpenAI {
   if (!client || clientKey !== apiKey) {
-    client = new OpenAI({ apiKey, timeout: REQUEST_TIMEOUT_MS, maxRetries: 2 });
+    // No SDK retries, like the other transports: a retry could outlive the function's deadline,
+    // and then the caller's refund on failure never runs.
+    client = new OpenAI({ apiKey, timeout: REQUEST_TIMEOUT_MS, maxRetries: 0 });
     clientKey = apiKey;
   }
   return client;

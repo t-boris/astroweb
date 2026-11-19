@@ -1,3 +1,20 @@
+# Simpler Horoscope Discovery and Purchasing (issue #16)
+
+Spec: `docs/features/simpler-horoscope-discovery-and-purchasing/` (REQ-001..005, DEC-001..010, Q-001..011, F-001..004, I-1..I-6).
+Branch: `feat/simpler-horoscope-discovery-and-purchasing`. Approved direct USD base prices recorded in `DEC-010` ($1.99 situation, $3.99 relationship).
+Deploy: CI auto-deploy (`.github/workflows/firebase-deploy.yml`) triggers on push to `main`.
+
+- [x] **I-1 Three-month situation and relationship forecasts (REQ-001, REQ-002, DEC-002):** replaced Oracle/Compatibility/Transits wording with plain-language Russian & English labels across tabs, headings, actions, help bubbles, and privacy text; separated `oracleLetter` defaults from `oracle`; updated `oracle` and `compatibility` prompts and shared `forecastGeneration.ts` with computed 3-month transits and persisted/displayed `periodStart`/`periodEnd`.
+- [x] **I-2 Daily, monthly, and yearly horoscope offers (REQ-003, REQ-004, DEC-001, DEC-004, DEC-009):** upgraded `ForecastView.tsx` into Personal Horoscopes with free Today's Horoscope (`Гороскоп на день`), one-time Current Month (`Гороскоп на месяц`, $4.99 / 5★), and Current Year (`Гороскоп на год`, $19.99 / 20★), pre-purchase and in-result covered dates, and daily subscription distinction banner.
+- [x] **I-3 Daily horoscope subscription pricing & presentation (REQ-004, DEC-005):** updated `pricing.ts` and `web/src/api/astrologer.ts` to $30.00/mo and $179.82/yr for `daily` (without free-month labels on daily annual, other cadences untouched, existing subscriptions renew at contracted prices); updated `AstrologerPanel.tsx` to show full offer before sign-in with covered profile, included content, daily delivery, and distinction from free today's horoscope.
+- [x] **I-4 Direct checkout with automatic star redemption (REQ-003, REQ-005, DEC-001..010):** added `directServices.ts`, `directOrders.ts`, `api/directCheckout.ts` (5 callables), `DirectCheckoutDialog.tsx` (native modal `<dialog>`), proportional star redemption with cent rounding, live quote check (`QUOTE_CHANGED`), idempotency keys, concurrent/duplicate period locks, cancel-safe star preservation, and sign-in/ownership enforcement.
+- [x] **I-5 Fulfillment, saved period horoscopes & recovery (REQ-001..003, REQ-005, DEC-006, DEC-007):** added `monthlyHoroscope` and `yearlyHoroscope` AI tasks + Admin AI test wiring, `periodHoroscopes/{profileId}/items/{periodKey}` persistence + past-period archive reopening without checkout/charge/stars, and failed-generation recovery under the original order without second charge or star deduction.
+- [x] **I-6 Unified purchase conversion funnel (REQ-005, DEC-008):** updated `ga4.ts`, `stripeWebhook.ts`, `directOrders.ts`, `businessStats.ts`, cross-feature `product-analytics-purchase-funnel-and-seo-foundation/requirements/REQ-002.md`, `docs/ga4-setup-checklist.md`, and EN/RU privacy pages so USD, mixed, and fully star-funded ($0 USD) direct orders count in one funnel, deduplicated by unique order ID and using actual charged USD revenue.
+- [x] **Verify:** `npm run build:functions`, `npm test --workspace=functions` (20 files / 345 tests), `npm test --workspace=web` (14 files / 139 tests), `npm run build:web`, eslint clean on all modified/added web files, clean-dir `functions/package.json` install check, all acceptance criteria ticked via MarkView.
+- [ ] **Ship:** bump version to `2.24.0`, open PR, wait for CI green, merge to `main`, verify CI Firebase deploy + Cloud Run CORS/IAM + live version `2.24.0`, live MarkView browser walkthrough, close `#16`, mark feature `implemented` → `verified` in MarkView.
+
+---
+
 # Admin control of AI models and prompts
 
 Spec: `docs/features/admin-control-of-ai-models-and-prompts/` (REQ-001..007, REQ-009, REQ-011, REQ-012; DEC-001..005, DEC-010..018; Q-001..004, Q-009..012).

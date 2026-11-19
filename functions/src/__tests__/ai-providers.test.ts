@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { GEMINI_TEST_KEY } from "./helpers/aiKeys";
 
 const h = vi.hoisted(() => ({
   openAiCreate: null as unknown as Mock,
@@ -41,7 +42,7 @@ let fetchMock: Mock;
 beforeEach(() => {
   process.env.ANTHROPIC_API_KEY = "sk-ant-api03-abcdefghijklmnop";
   process.env.OPENAI_API_KEY = "sk-proj-abcdefghijklmnopqrstuvwxyz";
-  process.env.GEMINI_API_KEY = "AIzaSyAbcdefghijklmnopqrstuvwxyz0123456";
+  process.env.GEMINI_API_KEY = GEMINI_TEST_KEY;
   fetchMock = vi.fn();
   vi.stubGlobal("fetch", fetchMock);
   h.openAiCreate = vi.fn();

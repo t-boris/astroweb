@@ -21,3 +21,4 @@ functions/lib/
 
 # MarkView data
 .dde/
+.markview/

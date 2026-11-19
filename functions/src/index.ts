@@ -68,6 +68,15 @@ export { unlockFeature } from "./api/unlockFeature";
 export { stripeWebhook } from "./api/stripeWebhook";
 export { processPdfJob } from "./api/processPdfJob";
 
+// Direct-service checkout, period horoscopes & fulfillment (REQ-001..REQ-005)
+export {
+  listProfileHoroscopes,
+  getDirectCheckoutQuote,
+  createDirectCheckout,
+  cancelDirectCheckout,
+  fulfillDirectOrder,
+} from "./api/directCheckout";
+
 // Per-profile server-side content (REQ-002..005, REQ-007, REQ-009)
 export { getProfileContent, uploadLocalContent, deleteProfileContentItem } from "./api/profileContent";
 

@@ -30,7 +30,7 @@ describe("output language", () => {
     const en = buildOraclePrompt({ chart, question: "Q?", language: "en" });
     const ru = buildOraclePrompt({ chart, question: "Q?", language: "ru" });
     expect(en.systemInstruction).not.toContain("Write the entire response in");
-    expect(ru.userPrompt).toContain("Вопрос пользователя:");
+    expect(ru.userPrompt).toContain("Вопрос о ситуации:");
     const deep = buildDeepInterpretationPrompt({
       chart,
       focusTopic: "Sun in Aries",

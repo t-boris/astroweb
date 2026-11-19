@@ -14,6 +14,8 @@ export type AiTaskId =
   | "compatibility"
   | "deepen"
   | "forecast"
+  | "monthlyHoroscope"
+  | "yearlyHoroscope"
   | "premiumPdf"
   | "letterAnalysis"
   | "letterWriting"
@@ -73,7 +75,7 @@ const LANGUAGE: PlaceholderSpec = {
 };
 const END_TAG_GENERATION: GenerationOptions = { continuation: true, sanitize: true, requireEndTag: "[END_OF_REPORT]" };
 
-const ORACLE_PARTS: readonly PromptPartSpec[] = [
+const ORACLE_LETTER_PARTS: readonly PromptPartSpec[] = [
   {
     key: "system",
     label: SYSTEM,
@@ -103,10 +105,49 @@ const ORACLE_PARTS: readonly PromptPartSpec[] = [
   },
 ];
 
+const ORACLE_PARTS: readonly PromptPartSpec[] = [
+  ORACLE_LETTER_PARTS[0],
+  ORACLE_LETTER_PARTS[1],
+  {
+    key: "user",
+    label: USER,
+    description: USER_HELP,
+    placeholders: [
+      { name: "question", description: "The user's question about the situation" },
+      { name: "chart", description: "Planet positions, houses and the strongest aspects of the chart" },
+      { name: "periodStart", description: "Forecast start date (YYYY-MM-DD)", optional: true },
+      { name: "periodEnd", description: "Forecast end date, 3 months out (YYYY-MM-DD)", optional: true },
+      { name: "transits", description: "Sampled planetary movements across the 3-month window", optional: true },
+    ],
+  },
+];
+
 const ORACLE_TEXTS: AiTaskSpec["defaults"]["texts"] = {
   en: { system: P.ORACLE_SYSTEM_EN, personalBlock: P.ORACLE_PERSONAL_EN, user: P.ORACLE_USER_EN },
   ru: { system: P.ORACLE_SYSTEM_RU, personalBlock: P.ORACLE_PERSONAL_RU, user: P.ORACLE_USER_RU },
 };
+
+const ORACLE_LETTER_TEXTS: AiTaskSpec["defaults"]["texts"] = {
+  en: { system: P.ORACLE_LETTER_SYSTEM_EN, personalBlock: P.ORACLE_PERSONAL_EN, user: P.ORACLE_LETTER_USER_EN },
+  ru: { system: P.ORACLE_LETTER_SYSTEM_RU, personalBlock: P.ORACLE_PERSONAL_RU, user: P.ORACLE_LETTER_USER_RU },
+};
+
+const PERIOD_HOROSCOPE_PARTS: readonly PromptPartSpec[] = [
+  { key: "system", label: SYSTEM, description: SYSTEM_HELP, placeholders: [] },
+  {
+    key: "user",
+    label: USER,
+    description: USER_HELP,
+    placeholders: [
+      { name: "periodLabel", description: "Human-readable calendar period label (e.g. November 2026 or 2026)" },
+      { name: "periodStart", description: "Inclusive period start date, YYYY-MM-DD" },
+      { name: "periodEnd", description: "Inclusive period end date, YYYY-MM-DD" },
+      { name: "today", description: "Date the horoscope is generated, YYYY-MM-DD" },
+      { name: "chart", description: "Planet positions, houses and the strongest aspects of the chart" },
+      { name: "transits", description: "Sampled planetary movements across the calendar period" },
+    ],
+  },
+];
 
 const PDF_SECTION_PART = (key: string, section: string): PromptPartSpec => ({
   key,
@@ -124,8 +165,8 @@ const PDF_LENGTH_PART = (key: string, section: string): PromptPartSpec => ({
 export const AI_TASKS: readonly AiTaskSpec[] = [
   {
     id: "oracle",
-    label: "Oracle",
-    description: "Answers a question about the chart on the Oracle tab (costs one star).",
+    label: "Situation forecast",
+    description: "Answers a question and forecasts how the situation may develop over the next 3 months ($1.99 or 1 star).",
     languages: ["en", "ru"],
     parts: ORACLE_PARTS,
     defaults: { model: "claude-opus-4-8", maxOutputTokens: 2400, temperature: null, texts: ORACLE_TEXTS },
@@ -137,15 +178,15 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
     label: "Oracle in letters",
     description: "Answers a free-text question asked from inside a Personal Astrologer letter (costs one star).",
     languages: ["en", "ru"],
-    parts: ORACLE_PARTS,
-    defaults: { model: "claude-opus-4-8", maxOutputTokens: 2400, temperature: null, texts: ORACLE_TEXTS },
+    parts: ORACLE_LETTER_PARTS,
+    defaults: { model: "claude-opus-4-8", maxOutputTokens: 2400, temperature: null, texts: ORACLE_LETTER_TEXTS },
     generation: END_TAG_GENERATION,
     testInputs: ["question"],
   },
   {
     id: "compatibility",
-    label: "Compatibility",
-    description: "Relationship reading for two charts on the Compatibility tab (paid).",
+    label: "Relationship forecast",
+    description: "Relationship reading and 3-month development forecast for two charts ($3.99 or 2 stars).",
     languages: ["en", "ru"],
     parts: [
       { key: "system", label: SYSTEM, description: SYSTEM_HELP, placeholders: [] },
@@ -159,13 +200,16 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
           { name: "chartA", description: "Chart data of the profile owner" },
           { name: "chartB", description: "Chart data of the partner" },
           { name: "synastry", description: "The 20 strongest aspects between the two charts, or \"none\"" },
+          { name: "periodStart", description: "Forecast start date (YYYY-MM-DD)", optional: true },
+          { name: "periodEnd", description: "Forecast end date, 3 months out (YYYY-MM-DD)", optional: true },
+          { name: "transits", description: "Sampled planetary movements across the 3-month window", optional: true },
           LANGUAGE,
         ],
       },
     ],
     defaults: {
       model: "claude-opus-4-8",
-      maxOutputTokens: 2400,
+      maxOutputTokens: 2800,
       temperature: null,
       texts: {
         en: { system: P.RELATIONSHIP_SYSTEM_EN, user: P.RELATIONSHIP_USER_EN },
@@ -253,6 +297,42 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
       texts: {
         en: { system: P.FORECAST_SYSTEM_EN, user: P.FORECAST_USER_EN },
         ru: { system: P.FORECAST_SYSTEM_RU, user: P.FORECAST_USER_RU },
+      },
+    },
+    generation: END_TAG_GENERATION,
+    testInputs: [],
+  },
+  {
+    id: "monthlyHoroscope",
+    label: "Monthly horoscope",
+    description: "Personal one-time horoscope for the current calendar month ($4.99 or 5 stars). Saved once per profile and month.",
+    languages: ["en", "ru"],
+    parts: PERIOD_HOROSCOPE_PARTS,
+    defaults: {
+      model: "claude-sonnet-4-6",
+      maxOutputTokens: 2800,
+      temperature: 0.5,
+      texts: {
+        en: { system: P.MONTHLY_HOROSCOPE_SYSTEM_EN, user: P.MONTHLY_HOROSCOPE_USER_EN },
+        ru: { system: P.MONTHLY_HOROSCOPE_SYSTEM_RU, user: P.MONTHLY_HOROSCOPE_USER_RU },
+      },
+    },
+    generation: END_TAG_GENERATION,
+    testInputs: [],
+  },
+  {
+    id: "yearlyHoroscope",
+    label: "Yearly horoscope",
+    description: "Personal one-time horoscope for the current calendar year ($19.99 or 20 stars). Saved once per profile and year.",
+    languages: ["en", "ru"],
+    parts: PERIOD_HOROSCOPE_PARTS,
+    defaults: {
+      model: "claude-sonnet-4-6",
+      maxOutputTokens: 4500,
+      temperature: 0.5,
+      texts: {
+        en: { system: P.YEARLY_HOROSCOPE_SYSTEM_EN, user: P.YEARLY_HOROSCOPE_USER_EN },
+        ru: { system: P.YEARLY_HOROSCOPE_SYSTEM_RU, user: P.YEARLY_HOROSCOPE_USER_RU },
       },
     },
     generation: END_TAG_GENERATION,

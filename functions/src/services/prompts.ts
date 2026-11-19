@@ -3,6 +3,12 @@ import { detectAspect } from "../astro/aspects";
 import type { GenerationPrompt } from "./ai/generate";
 import { fillTemplate } from "./ai/template";
 import { collapsiblePlaceholders, partSpec, taskSpec, textLanguageFor, type AiTaskId, type TaskTexts } from "./ai/tasks";
+import {
+  formatCalendarPeriodLabel,
+  threeMonthPeriod,
+  todayUtcIso,
+  type PeriodHoroscopeType,
+} from "./directServices";
 
 /*
  * Prompt builders of every AI task. The prompt texts are templates (code
@@ -447,13 +453,16 @@ export function buildDeepInterpretationPrompt(params: {
   }, outputLanguage);
 }
 
-/** Oracle answer (tasks oracle and oracleLetter share the prompt shape). */
+/** Situation forecast (task oracle) or letter follow-up (task oracleLetter). */
 export function buildOraclePrompt(params: {
   chart: ChartResult;
   question: string;
   language: SupportedLanguage;
   dossierSummary?: string;
   taskId?: "oracle" | "oracleLetter";
+  periodStart?: string;
+  periodEnd?: string;
+  transits?: string;
   texts?: TaskTexts;
 }): GenerationPrompt {
   const { chart, question, language: outputLanguage, dossierSummary } = params;
@@ -462,26 +471,41 @@ export function buildOraclePrompt(params: {
   const texts = params.texts ?? defaultTexts(taskId, language);
   const personalBlock =
     dossierSummary && dossierSummary.trim() ? render(taskId, "personalBlock", texts, { dossier: dossierSummary }) : "";
+  const fallbackPeriod = threeMonthPeriod(todayUtcIso());
+  const periodStart = params.periodStart ?? fallbackPeriod.periodStart;
+  const periodEnd = params.periodEnd ?? fallbackPeriod.periodEnd;
 
   return withOutputLanguage({
     systemInstruction: render(taskId, "system", texts, { personalBlock }),
-    userPrompt: render(taskId, "user", texts, { question, chart: buildPlanetaryContext(chart) }),
+    userPrompt: render(taskId, "user", texts, {
+      question,
+      chart: buildPlanetaryContext(chart),
+      ...(taskId === "oracle"
+        ? { periodStart, periodEnd, transits: params.transits?.trim() || "none" }
+        : {}),
+    }),
   }, outputLanguage);
 }
 
-/** Compatibility reading of two charts (task compatibility). */
+/** Relationship forecast of two charts with 3-month development (task compatibility). */
 export function buildRelationshipPrompt(params: {
   chartA: ChartResult;
   chartB: ChartResult;
   personAName: string;
   personBName: string;
   language: SupportedLanguage;
+  periodStart?: string;
+  periodEnd?: string;
+  transits?: string;
   texts?: TaskTexts;
 }): GenerationPrompt {
   const { chartA, chartB, personAName, personBName, language: outputLanguage } = params;
   const language = promptLanguage(outputLanguage);
   const texts = params.texts ?? defaultTexts("compatibility", language);
   const synastryContext = buildSynastryAspectContext({ chartA, chartB, personAName, personBName });
+  const fallbackPeriod = threeMonthPeriod(todayUtcIso());
+  const periodStart = params.periodStart ?? fallbackPeriod.periodStart;
+  const periodEnd = params.periodEnd ?? fallbackPeriod.periodEnd;
 
   return withOutputLanguage({
     systemInstruction: render("compatibility", "system", texts),
@@ -491,9 +515,42 @@ export function buildRelationshipPrompt(params: {
       chartA: buildPlanetaryContext(chartA),
       chartB: buildPlanetaryContext(chartB),
       synastry: synastryContext || "none",
+      periodStart,
+      periodEnd,
+      transits: params.transits?.trim() || "none",
       language: OUTPUT_LANGUAGE_NAMES[outputLanguage],
     }),
   }, outputLanguage);
+}
+
+/** Personal calendar-month or calendar-year horoscope (tasks monthlyHoroscope / yearlyHoroscope). */
+export function buildPeriodHoroscopePrompt(params: {
+  periodType: PeriodHoroscopeType;
+  chart: ChartResult;
+  periodStart: string;
+  periodEnd: string;
+  today: string;
+  language: SupportedLanguage;
+  transits?: string;
+  texts?: TaskTexts;
+}): GenerationPrompt {
+  const { periodType, chart, periodStart, periodEnd, today, language } = params;
+  const taskId: AiTaskId = periodType === "year" ? "yearlyHoroscope" : "monthlyHoroscope";
+  const promptLang = promptLanguage(language);
+  const texts = params.texts ?? defaultTexts(taskId, promptLang);
+  const periodLabel = formatCalendarPeriodLabel(periodType, periodStart, promptLang);
+
+  return withOutputLanguage({
+    systemInstruction: render(taskId, "system", texts),
+    userPrompt: render(taskId, "user", texts, {
+      periodLabel,
+      periodStart,
+      periodEnd,
+      today,
+      chart: buildPlanetaryContext(chart),
+      transits: params.transits?.trim() || "none",
+    }),
+  }, language);
 }
 
 /** Daily "cosmic weather" forecast (task forecast). */

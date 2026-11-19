@@ -1,26 +1,20 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
-import { resolveOwnedChart } from "../services/chartResolver";
-import { buildOraclePrompt, normalizeLanguage } from "../services/prompts";
+import { normalizeLanguage } from "../services/prompts";
 import { AI_SECRETS } from "../services/ai/keys";
-import { runTask } from "../services/ai/run";
-import { loadTaskSettings, textsFor } from "../services/ai/settings";
 import { getProfileById } from "../services/profile";
 import { TOKEN_COST } from "../services/tokens";
 import { spendFromWallet, refundToWallet, walletKeyFromCtx } from "../services/wallet";
 import { ownsProfile, requireAccount } from "../services/owner";
-import { getDossierSummaryText, recordOracleHistory } from "../services/dossier";
-import { extractAndStoreFacts } from "../services/factExtraction";
+import { generateSituationForecast, parseSituationQuestion } from "../services/forecastGeneration";
 
 export const askOracle = onCall({
   timeoutSeconds: 180,
   secrets: AI_SECRETS,
 }, async (request) => {
-  // Asking the Oracle spends stars: account only (DEC-001, REQ-004). Checked
-  // before anything else, so a deviceId-only caller is never charged.
+  // Paid action: account only (DEC-001, REQ-004). Checked before anything else.
   const uid = requireAccount(request);
   const profileId = request.data?.profileId;
-  const question = request.data?.question;
   const language = normalizeLanguage(request.data?.language);
   const relocationLat = request.data?.relocationLat;
   const relocationLng = request.data?.relocationLng;
@@ -28,103 +22,47 @@ export const askOracle = onCall({
   if (!profileId || typeof profileId !== "string") {
     throw new HttpsError("invalid-argument", "profileId is required");
   }
+  const trimmedQuestion = parseSituationQuestion(request.data?.question);
 
-  if (!question || typeof question !== "string") {
-    throw new HttpsError("invalid-argument", "question is required");
+  // Ownership check
+  const ctx = { uid, deviceId: null };
+  const profile = await getProfileById(profileId);
+  if (!profile) {
+    throw new HttpsError("not-found", "Profile not found");
+  }
+  if (!ownsProfile(profile, ctx)) {
+    throw new HttpsError("permission-denied", "Not authorized");
   }
 
-  const trimmedQuestion = question.trim();
-  if (trimmedQuestion.length === 0) {
-    throw new HttpsError("invalid-argument", "question cannot be empty");
-  }
-
-  if (trimmedQuestion.length > 1000) {
-    throw new HttpsError("invalid-argument", "question is too long");
-  }
-
-    // Ownership check
-    const ctx = { uid, deviceId: null };
-    const profile = await getProfileById(profileId);
-    if (!profile) {
-      throw new HttpsError("not-found", "Profile not found");
-    }
-
-    if (!ownsProfile(profile, ctx)) {
-      throw new HttpsError("permission-denied", "Not authorized");
-    }
-
-    // Spend stars up front from the user's wallet (throws failed-precondition
-    // "INSUFFICIENT_TOKENS").
-    const walletKey = walletKeyFromCtx(ctx);
-    await spendFromWallet(walletKey, TOKEN_COST.oracle, "oracle");
+  // Spend stars up front from the user's wallet (throws failed-precondition "INSUFFICIENT_TOKENS").
+  const walletKey = walletKeyFromCtx(ctx);
+  await spendFromWallet(walletKey, TOKEN_COST.oracle, "oracle");
 
   try {
-    const { chart } = await resolveOwnedChart({
-      profileId,
-      uid,
-      relocationLat,
-      relocationLng,
-    });
-
-    // Person-aware answers: inject the dossier summary when this chart has one.
-    let dossierSummary = "";
-    try {
-      dossierSummary = await getDossierSummaryText(profileId);
-    } catch {
-      /* dossier optional */
-    }
-
-    const settings = await loadTaskSettings("oracle");
-    const basePrompt = buildOraclePrompt({
-      chart,
-      question: trimmedQuestion,
-      language,
-      dossierSummary,
-      texts: textsFor(settings, language),
-    });
-
     logger.info("askOracle request", {
       profileId,
       questionLength: trimmedQuestion.length,
       language,
     });
 
-    const result = await runTask(settings, basePrompt);
+    const out = await generateSituationForecast({
+      profileId,
+      uid,
+      question: trimmedQuestion,
+      language,
+      relocationLat,
+      relocationLng,
+    });
 
     logger.info("askOracle success", {
       profileId,
-      answerLength: result.text.length,
-      answerWords: result.text.split(/\s+/).filter(Boolean).length,
+      answerLength: out.answer.length,
+      periodStart: out.periodStart,
+      periodEnd: out.periodEnd,
     });
 
-    // Server-side history (REQ-004): written only after a successful answer,
-    // so a refunded failure never leaves an entry.
-    let entryId: string | null = null;
-    try {
-      entryId = await recordOracleHistory(profileId, {
-        question: trimmedQuestion,
-        answer: result.text,
-        model: result.model,
-        channel: "web",
-      });
-    } catch (e) {
-      logger.warn("askOracle history write failed", { profileId, error: (e as Error).message });
-    }
-    try {
-      await extractAndStoreFacts(profileId, uid, trimmedQuestion, null);
-    } catch (e) {
-      logger.warn("askOracle fact extraction failed", { profileId, error: (e as Error).message });
-    }
-
-    return {
-      answer: result.text,
-      model: result.model,
-      entryId,
-      persisted: entryId !== null,
-    };
+    return out;
   } catch (error) {
-    // Generation failed after tokens were spent — refund so the user isn't
-    // charged for an answer they didn't receive. Best-effort.
     try {
       await refundToWallet(walletKey, TOKEN_COST.oracle, "oracle");
       logger.info("askOracle refunded tokens after failure", { profileId });

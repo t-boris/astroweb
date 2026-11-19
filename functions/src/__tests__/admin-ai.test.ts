@@ -94,6 +94,8 @@ describe("adminGetAiSettings (REQ-001)", () => {
       "compatibility",
       "deepen",
       "forecast",
+      "monthlyHoroscope",
+      "yearlyHoroscope",
       "premiumPdf",
       "letterAnalysis",
       "letterWriting",
@@ -187,7 +189,7 @@ describe("adminTestAiTask (REQ-009)", () => {
       override: {},
       inputs: { partnerProfileId: "p2" },
     });
-    expect(res.prompt.user).toContain("Сделай расклад на отношения для пары: Anna и Max.");
+    expect(res.prompt.user).toContain("Сделай прогноз на отношения для пары: Anna и Max.");
   });
 
   it("reports a failure while preparing the prompt with its reason", async () => {

@@ -22,7 +22,14 @@ import type { OwnerCtx } from "./owner";
 const DEVICE_PREFIX = "device:";
 
 /** Feature labels recorded in the `starSpends` ledger (REQ-009 / DEC-009). */
-export type SpendFeature = "interpretations" | "compatibility" | "oracle" | "relationship" | "letter";
+export type SpendFeature =
+  | "interpretations"
+  | "compatibility"
+  | "oracle"
+  | "relationship"
+  | "letter"
+  | "monthly_horoscope"
+  | "yearly_horoscope";
 
 /** Ledger row of one star spend (positive `stars`) or refund (negative `stars`). */
 export interface StarSpendRow {

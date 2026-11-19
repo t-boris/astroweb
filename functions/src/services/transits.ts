@@ -74,3 +74,38 @@ export function computeTransits(
   const aspects = found.slice(0, 8).map((f) => f.line).join("\n");
   return { positions, aspects };
 }
+
+/**
+ * Sample transits across a multi-day period (`periodStart`..`periodEnd`, YYYY-MM-DD)
+ * so three-month forecasts and monthly/yearly horoscopes can ground timing in
+ * real planetary movements without extra API calls.
+ */
+export function computePeriodTransits(
+  natal: ChartResult,
+  residence: { lat: number; lng: number; timezone: string },
+  periodStart: string,
+  periodEnd: string,
+  sampleCount = 3,
+): string {
+  const startMs = Date.parse(`${periodStart}T12:00:00Z`);
+  const endMs = Date.parse(`${periodEnd}T12:00:00Z`);
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) return "none";
+  const count = Math.max(1, Math.min(6, Math.floor(sampleCount)));
+  const blocks: string[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const ratio = count === 1 ? 0 : i / (count - 1);
+    const sampleDate = new Date(Math.round(startMs + (endMs - startMs) * ratio));
+    const dateLabel = sampleDate.toISOString().slice(0, 10);
+    const t = computeTransits(natal, residence, sampleDate);
+    const topAspects = t.aspects
+      .split("\n")
+      .filter(Boolean)
+      .slice(0, 5)
+      .join("; ");
+    blocks.push(
+      `[${dateLabel}] Sky: ${t.positions}${topAspects ? `\nKey natal contacts: ${topAspects}` : ""}`,
+    );
+  }
+  return blocks.join("\n\n");
+}

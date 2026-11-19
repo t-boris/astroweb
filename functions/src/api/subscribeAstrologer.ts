@@ -69,6 +69,10 @@ export const subscribeAstrologer = onCall({ secrets: ["STRIPE_SECRET_KEY"] }, as
   // (DEC-007): it goes into the session AND the subscription metadata so that
   // renewal and cancel webhooks can read it.
   const analytics = analyticsMetadata(parseClientAnalytics(request.data?.analytics), uid);
+  const productName =
+    cadence === "daily"
+      ? "Daily Horoscope Subscription"
+      : `Personal Astrologer — ${cadence.replace(/_/g, " ")}`;
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -76,7 +80,7 @@ export const subscribeAstrologer = onCall({ secrets: ["STRIPE_SECRET_KEY"] }, as
         {
           price_data: {
             currency: "usd",
-            product_data: { name: `Personal Astrologer — ${cadence.replace(/_/g, " ")}` },
+            product_data: { name: productName },
             unit_amount: amount,
             recurring: { interval: stripeInterval(period) },
           },

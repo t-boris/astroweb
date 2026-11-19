@@ -9,9 +9,8 @@ import { AiRefusalError, type ProviderRequest, type ProviderResult } from "./typ
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION = "2023-06-01";
 const REQUEST_TIMEOUT_MS = 180_000;
-/** Claude Opus 5.5 and Sonnet 5.5: on a refusal the API re-runs the request on a fallback model it picks. */
+/** Models supporting Anthropic server-side refusal fallback. */
 const REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01";
-const REFUSAL_FALLBACK_MODELS = new Set(["claude-opus-5-5", "claude-sonnet-5-5"]);
 
 interface MessagesResponse {
   model?: string;
@@ -40,7 +39,7 @@ export function buildAnthropicBody(req: ProviderRequest): Record<string, unknown
   if (req.webSearch) {
     body.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: req.webSearch.maxUses }];
   }
-  if (REFUSAL_FALLBACK_MODELS.has(req.model.id)) body.fallbacks = "default";
+  if (req.model.refusalFallback) body.fallbacks = "default";
   return body;
 }
 
@@ -53,7 +52,7 @@ export async function callAnthropic(req: ProviderRequest): Promise<ProviderResul
     "x-api-key": apiKey,
     "anthropic-version": ANTHROPIC_VERSION,
   };
-  if (REFUSAL_FALLBACK_MODELS.has(req.model.id)) headers["anthropic-beta"] = REFUSAL_FALLBACK_BETA;
+  if (req.model.refusalFallback) headers["anthropic-beta"] = REFUSAL_FALLBACK_BETA;
 
   const response = await fetch(ENDPOINT, {
     method: "POST",

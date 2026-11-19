@@ -26,13 +26,14 @@ export interface AiModelInfo {
   id: string;
   provider: AiProvider;
   label: string;
-  inputPerMTok: number;
-  outputPerMTok: number;
+  inputPerMTok: number | null;
+  outputPerMTok: number | null;
   nextPrice: { from: string; inputPerMTok: number; outputPerMTok: number } | null;
   maxOutputTokens: number;
   temperature: boolean;
   webSearch: boolean;
   available: boolean;
+  live?: boolean;
 }
 
 export interface AiTaskValues {

@@ -79,8 +79,8 @@ describe("model list (DEC-002)", () => {
 
   it("applies announced price changes from their date", () => {
     const argon = findModel("gemini-4-argon")!;
-    expect(priceOn(argon, new Date("2026-11-30T12:00:00Z")).inputPerMTok).toBe(2);
-    expect(priceOn(argon, new Date("2026-12-01T00:00:00Z")).inputPerMTok).toBe(4);
+    expect(priceOn(argon, new Date("2026-11-30T12:00:00Z"))?.inputPerMTok).toBe(2);
+    expect(priceOn(argon, new Date("2026-12-01T00:00:00Z"))?.inputPerMTok).toBe(4);
   });
 
   it("computes cost from tokens and web searches", () => {

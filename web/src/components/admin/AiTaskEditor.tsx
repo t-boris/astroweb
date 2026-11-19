@@ -202,7 +202,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
                     .filter((m) => m.provider === provider)
                     .map((m) => (
                       <option key={m.id} value={m.id} disabled={!m.available || (task.needsWebSearch && !m.webSearch)}>
-                        {m.label} — ${m.inputPerMTok}/${m.outputPerMTok}
+                        {m.label} — {m.inputPerMTok !== null && m.outputPerMTok !== null ? `$${m.inputPerMTok}/$${m.outputPerMTok}` : "new · live"}
                         {!m.available ? " (no API key)" : ""}
                         {m.id === task.defaults.model ? " · default" : ""}
                       </option>

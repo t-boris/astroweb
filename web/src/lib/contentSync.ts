@@ -96,6 +96,8 @@ export function fromServer(s: ServerProfileContent): LoadedContent {
       answer: cleanAiArtifacts(e.answer),
       model: e.model,
       askedAt: e.askedAt,
+      ...(e.periodStart ? { periodStart: e.periodStart } : {}),
+      ...(e.periodEnd ? { periodEnd: e.periodEnd } : {}),
     })),
     compatibilityReadings: s.compatibilityReadings.map((r) => ({ ...r, answer: cleanAiArtifacts(r.answer) })),
   };

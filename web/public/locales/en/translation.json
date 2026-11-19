@@ -8,19 +8,79 @@
     "createProfile": "Create Profile",
     "stars": "Stars",
     "charts": "Charts",
-    "oracle": "Oracle",
-    "transits": "Transits",
-    "compatibility": "Compatibility",
+    "oracle": "Situation Forecast",
+    "transits": "Horoscopes",
+    "compatibility": "Relationship Forecast",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "account": "Account"
   },
   "forecast": {
-    "eyebrow": "Forecast",
-    "title": "Transits & Cosmic Weather",
-    "subtitle": "How today's sky touches your natal chart.",
-    "todayTitle": "Today's cosmic weather",
-    "loading": "Reading today's sky…"
+    "eyebrow": "Horoscopes",
+    "title": "Personal Horoscopes",
+    "subtitle": "Your free horoscope for today plus individual horoscopes for the current calendar month and year.",
+    "todayTitle": "Today's Horoscope",
+    "loading": "Preparing today's horoscope…"
+  },
+  "horoscopes": {
+    "dayTitle": "Today's Horoscope",
+    "monthTitle": "Monthly Horoscope",
+    "yearTitle": "Yearly Horoscope",
+    "freeBadge": "Free",
+    "ownedShort": "Unlocked",
+    "savedBadge": "Saved — reopen anytime for free",
+    "oneTimeNoSub": "One-time purchase · no subscription",
+    "basePriceLabel": "Price",
+    "orStars": "or ✦{{count}}",
+    "monthDesc": "A personal horoscope for the current calendar month based on your natal chart: key phases, relationships, work, money, and grounding.",
+    "yearDesc": "An in-depth personal horoscope for the current calendar year based on your natal chart: main themes of the year, seasons, relationships, career, and guidance.",
+    "elapsedIncludedNote": "Covers the full calendar period, including days that have already passed. Once purchased, it is saved to this profile and remains available without paying again even after the period ends.",
+    "starsCoverFull": "Your stars cover the full price: ✦{{applied}} will be applied automatically, $0.00 payable (✦{{surplus}} remaining).",
+    "starsCoverPartial": "✦{{applied}} will be applied automatically (−{{discount}}), {{payable}} payable.",
+    "getWithStars": "Get for ✦{{stars}} ($0.00)",
+    "buyCta": "Get for {{amount}}",
+    "openSaved": "Open saved",
+    "generatingPaid": "Preparing your personal horoscope… this takes less than a minute.",
+    "generatingButton": "Generating horoscope…",
+    "paidRecoveryNote": "This period is already paid for. No second purchase is needed — click below to complete generation on your existing order at no extra cost.",
+    "retryGeneration": "Retry generation (already paid)",
+    "savedArchiveTitle": "Saved past horoscopes",
+    "dailySubBannerTitle": "Want in-depth personal letters every day?",
+    "dailySubBannerDesc": "Today's Horoscope above is a free brief outlook for today. The Daily Horoscope subscription sends full personal astrologer letters every morning in the app, by email, and via push notifications.",
+    "dailySubBannerCta": "Daily Horoscope"
+  },
+  "directCheckout": {
+    "eyebrow": "Order confirmation",
+    "forProfile": "Profile: {{name}}",
+    "coveredDates": "Covered dates",
+    "periodNote": "Covers the full calendar period including elapsed days, stays saved to this profile, and can be reopened after the period ends with no extra charge.",
+    "servicePrice": "Service price",
+    "starsApplied": "Stars applied automatically (✦{{applied}} of ✦{{full}})",
+    "starsRemaining": "Stars remaining after order",
+    "totalPayable": "Total payable",
+    "starsOnlyHint": "No card payment needed — your stars cover the full cost and your forecast will open right here.",
+    "cancelSafeHint": "You'll return right to your forecast after payment. If you cancel checkout, none of your stars are deducted.",
+    "confirmStars": "Get for ✦{{stars}} ($0.00)",
+    "confirmPay": "Pay {{amount}}",
+    "processing": "Processing…",
+    "canceledNotice": "Checkout was canceled. You were not charged and all of your stars remain untouched.",
+    "quoteChanged": "Your star balance changed. Review the updated amount and confirm again.",
+    "inProgress": "Checkout for this period is already in progress. Wait a moment and try again.",
+    "failed": "Could not start checkout. Please try again.",
+    "alreadyOwned": "This horoscope is already purchased and saved for this profile. You can reopen it without paying or spending stars.",
+    "alreadyPaidRecover": "This period is already paid for. No second payment is needed — click below to open or retry generation on your original order.",
+    "retryPaidOrder": "Continue without paying again",
+    "stillProcessing": "Payment is still finalizing. Click retry to open your forecast without paying again.",
+    "generationFailedRecoverable": "Could not generate the forecast. Your payment is safe — click retry generation; no second charge or star deduction is required.",
+    "forecastWindow3m": "3-month outlook: {{range}}",
+    "paidOrderReady": "Paid relationship forecast",
+    "paidSituationReady": "Paid situation forecast",
+    "services": {
+      "monthly_horoscope": { "title": "Monthly Horoscope" },
+      "yearly_horoscope": { "title": "Yearly Horoscope" },
+      "situation": { "title": "Situation Forecast" },
+      "relationship": { "title": "Relationship Forecast" }
+    }
   },
   "home": {
     "title": "Profiles",
@@ -137,39 +197,39 @@
     "planets": "Planets",
     "aspects": "Aspects",
     "houses": "Houses",
-    "compatibility": "Compatibility",
+    "compatibility": "Relationship Forecast",
     "interpretation": "Interpretation",
-    "oracle": "Oracle",
-    "transits": "Transits",
+    "oracle": "Situation Forecast",
+    "transits": "Horoscopes",
     "interpretationPlaceholder": "Interpretations coming soon.",
-    "astrologer": "✦ Astrologer"
+    "astrologer": "✦ Daily Horoscope"
   },
   "ai": {
     "deepDive": "Dig Deeper",
     "deepDiveLoading": "Generating deeper reading...",
     "deepDiveTitle": "Deep Reading",
-    "oracleTitle": "Natal Chart Oracle",
-    "oracleDescription": "Ask any question. The answer is grounded only in the planetary placements and aspects of your natal chart.",
-    "oraclePlaceholder": "For example: why do I postpone major decisions so often?",
-    "askOracle": "Ask the Oracle",
-    "askOracleLoading": "Oracle is answering...",
-    "answerTitle": "Oracle Answer",
+    "oracleTitle": "Individual Situation Forecast",
+    "oracleDescription": "Describe a situation or ask a question — get a personal analysis based on your natal chart and a forecast of how it may unfold over the next 3 months.",
+    "oraclePlaceholder": "For example: how may my career situation unfold over the next few months?",
+    "askOracle": "Get Situation Forecast",
+    "askOracleLoading": "Preparing situation forecast...",
+    "answerTitle": "Situation Forecast",
     "creditsLabel": "Stars",
-    "oracleNoCredits": "You need stars to ask a question. Buy them in the Premium tab.",
+    "oracleNoCredits": "Pay directly in USD; any stars in your wallet apply automatically.",
     "modelLabel": "Model: {{model}}",
-    "oracleHistoryTitle": "Oracle History",
-    "relationshipTitle": "Relationship Reading",
-    "relationshipDescription": "Enter the second person's data and get a compatibility reading based on two natal charts.",
-    "partnerNameLabel": "Second person's name",
-    "partnerBirthDateLabel": "Second person's birth date",
-    "partnerBirthTimeLabel": "Second person's birth time",
+    "oracleHistoryTitle": "Situation Forecast History",
+    "relationshipTitle": "Relationship Forecast",
+    "relationshipDescription": "Enter your partner's name, birth date, birth place, and birth time if known. We compare both natal charts, analyze your dynamic, and forecast how the relationship may develop over the next 3 months.",
+    "partnerNameLabel": "Partner's name",
+    "partnerBirthDateLabel": "Partner's birth date",
+    "partnerBirthTimeLabel": "Partner's birth time",
     "partnerTimeUnknown": "Birth time unknown",
-    "partnerBirthPlaceLabel": "Second person's birth place",
-    "partnerCoordinatesLabel": "Second person's coordinates",
-    "relationshipGenerate": "Calculate compatibility",
-    "relationshipGenerating": "Generating reading...",
-    "relationshipAnswerTitle": "Relationship Reading",
-    "relationshipPartnerTimezone": "Second person's timezone: {{timezone}}",
+    "partnerBirthPlaceLabel": "Partner's birth place",
+    "partnerCoordinatesLabel": "Partner's coordinates",
+    "relationshipGenerate": "Get Relationship Forecast",
+    "relationshipGenerating": "Preparing relationship forecast...",
+    "relationshipAnswerTitle": "Relationship Forecast",
+    "relationshipPartnerTimezone": "Partner's timezone: {{timezone}}",
     "collapseExplanation": "Collapse",
     "expandExplanation": "Expand"
   },
@@ -520,7 +580,7 @@
     "profileSaveFailed": "Failed to save profile. Please try again.",
     "profileDeleteFailed": "Failed to delete profile. Please try again.",
     "aiFailed": "Failed to get AI response. Please try again.",
-    "oracleQuestionRequired": "Enter a question for the Oracle.",
+    "oracleQuestionRequired": "Describe a situation or enter a question for the forecast.",
     "unknownError": "Something went wrong. Please try again.",
     "retry": "Try Again"
   },
@@ -589,11 +649,11 @@
   },
   "premium": {
     "title": "Unlock Your Cosmic Destiny",
-    "oracleCredits": "Oracle Credits: {{count}}",
+    "oracleCredits": "Forecast Credits: {{count}}",
     "balance": "Stars: {{count}}",
-    "tokensDescription": "Buy stars (✦ $0.99 each) and spend them on readings: Oracle question ✦1, Compatibility ✦2, Interpretation + PDF ✦4.",
+    "tokensDescription": "Stars apply automatically toward direct purchases of horoscopes and forecasts, and unlock full chart interpretations with PDF (✦4).",
     "needStars": "Need ✦{{count}} — buy stars",
-    "description": "Get a beautifully crafted, 15-page PDF report analyzing your deepest psychological patterns, karmic challenges, and hidden potentials. Or consult the AI Oracle for direct answers to your burning questions.",
+    "description": "Get a beautifully crafted PDF report of your chart, or order a personal forecast for a situation, relationship, calendar month, or calendar year.",
     "success": "Purchase successful! Your premium features have been updated.",
     "redirecting": "Redirecting...",
     "pdfActivated": "Interpretations Unlocked",
@@ -607,11 +667,11 @@
     "pdfTitle": "Premium Interpretation: {{name}}",
     "pdfSubtitle": "Prepared for {{name}}",
     "pdfGeneratedAt": "Generated {{date}}",
-    "buyOracle": "Ask Oracle ($0.99)",
-    "buyCompatibility": "Unlock Compatibility ($0.99)",
-    "compatibilityActivated": "Compatibility Unlocked",
+    "buyOracle": "Situation Forecast",
+    "buyCompatibility": "Relationship Forecast",
+    "compatibilityActivated": "Relationship Forecast Unlocked",
     "unlockRequired": "Unlock Premium to read full deep interpretation.",
-    "storeDescription": "Pick what you want. Readings unlock per profile, and stars never expire.",
+    "storeDescription": "Pick what you want. Readings unlock per profile, and stars never expire and apply automatically to forecasts.",
     "trust1": "One-time payment",
     "trust2": "Stars never expire",
     "trust3": "Unlocks forever",
@@ -623,24 +683,24 @@
     "firstOffer": "First reading",
     "packs": {
       "question": {
-        "title": "Oracle question",
-        "desc": "One Oracle question about your chart"
+        "title": "Situation forecast",
+        "desc": "1 star — covers a 3-month situation forecast"
       },
       "pair": {
-        "title": "Compatibility check",
-        "desc": "Full compatibility reading of two charts"
+        "title": "Relationship forecast",
+        "desc": "2 stars — covers a 3-month relationship forecast"
       },
       "reading": {
         "title": "Full chart reading",
         "desc": "Full interpretation + dig deeper + PDF"
       },
       "reading_pair": {
-        "title": "Reading + Pair",
-        "desc": "Full chart reading and compatibility"
+        "title": "Reading + Relationship",
+        "desc": "Full chart reading and relationship forecast"
       },
       "all": {
         "title": "Everything",
-        "desc": "Reading + compatibility + an Oracle question"
+        "desc": "Reading + relationship forecast + situation forecast"
       }
     },
     "tab": "Premium"
@@ -676,7 +736,7 @@
     "noInterests": "No interests yet",
     "addInterest": "Add an interest…",
     "facts": "Notes about you",
-    "noFacts": "Nothing learned yet — ask the oracle and it will get to know you.",
+    "noFacts": "Nothing learned yet — order a situation forecast and your astrologer will get to know you.",
     "pending": "needs your OK",
     "youToldUs": "You told us",
     "inferred": "Your astrologer inferred this from your question",
@@ -697,8 +757,8 @@
     "open": "Open letters"
   },
   "hub": {
-    "title": "Personal Astrologer",
-    "link": "Personal Astrologer",
+    "title": "Daily Horoscope Subscription",
+    "link": "Daily Horoscope",
     "statusLine": "Status",
     "nextLetter": "Next letter",
     "cancelsAt": "Cancels at period end",
@@ -708,15 +768,21 @@
     "resume": "Resume",
     "cancel": "Cancel",
     "cancelNote": "Canceling stops billing at period end — your astrologer keeps everything it knows, and your ✦ stay.",
-    "intro": "Hire a personal astrologer for this chart — it writes you a letter on your schedule, learns about you, and answers your questions.",
+    "intro": "Subscribe to daily personal astrologer letters for this chart: an in-depth daily reading based on your natal chart and today's sky, delivered in the app, by email, and via push notifications.",
+    "coveredProfile": "For profile: {{name}}",
+    "includedContent": "In-depth personal astrologer letters based on your natal chart, current sky, and personal notes",
+    "includedDelivery": "Daily delivery in the app, by email, and via push notifications (when enabled)",
+    "distinctionFromFree": "How it differs from free Today's Horoscope: Today's Horoscope is a brief daily note in the Horoscopes tab, while the Daily Horoscope subscription sends full personal letters every day and adds +1 ✦ with each letter.",
+    "viewFreeTodayLink": "Open free Today's Horoscope",
     "cadence": "How often",
     "period": "Billing",
     "monthly": "Monthly",
-    "annual": "Annual (2 months free)",
+    "annual": "Annual (3 months free)",
+    "annualPlain": "Annual",
     "emailDelivery": "Also email me each letter",
     "name": "Name your astrologer",
     "random": "Random",
-    "hire": "Hire",
+    "hire": "Subscribe",
     "year": "yr",
     "month": "mo",
     "cadDaily": "Daily",
@@ -725,7 +791,7 @@
     "cadWeekly": "Weekly",
     "cadEvery2w": "Every 2 weeks",
     "perMonth": "/mo",
-    "signInRequired": "Sign in to hire a personal astrologer.",
+    "signInRequired": "Sign in to start your Daily Horoscope subscription.",
     "status_active": "active",
     "status_paused": "paused",
     "status_past_due": "past due",
@@ -742,7 +808,7 @@
     "perk2": "learns about you over time",
     "perk3": "cancel anytime",
     "scheduleLine": "Letters: {{cadence}}, in the morning your local time",
-    "scheduleHint": "First letter right after you hire, then {{cadence}} — in the morning, your local time.",
+    "scheduleHint": "First letter right after you subscribe, then {{cadence}} — in the morning, your local time.",
     "emailTo": "Email to",
     "emailSignIn": "Sign in — letters go to your account email.",
     "cancelConfirm": "Cancel the subscription? Billing stops at period end; nothing is refunded for the current period. Your astrologer keeps everything it knows and your ✦ stay.",
@@ -754,11 +820,11 @@
     "signInIntro": "Sign in to manage your account, subscriptions and stars.",
     "balance": "Star balance",
     "buyStars": "Buy stars",
-    "astrologers": "Your astrologers",
-    "noSubs": "No active astrologers. Hire one from a chart's ✦ Astrologer tab.",
+    "astrologers": "Your subscriptions",
+    "noSubs": "No active subscriptions. Subscribe from a chart's ✦ Daily Horoscope tab.",
     "manage": "Manage",
     "notifications": "Notifications",
-    "notificationsNote": "New letters appear in the ✦ Astrologer inbox, by email, and — if you enable it — as a push notification.",
+    "notificationsNote": "New letters appear in the ✦ Daily Horoscope tab, by email, and — if you enable it — as a push notification.",
     "language": "Language",
     "pushEnable": "Enable push notifications",
     "pushOn": "Push notifications are on",
@@ -804,19 +870,19 @@
       "profileCreated": "profile_created — no parameters.",
       "chartViewed": "chart_viewed — which tab was opened.",
       "paywallViewed": "paywall_viewed — which paid feature was shown.",
-      "beginCheckout": "begin_checkout — star pack, price and currency.",
+      "beginCheckout": "begin_checkout — chosen service or star pack, final amount payable and currency.",
       "unlockFeature": "unlock_feature — which feature and how many stars it cost.",
       "subscribeStart": "astrologer_subscribe_start — cadence and billing period chosen.",
-      "aiReading": "ai_reading_requested — the kind of reading (deepen, oracle, compatibility, letter).",
+      "aiReading": "ai_reading_requested — the kind of reading or forecast (deepen, oracle, compatibility, letter, monthly_horoscope, yearly_horoscope).",
       "letterOpened": "letter_opened — no parameters.",
       "userId": "If you are signed in, your account id (Firebase user id) is attached as user_id. If you are not signed in, no user id is set."
     },
     "server": {
       "title": "Purchase and subscription events from our servers",
-      "body1": "When a payment succeeds, our server reports it to GA4 so that revenue figures are complete. The events are purchase (star packs) and subscription_start, subscription_renewal and subscription_cancel (Personal Astrologer). These server-side events are sent whether or not you gave consent.",
-      "body2": "They contain the transaction identifier (the Stripe checkout session, invoice or event id), the amount and currency, the product and, for subscriptions, the cadence and billing period.",
+      "body1": "When a payment or direct order succeeds, our server reports it to GA4 so that conversion and revenue figures are complete. The events are purchase (star packs and direct forecast orders, including orders fully covered by stars with 0 USD revenue) and subscription_start, subscription_renewal and subscription_cancel (Daily Horoscope / Personal Astrologer). These server-side events are sent whether or not you gave consent.",
+      "body2": "They contain the transaction identifier (the Stripe checkout session, invoice or event id, or the unique order id for direct orders), the actual amount paid and currency, the product and, for subscriptions, the cadence and billing period.",
       "withConsent": "With consent: the event carries your GA client id and, if you were signed in, your account id as user_id, so the purchase is tied to your visit.",
-      "withoutConsent": "Without consent: the event carries no user_id and no other user identifier. It carries only a pseudonymous client id: a deterministic one-way hash of the Stripe identifier of that payment (the checkout session id for a purchase). It cannot be turned back into that identifier, but it can be matched to the payment record we hold in Stripe and in our database. It is therefore pseudonymous data, and we do not treat it as anonymous."
+      "withoutConsent": "Without consent: the event carries no user_id and no other user identifier. It carries only a pseudonymous client id: a deterministic one-way hash of the Stripe identifier of that payment (the checkout session id for a purchase) or of the unique order id for an order fully covered by stars. It cannot be turned back into that identifier, but it can be matched to the payment record we hold in Stripe and in our database. It is therefore pseudonymous data, and we do not treat it as anonymous."
     },
     "subscriptions": {
       "title": "Subscriptions",
@@ -833,8 +899,8 @@
     }
   },
   "signInGate": {
-    "askOracle": "Sign in to ask the Oracle",
-    "compatibility": "Sign in to generate the reading"
+    "askOracle": "Sign in to get a situation forecast",
+    "compatibility": "Sign in to get a relationship forecast"
   },
   "signInNotice": {
     "text": "Your profiles are stored only in this browser. They may be lost if you switch browser or clear its data.",
@@ -863,10 +929,10 @@
       "coordinates": "The latitude and longitude of the chosen place, filled in automatically. They pinpoint the spot on Earth that the time zone and the houses are worked out from."
     },
     "account": {
-      "balance": "Your stars: one balance shared by all your profiles, and they never expire. Spend them on Oracle questions (1 star each), compatibility readings (2 stars) and unlocking a profile's full interpretation with the PDF (4 stars).",
-      "buyStars": "Opens the Premium tab of your first profile, where you choose a star pack. The stars you buy go into your shared balance and can be spent on any of your profiles.",
-      "astrologers": "Your Personal Astrologer subscriptions, one per profile. The astrologer is an AI that writes you letters on your chosen schedule and learns about you over time. Here you see its name, the profile and when the next letter is due.",
-      "manage": "Opens this profile's Astrologer tab, where you can read the letters, change the email addresses they go to, pause or resume the subscription, or cancel it.",
+      "balance": "Your stars: one balance shared by all your profiles, and they never expire. They apply automatically when you order situation, relationship, monthly or yearly forecasts, and four stars unlock the full interpretation with the PDF.",
+      "buyStars": "Opens the Premium tab of your first profile, where you choose a star pack. The stars you buy go into your shared balance and can be used on any of your profiles.",
+      "astrologers": "Your Daily Horoscope and Personal Astrologer subscriptions, one per profile. An AI writes you letters on your chosen schedule and learns about you over time. Here you see its name, the profile and when the next letter is due.",
+      "manage": "Opens this profile's Daily Horoscope tab, where you can read the letters, change the email addresses they go to, pause or resume the subscription, or cancel it.",
       "push": "Push notifications are short messages that appear on your device when a new letter arrives, even if the site is not open. Your browser will ask for permission first, and you can turn them off later in its settings."
     },
     "letters": {
@@ -884,7 +950,7 @@
       "intro": "Choose how often letters arrive, or try a free sample first. An AI writes them; each scheduled letter adds one star to your wallet, and each question you ask costs one star. You can review and delete its notes about you at any time.",
       "freeLetter": "An AI writes a sample letter for this chart with no payment and no subscription, then your letters open. If a letter was already written today, you see that one instead.",
       "cadence": "How often your astrologer writes to you. The monthly price grows with the number of letters, and the option marked popular is the suggested starting point. Every scheduled letter also adds one star to your wallet.",
-      "period": "Pay month by month or once a year. The annual price is nine times the monthly one, so three of the twelve months are free. Both plans renew automatically until you cancel.",
+      "period": "Pay month by month or once a year; the Daily Horoscope subscription has dedicated monthly and annual prices. Both plans renew automatically until you cancel.",
       "schedule": "Your astrologer writes to you at the interval you chose. The first letter comes right after you hire, and each later one follows the same rhythm.",
       "email": "When this is on, each letter is also sent to your email, in addition to appearing in the app. Leave the address field empty to use your account email, or enter several addresses separated by commas.",
       "name": "The name your astrologer uses in its letters and emails. Pick any name you like, or press Random for a suggestion; you set it when you hire.",
@@ -913,7 +979,7 @@
       "pending": "A guess about a sensitive topic, such as health, relationships or beliefs. It stays unused until you confirm it with the check button, and you can delete it if it is wrong.",
       "confirm": "Confirms that this note is correct, so your astrologer can start using it in letters and answers.",
       "delete": "Deletes this note from your list. Use it when a note is wrong or you would rather not have it kept.",
-      "forget": "Deletes everything your astrologer has learned about this chart: interests, notes and tone, plus your saved Oracle questions and answers on all devices. This cannot be undone. Your letters, stars and subscription stay as they are."
+      "forget": "Deletes everything your astrologer has learned about this chart: interests, notes and tone, plus your saved situation forecasts on all devices. This cannot be undone. Your letters, stars and subscription stay as they are."
     },
     "profile": {
       "birthTime": "The time of day this person was born. The exact time decides the Rising sign and which house each planet falls in. When it is unknown, the chart is calculated for noon, those are left out and the Houses tab is only approximate.",
@@ -921,17 +987,17 @@
       "risingUnknown": "A dash means the Rising sign could not be worked out. It depends on the exact birth time, and that time is unknown. Add the time by editing the profile to see it."
     },
     "chart": {
-      "mode": "Chooses which version of the chart you see: the natal chart for the place you were born, or a relocated chart for the place you live now. The choice also applies to the Oracle, the interpretation, compatibility and the PDF.",
+      "mode": "Chooses which version of the chart you see: the natal chart for the place you were born, or a relocated chart for the place you live now. The choice also applies to situation and relationship forecasts, the interpretation and the PDF.",
       "residence": "The place where you live now, not where you were born. Choosing a place turns relocation on, and your Personal Astrologer also uses it for local weather and news in the letters.",
       "residenceHint": "Your current residence is used to relocate the houses of your chart and, in your astrologer's letters, for local weather and news. Until you set a place, the app uses your birth place.",
       "relocationSwitch": "Switches between your natal chart, drawn for your birth place, and a relocated chart for the place you live now. Relocation recalculates the houses, Rising sign and Midheaven for that place; the planets keep their zodiac positions. It needs a current residence.",
       "relocationHint": "ASC is the Ascendant, which is your Rising sign, and MC is the Midheaven, the highest point of the chart. They and the houses depend on the place the chart is drawn for, so relocating moves them while the planets stay where they are."
     },
     "premium": {
-      "balance": "Your star balance. Stars are the app's currency: one star pays for an Oracle question, two for a compatibility reading, and four unlock the full interpretation with the PDF for one profile. Stars never expire and are shared by all your profiles.",
+      "balance": "Your star balance. Stars never expire, are shared by all your profiles, automatically reduce what you pay for situation, relationship, monthly or yearly forecasts, and four unlock the full interpretation with the PDF.",
       "trust": "A star pack is a one-time payment, not a subscription. Stars never expire, and a reading unlocked for a profile stays unlocked forever.",
       "firstOffer": "A one-time welcome price on the Full chart reading pack, lower than the regular price shown crossed out. It applies to your first purchase of that pack only, and the stars arrive in your balance like with any other pack.",
-      "packStars": "A star pack adds the number of stars shown to your balance in one payment. Stars are spent on readings: an Oracle question, a compatibility reading or the full interpretation with the PDF.",
+      "packStars": "A star pack adds the number of stars shown to your balance in one payment. Stars apply automatically when you order forecasts or unlock the full interpretation with the PDF.",
       "bonusStar": "A bonus star is a free extra star credited on top of the stars the pack already contains.",
       "popular": "The store highlights this pack as its headline offer: a full chart reading with Dig Deeper and the PDF for one profile."
     },
@@ -952,29 +1018,29 @@
       "pdf": "Builds a PDF report of your full reading, written up by an AI from your chart and the readings on this page, including any deeper ones you generated. Free for an unlocked profile; it can take a couple of minutes, so keep the page open."
     },
     "oracle": {
-      "title": "The Oracle answers questions about your life using your natal chart. The answer is written by an AI from the positions in your chart, so treat it as food for thought, not a prediction. Each question costs one star.",
-      "cost": "One question costs one star. The answer is written by an AI from your chart, and if no answer can be produced, the star is returned to your balance.",
-      "balance": "Your star balance. The Oracle's answers are written by an AI from your chart, and each one costs one star, so this is how many questions you can still ask. You can buy more stars in the Premium tab.",
-      "question": "Write your question in your own words, up to 1000 characters. The Oracle works from your natal chart, so questions about your character, choices and patterns fit best, and it does not predict events.",
-      "ask": "Sends your question and spends one star. An AI then writes the answer from your natal chart. If it fails to answer, the star is refunded, and if you are signed out, you are asked to sign in first.",
-      "answer": "The Oracle's reply to your latest question, written by an AI from your natal chart. Use it as a prompt for reflection rather than a prediction. When you ask the next question, it moves to your history.",
-      "history": "Your earlier questions and the answers you received for this profile. They are saved, so you can read them again later, and when you are signed in, on your other devices too.",
-      "toggle": "Shows or hides the full text of this answer. Hiding it leaves a one-line preview, and the answer stays saved.",
-      "delete": "Permanently deletes this question and answer together with the stored copy, so when you are signed in it disappears from your other devices too. The star it cost is not refunded."
+      "title": "The Situation Forecast answers your question from your natal chart and outlines how the situation may unfold over the next three months. You can pay directly, and any stars in your wallet apply automatically.",
+      "cost": "A situation forecast costs $1.99 or 1 star in full. Any star in your wallet applies automatically, leaving $0.00 payable.",
+      "balance": "Your star balance. When you order a situation forecast, one star covers the full cost with no extra payment, and any remaining stars stay in your wallet.",
+      "question": "Describe your situation and question in your own words, up to 1000 characters. The forecast draws on your natal chart and shows how the situation may develop over the next three months.",
+      "ask": "Opens order confirmation with automatic star savings and prepares your three-month forecast right away. If you are signed out, you are asked to sign in first.",
+      "answer": "Your latest situation forecast with its covered dates, written by an AI from your natal chart. When you order the next forecast, this one moves to your history.",
+      "history": "Your earlier questions and situation forecasts for this profile. They are saved, so you can read them again later, and when you are signed in, on your other devices too.",
+      "toggle": "Shows or hides the full text of this forecast. Hiding it leaves a one-line preview, and the forecast stays saved.",
+      "delete": "Permanently deletes this forecast together with the stored copy, so when you are signed in it disappears from your other devices too. Payment for it is not refunded."
     },
     "compatibility": {
-      "title": "A relationship reading compares your natal chart with another person's. An AI writes it from the two charts and describes how they fit together. Each reading costs two stars.",
-      "timeUnknown": "Turn this on if you do not know what time the other person was born. The reading then leaves out their Rising sign and houses, which depend on the exact time, and compares the rest of the chart.",
-      "birthTime": "The time of day the other person was born. It decides their Rising sign and houses, so the more exact it is, the more complete the comparison. If you do not know it, use the switch above.",
-      "birthPlace": "The city where the other person was born. Together with the date and time, the place fixes their chart, and the coordinates and time zone are found from it automatically.",
-      "generate": "An AI compares both natal charts and describes how they fit together. It costs two stars, refunded if the reading fails. If you are signed out you are asked to sign in first; with fewer than two stars the button takes you to the Premium tab.",
-      "timezone": "The time zone of the other person's birth place, found automatically from the place you chose. It is used to turn their local birth time into universal time before their chart is calculated.",
-      "toggle": "Shows or hides the full text of this reading. Hiding it only folds it away, and the reading stays saved.",
-      "delete": "Permanently deletes this reading together with the stored copy, so when you are signed in it disappears from your other devices too. The two stars it cost are not refunded."
+      "title": "A relationship forecast compares your natal chart with your partner's and describes how the relationship may develop over the next three months. Any stars in your wallet apply automatically.",
+      "timeUnknown": "Turn this on if you do not know what time your partner was born. The forecast then leaves out their Rising sign and houses, which depend on the exact time, and compares the rest of the chart.",
+      "birthTime": "The time of day your partner was born. It decides their Rising sign and houses, so the more exact it is, the more complete the forecast. If you do not know it, use the switch above.",
+      "birthPlace": "The city where your partner was born. Together with the date and time, the place fixes their chart, and the coordinates and time zone are found from it automatically.",
+      "generate": "Opens order confirmation ($3.99 or 2 stars, with automatic savings for 1 star) and prepares a three-month relationship forecast. If you are signed out, you are asked to sign in first.",
+      "timezone": "The time zone of your partner's birth place, found automatically from the place you chose. It is used to turn their local birth time into universal time before their chart is calculated.",
+      "toggle": "Shows or hides the full text of this forecast. Hiding it only folds it away, and the forecast stays saved.",
+      "delete": "Permanently deletes this forecast together with the stored copy, so when you are signed in it disappears from your other devices too. Payment for it is not refunded."
     },
     "transits": {
-      "title": "Transits compare today's sky with your birth chart, like changing weather around the fixed picture of your birth. The text below is a short mood-of-the-day note written by an AI from your chart and today's date, not from calculated planet positions.",
-      "today": "A short forecast for today, written by an AI from your natal chart and today's date. It describes the mood of the day and the themes in focus, not events that will happen. It is free and is made once a day for each profile."
+      "title": "Personal horoscopes for this profile: your free Today's Horoscope, plus one-time horoscopes for the current calendar month and current calendar year.",
+      "today": "A free short horoscope for today, written by an AI from your natal chart and today's date once per day. For full daily personal letters, see the Daily Horoscope subscription."
     },
     "planets": {
       "Sun": "In astrology the Sun stands for the core of who you are: identity, vitality and sense of purpose. Its sign is the “sun sign” people usually mean when they name their zodiac sign, and its house shows where that energy is most at work.",
@@ -1061,11 +1127,11 @@
       "aspects": "The angles between your planets, listed from the most exact. Aspects show which planets support each other or pull against each other, and the closer an aspect is to exact, the more strongly it is felt.",
       "houses": "Your chart is divided into twelve houses, each tied to an area of life such as home, work or relationships. Here you see the ruler of each house and which planets sit in it, grouped by health, relationships, money and home.",
       "interpretation": "A written reading of your chart: your Sun, Moon and Rising sign, your strongest aspects and the balance of the four elements. The full text unlocks once for this profile with stars, and each block can be expanded further.",
-      "oracle": "Ask any question and get an AI answer based on your natal chart. Each question costs one star, and your earlier answers are kept here.",
-      "transits": "Transits compare today's sky with your natal chart. This tab gives a short outlook for today, written by an AI from your chart and today's date rather than from calculated planet positions.",
-      "compatibility": "Compare your chart with another person's birth data to get a relationship reading. It needs their birth date and place, ideally the time too, and costs two stars.",
-      "astrologer": "Your Personal Astrologer is an AI that writes you letters on the schedule you choose and learns your interests over time. Each scheduled letter also adds one star to your wallet.",
-      "premium": "Stars are the app's currency. Spend them to unlock readings for this profile, ask the Oracle or compare charts; they never expire."
+      "oracle": "Ask about a situation and get a personal analysis with a three-month development forecast. Pay directly, and any stars in your wallet apply automatically.",
+      "transits": "Personal horoscopes for this profile: free Today's Horoscope plus one-time horoscopes for the current calendar month and current calendar year.",
+      "compatibility": "Enter your partner's birth details for a two-chart relationship forecast covering the next three months. Pay directly, and stars apply automatically.",
+      "astrologer": "Daily Horoscope subscription: personal astrologer letters on your schedule delivered in the app, by email, and via push. Each scheduled letter adds 1 star.",
+      "premium": "Stars are the app's currency. They never expire, automatically lower the price of horoscopes and forecasts, and unlock full interpretations with PDF."
     }
   },
   "a11y": {
@@ -1077,6 +1143,6 @@
     "notesRemoveTag": "Remove {{tag}}",
     "notesAddInterest": "Add interest",
     "notesSuggestions": "Suggested interests",
-    "oracleQuestion": "Question for the Oracle"
+    "oracleQuestion": "Question for your situation forecast"
   }
 }

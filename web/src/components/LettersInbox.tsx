@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { HelpBubble } from "@/components/HelpBubble";
 import { trackEvent, trackOnce } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
+import { useAuthUser } from "@/lib/useAuthUser";
 
 function LetterCard({ profileId, letter, first }: { profileId: string; letter: Letter; first: boolean }) {
   const { t } = useTranslation();
@@ -131,6 +132,7 @@ function LetterCard({ profileId, letter, first }: { profileId: string; letter: L
 /** Reusable letters inbox — used standalone (page) and inside the Astrologer tab. */
 export default function LettersInbox({ profileId }: { profileId: string }) {
   const { t } = useTranslation();
+  const { user, ready: authReady } = useAuthUser();
   const [letters, setLetters] = useState<Letter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +140,12 @@ export default function LettersInbox({ profileId }: { profileId: string }) {
   const [generating, setGenerating] = useState(false);
 
   async function load() {
+    if (!authReady) return;
+    if (!user) {
+      setNeedSignIn(true);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       setLetters(await listLetters(profileId));
@@ -154,7 +162,7 @@ export default function LettersInbox({ profileId }: { profileId: string }) {
   useEffect(() => {
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
+  }, [profileId, authReady, user?.uid]);
 
   async function generate() {
     setGenerating(true);

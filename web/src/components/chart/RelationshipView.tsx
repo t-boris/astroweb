@@ -1,26 +1,37 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Calendar, ChevronDown, ChevronUp, RefreshCw, Trash2 } from "lucide-react";
 import { toAppLanguage } from "@/lib/language";
-import { FirebaseError } from "firebase/app";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { askRelationship } from "@/api/ai";
 import { trackEvent, trackOnce } from "@/lib/analytics";
 import PlaceSearch from "@/components/PlaceSearch";
 import { HelpBubble } from "@/components/HelpBubble";
+import { DirectCheckoutDialog } from "@/components/DirectCheckoutDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { TOKEN_COST } from "@/lib/tokens";
 import { AiReading } from "@/components/AiReading";
 import { deleteProfileContentItem } from "@/api/profileContent";
+import {
+  cancelDirectCheckout,
+  fulfillDirectOrder,
+  listProfileHoroscopes,
+  type RecoverableDirectOrder,
+} from "@/api/directCheckout";
+import {
+  calculateDirectCheckoutQuote,
+  formatDateRange,
+  formatUsdCents,
+  threeMonthPeriod,
+} from "@/lib/directServices";
 import { auth } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import { ensureSignedIn, loadProfileContent, type CompatItem } from "@/lib/contentSync";
-import { cleanAiArtifacts, keepLocally, readLocalContent, writeLocalContent } from "@/lib/localContent";
+import { cleanAiArtifacts, readLocalContent, writeLocalContent } from "@/lib/localContent";
 
 interface RelationshipViewProps {
   profileId: string;
+  profileName?: string;
   ownerDeviceId: string;
   relocationLat?: number | null;
   relocationLng?: number | null;
@@ -28,30 +39,36 @@ interface RelationshipViewProps {
   compatibilityIncluded?: boolean;
   onUnlocked?: () => void;
   onPurchasePremium?: () => void;
+  pendingDirectOrderId?: string | null;
+  pendingCheckoutStatus?: "success" | "cancel" | null;
+  onClearPendingOrder?: () => void;
 }
 
-/** A paid compatibility reading: stored on the server for a signed-in owner (REQ-002). */
 type CompatEntry = CompatItem;
 
 const entryKey = (e: CompatEntry) => e.id ?? `${e.generatedAt}-${e.partnerName}`;
 
 export function RelationshipView({
   profileId,
+  profileName,
   ownerDeviceId,
   relocationLat,
   relocationLng,
   tokens = 0,
   onUnlocked,
-  onPurchasePremium,
+  pendingDirectOrderId,
+  pendingCheckoutStatus,
+  onClearPendingOrder,
 }: RelationshipViewProps) {
   const { t, i18n } = useTranslation();
   const language = toAppLanguage(i18n.resolvedLanguage);
-  const canAfford = tokens >= TOKEN_COST.compatibility;
+  const quote = calculateDirectCheckoutQuote("relationship", tokens);
+  const previewWindow = threeMonthPeriod();
 
-  // Funnel: the compatibility paywall (not enough stars) is on screen.
+  // Funnel: paywall_viewed when the user would need USD (fewer than 2 stars).
   useEffect(() => {
-    if (!canAfford) trackOnce(profileId, "paywall_viewed", { feature: "compatibility" });
-  }, [canAfford, profileId]);
+    if (quote.payableCents > 0) trackOnce(profileId, "paywall_viewed", { feature: "compatibility" });
+  }, [quote.payableCents, profileId]);
 
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -64,6 +81,9 @@ export function RelationshipView({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cancelNotice, setCancelNotice] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [recoverableOrders, setRecoverableOrders] = useState<RecoverableDirectOrder[]>([]);
   const [history, setHistory] = useState<CompatEntry[]>([]);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const { user, ready: authReady } = useAuthUser();
@@ -78,8 +98,19 @@ export function RelationshipView({
     return () => window.removeEventListener("astroweb:signed-in", onSignedIn);
   }, []);
 
-  // Readings come from the server for a signed-in owner, from this browser for
-  // anonymous users; nothing the user paid for may silently vanish.
+  const loadRecoverable = useCallback(async () => {
+    if (!auth.currentUser) {
+      setRecoverableOrders([]);
+      return;
+    }
+    try {
+      const res = await listProfileHoroscopes(profileId, ownerDeviceId);
+      setRecoverableOrders(res.recoverableOrders.filter((o) => o.service === "relationship"));
+    } catch {
+      /* ignore */
+    }
+  }, [profileId, ownerDeviceId]);
+
   useEffect(() => {
     let cancelled = false;
     setLoadedFor(null);
@@ -93,6 +124,7 @@ export function RelationshipView({
       });
       setLoadedFor(profileId);
     });
+    void loadRecoverable();
     return () => {
       cancelled = true;
     };
@@ -105,12 +137,76 @@ export function RelationshipView({
     writeLocalContent(localStorage, profileId, { ...current, compatibilityReadings: history });
   }, [contentSource, loadedFor, profileId, history]);
 
+  const runFulfill = useCallback(
+    async (orderId: string) => {
+      setLoading(true);
+      setError(null);
+      setCancelNotice(false);
+      trackEvent("ai_reading_requested", { kind: "compatibility" });
+      try {
+        const res = await fulfillDirectOrder(orderId);
+        if (res.status === "completed" && res.text) {
+          const entry: CompatEntry = {
+            ...(res.resultId ? { id: res.resultId } : {}),
+            partnerName: res.meta?.partnerName || name.trim() || t("ai.relationshipAnswerTitle"),
+            partnerBirthDate: res.meta?.partnerBirthDate || birthDate,
+            partnerBirthPlace: res.meta?.partnerBirthPlace || birthPlace,
+            answer: cleanAiArtifacts(res.text),
+            partnerTimezone: res.meta?.partnerTimezone ?? null,
+            generatedAt: res.meta?.generatedAt ?? new Date().toISOString(),
+            periodStart: res.periodStart,
+            periodEnd: res.periodEnd,
+          };
+          setHistory((prev) => [entry, ...prev.filter((e) => entryKey(e) !== entryKey(entry))]);
+          onUnlocked?.();
+          window.dispatchEvent(new Event("astroweb:stars-changed"));
+          await loadRecoverable();
+        } else {
+          await loadRecoverable();
+          setError(
+            t(
+              "directCheckout.stillProcessing",
+              "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
+            ),
+          );
+        }
+      } catch {
+        await loadRecoverable();
+        setError(
+          t(
+            "directCheckout.generationFailedRecoverable",
+            "Не удалось сформировать прогноз. Ваша оплата сохранена — нажмите «Повторить генерацию» ниже без повторной оплаты и списания звёзд.",
+          ),
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [birthDate, birthPlace, loadRecoverable, name, onUnlocked, t],
+  );
+
+  useEffect(() => {
+    if (!pendingDirectOrderId || !pendingCheckoutStatus) return;
+    if (pendingCheckoutStatus === "cancel") {
+      setCancelNotice(true);
+      void cancelDirectCheckout(pendingDirectOrderId)
+        .catch(() => {})
+        .finally(() => onClearPendingOrder?.());
+      return;
+    }
+    if (pendingCheckoutStatus === "success") {
+      onClearPendingOrder?.();
+      void runFulfill(pendingDirectOrderId);
+    }
+  }, [pendingDirectOrderId, pendingCheckoutStatus, onClearPendingOrder, runFulfill]);
+
   function deleteReading(entry: CompatEntry) {
     const key = entryKey(entry);
     setHistory((prev) => prev.filter((e) => entryKey(e) !== key));
-    // DEC-008: a stored reading is deleted on the server, so it is gone everywhere.
     if (entry.id && contentSource === "server") {
-      void deleteProfileContentItem(profileId, ownerDeviceId, "compatibility", entry.id).catch(() => setContentTick((n) => n + 1));
+      void deleteProfileContentItem(profileId, ownerDeviceId, "compatibility", entry.id).catch(() =>
+        setContentTick((n) => n + 1),
+      );
     }
   }
 
@@ -119,121 +215,108 @@ export function RelationshipView({
     setLat(place.lat);
     setLng(place.lng);
     setErrors((prev) => {
-      const { birthPlace: _birthPlace, ...rest } = prev;
-      return rest;
+      const next = { ...prev };
+      delete next.birthPlace;
+      return next;
     });
   }
 
   function validate(): boolean {
     const next: Record<string, string> = {};
-
-    if (!name.trim()) {
-      next.name = t("profile.validation.nameRequired");
-    }
-    if (!birthDate) {
-      next.birthDate = t("profile.validation.birthDateRequired");
-    }
-    if (!timeUnknown && !birthTime) {
-      next.birthTime = t("profile.validation.birthTimeRequired");
-    }
-    if (!birthPlace || lat === null || lng === null) {
-      next.birthPlace = t("profile.validation.birthPlaceRequired");
-    }
-
+    if (!name.trim()) next.name = t("profile.validation.nameRequired");
+    if (!birthDate) next.birthDate = t("profile.validation.birthDateRequired");
+    if (!timeUnknown && !birthTime) next.birthTime = t("profile.validation.birthTimeRequired");
+    if (!birthPlace || lat === null || lng === null) next.birthPlace = t("profile.validation.birthPlaceRequired");
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
-  async function handleGenerate() {
+  async function handleOpenCheckout() {
     if (!validate()) return;
-    // A reading costs stars: an anonymous visitor signs in first (REQ-006).
-    // The popup has to open in this click, before any other await.
-    let justSignedIn = false;
+    setError(null);
+    setCancelNotice(false);
+    // Sign-in popup must open synchronously from the click (REQ-005 AC #16).
     if (!auth.currentUser) {
       if (!(await ensureSignedIn(ownerDeviceId))) return;
-      justSignedIn = true;
-    }
-    if (!canAfford && !justSignedIn) {
-      onPurchasePremium?.();
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    trackEvent("ai_reading_requested", { kind: "compatibility" });
-
-    try {
-      const response = await askRelationship({
-        profileId,
-        ownerDeviceId,
-        language,
-        relocationLat: relocationLat ?? undefined,
-        relocationLng: relocationLng ?? undefined,
-        partner: {
-          name: name.trim(),
-          birthDate,
-          birthTime: timeUnknown ? null : birthTime,
-          timeUnknown,
-          birthPlace,
-          lat: lat!,
-          lng: lng!,
-        },
-      });
-
-      const entry: CompatEntry = {
-        ...(response.readingId ? { id: response.readingId } : {}),
-        partnerName: name.trim(),
-        partnerBirthDate: birthDate,
-        partnerBirthPlace: birthPlace,
-        answer: cleanAiArtifacts(response.answer),
-        partnerTimezone: response.partnerTimezone,
-        generatedAt: response.generatedAt ?? new Date().toISOString(),
-      };
-
-      // The server stored the paid reading (REQ-002), so it survives a tab
-      // switch and shows up on other devices. If that write failed, keep it in
-      // this browser until the next upload: a paid reading must never vanish.
-      if (!response.persisted) {
-        const { id: _id, ...local } = entry;
-        void _id;
-        keepLocally(localStorage, profileId, { compat: local });
-      }
-
-      setHistory((prev) => [entry, ...prev]);
-
-      // ✦2 was spent server-side — refresh the inline balance and header.
       onUnlocked?.();
-      window.dispatchEvent(new Event("astroweb:stars-changed"));
-    } catch (err) {
-      if (err instanceof FirebaseError && err.message.includes("invalid-argument")) {
-        setError(t("errors.invalidProfileData"));
-      } else if (err instanceof FirebaseError && err.message.includes("failed-precondition")) {
-        // INSUFFICIENT_TOKENS — balance changed under us; steer to purchase.
-        onPurchasePremium?.();
-      } else {
-        setError(t("errors.aiFailed"));
-      }
-    } finally {
-      setLoading(false);
     }
+    setCheckoutOpen(true);
   }
 
   const generateLabel = loading
     ? t("ai.relationshipGenerating")
     : needsSignIn
       ? t("signInGate.compatibility")
-      : canAfford
-        ? `${t("ai.relationshipGenerate")} ✦${TOKEN_COST.compatibility}`
-        : t("premium.needStars", { count: TOKEN_COST.compatibility, defaultValue: `Need ✦${TOKEN_COST.compatibility} — buy stars` });
+      : quote.payableCents === 0
+        ? `${t("ai.relationshipGenerate")} · ✦${quote.appliedStars} ($0.00)`
+        : `${t("ai.relationshipGenerate")} · ${formatUsdCents(quote.payableCents)}`;
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1">
-        <HelpBubble helpKey="compatibility.title">
-          <h3 className="text-lg font-semibold">{t("ai.relationshipTitle")}</h3>
-        </HelpBubble>
-        <p className="text-sm text-muted-foreground">{t("ai.relationshipDescription")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1 min-w-0 flex-1">
+          <HelpBubble helpKey="compatibility.title">
+            <h3 className="font-serif text-xl text-[#8fb6ff]">{t("ai.relationshipTitle")}</h3>
+          </HelpBubble>
+          <p className="text-sm text-muted-foreground">{t("ai.relationshipDescription")}</p>
+          <p className="inline-flex items-center gap-1.5 text-xs text-[#8fb6ff]">
+            <Calendar className="h-3.5 w-3.5" />
+            {t("directCheckout.forecastWindow3m", {
+              range: formatDateRange(previewWindow.periodStart, previewWindow.periodEnd, language),
+              defaultValue: `Прогноз развития на 3 месяца: ${formatDateRange(previewWindow.periodStart, previewWindow.periodEnd, language)}`,
+            })}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-background/40 px-3.5 py-2 text-right text-xs">
+          <div className="font-serif text-lg font-bold text-foreground">
+            {formatUsdCents(quote.basePriceCents)}
+          </div>
+          <div className="text-[#e8c969]">
+            {t("horoscopes.orStars", { count: quote.fullStarCost, defaultValue: `или ✦${quote.fullStarCost}` })}
+          </div>
+        </div>
       </div>
+
+      {/* Recovery banner for any paid but failed/pending relationship forecast */}
+      {recoverableOrders.length > 0 && (
+        <div
+          className="space-y-2 rounded-xl border border-[#e8c969]/40 bg-[#e8c969]/10 p-4"
+          data-testid="relationship-recovery-banner"
+        >
+          {recoverableOrders.map((ord) => (
+            <div key={ord.orderId} className="flex flex-wrap items-center justify-between gap-3">
+              <div className="text-xs text-foreground">
+                <p className="font-medium text-[#e8c969]">
+                  {t("directCheckout.paidOrderReady", "Оплаченный прогноз на отношения")}
+                  {ord.partnerName ? ` · ${ord.partnerName}` : ""}
+                </p>
+                <p className="text-muted-foreground">
+                  {formatDateRange(ord.periodStart, ord.periodEnd, language)}
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                disabled={loading}
+                onClick={() => void runFulfill(ord.orderId)}
+                className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]"
+              >
+                <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+                {t("horoscopes.retryGeneration", "Повторить генерацию (уже оплачено)")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {cancelNotice && (
+        <div className="rounded-xl border border-border/60 bg-background/50 px-4 py-3 text-sm text-muted-foreground">
+          {t(
+            "directCheckout.canceledNotice",
+            "Оплата отменена. Деньги не списаны, а все ваши звёзды остались на балансе.",
+          )}
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
@@ -267,9 +350,7 @@ export function RelationshipView({
               checked={timeUnknown}
               onCheckedChange={(checked) => {
                 setTimeUnknown(checked);
-                if (checked) {
-                  setBirthTime("");
-                }
+                if (checked) setBirthTime("");
               }}
             />
           </HelpBubble>
@@ -309,12 +390,31 @@ export function RelationshipView({
         )}
       </div>
 
+      {tokens > 0 && (
+        <p className="text-xs text-[#e8c969]">
+          {quote.payableCents === 0
+            ? t("horoscopes.starsCoverFull", {
+                applied: quote.appliedStars,
+                surplus: quote.surplusStars,
+                defaultValue: `Ваших звёзд достаточно: спишется ✦${quote.appliedStars}, к оплате $0.00.`,
+              })
+            : t("horoscopes.starsCoverPartial", {
+                applied: quote.appliedStars,
+                discount: formatUsdCents(quote.starDiscountCents),
+                payable: formatUsdCents(quote.payableCents),
+                defaultValue: `Звёзды ✦${quote.appliedStars} применятся автоматически (−${formatUsdCents(quote.starDiscountCents)}), к оплате ${formatUsdCents(quote.payableCents)}.`,
+              })}
+        </p>
+      )}
+
       <div className="flex items-center gap-3">
         <HelpBubble helpKey="compatibility.generate" actionable label={generateLabel}>
           <Button
             type="button"
-            onClick={canAfford || needsSignIn ? handleGenerate : onPurchasePremium}
+            onClick={() => void handleOpenCheckout()}
             disabled={loading}
+            className="bg-[#e8c969] font-semibold text-[#1a1606] hover:bg-[#f2dd9a]"
+            data-testid="relationship-generate"
           >
             {generateLabel}
           </Button>
@@ -345,6 +445,13 @@ export function RelationshipView({
                       {entry.partnerName}
                       {entry.partnerBirthDate ? ` · ${entry.partnerBirthDate}` : ""}
                     </p>
+                    {entry.periodStart && entry.periodEnd && (
+                      <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#e8c969]">
+                        <Calendar className="h-3 w-3" />
+                        {t("directCheckout.coveredDates", "Охватываемые даты")}:{" "}
+                        {formatDateRange(entry.periodStart, entry.periodEnd, language)}
+                      </p>
+                    )}
                     {entry.partnerTimezone &&
                       (index === 0 ? (
                         <HelpBubble helpKey="compatibility.timezone">{timezoneLine}</HelpBubble>
@@ -382,6 +489,31 @@ export function RelationshipView({
             );
           })}
         </div>
+      )}
+
+      {lat !== null && lng !== null && (
+        <DirectCheckoutDialog
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          profileId={profileId}
+          profileName={profileName}
+          service="relationship"
+          initialStars={tokens}
+          relocationLat={relocationLat}
+          relocationLng={relocationLng}
+          partner={{
+            name: name.trim(),
+            birthDate,
+            birthTime: timeUnknown ? null : birthTime,
+            timeUnknown,
+            birthPlace,
+            lat,
+            lng,
+          }}
+          onOrderReadyToFulfill={(orderId) => {
+            void runFulfill(orderId);
+          }}
+        />
       )}
     </div>
   );

@@ -36,6 +36,8 @@ interface AskOracleResponse {
   /** Id of the stored history entry (null if the server write failed). */
   entryId?: string | null;
   persisted?: boolean;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 interface RelationshipPartnerPayload {
@@ -64,6 +66,8 @@ interface AskRelationshipResponse {
   generatedAt?: string;
   readingId?: string | null;
   persisted?: boolean;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export async function deepenInterpretation(

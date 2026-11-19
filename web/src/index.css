@@ -288,3 +288,18 @@
 .ds-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91,141,239,0.14); }
 .ds-muted { color: var(--muted); }
 .ds-hint { font-size: 13px; color: var(--faint); margin-top: 8px; }
+
+/* Native modal <dialog> scroll containment & backdrop (modern-web-guidance) */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(4, 7, 16, 0.72);
+  backdrop-filter: blur(4px);
+}
+dialog.ds-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}

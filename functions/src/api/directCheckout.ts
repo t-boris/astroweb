@@ -331,7 +331,7 @@ export const cancelDirectCheckout = onCall(async (request) => {
  */
 export const fulfillDirectOrder = onCall(
   {
-    timeoutSeconds: 180,
+    timeoutSeconds: 300,
     secrets: [...AI_SECRETS, "STRIPE_SECRET_KEY", "GA_API_SECRET"],
   },
   async (request) => {

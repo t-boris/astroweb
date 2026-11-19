@@ -40,7 +40,7 @@
     "getWithStars": "Get for ✦{{stars}} ($0.00)",
     "buyCta": "Get for {{amount}}",
     "openSaved": "Open saved",
-    "generatingPaid": "Preparing your personal horoscope… this takes less than a minute.",
+    "generatingPaid": "Preparing your in-depth personal horoscope… this may take 1–2 minutes.",
     "generatingButton": "Generating horoscope…",
     "paidRecoveryNote": "This period is already paid for. No second purchase is needed — click below to complete generation on your existing order at no extra cost.",
     "retryGeneration": "Retry generation (already paid)",

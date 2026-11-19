@@ -85,7 +85,7 @@ export function ForecastView({
   useEffect(() => {
     let cancelled = false;
     const today = todayUtcIso();
-    const cacheKey = `astroweb:forecast:v1:${profileId}:${language}:${today}`;
+    const cacheKey = `astroweb:forecast:v2:${profileId}:${language}:${today}`;
 
     try {
       const raw = localStorage.getItem(cacheKey);

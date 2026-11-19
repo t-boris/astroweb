@@ -292,7 +292,7 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
     ],
     defaults: {
       model: "claude-sonnet-4-6",
-      maxOutputTokens: 1200,
+      maxOutputTokens: 2800,
       temperature: 0.5,
       texts: {
         en: { system: P.FORECAST_SYSTEM_EN, user: P.FORECAST_USER_EN },
@@ -310,7 +310,7 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
     parts: PERIOD_HOROSCOPE_PARTS,
     defaults: {
       model: "claude-sonnet-4-6",
-      maxOutputTokens: 2800,
+      maxOutputTokens: 8000,
       temperature: 0.5,
       texts: {
         en: { system: P.MONTHLY_HOROSCOPE_SYSTEM_EN, user: P.MONTHLY_HOROSCOPE_USER_EN },
@@ -328,7 +328,7 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
     parts: PERIOD_HOROSCOPE_PARTS,
     defaults: {
       model: "claude-sonnet-4-6",
-      maxOutputTokens: 4500,
+      maxOutputTokens: 14000,
       temperature: 0.5,
       texts: {
         en: { system: P.YEARLY_HOROSCOPE_SYSTEM_EN, user: P.YEARLY_HOROSCOPE_USER_EN },

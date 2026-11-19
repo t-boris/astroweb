@@ -31,7 +31,7 @@ export const getForecast = onCall({
     const { chart } = await resolveOwnedChart({ profileId, ownerDeviceId, uid: request.auth?.uid ?? null });
     const today = new Date().toISOString().slice(0, 10); // server date (YYYY-MM-DD)
     const settings = await loadTaskSettings("forecast");
-    const cacheKey = hashCacheKey({ kind: "forecast", profileId, today, language, ...settingsKeyPart(settings) });
+    const cacheKey = hashCacheKey({ kind: "forecast_v2", profileId, today, language, ...settingsKeyPart(settings) });
     const db = getFirestore();
     const ref = db.collection("forecastCache").doc(cacheKey);
 

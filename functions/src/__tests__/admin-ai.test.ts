@@ -59,6 +59,7 @@ beforeEach(() => {
     costUsd: 0.00175,
   });
   clearTaskSettingsCache();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: [], models: [] }) }));
   process.env.ANTHROPIC_API_KEY = "sk-ant-api03-abcdefghijklmnop";
   process.env.OPENAI_API_KEY = "unset";
   process.env.GEMINI_API_KEY = "unset";

@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 import { providerConfigured } from "./keys";
-import { ADMIN_MAX_OUTPUT_TOKENS, ADMIN_MIN_OUTPUT_TOKENS, findModel, type AiModel } from "./models";
+import { ADMIN_MAX_OUTPUT_TOKENS, ADMIN_MIN_OUTPUT_TOKENS, clearDiscoveredModels, findModel, type AiModel } from "./models";
+import { clearDiscoveredModelsCache, loadPersistedDiscoveredModels } from "./discovery";
 import { checkTemplate } from "./template";
 import {
   AI_TASKS,
@@ -205,6 +206,8 @@ const cache = new Map<AiTaskId, { at: number; settings: EffectiveTaskSettings }>
 
 export function clearTaskSettingsCache(): void {
   cache.clear();
+  clearDiscoveredModels();
+  clearDiscoveredModelsCache();
 }
 
 export async function readStoredTaskSettings(taskId: AiTaskId): Promise<StoredTaskSettings | null> {
@@ -218,6 +221,7 @@ export async function loadTaskSettings(taskId: AiTaskId): Promise<EffectiveTaskS
   if (hit && Date.now() - hit.at < SETTINGS_CACHE_TTL_MS) return hit.settings;
   let settings: EffectiveTaskSettings;
   try {
+    await loadPersistedDiscoveredModels();
     settings = mergeTaskSettings(taskId, await readStoredTaskSettings(taskId));
   } catch (error) {
     logger.warn("Reading AI settings failed, using defaults", { taskId, error: (error as Error).message });

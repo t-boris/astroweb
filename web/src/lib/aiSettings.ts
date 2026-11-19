@@ -141,6 +141,9 @@ export function formatUsd(value: number): string {
 }
 
 export function formatPrice(model: Pick<AiModelInfo, "inputPerMTok" | "outputPerMTok">): string {
+  if (model.inputPerMTok === null || model.outputPerMTok === null) {
+    return "price not cataloged (live)";
+  }
   return `$${model.inputPerMTok} / $${model.outputPerMTok} per 1M tokens (in / out)`;
 }
 

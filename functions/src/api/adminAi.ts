@@ -29,7 +29,19 @@ import {
 import { computePeriodTransits } from "../services/transits";
 import type { GenerationPrompt } from "../services/ai/generate";
 import { AI_SECRETS, providerConfigured } from "../services/ai/keys";
-import { ADMIN_MAX_OUTPUT_TOKENS, ADMIN_MIN_OUTPUT_TOKENS, AI_MODELS, priceOn, type AiProvider } from "../services/ai/models";
+import {
+  ADMIN_MAX_OUTPUT_TOKENS,
+  ADMIN_MIN_OUTPUT_TOKENS,
+  allKnownModels,
+  findModel,
+  priceOn,
+  type AiProvider,
+} from "../services/ai/models";
+import {
+  discoverLiveModels,
+  loadPersistedDiscoveredModels,
+  persistDiscoveredModel,
+} from "../services/ai/discovery";
 import { runTask } from "../services/ai/run";
 import {
   ALL_TASK_IDS,
@@ -122,26 +134,37 @@ function taskView(taskId: AiTaskId, stored: StoredTaskSettings | null) {
 
 function modelsView() {
   const today = new Date();
-  return AI_MODELS.map((model) => {
+  return allKnownModels().map((model) => {
     const price = priceOn(model, today);
     const next = model.prices.find((p) => p.from > today.toISOString().slice(0, 10));
     return {
       id: model.id,
       provider: model.provider,
       label: model.label,
-      inputPerMTok: price.inputPerMTok,
-      outputPerMTok: price.outputPerMTok,
+      inputPerMTok: price ? price.inputPerMTok : null,
+      outputPerMTok: price ? price.outputPerMTok : null,
       nextPrice: next ?? null,
       maxOutputTokens: Math.min(ADMIN_MAX_OUTPUT_TOKENS, model.maxOutputTokens),
       temperature: model.temperature,
       webSearch: model.webSearch,
       available: providerConfigured(model.provider),
+      ...(model.live ? { live: true } : {}),
     };
   });
 }
 
+async function ensureModelLoaded(modelId: string | undefined): Promise<void> {
+  if (!modelId || findModel(modelId)) return;
+  await loadPersistedDiscoveredModels(true);
+  if (!findModel(modelId)) {
+    await discoverLiveModels();
+  }
+}
+
 export const adminGetAiSettings = onCall({ secrets: AI_SECRETS }, async (request) => {
   assertAdmin(request);
+  // Load persisted live models + query configured providers for any newly released models.
+  await Promise.all([loadPersistedDiscoveredModels(true), discoverLiveModels()]);
   // Read the store directly (not the 60 s cache), so the admin sees what is saved.
   const stored = await Promise.all(ALL_TASK_IDS.map((id) => readStoredTaskSettings(id)));
   return {
@@ -160,7 +183,12 @@ export const adminSaveAiSettings = onCall({ secrets: AI_SECRETS }, async (reques
   const admin = assertAdmin(request);
   const taskId = requireTaskId(request.data?.taskId);
   const override = parseOverride(request.data?.override);
+  await ensureModelLoaded(override.model);
   requireValid(taskId, override);
+  const chosenModel = override.model ? findModel(override.model) : undefined;
+  if (chosenModel?.live) {
+    await persistDiscoveredModel(chosenModel);
+  }
   await saveTaskOverride(taskId, override, admin);
   logger.info("AI settings saved", { taskId, by: admin });
   return { task: taskView(taskId, await readStoredTaskSettings(taskId)) };
@@ -372,6 +400,7 @@ export const adminTestAiTask = onCall({ secrets: AI_SECRETS, timeoutSeconds: 300
   const admin = assertAdmin(request);
   const taskId = requireTaskId(request.data?.taskId);
   const override = parseOverride(request.data?.override);
+  await ensureModelLoaded(override.model);
   requireValid(taskId, override);
   const profileId = requiredInput(request.data?.profileId, "profileId", 200);
   const language = normalizeLanguage(request.data?.language);

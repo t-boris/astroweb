@@ -2,7 +2,7 @@
 type: feature
 id: simpler-horoscope-discovery-and-purchasing
 title: Simpler Horoscope Discovery and Purchasing
-status: implementing
+status: verified
 owner: Boris Tsekinovsky
 created: 2026-11-19
 provenance: Created from the feature intake

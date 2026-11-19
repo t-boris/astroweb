@@ -230,7 +230,7 @@ exports[`prompt defaults (golden copy) > factExtraction.long 1`] = `
 
 exports[`prompt defaults (golden copy) > forecast.en 1`] = `
 {
-  "maxOutputTokens": 1200,
+  "maxOutputTokens": 2800,
   "model": "claude-sonnet-4-6",
   "system": "You are an astrologer describing today's cosmic weather. Use only the natal chart and today's date. Write warmly and plainly, with no concrete event predictions and no medical/legal/financial advice.",
   "temperature": 0.5,
@@ -248,23 +248,27 @@ Sun trine Mars (orb 0.25 deg, exactness 0.97)
 Moon square Venus (orb 5.15 deg, exactness 0.52)
 Sun trine Moon (orb 7.25 deg, exactness 0.40)
 
-Give a short forecast for today in this format (use ## for headings):
+Give a detailed personal horoscope for today in this format (use ## for headings):
 
 ## Today's vibe — a short phrase
 
-1 paragraph (2-3 sentences) about the overall tone of the day for this person.
+2 full paragraphs (5-7 sentences) about the overall tone of the day, how the energy shifts from morning to evening, and which natal placements stand out most today (explain any astrology term immediately in plain words).
 
 ## In focus
 
-3 short bullet points (-) with concrete themes for the day (energy, communication, relationships, rest, etc.).
+4-5 detailed bullet points (-), 2-3 sentences each, covering concrete themes for the day: work and decisions, communication and close relationships, emotional tone and energy, rest and personal pace.
 
-120-200 words. End with the line: [END_OF_REPORT]",
+## Practical guidance for today
+
+1-2 paragraphs (4-6 sentences) on what to lean into today, where flow comes easiest, and what is best not to rush or force.
+
+400-600 words. No fluff or generic clichés. End with the line: [END_OF_REPORT]",
 }
 `;
 
 exports[`prompt defaults (golden copy) > forecast.ru 1`] = `
 {
-  "maxOutputTokens": 1200,
+  "maxOutputTokens": 2800,
   "model": "claude-sonnet-4-6",
   "system": "Ты астролог, описывающий «космическую погоду» дня. Опирайся только на натальную карту и текущую дату. Пиши тепло и понятно, без предсказаний конкретных событий, без медицинских/юридических/финансовых советов.",
   "temperature": 0.5,
@@ -282,17 +286,21 @@ Sun trine Mars (orb 0.25 deg, exactness 0.97)
 Moon square Venus (orb 5.15 deg, exactness 0.52)
 Sun trine Moon (orb 7.25 deg, exactness 0.40)
 
-Дай краткий прогноз на сегодня в таком формате (используй ## для заголовков):
+Дай подробный персональный гороскоп на сегодня в таком формате (используй ## для заголовков):
 
 ## Настроение дня — короткая фраза
 
-1 абзац (2-3 предложения) об общем тоне дня для этого человека.
+2 развёрнутых абзаца (5-7 предложений) об общем тоне дня, динамике с утра к вечеру и о том, какие особенности натальной карты сегодня звучат особенно ярко (астрологические термины сразу поясняй простыми словами).
 
 ## Что в фокусе
 
-3 коротких пункта-маркера (-) с конкретными темами дня (энергия, общение, отношения, отдых и т.п.).
+4-5 подробных пунктов-маркеров (-) по 2-3 предложения каждый с конкретными темами дня: дела и решения, общение и близкие отношения, внутреннее состояние и энергия, отдых и личный ритм.
 
-Объем 120-200 слов. Заверши строкой: [END_OF_REPORT]",
+## Совет на день
+
+1-2 абзаца (4-6 предложений): на что лучше опереться сегодня, какие шаги дадутся легче и от чего стоит воздержаться.
+
+Объем 400-600 слов. Без воды и общих шаблонов. Заверши строкой: [END_OF_REPORT]",
 }
 `;
 
@@ -428,13 +436,13 @@ exports[`prompt defaults (golden copy) > letterGeneration.ru.neutral 1`] = `
 
 exports[`prompt defaults (golden copy) > monthlyHoroscope.en 1`] = `
 {
-  "maxOutputTokens": 2800,
+  "maxOutputTokens": 8000,
   "model": "claude-sonnet-4-6",
   "system": "You are a warm, attentive personal astrologer writing a personal calendar-month horoscope from a natal chart and the month's planetary movements. Write clearly and naturally without heavy jargon; explain any astrological term immediately in plain words. No fatalistic predictions and no medical, legal, or financial advice.",
   "temperature": 0.5,
-  "user": "Write a personal horoscope for the calendar month: November 2026 (covered dates: 2026-11-01 — 2026-11-30).
+  "user": "Write a rich, thorough personal horoscope for the calendar month: November 2026 (covered dates: 2026-11-01 — 2026-11-30).
 
-Today's date: 2026-11-19. Cover the ENTIRE calendar month from 2026-11-01 through 2026-11-30, including any elapsed days as context for how the month opened while giving clear guidance across the full period.
+Today's date: 2026-11-19. Cover the ENTIRE calendar month from 2026-11-01 through 2026-11-30, including any elapsed days as context for how the month opened while giving detailed guidance across the full period.
 
 Natal chart:
 
@@ -456,29 +464,31 @@ Planetary movements across the month (2026-11-01 — 2026-11-30):
 
 Response requirements:
 
-1) English, 600-950 words.
+1) English, 1600-2200 words — develop each section with real depth, concrete everyday examples, and practical meaning.
 
-2) Markdown structure (use ## headings): ## Main theme of November 2026, ## Rhythm of the month, ## Relationships and communication, ## Work and resources, ## Energy and self-care, ## Practical focus for the month.
+2) Markdown structure (use ## headings): ## Main theme of November 2026, ## Week-by-week rhythm of the month, ## Relationships, loved ones and communication, ## Work, projects and resources, ## Energy, emotions and self-care, ## Favorable windows and moments calling for care, ## Practical anchors for the month.
 
-3) Ground insights in concrete chart placements and transits, explaining every term in plain everyday words.
+3) In the rhythm section, break down the entire month week by week (or by early, mid, and late month) with approximate date windows.
 
-4) Explicitly note the covered dates (2026-11-01 — 2026-11-30).
+4) Ground insights in concrete chart placements and transits, explaining every term in plain everyday words.
 
-5) No tables, no fluff, no generic sign-horoscope clichés.
+5) Explicitly note the covered dates (2026-11-01 — 2026-11-30).
 
-6) End with a single line: [END_OF_REPORT]",
+6) No tables, no fluff, no generic sign-horoscope clichés.
+
+7) End with a single line: [END_OF_REPORT]",
 }
 `;
 
 exports[`prompt defaults (golden copy) > monthlyHoroscope.ru 1`] = `
 {
-  "maxOutputTokens": 2800,
+  "maxOutputTokens": 8000,
   "model": "claude-sonnet-4-6",
   "system": "Ты тёплый и внимательный личный астролог, составляющий персональный гороскоп на календарный месяц по натальной карте и планетным влияниям этого месяца. Пиши понятным живым языком без сложного жаргона; каждый астрологический термин сразу объясняй простыми словами. Без фаталистических предсказаний и без медицинских, юридических или финансовых советов.",
   "temperature": 0.5,
-  "user": "Составь персональный гороскоп на календарный месяц: Ноябрь 2026 г. (охватываемые даты: 2026-11-01 — 2026-11-30).
+  "user": "Составь глубокий и подробный персональный гороскоп на календарный месяц: Ноябрь 2026 г. (охватываемые даты: 2026-11-01 — 2026-11-30).
 
-Сегодняшняя дата: 2026-11-19. Гороскоп охватывает ВЕСЬ календарный месяц от 2026-11-01 до 2026-11-30, включая уже прошедшие дни месяца (их можно мягко осмыслить как фон начала месяца, а основной фокус сделать на картине всего периода).
+Сегодняшняя дата: 2026-11-19. Гороскоп охватывает ВЕСЬ календарный месяц от 2026-11-01 до 2026-11-30, включая уже прошедшие дни месяца (их можно мягко осмыслить как фон начала месяца, а основной фокус сделать на развёрнутой картине всего периода).
 
 Натальная карта:
 
@@ -500,17 +510,19 @@ Sun trine Moon (orb 7.25 deg, exactness 0.40)
 
 Требования к ответу:
 
-1) Русский язык, 600-950 слов.
+1) Русский язык, 1600-2200 слов — раскрой каждый раздел обстоятельно, с примерами жизненных ситуаций и практическим смыслом.
 
-2) Структура Markdown (## для разделов): ## Главная тема месяца (Ноябрь 2026 г.), ## Ритм месяца по этапам, ## Отношения и общение, ## Работа, дела и финансы, ## Энергия и забота о себе, ## На что опереться в этом месяце.
+2) Структура Markdown (## для разделов): ## Главная тема месяца (Ноябрь 2026 г.), ## Ритм месяца по неделям и этапам, ## Отношения, близкие и общение, ## Работа, дела и финансы, ## Энергия, эмоции и забота о себе, ## Удачные окна и моменты, где нужна аккуратность, ## На что опереться в этом месяце.
 
-3) Опирайся на конкретные положения карты и транзиты, объясняя каждый термин обычными словами.
+3) В разделе про ритм месяца разбери весь месяц по неделям или декадам с примерными датами и сменой настроений.
 
-4) Явно укажи охватываемый период (2026-11-01 — 2026-11-30).
+4) Опирайся на конкретные положения карты и транзиты, объясняя каждый термин обычными словами.
 
-5) Без таблиц, без канцелярита и общих шаблонных фраз.
+5) Явно укажи охватываемый период (2026-11-01 — 2026-11-30).
 
-6) Заверши ответ отдельной строкой: [END_OF_REPORT]",
+6) Без таблиц, без канцелярита и общих шаблонных фраз.
+
+7) Заверши ответ отдельной строкой: [END_OF_REPORT]",
 }
 `;
 
@@ -1748,11 +1760,11 @@ none
 
 exports[`prompt defaults (golden copy) > yearlyHoroscope.en 1`] = `
 {
-  "maxOutputTokens": 4500,
+  "maxOutputTokens": 14000,
   "model": "claude-sonnet-4-6",
   "system": "You are an experienced, warm personal astrologer writing a comprehensive personal calendar-year horoscope from a natal chart and the year's major planetary cycles. Write clearly and humanly for someone unfamiliar with astrology: explain every term immediately in plain language. No fatalistic predictions and no medical, legal, or financial advice.",
   "temperature": 0.5,
-  "user": "Write a comprehensive personal horoscope for the calendar year: 2026 (covered dates: 2026-01-01 — 2026-12-31).
+  "user": "Write an extensive, in-depth personal horoscope for the calendar year: 2026 (covered dates: 2026-01-01 — 2026-12-31).
 
 Today's date: 2026-11-19. Cover the ENTIRE calendar year from 2026-01-01 through 2026-12-31, including any elapsed portion of the year so the reader sees the full arc from start to finish.
 
@@ -1776,27 +1788,29 @@ Key planetary influences across the year (2026-01-01 — 2026-12-31):
 
 Response requirements:
 
-1) English, 1100-1700 words.
+1) English, 3200-4200 words — a substantial year-long guide that is noticeably deeper and more comprehensive than a monthly horoscope.
 
-2) Markdown structure (use ## headings): ## Main arc of 2026, ## Key phases across the year, ## Love, family and close relationships, ## Career, calling and finances, ## Personal growth and shifts, ## Energy and balance, ## Practical guideposts for the year.
+2) Markdown structure (use ## headings): ## Main arc of 2026, ## The year by quarters and seasons, ## Love, family and close relationships, ## Career, calling and finances, ## Personal growth, turning points and shifts, ## Energy, rhythm and balance, ## Practical guideposts for 2026.
 
-3) Ground insights in concrete natal placements and major transits of the year, explaining every astrology term in plain words.
+3) In the quarters and seasons section, cover all four quarters (Q1, Q2, Q3, Q4) in detail with approximate date windows, shifting priorities, and how each chapter builds on the last.
 
-4) Explicitly state the covered dates (2026-01-01 — 2026-12-31).
+4) Ground insights in concrete natal placements and major transits of the year, explaining every astrology term in plain words.
 
-5) No tables, no fluff, no generic horoscope clichés.
+5) Explicitly state the covered dates (2026-01-01 — 2026-12-31).
 
-6) End with a single line: [END_OF_REPORT]",
+6) No tables, no fluff, no generic horoscope clichés.
+
+7) End with a single line: [END_OF_REPORT]",
 }
 `;
 
 exports[`prompt defaults (golden copy) > yearlyHoroscope.ru 1`] = `
 {
-  "maxOutputTokens": 4500,
+  "maxOutputTokens": 14000,
   "model": "claude-sonnet-4-6",
   "system": "Ты опытный, тёплый личный астролог, составляющий подробный персональный гороскоп на календарный год по натальной карте и ключевым планетным циклам года. Пиши ясно и по-человечески для человека без астрологической подготовки: каждый термин сразу объясняй простыми словами. Без фаталистических предсказаний и без медицинских, юридических или финансовых советов.",
   "temperature": 0.5,
-  "user": "Составь подробный персональный гороскоп на календарный год: 2026 год (охватываемые даты: 2026-01-01 — 2026-12-31).
+  "user": "Составь большой, обстоятельный персональный гороскоп на календарный год: 2026 год (охватываемые даты: 2026-01-01 — 2026-12-31).
 
 Сегодняшняя дата: 2026-11-19. Гороскоп охватывает ВЕСЬ календарный год от 2026-01-01 до 2026-12-31, включая уже прошедшую часть года (помоги увидеть общую дугу года целиком — от его начала до завершения).
 
@@ -1820,16 +1834,18 @@ Sun trine Moon (orb 7.25 deg, exactness 0.40)
 
 Требования к ответу:
 
-1) Русский язык, 1100-1700 слов.
+1) Русский язык, 3200-4200 слов — это полноценный годовой разбор, который должен быть заметно глубже и подробнее месячного гороскопа.
 
-2) Структура Markdown (## для разделов): ## Главная линия 2026 год, ## Ключевые этапы года (по сезонам и кварталам), ## Любовь, семья и близкие отношения, ## Работа, призвание и финансы, ## Внутренний рост и перемены, ## Энергия и баланс, ## Главные ориентиры года.
+2) Структура Markdown (## для разделов): ## Главная линия 2026 год, ## Год по кварталам и сезонам, ## Любовь, семья и близкие отношения, ## Работа, призвание и финансы, ## Внутренний рост, поворотные точки и перемены, ## Энергия, ритм и баланс, ## Главные ориентиры 2026 год.
 
-3) Опирайся на конкретные факторы натальной карты и медленные транзиты года, сразу поясняя термины обычными словами.
+3) В разделе о кварталах и сезонах подробно разбери все четыре периода года (I, II, III и IV кварталы) с ориентировочными датами, сменой акцентов и тем, как один этап переходит в другой.
 
-4) Явно укажи охватываемый период (2026-01-01 — 2026-12-31).
+4) Опирайся на конкретные факторы натальной карты и медленные транзиты года, сразу поясняя термины обычными словами.
 
-5) Без таблиц, без воды и шаблонных фраз.
+5) Явно укажи охватываемый период (2026-01-01 — 2026-12-31).
 
-6) Заверши ответ отдельной строкой: [END_OF_REPORT]",
+6) Без таблиц, без воды и шаблонных фраз.
+
+7) Заверши ответ отдельной строкой: [END_OF_REPORT]",
 }
 `;

@@ -12,13 +12,16 @@ import {
   type Letter,
 } from "@/api/letters";
 import { Button } from "@/components/ui/button";
+import { AiReading } from "@/components/AiReading";
 import { HelpBubble } from "@/components/HelpBubble";
 import { trackEvent, trackOnce } from "@/lib/analytics";
+import { toAppLanguage } from "@/lib/language";
+import { cleanAiArtifacts } from "@/lib/localContent";
 import { Input } from "@/components/ui/input";
 import { useAuthUser } from "@/lib/useAuthUser";
 
 function LetterCard({ profileId, letter, first }: { profileId: string; letter: Letter; first: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [questions, setQuestions] = useState(letter.questions ?? []);
   const [feedback, setFeedback] = useState(letter.feedback);
   const [ask, setAsk] = useState("");
@@ -46,7 +49,7 @@ function LetterCard({ profileId, letter, first }: { profileId: string; letter: L
     setAskErr(null);
     trackEvent("ai_reading_requested", { kind: "letter" });
     try {
-      const r = await askInLetter(profileId, q);
+      const r = await askInLetter(profileId, q, toAppLanguage(i18n.resolvedLanguage));
       setAnswer(r.answer);
       setAsk("");
       window.dispatchEvent(new Event("astroweb:stars-changed"));
@@ -111,7 +114,11 @@ function LetterCard({ profileId, letter, first }: { profileId: string; letter: L
           </HelpBubble>
         </div>
         {askErr && <p className="text-xs text-destructive">{askErr}</p>}
-        {answer && <div className="rounded-md border border-border/40 bg-background/40 p-3 text-sm whitespace-pre-wrap">{answer}</div>}
+        {answer && (
+          <div className="rounded-md border border-border/40 bg-background/40 p-3.5 sm:p-4">
+            <AiReading text={cleanAiArtifacts(answer)} />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 border-t border-border/40 pt-3">

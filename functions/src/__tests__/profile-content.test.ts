@@ -198,7 +198,7 @@ describe("deletion (REQ-009, DEC-007, DEC-008)", () => {
   });
 
   it("deleteAllProfileContent reports what it removed", async () => {
-    expect(await deleteAllProfileContent("p1")).toEqual({ deepTexts: 1, compatibilityReadings: 2, oracleHistory: 1 });
+    expect(await deleteAllProfileContent("p1")).toEqual({ deepTexts: 1, compatibilityReadings: 2, oracleHistory: 1, periodHoroscopes: 0 });
     expect(await readProfileContent("p1")).toEqual({ deepTexts: {}, compatibilityReadings: [], oracleHistory: [] });
   });
 });

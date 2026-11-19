@@ -13,12 +13,20 @@ import {
   buildLetterGenerationPrompt,
   buildNewsDigestPrompt,
   buildOraclePrompt,
+  buildPeriodHoroscopePrompt,
   buildPremiumPdfNarrativeSectionPrompt,
   buildRelationshipPrompt,
   normalizeLanguage,
   type PremiumPdfNarrativeSection,
   type SupportedLanguage,
 } from "../services/prompts";
+import {
+  currentCalendarMonthPeriod,
+  currentCalendarYearPeriod,
+  threeMonthPeriod,
+  todayUtcIso,
+} from "../services/directServices";
+import { computePeriodTransits } from "../services/transits";
 import type { GenerationPrompt } from "../services/ai/generate";
 import { AI_SECRETS, providerConfigured } from "../services/ai/keys";
 import { ADMIN_MAX_OUTPUT_TOKENS, ADMIN_MIN_OUTPUT_TOKENS, AI_MODELS, priceOn, type AiProvider } from "../services/ai/models";
@@ -218,14 +226,45 @@ async function prepareTest(
   switch (settings.taskId) {
     case "oracle":
     case "oracleLetter": {
-      const { chart } = await chartOf(profileId);
+      const { profile, chart } = await chartOf(profileId);
       const dossierSummary = await getDossierSummaryText(profileId).catch(() => "");
       const question = requiredInput(inputs.question, "question", 1000);
-      return prompt(buildOraclePrompt({ chart, question, language, dossierSummary, taskId: settings.taskId, texts }));
+      const period = threeMonthPeriod(todayUtcIso());
+      const transits =
+        settings.taskId === "oracle"
+          ? computePeriodTransits(
+              chart,
+              { lat: profile.lat, lng: profile.lng, timezone: profile.timezone || "UTC" },
+              period.periodStart,
+              period.periodEnd,
+              3,
+            )
+          : undefined;
+      return prompt(
+        buildOraclePrompt({
+          chart,
+          question,
+          language,
+          dossierSummary,
+          taskId: settings.taskId,
+          periodStart: period.periodStart,
+          periodEnd: period.periodEnd,
+          transits,
+          texts,
+        }),
+      );
     }
     case "compatibility": {
       const partnerProfileId = requiredInput(inputs.partnerProfileId, "partnerProfileId", 200);
       const [a, b] = await Promise.all([chartOf(profileId), chartOf(partnerProfileId)]);
+      const period = threeMonthPeriod(todayUtcIso());
+      const transits = computePeriodTransits(
+        a.chart,
+        { lat: a.profile.lat, lng: a.profile.lng, timezone: a.profile.timezone || "UTC" },
+        period.periodStart,
+        period.periodEnd,
+        3,
+      );
       return prompt(
         buildRelationshipPrompt({
           chartA: a.chart,
@@ -233,6 +272,9 @@ async function prepareTest(
           personAName: a.profile.name,
           personBName: b.profile.name,
           language,
+          periodStart: period.periodStart,
+          periodEnd: period.periodEnd,
+          transits,
           texts,
         }),
       );
@@ -251,7 +293,35 @@ async function prepareTest(
     }
     case "forecast": {
       const { chart } = await chartOf(profileId);
-      return prompt(buildForecastPrompt({ chart, today: new Date().toISOString().slice(0, 10), language, texts }));
+      return prompt(buildForecastPrompt({ chart, today: todayUtcIso(), language, texts }));
+    }
+    case "monthlyHoroscope":
+    case "yearlyHoroscope": {
+      const { profile, chart } = await chartOf(profileId);
+      const today = todayUtcIso();
+      const period =
+        settings.taskId === "yearlyHoroscope"
+          ? currentCalendarYearPeriod(today)
+          : currentCalendarMonthPeriod(today);
+      const transits = computePeriodTransits(
+        chart,
+        { lat: profile.lat, lng: profile.lng, timezone: profile.timezone || "UTC" },
+        period.periodStart,
+        period.periodEnd,
+        settings.taskId === "yearlyHoroscope" ? 4 : 3,
+      );
+      return prompt(
+        buildPeriodHoroscopePrompt({
+          periodType: period.periodType,
+          chart,
+          periodStart: period.periodStart,
+          periodEnd: period.periodEnd,
+          today,
+          language,
+          transits,
+          texts,
+        }),
+      );
     }
     case "premiumPdf": {
       const section = inputs.section as PremiumPdfNarrativeSection;

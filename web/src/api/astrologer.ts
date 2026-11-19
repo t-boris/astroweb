@@ -56,9 +56,10 @@ export async function resumeSubscription(profileId: string): Promise<void> {
   await httpsCallable(functions, "resumeSubscription")({ profileId });
 }
 
-// Pricing anchored on "every 2 days" = $9.99/mo; other cadences scale with
-// letter frequency. Annual = 9 months for 12 ("3 months free"). Mirrors
-// functions/src/services/pricing.ts.
+// Pricing:
+// - Daily horoscope subscription (DEC-005, REQ-004): $30.00/mo or $179.82/yr.
+// - Other cadences remain anchored on "every 2 days" = $9.99/mo, annual = 9x monthly.
+// Mirrors functions/src/services/pricing.ts.
 const REPORTS_PER_MONTH: Record<Cadence, number> = {
   daily: 30,
   every_2_days: 15,
@@ -68,10 +69,18 @@ const REPORTS_PER_MONTH: Record<Cadence, number> = {
 };
 const ANCHOR_MONTHLY = 9.99;
 const ANCHOR_REPORTS = REPORTS_PER_MONTH.every_2_days;
+const DAILY_MONTHLY_USD = 30;
+const DAILY_ANNUAL_USD = 179.82;
 
 export function monthlyPriceUsd(cadence: Cadence): number {
+  if (cadence === "daily") return DAILY_MONTHLY_USD;
   return Math.round((ANCHOR_MONTHLY * REPORTS_PER_MONTH[cadence]) / ANCHOR_REPORTS * 100) / 100;
 }
 export function annualPriceUsd(cadence: Cadence): number {
+  if (cadence === "daily") return DAILY_ANNUAL_USD;
   return Math.round(monthlyPriceUsd(cadence) * 9 * 100) / 100;
+}
+/** Daily annual pricing is independent of the monthly rate and must not display free-month labels (REQ-004). */
+export function showAnnualFreeMonthsLabel(cadence: Cadence): boolean {
+  return cadence !== "daily";
 }

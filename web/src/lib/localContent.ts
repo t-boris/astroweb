@@ -16,6 +16,8 @@ export interface LocalOracleEntry {
   answer: string;
   model: string;
   askedAt: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface LocalCompatEntry {
@@ -25,6 +27,8 @@ export interface LocalCompatEntry {
   answer: string;
   partnerTimezone: string | null;
   generatedAt: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface LocalContent {

@@ -46,6 +46,8 @@ export interface CompatReadingInput {
   answer: string;
   partnerTimezone: string | null;
   generatedAt: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface OracleEntryInput {
@@ -53,6 +55,8 @@ export interface OracleEntryInput {
   answer: string;
   model: string;
   askedAt: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface UploadPayload {
@@ -100,6 +104,7 @@ const db = () => getFirestore();
 const deepRef = (profileId: string) => db().collection("deepTexts").doc(profileId).collection("items");
 const compatRef = (profileId: string) => db().collection("compatibilityReadings").doc(profileId).collection("items");
 const oracleRef = (profileId: string) => db().collection("oracleHistory").doc(profileId).collection("items");
+const periodHoroscopesRef = (profileId: string) => db().collection("periodHoroscopes").doc(profileId).collection("items");
 
 const isoOrNow = (v: unknown): string => {
   if (typeof v === "string" && !Number.isNaN(Date.parse(v))) return new Date(v).toISOString();
@@ -121,10 +126,13 @@ export async function saveDeepText(profileId: string, input: DeepTextInput & { m
   });
 }
 
-/** Store a paid compatibility reading; returns its id. Re-saving identical content is a no-op overwrite. */
-export async function saveCompatReading(profileId: string, input: CompatReadingInput & { model?: string | null }): Promise<string> {
+/** Store a paid compatibility / relationship forecast; returns its id. Re-saving identical content is a no-op overwrite. */
+export async function saveCompatReading(
+  profileId: string,
+  input: CompatReadingInput & { model?: string | null; orderId?: string },
+): Promise<string> {
   const id = compatReadingId(input);
-  await compatRef(profileId).doc(id).set({
+  const doc: Record<string, unknown> = {
     partnerName: input.partnerName,
     partnerBirthDate: input.partnerBirthDate,
     partnerBirthPlace: input.partnerBirthPlace,
@@ -132,7 +140,11 @@ export async function saveCompatReading(profileId: string, input: CompatReadingI
     partnerTimezone: input.partnerTimezone,
     generatedAt: input.generatedAt,
     model: input.model ?? null,
-  });
+  };
+  if (input.periodStart) doc.periodStart = input.periodStart;
+  if (input.periodEnd) doc.periodEnd = input.periodEnd;
+  if (input.orderId) doc.orderId = input.orderId;
+  await compatRef(profileId).doc(id).set(doc);
   return id;
 }
 
@@ -165,6 +177,8 @@ export async function readProfileContent(profileId: string): Promise<ProfileCont
         answer: String(x.answer ?? ""),
         partnerTimezone: typeof x.partnerTimezone === "string" ? x.partnerTimezone : null,
         generatedAt: String(x.generatedAt ?? ""),
+        ...(typeof x.periodStart === "string" ? { periodStart: x.periodStart } : {}),
+        ...(typeof x.periodEnd === "string" ? { periodEnd: x.periodEnd } : {}),
       };
     }),
     oracleHistory: oracle.docs.map((d) => {
@@ -176,6 +190,8 @@ export async function readProfileContent(profileId: string): Promise<ProfileCont
         model: String(x.model ?? ""),
         askedAt: String(x.askedAt ?? ""),
         channel: String(x.channel ?? "web"),
+        ...(typeof x.periodStart === "string" ? { periodStart: x.periodStart } : {}),
+        ...(typeof x.periodEnd === "string" ? { periodEnd: x.periodEnd } : {}),
       };
     }),
   };
@@ -196,13 +212,14 @@ async function deleteAll(col: ReturnType<typeof deepRef>): Promise<number> {
 }
 
 /** DEC-007: everything stored for a profile goes away with the profile. */
-export async function deleteAllProfileContent(profileId: string): Promise<{ deepTexts: number; compatibilityReadings: number; oracleHistory: number }> {
-  const [deepTexts, compatibilityReadings, oracleHistory] = await Promise.all([
+export async function deleteAllProfileContent(profileId: string): Promise<{ deepTexts: number; compatibilityReadings: number; oracleHistory: number; periodHoroscopes: number }> {
+  const [deepTexts, compatibilityReadings, oracleHistory, periodHoroscopes] = await Promise.all([
     deleteAll(deepRef(profileId)),
     deleteAll(compatRef(profileId)),
     deleteAll(oracleRef(profileId)),
+    deleteAll(periodHoroscopesRef(profileId)),
   ]);
-  return { deepTexts, compatibilityReadings, oracleHistory };
+  return { deepTexts, compatibilityReadings, oracleHistory, periodHoroscopes };
 }
 
 /** DEC-008: remove one Oracle entry or one compatibility reading of this profile. */

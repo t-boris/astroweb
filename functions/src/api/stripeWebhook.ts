@@ -7,6 +7,7 @@ import { grantToWallet, markFirstReadingUsed, walletKeyFromProfile } from "../se
 import { parseRecipientEmails } from "../services/email";
 import { enqueueImmediateLetter } from "../services/letterEngine";
 import { purchaseEvent, readAnalyticsMetadata, sendGa4Once, subscriptionEvent } from "../services/ga4";
+import { cancelAwaitingDirectOrder, confirmPaidDirectOrder } from "../services/directOrders";
 
 /**
  * Stripe test-mode events must not pollute the production GA4 property (DEC-014);
@@ -46,6 +47,49 @@ export const stripeWebhook = onRequest({
   } catch (err) {
     logger.error("Webhook signature verification failed", { error: (err as Error).message });
     res.status(400).send(`Webhook Error: ${(err as Error).message}`);
+    return;
+  }
+
+  // Direct-service one-time purchase (monthly/yearly horoscope, 3-month situation/relationship forecast).
+  if (event.type === "checkout.session.completed" && (event.data.object as any).metadata?.kind === "direct_service") {
+    const session = event.data.object as any;
+    const orderId = session.metadata?.orderId;
+    if (orderId && session.payment_status !== "unpaid") {
+      try {
+        await confirmPaidDirectOrder(orderId, {
+          stripeSessionId: session.id,
+          stripePaymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : null,
+          amountTotalCents: typeof session.amount_total === "number" ? session.amount_total : null,
+          currency: session.currency ?? "usd",
+          customerEmail: session.customer_details?.email ?? null,
+          livemode: event.livemode !== false && session.livemode !== false,
+        });
+        logger.info("direct_service order confirmed via webhook", { orderId, session: session.id });
+      } catch (e) {
+        logger.error("direct_service webhook confirmation failed", {
+          orderId,
+          session: session.id,
+          error: (e as Error).message,
+        });
+      }
+    }
+    res.json({ received: true });
+    return;
+  }
+
+  // Expired direct checkout session -> release lock, leave stars untouched (REQ-005 AC #13).
+  if (event.type === "checkout.session.expired" && (event.data.object as any).metadata?.kind === "direct_service") {
+    const session = event.data.object as any;
+    const orderId = session.metadata?.orderId;
+    if (orderId) {
+      try {
+        await cancelAwaitingDirectOrder(orderId, null);
+        logger.info("direct_service expired session canceled", { orderId, session: session.id });
+      } catch (e) {
+        logger.warn("direct_service expired cancel failed", { orderId, error: (e as Error).message });
+      }
+    }
+    res.json({ received: true });
     return;
   }
 

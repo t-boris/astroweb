@@ -133,12 +133,23 @@ export default function ProfileDetail() {
   const [relocationLng, setRelocationLng] = useState<number | null>(null);
   const [relocationSaving, setRelocationSaving] = useState(false);
   const [relocationSaveError, setRelocationSaveError] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const validTabs = ["chart", "planets", "aspects", "houses", "interpretation", "oracle", "compatibility", "transits", "astrologer", "premium"];
   const tabParam = searchParams.get("tab");
+  const directOrderParam = searchParams.get("directOrder");
+  const checkoutParam = searchParams.get("checkout");
+  const pendingCheckoutStatus =
+    checkoutParam === "success" || checkoutParam === "cancel" ? checkoutParam : null;
   const [activeTab, setActiveTab] = useState(
     tabParam && validTabs.includes(tabParam) ? tabParam : "chart",
   );
+
+  function clearDirectOrderParams() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("directOrder");
+    next.delete("checkout");
+    setSearchParams(next, { replace: true });
+  }
 
   // Keep the active tab in sync with the ?tab= query param. Without this, the
   // top-nav links (Oracle / Transits / Compatibility) only change the URL when
@@ -746,13 +757,28 @@ export default function ProfileDetail() {
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
                   onPurchasePremium={() => setActiveTab("premium")}
+                  pendingDirectOrderId={activeTab === "oracle" ? directOrderParam : null}
+                  pendingCheckoutStatus={activeTab === "oracle" ? pendingCheckoutStatus : null}
+                  onClearPendingOrder={clearDirectOrderParams}
                 />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="transits">
-            <ForecastView profileId={id!} ownerDeviceId={deviceId} />
+            <ForecastView
+              profileId={id!}
+              profileName={profile.name}
+              ownerDeviceId={deviceId}
+              tokens={profile.tokens || 0}
+              relocationLat={relocationEnabled ? relocationLat : null}
+              relocationLng={relocationEnabled ? relocationLng : null}
+              onBalanceChanged={reloadProfile}
+              onOpenDailySubscription={() => setActiveTab("astrologer")}
+              pendingDirectOrderId={activeTab === "transits" ? directOrderParam : null}
+              pendingCheckoutStatus={activeTab === "transits" ? pendingCheckoutStatus : null}
+              onClearPendingOrder={clearDirectOrderParams}
+            />
           </TabsContent>
 
           <TabsContent value="compatibility">
@@ -760,6 +786,7 @@ export default function ProfileDetail() {
               <CardContent className="pt-6">
                 <RelationshipView
                   profileId={id!}
+                  profileName={profile.name}
                   ownerDeviceId={deviceId}
                   relocationLat={relocationEnabled ? relocationLat : null}
                   relocationLng={relocationEnabled ? relocationLng : null}
@@ -767,6 +794,9 @@ export default function ProfileDetail() {
                   compatibilityIncluded={profile.hasPremiumCompatibility || false}
                   onUnlocked={reloadProfile}
                   onPurchasePremium={() => setActiveTab("premium")}
+                  pendingDirectOrderId={activeTab === "compatibility" ? directOrderParam : null}
+                  pendingCheckoutStatus={activeTab === "compatibility" ? pendingCheckoutStatus : null}
+                  onClearPendingOrder={clearDirectOrderParams}
                 />
               </CardContent>
             </Card>
@@ -774,7 +804,11 @@ export default function ProfileDetail() {
 
           <TabsContent value="astrologer">
             <div className="space-y-6">
-              <AstrologerPanel profileId={id!} />
+              <AstrologerPanel
+                profileId={id!}
+                profileName={profile.name}
+                onOpenFreeToday={() => setActiveTab("transits")}
+              />
               <LettersInbox profileId={id!} />
             </div>
           </TabsContent>

@@ -7,6 +7,7 @@ import {
   buildLetterGenerationPrompt,
   buildNewsDigestPrompt,
   buildOraclePrompt,
+  buildPeriodHoroscopePrompt,
   buildPremiumPdfNarrativeSectionPrompt,
   buildRelationshipPrompt,
 } from "../services/prompts";
@@ -73,9 +74,12 @@ const uiSections = [
 
 const TASK_OF_CASE: Record<string, AiTaskId> = {
   oracle: "oracle",
+  oracleLetter: "oracleLetter",
   relationship: "compatibility",
   deepen: "deepen",
   forecast: "forecast",
+  monthlyHoroscope: "monthlyHoroscope",
+  yearlyHoroscope: "yearlyHoroscope",
   premiumPdf: "premiumPdf",
   letterAnalysis: "letterAnalysis",
   letterGeneration: "letterWriting",
@@ -113,18 +117,88 @@ const letterAnalysisBase = {
 const cases: Array<[string, () => { systemInstruction: string; userPrompt: string }]> = [];
 
 for (const language of languages) {
-  cases.push([`oracle.${language}.plain`, () => buildOraclePrompt({ chart: chartA, question: "Will I find a new job?", language })]);
+  cases.push([
+    `oracle.${language}.plain`,
+    () =>
+      buildOraclePrompt({
+        chart: chartA,
+        question: "Will I find a new job?",
+        language,
+        periodStart: "2026-10-18",
+        periodEnd: "2027-01-18",
+        transits: "[2026-10-18] Sky: Sun Libra 25°",
+      }),
+  ]);
   cases.push([
     `oracle.${language}.dossier`,
-    () => buildOraclePrompt({ chart: chartA, question: "Will I find a new job?", language, dossierSummary: "Профессия: дизайнер\nИнтересы: музыка" }),
+    () =>
+      buildOraclePrompt({
+        chart: chartA,
+        question: "Will I find a new job?",
+        language,
+        dossierSummary: "Профессия: дизайнер\nИнтересы: музыка",
+        periodStart: "2026-10-18",
+        periodEnd: "2027-01-18",
+        transits: "[2026-10-18] Sky: Sun Libra 25°",
+      }),
+  ]);
+  cases.push([
+    `oracleLetter.${language}.plain`,
+    () => buildOraclePrompt({ chart: chartA, question: "Will I find a new job?", language, taskId: "oracleLetter" }),
   ]);
   cases.push([
     `relationship.${language}`,
-    () => buildRelationshipPrompt({ chartA, chartB, personAName: "Anna", personBName: "Max", language }),
+    () =>
+      buildRelationshipPrompt({
+        chartA,
+        chartB,
+        personAName: "Anna",
+        personBName: "Max",
+        language,
+        periodStart: "2026-10-18",
+        periodEnd: "2027-01-18",
+        transits: "[2026-10-18] Sky: Sun Libra 25°",
+      }),
   ]);
   cases.push([
     `relationship.${language}.noSynastry`,
-    () => buildRelationshipPrompt({ chartA: chartB, chartB: { ...chartB, points: [] }, personAName: "Anna", personBName: "Max", language }),
+    () =>
+      buildRelationshipPrompt({
+        chartA: chartB,
+        chartB: { ...chartB, points: [] },
+        personAName: "Anna",
+        personBName: "Max",
+        language,
+        periodStart: "2026-10-18",
+        periodEnd: "2027-01-18",
+        transits: "none",
+      }),
+  ]);
+  cases.push([
+    `monthlyHoroscope.${language}`,
+    () =>
+      buildPeriodHoroscopePrompt({
+        periodType: "month",
+        chart: chartA,
+        periodStart: "2026-11-01",
+        periodEnd: "2026-11-30",
+        today: "2026-11-19",
+        language,
+        transits: "[2026-11-01] Sky: Sun Scorpio 9°",
+      }),
+  ]);
+  cases.push([
+    `yearlyHoroscope.${language}`,
+    () =>
+      buildPeriodHoroscopePrompt({
+        periodType: "year",
+        chart: chartA,
+        periodStart: "2026-01-01",
+        periodEnd: "2026-12-31",
+        today: "2026-11-19",
+        language,
+        transits: "[2026-01-01] Sky: Sun Capricorn 10°",
+      }),
   ]);
   cases.push([
     `deepen.${language}.topic`,

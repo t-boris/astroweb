@@ -8,6 +8,8 @@ export interface ServerOracleEntry {
   model: string;
   askedAt: string;
   channel: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface ServerCompatReading {
@@ -18,6 +20,8 @@ export interface ServerCompatReading {
   answer: string;
   partnerTimezone: string | null;
   generatedAt: string;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface ServerProfileContent {

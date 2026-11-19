@@ -252,3 +252,11 @@ configured". A key in a local `functions/.env` with the same name as a bound sec
 For the admin AI tab the mock backend loaded the real `functions/lib/api/adminAi.js` and put fakes into `require.cache`
 for `firebase-admin/firestore` and the model call (`services/ai/run.js`), so validation, settings and prompt building were
 the production code, with no API call and no production data. The fake store needs `add()` too (the chart cache uses it).
+
+## Never call `spendInTx` after `ensureWalletInTx` in the same Firestore transaction
+
+`ensureWalletInTx` creates a missing wallet document with `tx.set(...)`. Calling `spendInTx` afterwards triggers another `tx.get(...)` and violates Firestore's "all reads before all writes" invariant on brand-new wallets. Read the wallet balance once up front and use `spendKnownBalanceInTx(tx, key, balance, cost, feature)` for the write phase.
+
+## Guard signed-out panels against unauthenticated callable fetches
+
+Components rendered on public/device-owned profile screens (`AstrologerPanel`, `LettersInbox`) should check `auth.currentUser` before calling auth-gated callables so signed-out visitors exploring offers never trigger 401 console noise.

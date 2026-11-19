@@ -20,7 +20,7 @@ Status of each item is marked **done**, **owner step** (needs the property owner
 |---|---|---|
 | `VITE_FIREBASE_MEASUREMENT_ID` | `web/.env.production` | Public. Without it analytics is disabled in that build. |
 | `GA_MEASUREMENT_ID` | `functions/.env.astroweb-dev` | Public. Loaded by `firebase deploy`. |
-| `GA_API_SECRET` | Secret Manager, bound to `stripeWebhook` | Rotate: create a new secret in GA4 (Admin > Data streams > AstroWeb > Measurement Protocol API secrets), then `firebase functions:secrets:set GA_API_SECRET --project astroweb-dev` and redeploy `stripeWebhook`. |
+| `GA_API_SECRET` | Secret Manager, bound to `stripeWebhook`, `createDirectCheckout`, and `fulfillDirectOrder` | Rotate: create a new secret in GA4 (Admin > Data streams > AstroWeb > Measurement Protocol API secrets), then `firebase functions:secrets:set GA_API_SECRET --project astroweb-dev` and redeploy those functions. |
 
 The browser never loads `firebase/analytics` before the visitor accepts the cookie banner (Basic Consent Mode).
 
@@ -30,9 +30,9 @@ Browser (only after consent; no names, e-mails or birth data):
 `page_view` (page path with profile ids replaced by `:id`), `profile_create_start`, `profile_created`, `chart_viewed` (`tab`), `paywall_viewed` (`feature`), `begin_checkout` (`pack_id`, `value`, `currency`, `items`), `unlock_feature` (`feature`, `stars`), `astrologer_subscribe_start` (`cadence`, `billing_period`), `ai_reading_requested` (`kind`), `letter_opened`.
 GA4 `user_id` is the Firebase uid for signed-in users only. The admin's events carry `traffic_type = internal`.
 
-Server (Stripe webhook, Measurement Protocol; always sent for live-mode events): `purchase`, `subscription_start`, `subscription_renewal`, `subscription_cancel`. Test-mode Stripe events are not sent (DEC-014).
+Server (Stripe webhook and direct-order fulfillment, Measurement Protocol; always sent for live-mode events): `purchase` (star packs and direct-service orders, including mixed USD+stars and fully star-funded orders at USD 0 revenue, deduplicated by unique order ID without requiring a Stripe session), `subscription_start`, `subscription_renewal`, `subscription_cancel`. Test-mode Stripe events and emulator orders are not sent (DEC-014, simpler-horoscope-discovery-and-purchasing DEC-008).
 
-Identifiers: with consent = granted in the Stripe session or subscription metadata, the real GA `client_id` (and `user_id` when signed in). Otherwise a pseudo `client_id` that is a SHA-256-derived GA-shaped id of: the checkout session id (purchase, subscription start), the invoice id (renewal), `<subscription id>:<event id>` (cancel). No `user_id`.
+Identifiers: with consent = granted in the Stripe session, direct order, or subscription metadata, the real GA `client_id` (and `user_id` when signed in). Otherwise a pseudo `client_id` that is a SHA-256-derived GA-shaped id of: the checkout session id (star-pack / USD purchase, subscription start), the unique order id (fully star-funded direct order with no Stripe session), the invoice id (renewal), `<subscription id>:<event id>` (cancel). No `user_id`.
 
 ## 4. Key events (owner step in GA4: Admin > Key events > New key event)
 

@@ -135,6 +135,43 @@ export function purchaseEvent(input: {
   };
 }
 
+/**
+ * GA4 `purchase` event for a completed direct-service order (DEC-008, REQ-005).
+ * Counts USD-only, mixed USD+stars, and fully star-funded orders in the same
+ * purchase conversion funnel. `value` reflects actual USD charged (0 for fully
+ * star-funded orders), and `transaction_id` is the unique order ID so
+ * deduplication does not depend on a Stripe session.
+ */
+export function directPurchaseEvent(input: {
+  orderId: string;
+  service: string;
+  amountCents: number | null | undefined;
+  currency?: string | null;
+  paymentPath: "usd_only" | "mixed" | "stars_only";
+  appliedStars: number;
+}): Ga4Event {
+  const value = toValue(input.amountCents);
+  return {
+    name: "purchase",
+    params: {
+      transaction_id: input.orderId,
+      value,
+      currency: toCurrency(input.currency ?? "USD"),
+      payment_path: input.paymentPath,
+      stars_applied: Math.max(0, Math.floor(input.appliedStars)),
+      items: [
+        {
+          item_id: input.service,
+          item_name: `AstroWeb · ${input.service}`,
+          item_category: "direct_service",
+          price: value,
+          quantity: 1,
+        },
+      ],
+    },
+  };
+}
+
 /** Subscription events: start and renewal carry value; cancel does not. */
 export function subscriptionEvent(
   name: "subscription_start" | "subscription_renewal" | "subscription_cancel",

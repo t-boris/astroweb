@@ -426,6 +426,94 @@ exports[`prompt defaults (golden copy) > letterGeneration.ru.neutral 1`] = `
 }
 `;
 
+exports[`prompt defaults (golden copy) > monthlyHoroscope.en 1`] = `
+{
+  "maxOutputTokens": 2800,
+  "model": "claude-sonnet-4-6",
+  "system": "You are a warm, attentive personal astrologer writing a personal calendar-month horoscope from a natal chart and the month's planetary movements. Write clearly and naturally without heavy jargon; explain any astrological term immediately in plain words. No fatalistic predictions and no medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write a personal horoscope for the calendar month: November 2026 (covered dates: 2026-11-01 — 2026-11-30).
+
+Today's date: 2026-11-19. Cover the ENTIRE calendar month from 2026-11-01 through 2026-11-30, including any elapsed days as context for how the month opened while giving clear guidance across the full period.
+
+Natal chart:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Planetary movements across the month (2026-11-01 — 2026-11-30):
+
+[2026-11-01] Sky: Sun Scorpio 9°
+
+Response requirements:
+
+1) English, 600-950 words.
+
+2) Markdown structure (use ## headings): ## Main theme of November 2026, ## Rhythm of the month, ## Relationships and communication, ## Work and resources, ## Energy and self-care, ## Practical focus for the month.
+
+3) Ground insights in concrete chart placements and transits, explaining every term in plain everyday words.
+
+4) Explicitly note the covered dates (2026-11-01 — 2026-11-30).
+
+5) No tables, no fluff, no generic sign-horoscope clichés.
+
+6) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > monthlyHoroscope.ru 1`] = `
+{
+  "maxOutputTokens": 2800,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты тёплый и внимательный личный астролог, составляющий персональный гороскоп на календарный месяц по натальной карте и планетным влияниям этого месяца. Пиши понятным живым языком без сложного жаргона; каждый астрологический термин сразу объясняй простыми словами. Без фаталистических предсказаний и без медицинских, юридических или финансовых советов.",
+  "temperature": 0.5,
+  "user": "Составь персональный гороскоп на календарный месяц: Ноябрь 2026 г. (охватываемые даты: 2026-11-01 — 2026-11-30).
+
+Сегодняшняя дата: 2026-11-19. Гороскоп охватывает ВЕСЬ календарный месяц от 2026-11-01 до 2026-11-30, включая уже прошедшие дни месяца (их можно мягко осмыслить как фон начала месяца, а основной фокус сделать на картине всего периода).
+
+Натальная карта:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Планетная динамика месяца (2026-11-01 — 2026-11-30):
+
+[2026-11-01] Sky: Sun Scorpio 9°
+
+Требования к ответу:
+
+1) Русский язык, 600-950 слов.
+
+2) Структура Markdown (## для разделов): ## Главная тема месяца (Ноябрь 2026 г.), ## Ритм месяца по этапам, ## Отношения и общение, ## Работа, дела и финансы, ## Энергия и забота о себе, ## На что опереться в этом месяце.
+
+3) Опирайся на конкретные положения карты и транзиты, объясняя каждый термин обычными словами.
+
+4) Явно укажи охватываемый период (2026-11-01 — 2026-11-30).
+
+5) Без таблиц, без канцелярита и общих шаблонных фраз.
+
+6) Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
 exports[`prompt defaults (golden copy) > newsDigest.en 1`] = `
 {
   "maxOutputTokens": 1200,
@@ -470,17 +558,19 @@ exports[`prompt defaults (golden copy) > oracle.en.dossier 1`] = `
 {
   "maxOutputTokens": 2400,
   "model": "claude-opus-4-8",
-  "system": "You are a natal-chart Oracle: a thoughtful astrologer-psychologist who speaks to the person directly, warmly, and to the point. You rely solely on the provided planetary positions, houses, and aspects of THIS specific chart — never on generic sign horoscopes. You do not invent events or dates, do not use transits or external facts, and do not act as a doctor, lawyer, or financial advisor. You explain every astrological term so a layperson understands it, without turning the answer into a textbook.
+  "system": "You are a thoughtful personal astrologer writing an individual three-month situation forecast. You rely solely on the provided natal chart, the planetary movements across the specified three-month window, and any known personal context — never on generic sign horoscopes. You do not make fatalistic predictions or give medical, legal, or financial advice; you describe likely developments, openings, risks, and practical supports. Write warmly and plainly for someone unfamiliar with astrology: explain every astrological term immediately in everyday words.
 
 What is known about this person (use it to personalize, address them directly):
 Профессия: дизайнер
 Интересы: музыка",
   "temperature": null,
-  "user": "User question:
+  "user": "Situation question:
 
 Will I find a new job?
 
-Natal chart data (the only source of truth):
+Forecast period (next 3 months): 2026-10-18 — 2027-01-18.
+
+Natal chart data:
 
 Time known: yes
 Zodiac: tropical
@@ -494,35 +584,201 @@ Sun trine Mars (orb 0.25 deg, exactness 0.97)
 Moon square Venus (orb 5.15 deg, exactness 0.52)
 Sun trine Moon (orb 7.25 deg, exactness 0.40)
 
-Your task: give a cohesive, deep, and honest answer to this specific question, grounded in concrete chart factors.
+Planetary movements across the period (2026-10-18 — 2027-01-18):
 
-Quality guidance (these are criteria, not a rigid template — shape the answer to be maximally useful):
+[2026-10-18] Sky: Sun Libra 25°
 
-- Open with a clear, direct conclusion on the substance of the question.
+Your task: give a clear, honest, useful answer to the question and describe how the situation may develop over the next three months (2026-10-18 — 2027-01-18).
 
-- Show the chart logic: which exact planets, signs, houses, and aspects (considering orbs and strength) you rely on and why they answer this question.
+Content guidance:
 
-- Be honest: name both the real supports and the risks or blind spots visible in the chart.
+- Open with a direct conclusion on the substance of the question and explicitly state the covered dates (2026-10-18 — 2027-01-18).
 
-- Close with a practical focus: a few concrete steps directly tied to the cited factors.
+- Show which natal-chart factors and period movements you rely on, explaining any astrology terms in everyday language.
 
-If context about this person is given above, take it into account and address them personally, but do not invent anything not present in it.
+- Dedicate a clear section to how the situation may unfold across the next three months: windows of momentum, pauses or tension, and turning points.
+
+- Name both real supports and risks, and close with concrete practical steps.
+
+If personal context is provided above, take it into account without inventing anything not present.
 
 Form of the answer:
 
-- Structure the answer with Markdown subheadings (### ...), e.g.: ### Conclusion, ### Chart logic, ### Risks and supports, ### Practical focus. Adapt the names to the question if useful.
+- Use Markdown subheadings (### ...), e.g.: ### Core picture, ### Next 3 months (2026-10-18 — 2027-01-18), ### Supports and risks, ### Practical steps.
 
-- Write in living, human language: no bureaucratese, no fluff, no generic horoscope phrases. Explain each term in plain words as you go.
-
-- Length: as much as a substantive answer needs, aim for 300-550 words; do not pad for length.
-
-- Use only this chart's data. No transits, dates, or external events. No quotes or continuation artifacts.
+- Write in warm, natural language with no fluff or generic horoscope lines. Aim for 400-650 words.
 
 - End with a single line: [END_OF_REPORT]",
 }
 `;
 
 exports[`prompt defaults (golden copy) > oracle.en.plain 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "You are a thoughtful personal astrologer writing an individual three-month situation forecast. You rely solely on the provided natal chart, the planetary movements across the specified three-month window, and any known personal context — never on generic sign horoscopes. You do not make fatalistic predictions or give medical, legal, or financial advice; you describe likely developments, openings, risks, and practical supports. Write warmly and plainly for someone unfamiliar with astrology: explain every astrological term immediately in everyday words.",
+  "temperature": null,
+  "user": "Situation question:
+
+Will I find a new job?
+
+Forecast period (next 3 months): 2026-10-18 — 2027-01-18.
+
+Natal chart data:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Planetary movements across the period (2026-10-18 — 2027-01-18):
+
+[2026-10-18] Sky: Sun Libra 25°
+
+Your task: give a clear, honest, useful answer to the question and describe how the situation may develop over the next three months (2026-10-18 — 2027-01-18).
+
+Content guidance:
+
+- Open with a direct conclusion on the substance of the question and explicitly state the covered dates (2026-10-18 — 2027-01-18).
+
+- Show which natal-chart factors and period movements you rely on, explaining any astrology terms in everyday language.
+
+- Dedicate a clear section to how the situation may unfold across the next three months: windows of momentum, pauses or tension, and turning points.
+
+- Name both real supports and risks, and close with concrete practical steps.
+
+If personal context is provided above, take it into account without inventing anything not present.
+
+Form of the answer:
+
+- Use Markdown subheadings (### ...), e.g.: ### Core picture, ### Next 3 months (2026-10-18 — 2027-01-18), ### Supports and risks, ### Practical steps.
+
+- Write in warm, natural language with no fluff or generic horoscope lines. Aim for 400-650 words.
+
+- End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.ru.dossier 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты — вдумчивый личный астролог, составляющий индивидуальный прогноз на ситуацию на ближайшие три месяца. Ты опираешься только на предоставленную натальную карту человека, транзиты за указанный трёхмесячный период и известные о нём факты — никогда на общие гороскопы по знаку. Ты не даёшь фаталистических предсказаний и не выступаешь как врач, юрист или финансовый консультант; ты описываешь вероятную динамику, возможности, риски и практические опоры. Пиши тёплым, ясным и простым языком для человека без астрологической подготовки: каждый термин сразу объясняй обычными словами.
+
+Что известно об этом человеке (учитывай при ответе, обращайся лично и по делу):
+Профессия: дизайнер
+Интересы: музыка",
+  "temperature": null,
+  "user": "Вопрос о ситуации:
+
+Will I find a new job?
+
+Период прогноза (ближайшие 3 месяца): 2026-10-18 — 2027-01-18.
+
+Данные натальной карты:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Планетная динамика на период (2026-10-18 — 2027-01-18):
+
+[2026-10-18] Sky: Sun Libra 25°
+
+Твоя задача: дать ясный, честный и полезный ответ на вопрос и описать, как ситуация может развиваться в ближайшие три месяца (2026-10-18 — 2027-01-18).
+
+Ориентиры по содержанию:
+
+- Начни с прямого вывода по сути вопроса и явно укажи охватываемый период (2026-10-18 — 2027-01-18).
+
+- Покажи, на какие факторы натальной карты и планетной динамики ты опираешься, объясняя термины простыми словами.
+
+- Отдельно опиши возможное развитие ситуации по этапам на ближайшие 3 месяца: где появятся окна возможностей, где возможны паузы или напряжение.
+
+- Назови реальные опоры и риски, заверши конкретными практическими шагами.
+
+Если выше дан контекст об этом человеке — учитывай его и обращайся лично, не додумывая лишнего.
+
+Форма ответа:
+
+- Используй Markdown-подзаголовки (### ...), например: ### Суть ситуации, ### Развитие на 3 месяца (2026-10-18 — 2027-01-18), ### Опоры и риски, ### Практические шаги.
+
+- Пиши живым человеческим языком, без канцелярита и общих фраз. Объём — ориентир 400-650 слов.
+
+- Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracle.ru.plain 1`] = `
+{
+  "maxOutputTokens": 2400,
+  "model": "claude-opus-4-8",
+  "system": "Ты — вдумчивый личный астролог, составляющий индивидуальный прогноз на ситуацию на ближайшие три месяца. Ты опираешься только на предоставленную натальную карту человека, транзиты за указанный трёхмесячный период и известные о нём факты — никогда на общие гороскопы по знаку. Ты не даёшь фаталистических предсказаний и не выступаешь как врач, юрист или финансовый консультант; ты описываешь вероятную динамику, возможности, риски и практические опоры. Пиши тёплым, ясным и простым языком для человека без астрологической подготовки: каждый термин сразу объясняй обычными словами.",
+  "temperature": null,
+  "user": "Вопрос о ситуации:
+
+Will I find a new job?
+
+Период прогноза (ближайшие 3 месяца): 2026-10-18 — 2027-01-18.
+
+Данные натальной карты:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Планетная динамика на период (2026-10-18 — 2027-01-18):
+
+[2026-10-18] Sky: Sun Libra 25°
+
+Твоя задача: дать ясный, честный и полезный ответ на вопрос и описать, как ситуация может развиваться в ближайшие три месяца (2026-10-18 — 2027-01-18).
+
+Ориентиры по содержанию:
+
+- Начни с прямого вывода по сути вопроса и явно укажи охватываемый период (2026-10-18 — 2027-01-18).
+
+- Покажи, на какие факторы натальной карты и планетной динамики ты опираешься, объясняя термины простыми словами.
+
+- Отдельно опиши возможное развитие ситуации по этапам на ближайшие 3 месяца: где появятся окна возможностей, где возможны паузы или напряжение.
+
+- Назови реальные опоры и риски, заверши конкретными практическими шагами.
+
+Если выше дан контекст об этом человеке — учитывай его и обращайся лично, не додумывая лишнего.
+
+Форма ответа:
+
+- Используй Markdown-подзаголовки (### ...), например: ### Суть ситуации, ### Развитие на 3 месяца (2026-10-18 — 2027-01-18), ### Опоры и риски, ### Практические шаги.
+
+- Пиши живым человеческим языком, без канцелярита и общих фраз. Объём — ориентир 400-650 слов.
+
+- Заверши ответ отдельной строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > oracleLetter.en.plain 1`] = `
 {
   "maxOutputTokens": 2400,
   "model": "claude-opus-4-8",
@@ -574,63 +830,7 @@ Form of the answer:
 }
 `;
 
-exports[`prompt defaults (golden copy) > oracle.ru.dossier 1`] = `
-{
-  "maxOutputTokens": 2400,
-  "model": "claude-opus-4-8",
-  "system": "Ты — Оракул натальной карты: вдумчивый астролог-психолог, который говорит с человеком прямо, тепло и по существу. Ты опираешься исключительно на предоставленные позиции планет, дома и аспекты ИМЕННО ЭТОЙ карты — никогда на общие гороскопы по знаку. Ты не выдумываешь события и даты, не используешь транзиты и внешние факты, не выступаешь как врач, юрист или финансовый консультант. Каждый астрологический термин ты раскрываешь так, чтобы он стал понятен человеку без подготовки, не превращая ответ в учебник.
-
-Что известно об этом человеке (учитывай при ответе, обращайся лично и по делу):
-Профессия: дизайнер
-Интересы: музыка",
-  "temperature": null,
-  "user": "Вопрос пользователя:
-
-Will I find a new job?
-
-Данные натальной карты (единственный источник истины):
-
-Time known: yes
-Zodiac: tropical
-Planet positions:
-Sun: Aries 12.50 deg (house: 10)
-Moon: Leo 5.25 deg (house: 2)
-Venus: Pisces 20.10 deg (house: 9)
-Mars: Sagittarius 12.75 deg (house: unknown)
-Major planetary aspects:
-Sun trine Mars (orb 0.25 deg, exactness 0.97)
-Moon square Venus (orb 5.15 deg, exactness 0.52)
-Sun trine Moon (orb 7.25 deg, exactness 0.40)
-
-Твоя задача: дать цельный, глубокий и честный ответ именно на этот вопрос, опираясь на конкретные факторы карты.
-
-Ориентиры по качеству (это критерии, а не жёсткий шаблон — выстраивай ответ так, чтобы он был максимально полезным):
-
-- Начни с ясного, прямого вывода по сути вопроса.
-
-- Покажи логику карты: на какие именно планеты, знаки, дома и аспекты (учитывая орбы и силу) ты опираешься и почему они отвечают на этот вопрос.
-
-- Будь честным: назови и реальные опоры, и риски или слепые зоны, которые видны в карте.
-
-- Заверши практическим фокусом: несколько конкретных шагов, прямо связанных с названными факторами.
-
-Если выше дан контекст об этом человеке — учитывай его и обращайся лично, но не додумывай того, чего в нём нет.
-
-Форма ответа:
-
-- Структурируй ответ Markdown-подзаголовками (### ...), например: ### Вывод, ### Логика карты, ### Риски и опоры, ### Практический фокус. Названия можно адаптировать под суть вопроса.
-
-- Пиши живым человеческим языком: без канцелярита, воды и общих гороскопных фраз. Каждый термин поясняй простыми словами по ходу.
-
-- Объём — сколько нужно для содержательного ответа, ориентир 300-550 слов; не растягивай ради объёма.
-
-- Только данные этой карты. Без транзитов, дат и внешних событий. Без цитат и технических артефактов.
-
-- Заверши ответ отдельной строкой: [END_OF_REPORT]",
-}
-`;
-
-exports[`prompt defaults (golden copy) > oracle.ru.plain 1`] = `
+exports[`prompt defaults (golden copy) > oracleLetter.ru.plain 1`] = `
 {
   "maxOutputTokens": 2400,
   "model": "claude-opus-4-8",
@@ -1310,11 +1510,13 @@ none
 
 exports[`prompt defaults (golden copy) > relationship.en 1`] = `
 {
-  "maxOutputTokens": 2400,
+  "maxOutputTokens": 2800,
   "model": "claude-opus-4-8",
-  "system": "You are a synastry (relationship compatibility) astrology analyst. Provide a relationship reading only from two natal charts. Write in plain language for non-experts. No transits, external event claims, diagnoses, or legal/medical/financial expert advice.",
+  "system": "You are a relationship astrology analyst. Provide a clear relationship reading from two natal charts and describe how the relationship may develop over the next three months from the provided data. Write in plain, warm language for non-experts. No fatalistic event claims, diagnoses, or legal/medical/financial advice.",
   "temperature": null,
-  "user": "Create a relationship reading for: Anna and Max.
+  "user": "Create a relationship forecast for: Anna and Max.
+
+Three-month development forecast period: 2026-10-18 — 2027-01-18.
 
 Anna chart:
 
@@ -1348,17 +1550,21 @@ Anna Sun conjunction Max Moon (orb 2.50 deg, exactness 0.58)
 Anna Mars trine Max Moon (orb 2.75 deg, exactness 0.54)
 Anna Moon trine Max Moon (orb 4.75 deg, exactness 0.21)
 
+Planetary movements for the next 3 months (2026-10-18 — 2027-01-18):
+
+[2026-10-18] Sky: Sun Libra 25°
+
 Response requirements:
 
-1) English, 380-700 words.
+1) English, 500-850 words.
 
-2) Markdown structure: ### Overall dynamic, ### Attraction and intimacy, ### Communication and conflict, ### Relationship strengths, ### Relationship risks, ### Practice.
+2) Markdown structure: ### Overall dynamic, ### Attraction and closeness, ### Communication and friction points, ### Three-month outlook (2026-10-18 — 2027-01-18), ### Strengths and risks, ### Practical steps.
 
-3) Include at least 6 concrete references to chart factors (planets, signs, houses, aspects, orbs).
+3) Include a full relationship reading from both charts (at least 6 concrete chart references) and clearly describe how the relationship may develop across 2026-10-18 — 2027-01-18 (phases, supportive periods, areas needing care).
 
-4) Explain each astrology term in plain language immediately.
+4) Explain every astrology term in plain language immediately.
 
-5) In 'Practice', provide 5 specific actions to improve interactions.
+5) In 'Practical steps', provide 5 specific actions to strengthen mutual understanding.
 
 6) No tables, no fluff, no generic horoscope statements.
 
@@ -1368,11 +1574,13 @@ Response requirements:
 
 exports[`prompt defaults (golden copy) > relationship.en.noSynastry 1`] = `
 {
-  "maxOutputTokens": 2400,
+  "maxOutputTokens": 2800,
   "model": "claude-opus-4-8",
-  "system": "You are a synastry (relationship compatibility) astrology analyst. Provide a relationship reading only from two natal charts. Write in plain language for non-experts. No transits, external event claims, diagnoses, or legal/medical/financial expert advice.",
+  "system": "You are a relationship astrology analyst. Provide a clear relationship reading from two natal charts and describe how the relationship may develop over the next three months from the provided data. Write in plain, warm language for non-experts. No fatalistic event claims, diagnoses, or legal/medical/financial advice.",
   "temperature": null,
-  "user": "Create a relationship reading for: Anna and Max.
+  "user": "Create a relationship forecast for: Anna and Max.
+
+Three-month development forecast period: 2026-10-18 — 2027-01-18.
 
 Anna chart:
 
@@ -1397,17 +1605,21 @@ Cross-chart synastry aspects:
 
 none
 
+Planetary movements for the next 3 months (2026-10-18 — 2027-01-18):
+
+none
+
 Response requirements:
 
-1) English, 380-700 words.
+1) English, 500-850 words.
 
-2) Markdown structure: ### Overall dynamic, ### Attraction and intimacy, ### Communication and conflict, ### Relationship strengths, ### Relationship risks, ### Practice.
+2) Markdown structure: ### Overall dynamic, ### Attraction and closeness, ### Communication and friction points, ### Three-month outlook (2026-10-18 — 2027-01-18), ### Strengths and risks, ### Practical steps.
 
-3) Include at least 6 concrete references to chart factors (planets, signs, houses, aspects, orbs).
+3) Include a full relationship reading from both charts (at least 6 concrete chart references) and clearly describe how the relationship may develop across 2026-10-18 — 2027-01-18 (phases, supportive periods, areas needing care).
 
-4) Explain each astrology term in plain language immediately.
+4) Explain every astrology term in plain language immediately.
 
-5) In 'Practice', provide 5 specific actions to improve interactions.
+5) In 'Practical steps', provide 5 specific actions to strengthen mutual understanding.
 
 6) No tables, no fluff, no generic horoscope statements.
 
@@ -1417,11 +1629,13 @@ Response requirements:
 
 exports[`prompt defaults (golden copy) > relationship.ru 1`] = `
 {
-  "maxOutputTokens": 2400,
+  "maxOutputTokens": 2800,
   "model": "claude-opus-4-8",
-  "system": "Ты астрологический аналитик совместимости (синастрия). Дай разбор отношений только по данным двух натальных карт. Пиши простым языком для не-астролога. Не используй транзиты, внешние события, диагнозы и мед/юр/фин советы.",
+  "system": "Ты астрологический аналитик отношений. Составь понятный разбор пары по двум натальным картам и опиши возможное развитие отношений на ближайшие три месяца по предоставленным данным. Пиши простым, тёплым языком для человека без астрологической подготовки. Без фаталистических предсказаний, диагнозов и мед/юр/фин советов.",
   "temperature": null,
-  "user": "Сделай расклад на отношения для пары: Anna и Max.
+  "user": "Сделай прогноз на отношения для пары: Anna и Max.
+
+Период прогноза развития отношений (ближайшие 3 месяца): 2026-10-18 — 2027-01-18.
 
 Карта Anna:
 
@@ -1455,19 +1669,23 @@ Anna Sun conjunction Max Moon (orb 2.50 deg, exactness 0.58)
 Anna Mars trine Max Moon (orb 2.75 deg, exactness 0.54)
 Anna Moon trine Max Moon (orb 4.75 deg, exactness 0.21)
 
+Планетная динамика на ближайшие 3 месяца (2026-10-18 — 2027-01-18):
+
+[2026-10-18] Sky: Sun Libra 25°
+
 Требования к ответу:
 
-1) Русский язык, 380-700 слов.
+1) Русский язык, 500-850 слов.
 
-2) Структура Markdown: ### Общая динамика, ### Притяжение и близость, ### Коммуникация и конфликты, ### Ресурсы пары, ### Риски пары, ### Практика.
+2) Структура Markdown: ### Общая динамика пары, ### Притяжение и близость, ### Общение и точки напряжения, ### Прогноз развития на 3 месяца (2026-10-18 — 2027-01-18), ### Опоры и риски пары, ### Практические шаги.
 
-3) В тексте используй минимум 6 конкретных ссылок на факторы карт (планеты, знаки, дома, аспекты, орбы).
+3) Сохрани полноценный разбор пары по обеим картам (минимум 6 конкретных ссылок на планеты, знаки, дома или аспекты) и подробно раскрой, как отношения могут развиваться в период 2026-10-18 — 2027-01-18 (этапы, благоприятные моменты, зоны внимания).
 
 4) Каждый астрологический термин сразу поясняй простыми словами.
 
-5) В разделе 'Практика' дай 5 конкретных шагов для улучшения взаимодействия.
+5) В разделе «Практические шаги» дай 5 конкретных действий для укрепления взаимопонимания.
 
-6) Без таблиц, без воды, без общих гороскопных фраз.
+6) Без таблиц, без воды и общих гороскопных фраз.
 
 7) Заверши ответ строкой: [END_OF_REPORT]",
 }
@@ -1475,11 +1693,13 @@ Anna Moon trine Max Moon (orb 4.75 deg, exactness 0.21)
 
 exports[`prompt defaults (golden copy) > relationship.ru.noSynastry 1`] = `
 {
-  "maxOutputTokens": 2400,
+  "maxOutputTokens": 2800,
   "model": "claude-opus-4-8",
-  "system": "Ты астрологический аналитик совместимости (синастрия). Дай разбор отношений только по данным двух натальных карт. Пиши простым языком для не-астролога. Не используй транзиты, внешние события, диагнозы и мед/юр/фин советы.",
+  "system": "Ты астрологический аналитик отношений. Составь понятный разбор пары по двум натальным картам и опиши возможное развитие отношений на ближайшие три месяца по предоставленным данным. Пиши простым, тёплым языком для человека без астрологической подготовки. Без фаталистических предсказаний, диагнозов и мед/юр/фин советов.",
   "temperature": null,
-  "user": "Сделай расклад на отношения для пары: Anna и Max.
+  "user": "Сделай прогноз на отношения для пары: Anna и Max.
+
+Период прогноза развития отношений (ближайшие 3 месяца): 2026-10-18 — 2027-01-18.
 
 Карта Anna:
 
@@ -1504,20 +1724,112 @@ none
 
 none
 
+Планетная динамика на ближайшие 3 месяца (2026-10-18 — 2027-01-18):
+
+none
+
 Требования к ответу:
 
-1) Русский язык, 380-700 слов.
+1) Русский язык, 500-850 слов.
 
-2) Структура Markdown: ### Общая динамика, ### Притяжение и близость, ### Коммуникация и конфликты, ### Ресурсы пары, ### Риски пары, ### Практика.
+2) Структура Markdown: ### Общая динамика пары, ### Притяжение и близость, ### Общение и точки напряжения, ### Прогноз развития на 3 месяца (2026-10-18 — 2027-01-18), ### Опоры и риски пары, ### Практические шаги.
 
-3) В тексте используй минимум 6 конкретных ссылок на факторы карт (планеты, знаки, дома, аспекты, орбы).
+3) Сохрани полноценный разбор пары по обеим картам (минимум 6 конкретных ссылок на планеты, знаки, дома или аспекты) и подробно раскрой, как отношения могут развиваться в период 2026-10-18 — 2027-01-18 (этапы, благоприятные моменты, зоны внимания).
 
 4) Каждый астрологический термин сразу поясняй простыми словами.
 
-5) В разделе 'Практика' дай 5 конкретных шагов для улучшения взаимодействия.
+5) В разделе «Практические шаги» дай 5 конкретных действий для укрепления взаимопонимания.
 
-6) Без таблиц, без воды, без общих гороскопных фраз.
+6) Без таблиц, без воды и общих гороскопных фраз.
 
 7) Заверши ответ строкой: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > yearlyHoroscope.en 1`] = `
+{
+  "maxOutputTokens": 4500,
+  "model": "claude-sonnet-4-6",
+  "system": "You are an experienced, warm personal astrologer writing a comprehensive personal calendar-year horoscope from a natal chart and the year's major planetary cycles. Write clearly and humanly for someone unfamiliar with astrology: explain every term immediately in plain language. No fatalistic predictions and no medical, legal, or financial advice.",
+  "temperature": 0.5,
+  "user": "Write a comprehensive personal horoscope for the calendar year: 2026 (covered dates: 2026-01-01 — 2026-12-31).
+
+Today's date: 2026-11-19. Cover the ENTIRE calendar year from 2026-01-01 through 2026-12-31, including any elapsed portion of the year so the reader sees the full arc from start to finish.
+
+Natal chart:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Key planetary influences across the year (2026-01-01 — 2026-12-31):
+
+[2026-01-01] Sky: Sun Capricorn 10°
+
+Response requirements:
+
+1) English, 1100-1700 words.
+
+2) Markdown structure (use ## headings): ## Main arc of 2026, ## Key phases across the year, ## Love, family and close relationships, ## Career, calling and finances, ## Personal growth and shifts, ## Energy and balance, ## Practical guideposts for the year.
+
+3) Ground insights in concrete natal placements and major transits of the year, explaining every astrology term in plain words.
+
+4) Explicitly state the covered dates (2026-01-01 — 2026-12-31).
+
+5) No tables, no fluff, no generic horoscope clichés.
+
+6) End with a single line: [END_OF_REPORT]",
+}
+`;
+
+exports[`prompt defaults (golden copy) > yearlyHoroscope.ru 1`] = `
+{
+  "maxOutputTokens": 4500,
+  "model": "claude-sonnet-4-6",
+  "system": "Ты опытный, тёплый личный астролог, составляющий подробный персональный гороскоп на календарный год по натальной карте и ключевым планетным циклам года. Пиши ясно и по-человечески для человека без астрологической подготовки: каждый термин сразу объясняй простыми словами. Без фаталистических предсказаний и без медицинских, юридических или финансовых советов.",
+  "temperature": 0.5,
+  "user": "Составь подробный персональный гороскоп на календарный год: 2026 год (охватываемые даты: 2026-01-01 — 2026-12-31).
+
+Сегодняшняя дата: 2026-11-19. Гороскоп охватывает ВЕСЬ календарный год от 2026-01-01 до 2026-12-31, включая уже прошедшую часть года (помоги увидеть общую дугу года целиком — от его начала до завершения).
+
+Натальная карта:
+
+Time known: yes
+Zodiac: tropical
+Planet positions:
+Sun: Aries 12.50 deg (house: 10)
+Moon: Leo 5.25 deg (house: 2)
+Venus: Pisces 20.10 deg (house: 9)
+Mars: Sagittarius 12.75 deg (house: unknown)
+Major planetary aspects:
+Sun trine Mars (orb 0.25 deg, exactness 0.97)
+Moon square Venus (orb 5.15 deg, exactness 0.52)
+Sun trine Moon (orb 7.25 deg, exactness 0.40)
+
+Ключевые планетные влияния года (2026-01-01 — 2026-12-31):
+
+[2026-01-01] Sky: Sun Capricorn 10°
+
+Требования к ответу:
+
+1) Русский язык, 1100-1700 слов.
+
+2) Структура Markdown (## для разделов): ## Главная линия 2026 год, ## Ключевые этапы года (по сезонам и кварталам), ## Любовь, семья и близкие отношения, ## Работа, призвание и финансы, ## Внутренний рост и перемены, ## Энергия и баланс, ## Главные ориентиры года.
+
+3) Опирайся на конкретные факторы натальной карты и медленные транзиты года, сразу поясняя термины обычными словами.
+
+4) Явно укажи охватываемый период (2026-01-01 — 2026-12-31).
+
+5) Без таблиц, без воды и шаблонных фраз.
+
+6) Заверши ответ отдельной строкой: [END_OF_REPORT]",
 }
 `;

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { GEMINI_TEST_KEY } from "./helpers/aiKeys";
 import { createFakeFirestore, type FakeFirestore } from "./helpers/fakeFirestore";
 
 const h = vi.hoisted(() => ({ fake: null as unknown as FakeFirestore, failReads: false }));
@@ -99,7 +100,7 @@ describe("provider keys (DEC-019)", () => {
     expect(providerConfigured("openai")).toBe(false);
     expect(apiKeyFor("gemini")).toBeNull();
     process.env.OPENAI_API_KEY = "sk-proj-abcdefghijklmnopqrstuvwxyz";
-    process.env.GEMINI_API_KEY = "AIzaSyAbcdefghijklmnopqrstuvwxyz0123456";
+    process.env.GEMINI_API_KEY = GEMINI_TEST_KEY;
     expect(providerConfigured("openai")).toBe(true);
     expect(providerConfigured("gemini")).toBe(true);
   });

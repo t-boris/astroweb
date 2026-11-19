@@ -224,15 +224,33 @@ export async function exportDossier(profileId: string): Promise<unknown> {
   };
 }
 
-/** Persist an Oracle Q/A to server-side history (for learning + continuity). */
+/** Persist a situation forecast / Oracle Q/A to server-side history (for learning + continuity). */
 export async function recordOracleHistory(
   profileId: string,
-  entry: { question: string; answer: string; model: string; channel: "web" | "letter" },
+  entry: {
+    question: string;
+    answer: string;
+    model: string;
+    channel: "web" | "letter";
+    periodStart?: string;
+    periodEnd?: string;
+    orderId?: string;
+  },
 ): Promise<string> {
+  const doc: Record<string, unknown> = {
+    question: entry.question,
+    answer: entry.answer,
+    model: entry.model,
+    channel: entry.channel,
+    askedAt: new Date().toISOString(),
+  };
+  if (entry.periodStart) doc.periodStart = entry.periodStart;
+  if (entry.periodEnd) doc.periodEnd = entry.periodEnd;
+  if (entry.orderId) doc.orderId = entry.orderId;
   const ref = await getFirestore()
     .collection("oracleHistory")
     .doc(profileId)
     .collection("items")
-    .add({ ...entry, askedAt: new Date().toISOString() });
+    .add(doc);
   return ref.id;
 }

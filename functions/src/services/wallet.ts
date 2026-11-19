@@ -22,7 +22,14 @@ import type { OwnerCtx } from "./owner";
 const DEVICE_PREFIX = "device:";
 
 /** Feature labels recorded in the `starSpends` ledger (REQ-009 / DEC-009). */
-export type SpendFeature = "interpretations" | "compatibility" | "oracle" | "relationship" | "letter";
+export type SpendFeature =
+  | "interpretations"
+  | "compatibility"
+  | "oracle"
+  | "relationship"
+  | "letter"
+  | "monthly_horoscope"
+  | "yearly_horoscope";
 
 /** Ledger row of one star spend (positive `stars`) or refund (negative `stars`). */
 export interface StarSpendRow {
@@ -139,6 +146,30 @@ export async function spendFromWallet(key: string, cost: number, feature: SpendF
 }
 
 /**
+ * Spend `cost` stars inside an existing transaction when the caller has ALREADY
+ * called `ensureWalletInTx(tx, key)` and obtained `balance`. Performs writes
+ * only, so it never triggers a read-after-write error in Firestore.
+ */
+export function spendKnownBalanceInTx(
+  tx: Transaction,
+  key: string,
+  balance: number,
+  cost: number,
+  feature: SpendFeature,
+): number {
+  if (balance < cost) {
+    throw new HttpsError("failed-precondition", "INSUFFICIENT_TOKENS");
+  }
+  tx.set(
+    walletRef(key),
+    { tokens: balance - cost, updatedAt: FieldValue.serverTimestamp() },
+    { merge: true },
+  );
+  recordSpendInTx(tx, buildStarSpendRow(key, feature, cost));
+  return balance - cost;
+}
+
+/**
  * Spend `cost` stars within an existing transaction — for callers that must
  * atomically combine the spend with another write (e.g. setting a profile's
  * unlock flag). All reads in the transaction must precede this call.
@@ -150,16 +181,7 @@ export async function spendInTx(
   feature: SpendFeature,
 ): Promise<number> {
   const balance = await ensureWalletInTx(tx, key);
-  if (balance < cost) {
-    throw new HttpsError("failed-precondition", "INSUFFICIENT_TOKENS");
-  }
-  tx.set(
-    walletRef(key),
-    { tokens: balance - cost, updatedAt: FieldValue.serverTimestamp() },
-    { merge: true },
-  );
-  recordSpendInTx(tx, buildStarSpendRow(key, feature, cost));
-  return balance - cost;
+  return spendKnownBalanceInTx(tx, key, balance, cost, feature);
 }
 
 /**

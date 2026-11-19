@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { FirebaseError } from "firebase/app";
 import { useTranslation } from "react-i18next";
 import { dateLocale, toAppLanguage } from "@/lib/language";
-import { FirebaseError } from "firebase/app";
-import { ChevronDown, ChevronUp, Download, Trash2 } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp, Download, RefreshCw, Trash2 } from "lucide-react";
 import {
   generateInterpretations,
   type InterpretationBlock,
@@ -19,8 +19,21 @@ import {
 import { signLabel } from "@/lib/signs";
 import { aspectHelpKey, elementHelpKey, planetHelpKey, signHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";
+import { DirectCheckoutDialog } from "@/components/DirectCheckoutDialog";
 import { AiReading, renderInlineMarkdown } from "@/components/AiReading";
-import { deepenInterpretation, askOracle } from "@/api/ai";
+import { deepenInterpretation } from "@/api/ai";
+import {
+  cancelDirectCheckout,
+  fulfillDirectOrder,
+  listProfileHoroscopes,
+  type RecoverableDirectOrder,
+} from "@/api/directCheckout";
+import {
+  calculateDirectCheckoutQuote,
+  formatDateRange,
+  formatUsdCents,
+  threeMonthPeriod,
+} from "@/lib/directServices";
 import {
   enqueuePremiumPdf,
   getPremiumPdfJob,
@@ -46,10 +59,13 @@ interface InterpretationViewProps {
   interpretationsUnlocked?: boolean;
   onUnlocked?: () => void;
   onPurchasePremium?: () => void;
-  /** "interpretation" = readings only, "oracle" = oracle chat only, "full" = both. */
+  /** "interpretation" = readings only, "oracle" = situation forecast only, "full" = both. */
   mode?: "full" | "oracle" | "interpretation";
   relocationLat?: number | null;
   relocationLng?: number | null;
+  pendingDirectOrderId?: string | null;
+  pendingCheckoutStatus?: "success" | "cancel" | null;
+  onClearPendingOrder?: () => void;
 }
 
 type OracleEntry = OracleItem;
@@ -312,6 +328,9 @@ export function InterpretationView({
   mode = "full",
   relocationLat,
   relocationLng,
+  pendingDirectOrderId = null,
+  pendingCheckoutStatus = null,
+  onClearPendingOrder,
 }: InterpretationViewProps) {
   const { t, i18n } = useTranslation();
   const blocks = useMemo(() => generateInterpretations(chart), [chart]);
@@ -329,10 +348,14 @@ export function InterpretationView({
   const [deepErrors, setDeepErrors] = useState<Record<string, string>>({});
   const [oracleQuestion, setOracleQuestion] = useState("");
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
+  const [oraclePeriod, setOraclePeriod] = useState<{ start: string; end: string } | null>(null);
   const [oracleHistory, setOracleHistory] = useState<OracleEntry[]>([]);
   const [currentOracleEntryKey, setCurrentOracleEntryKey] = useState<string | null>(null);
   const [oracleLoading, setOracleLoading] = useState(false);
   const [oracleError, setOracleError] = useState<string | null>(null);
+  const [oracleCancelNotice, setOracleCancelNotice] = useState(false);
+  const [situationCheckoutOpen, setSituationCheckoutOpen] = useState(false);
+  const [recoverableSituationOrders, setRecoverableSituationOrders] = useState<RecoverableDirectOrder[]>([]);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [pdfProgress, setPdfProgress] = useState<string | null>(null);
@@ -550,6 +573,102 @@ export function InterpretationView({
     }
   }
 
+  const loadRecoverableSituationOrders = useCallback(async () => {
+    if (mode === "interpretation" || !auth.currentUser) {
+      setRecoverableSituationOrders([]);
+      return;
+    }
+    try {
+      const res = await listProfileHoroscopes(profileId, ownerDeviceId);
+      setRecoverableSituationOrders(res.recoverableOrders.filter((o) => o.service === "situation"));
+    } catch {
+      /* ignore */
+    }
+  }, [mode, profileId, ownerDeviceId]);
+
+  useEffect(() => {
+    void loadRecoverableSituationOrders();
+  }, [loadRecoverableSituationOrders, contentTick, user?.uid]);
+
+  const fulfillSituationOrder = useCallback(
+    async (orderId: string) => {
+      setOracleLoading(true);
+      setOracleError(null);
+      setOracleCancelNotice(false);
+      trackEvent("ai_reading_requested", { kind: "oracle" });
+
+      try {
+        const res = await fulfillDirectOrder(orderId);
+        if (res.status === "completed" && res.text) {
+          const cleanedAnswer = cleanAiArtifacts(res.text);
+          const finalAnswer = cleanedAnswer.length >= 20 ? cleanedAnswer : res.text.trim();
+          const askedQuestion = res.meta?.question || oracleQuestion.trim();
+          const newEntry: OracleEntry = {
+            ...(res.resultId ? { id: res.resultId } : {}),
+            question: askedQuestion,
+            answer: finalAnswer,
+            model: res.meta?.model ?? "",
+            askedAt: res.meta?.generatedAt ?? new Date().toISOString(),
+            periodStart: res.periodStart,
+            periodEnd: res.periodEnd,
+          };
+
+          setOracleAnswer(finalAnswer);
+          setOraclePeriod({ start: res.periodStart, end: res.periodEnd });
+          setCurrentOracleEntryKey(getOracleEntryKey(newEntry));
+          setCurrentOracleCollapsed(false);
+          setOracleHistory((prev) => [newEntry, ...prev.filter((e) => getOracleEntryKey(e) !== getOracleEntryKey(newEntry))]);
+          setCollapsedOracleAnswers((prev) => {
+            const next = Object.fromEntries(
+              Object.entries(prev).map(([key]) => [key, true]),
+            ) as Record<string, boolean>;
+            next[getOracleEntryKey(newEntry)] = false;
+            return next;
+          });
+          setOracleQuestion("");
+
+          onUnlocked?.();
+          window.dispatchEvent(new Event("astroweb:stars-changed"));
+          await loadRecoverableSituationOrders();
+        } else {
+          await loadRecoverableSituationOrders();
+          setOracleError(
+            t(
+              "directCheckout.stillProcessing",
+              "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
+            ),
+          );
+        }
+      } catch {
+        await loadRecoverableSituationOrders();
+        setOracleError(
+          t(
+            "directCheckout.generationFailedRecoverable",
+            "Не удалось сформировать прогноз. Ваша оплата сохранена — нажмите «Повторить генерацию» ниже без повторной оплаты и списания звёзд.",
+          ),
+        );
+      } finally {
+        setOracleLoading(false);
+      }
+    },
+    [loadRecoverableSituationOrders, onUnlocked, oracleQuestion, t],
+  );
+
+  useEffect(() => {
+    if (mode === "interpretation" || !pendingDirectOrderId || !pendingCheckoutStatus) return;
+    if (pendingCheckoutStatus === "cancel") {
+      setOracleCancelNotice(true);
+      void cancelDirectCheckout(pendingDirectOrderId)
+        .catch(() => {})
+        .finally(() => onClearPendingOrder?.());
+      return;
+    }
+    if (pendingCheckoutStatus === "success") {
+      onClearPendingOrder?.();
+      void fulfillSituationOrder(pendingDirectOrderId);
+    }
+  }, [mode, pendingDirectOrderId, pendingCheckoutStatus, onClearPendingOrder, fulfillSituationOrder]);
+
   async function handleAskOracle() {
     const question = oracleQuestion.trim();
     if (!question) {
@@ -557,88 +676,16 @@ export function InterpretationView({
       return;
     }
 
-    // Asking the Oracle is paid: an anonymous visitor signs in first (REQ-004).
-    // The popup has to open in this click, before any other await.
+    setOracleError(null);
+    setOracleCancelNotice(false);
+    // Paid action: sign-in popup opens synchronously inside the click handler (REQ-005 AC #16).
     if (!auth.currentUser) {
       const signedIn = await ensureSignedIn(ownerDeviceId);
       if (!signedIn) return;
-    }
-
-    setOracleLoading(true);
-    setOracleError(null);
-    setOracleAnswer(null);
-    trackEvent("ai_reading_requested", { kind: "oracle" });
-
-    try {
-      const response = await askOracle({
-        profileId,
-        ownerDeviceId,
-        question,
-        language,
-        relocationLat: relocationLat ?? undefined,
-        relocationLng: relocationLng ?? undefined,
-      });
-
-      const cleanedAnswer = cleanAiArtifacts(response.answer);
-      const finalAnswer =
-        cleanedAnswer.length >= 30 ? cleanedAnswer : response.answer.trim();
-
-      if (finalAnswer.length < 20) {
-        throw new Error("Oracle returned too short answer");
-      }
-
-      const newEntry: OracleEntry = {
-        ...(response.entryId ? { id: response.entryId } : {}),
-        question,
-        answer: finalAnswer,
-        model: response.model,
-        askedAt: new Date().toISOString(),
-      };
-
-      // The server stored the Q/A (REQ-004), so it survives a tab switch or
-      // another device. If that write failed, keep it here until the next upload:
-      // the user paid ✦1 and the answer must never be lost.
-      if (!response.persisted) {
-        keepLocally(localStorage, profileId, {
-          oracle: { question, answer: finalAnswer, model: response.model, askedAt: newEntry.askedAt },
-        });
-      }
-
-      setOracleAnswer(finalAnswer);
-      setCurrentOracleEntryKey(getOracleEntryKey(newEntry));
-      setCurrentOracleCollapsed(false);
-      setOracleHistory((prev) => [newEntry, ...prev]);
-      setCollapsedOracleAnswers((prev) => {
-        const next = Object.fromEntries(
-          Object.entries(prev).map(([key]) => [key, true]),
-        ) as Record<string, boolean>;
-        next[getOracleEntryKey(newEntry)] = false;
-        return next;
-      });
-      setOracleQuestion("");
-
-      // The oracle spent ✦1 server-side — refresh the profile (inline balance)
-      // and the header star count so the cost is reflected immediately.
       onUnlocked?.();
-      window.dispatchEvent(new Event("astroweb:stars-changed"));
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        if (error.message.includes("failed-precondition")) {
-          // Not enough stars on the account: go to the store.
-          onPurchasePremium?.();
-        } else if (error.message.includes("permission-denied")) {
-          setOracleError(t("errors.permissionDenied"));
-        } else if (error.message.includes("not-found")) {
-          setOracleError(t("errors.profileNotFound"));
-        } else {
-          setOracleError(t("errors.aiFailed"));
-        }
-      } else {
-        setOracleError(t("errors.aiFailed"));
-      }
-    } finally {
-      setOracleLoading(false);
     }
+
+    setSituationCheckoutOpen(true);
   }
 
   /** DEC-008: a server-stored entry is deleted on the server, so it is gone on every device. */
@@ -685,6 +732,8 @@ export function InterpretationView({
     }
   }
 
+  const situationQuote = calculateDirectCheckoutQuote("situation", tokens);
+  const situationWindow = threeMonthPeriod();
   const canOracle = tokens >= TOKEN_COST.oracle;
   // Full interpretations, Dig Deeper and the PDF are all part of the one-time
   // 4-star unlock (or a legacy purchase). Until unlocked, they stay blurred.
@@ -695,7 +744,9 @@ export function InterpretationView({
     ? t("ai.askOracleLoading")
     : needsSignIn
       ? t("signInGate.askOracle")
-      : t("ai.askOracle");
+      : situationQuote.payableCents === 0
+        ? `${t("ai.askOracle")} · ✦${situationQuote.appliedStars} ($0.00)`
+        : `${t("ai.askOracle")} · ${formatUsdCents(situationQuote.payableCents)}`;
   const currentToggleLabel = currentOracleCollapsed ? t("ai.expandExplanation") : t("ai.collapseExplanation");
 
   // Funnel: the paywall of this view is on screen (once per profile and feature).
@@ -879,12 +930,19 @@ export function InterpretationView({
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {t("ai.oracleDescription")}
               </p>
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-[#8fb6ff]">
+                <Calendar className="h-3.5 w-3.5" />
+                {t("directCheckout.forecastWindow3m", {
+                  range: formatDateRange(situationWindow.periodStart, situationWindow.periodEnd, language),
+                  defaultValue: `Прогноз развития на 3 месяца: ${formatDateRange(situationWindow.periodStart, situationWindow.periodEnd, language)}`,
+                })}
+              </p>
             </div>
           </div>
           <div className="flex flex-none flex-col items-end">
             <HelpBubble helpKey="oracle.cost">
               <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-                {t("ai.creditsLabel", "Stars")} · ✦{TOKEN_COST.oracle}
+                {formatUsdCents(situationQuote.basePriceCents)} · ✦{TOKEN_COST.oracle}
               </span>
             </HelpBubble>
             <HelpBubble helpKey="oracle.balance">
@@ -894,6 +952,45 @@ export function InterpretationView({
             </HelpBubble>
           </div>
         </div>
+
+        {/* Recovery banner for any paid situation forecast whose generation failed */}
+        {recoverableSituationOrders.length > 0 && (
+          <div
+            className="space-y-2 rounded-xl border border-[#e8c969]/40 bg-[#e8c969]/10 p-3.5"
+            data-testid="situation-recovery-banner"
+          >
+            {recoverableSituationOrders.map((ord) => (
+              <div key={ord.orderId} className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0 text-xs text-foreground">
+                  <p className="font-medium text-[#e8c969]">
+                    {t("directCheckout.paidSituationReady", "Оплаченный прогноз на ситуацию")}
+                  </p>
+                  {ord.question && <p className="truncate text-muted-foreground">{ord.question}</p>}
+                  <p className="text-muted-foreground">{formatDateRange(ord.periodStart, ord.periodEnd, language)}</p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={oracleLoading}
+                  onClick={() => void fulfillSituationOrder(ord.orderId)}
+                  className="bg-[#e8c969] text-[#1a1606] hover:bg-[#f2dd9a]"
+                >
+                  <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${oracleLoading ? "animate-spin" : ""}`} />
+                  {t("horoscopes.retryGeneration", "Повторить генерацию (уже оплачено)")}
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {oracleCancelNotice && (
+          <div className="rounded-xl border border-border/60 bg-background/50 px-4 py-3 text-sm text-muted-foreground">
+            {t(
+              "directCheckout.canceledNotice",
+              "Оплата отменена. Деньги не списаны, а все ваши звёзды остались на балансе.",
+            )}
+          </div>
+        )}
 
         {/* The flex column keeps the card's vertical spacing and the field's full width (the bubble's wrapper has no box). */}
         <div className="flex flex-col">
@@ -907,25 +1004,33 @@ export function InterpretationView({
                   setOracleError(null);
                 }
               }}
-              placeholder={canOracle || needsSignIn ? t("ai.oraclePlaceholder") : t("ai.oracleNoCredits", "You need stars to ask a question. Buy them in the Premium tab.")}
+              placeholder={t("ai.oraclePlaceholder")}
               maxLength={1000}
-              disabled={!canOracle && !needsSignIn}
             />
           </HelpBubble>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <HelpBubble helpKey="oracle.ask" actionable label={askOracleLabel}>
             <Button
               type="button"
               onClick={handleAskOracle}
-              disabled={oracleLoading || (!canOracle && !needsSignIn)}
-              className={canOracle || needsSignIn ? "bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606]" : ""}
+              disabled={oracleLoading}
+              className="bg-[#e8c969] hover:bg-[#f2dd9a] text-[#1a1606] font-semibold"
               data-testid="oracle-ask"
             >
               {askOracleLabel}
             </Button>
           </HelpBubble>
+          {tokens > 0 && (
+            <span className="text-xs text-[#e8c969]">
+              {t("horoscopes.starsCoverFull", {
+                applied: situationQuote.appliedStars,
+                surplus: situationQuote.surplusStars,
+                defaultValue: `Ваших звёзд достаточно: спишется ✦${situationQuote.appliedStars}, к оплате $0.00.`,
+              })}
+            </span>
+          )}
         </div>
 
         {oracleError && (
@@ -937,11 +1042,20 @@ export function InterpretationView({
             <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 text-[#e8c969]">✦</div>
             <div className="min-w-0 flex-1 space-y-2 rounded-2xl rounded-bl-sm border border-border bg-secondary p-4">
             <div className="flex items-center justify-between gap-2">
-              <HelpBubble helpKey="oracle.answer">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {t("ai.answerTitle")}
-                </p>
-              </HelpBubble>
+              <div>
+                <HelpBubble helpKey="oracle.answer">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {t("ai.answerTitle")}
+                  </p>
+                </HelpBubble>
+                {oraclePeriod && (
+                  <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#e8c969]">
+                    <Calendar className="h-3 w-3" />
+                    {t("directCheckout.coveredDates", "Охватываемые даты")}:{" "}
+                    {formatDateRange(oraclePeriod.start, oraclePeriod.end, language)}
+                  </p>
+                )}
+              </div>
               <div className="flex items-center gap-1 shrink-0">
                 <HelpBubble helpKey="oracle.toggle" actionable label={currentToggleLabel}>
                   <Button
@@ -998,9 +1112,17 @@ export function InterpretationView({
                       className="rounded-md border bg-background/40 p-3 space-y-2"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs text-muted-foreground">
-                          {entry.question}
-                        </p>
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {entry.question}
+                          </p>
+                          {entry.periodStart && entry.periodEnd && (
+                            <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-[#e8c969]">
+                              <Calendar className="h-3 w-3" />
+                              {formatDateRange(entry.periodStart, entry.periodEnd, language)}
+                            </p>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <HelpBubble helpKey="oracle.toggle" actionable label={toggleLabel}>
                             <Button
@@ -1045,6 +1167,21 @@ export function InterpretationView({
             </div>
           </div>
         )}
+
+        <DirectCheckoutDialog
+          open={situationCheckoutOpen}
+          onClose={() => setSituationCheckoutOpen(false)}
+          profileId={profileId}
+          profileName={profileName}
+          service="situation"
+          initialStars={tokens}
+          relocationLat={relocationLat}
+          relocationLng={relocationLng}
+          question={oracleQuestion.trim()}
+          onOrderReadyToFulfill={(orderId) => {
+            void fulfillSituationOrder(orderId);
+          }}
+        />
       </div>
       )}
 

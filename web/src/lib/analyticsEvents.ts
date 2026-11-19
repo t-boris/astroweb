@@ -18,8 +18,20 @@ export const PROFILE_TABS = [
 ] as const;
 export type ProfileTab = (typeof PROFILE_TABS)[number];
 
-export type PaywallFeature = "interpretations" | "compatibility" | "oracle" | "premium_store";
-export type AiReadingKind = "deepen" | "oracle" | "compatibility" | "letter";
+export type PaywallFeature =
+  | "interpretations"
+  | "compatibility"
+  | "oracle"
+  | "premium_store"
+  | "monthly_horoscope"
+  | "yearly_horoscope";
+export type AiReadingKind =
+  | "deepen"
+  | "oracle"
+  | "compatibility"
+  | "letter"
+  | "monthly_horoscope"
+  | "yearly_horoscope";
 
 export interface FunnelEvents {
   profile_create_start: Record<string, never>;

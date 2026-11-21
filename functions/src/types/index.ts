@@ -23,6 +23,25 @@ export interface Profile {
   currentPlace?: string;
   currentLat?: number;
   currentLng?: number;
+  /** Set by `listProfiles` for an account with a subscription on this profile. */
+  subscription?: ProfileSubscription;
+}
+
+/**
+ * The state of a profile's Personal Astrologer subscription as the profile list shows it. Added to the
+ * profile by `listProfiles` for signed-in callers; never stored on the profile and never sent by a client.
+ * - active: letters are being written
+ * - ending: cancelled, access stays until `until`
+ * - paused: letters are on hold
+ * - past_due: the last payment failed
+ * A cancelled or ended subscription has no summary at all.
+ */
+export interface ProfileSubscription {
+  state: "active" | "ending" | "paused" | "past_due";
+  /** Letter cadence key ("daily", "every_2_days", ...); empty when the record has none. */
+  cadence: string;
+  /** End of the paid period (ISO 8601) or null. */
+  until: string | null;
 }
 
 export interface CreateProfilePayload {

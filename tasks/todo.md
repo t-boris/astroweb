@@ -1,3 +1,18 @@
+# Profiles panel: resizable, no visible scrollbar, subscription marks
+
+Branch: `feat/profiles-panel-resize-subscription` (stacked on `feat/big-three-compact-strip`, v2.28.0 -> 2.29.0). Requested by Boris in chat on 2026-11-21: "сделай панель с профилями с изменяющейся шириной и спрячь скролл, еще показывай как-то те профили у которых есть подписка".
+Status: APPROVED CHOICE (Boris, 2026-11-21): the subscription data comes in one request from the server (`listProfiles` adds a short summary to each profile), not one call per profile.
+
+Findings: the panel is `ProfilesMenu` inside `pages/Home.tsx` (fixed `w-60` sidebar from `xl`, off-canvas drawer below). The list is `overflow-y-auto`; a `.scrollbar-hidden` utility already exists. Subscriptions live in `subscriptions/{profileId}` (status active | paused | past_due | canceled, `cadence`, `canceledAt`, `currentPeriodEnd`); a cancel keeps access until the period end. Subscriptions need an account, so anonymous (device-only) lists have none. The header `ProfileSwitcher` is a second list of the same profiles.
+
+Plan (tick as done):
+- [x] **S1 Server:** `services/subscriptionSummary.ts`: pure `summarizeSubscription(doc, now)` -> `{ state: active | ending | paused | past_due, cadence, until }` or null (canceled or ended); `withSubscriptions(profiles, load)` reads `subscriptions/*` in one batched `getAll`, never fails the list (reports the error and returns the profiles as they are); `listProfiles` attaches it for signed-in callers only; type `ProfileSubscription` in both type files; 9 tests.
+- [x] **S2 Panel:** `components/ProfilesMenu.tsx` (moved out of `Home.tsx`, behaviour kept): width dragged by a handle on the right edge from `xl` (min 220, max 440 and 40% of the window, default 240, saved in `localStorage`, arrow keys with Shift for a bigger step, Home/End, double click resets, `role="separator"`); scrollbar hidden (`scrollbar-hidden`, the list still scrolls); width rules are pure (`lib/panelWidth.ts`) and tested.
+- [x] **S3 Subscription mark:** `SubscriptionBadge`: a sparkle next to the name and a pill with the wording on the card (Astrologer + cadence / until a date / paused / payment failed), accent colour of the card by state (gold, amber, slate, red); the same sparkle in the header `ProfileSwitcher`; archived profiles are not marked; EN and RU texts; the text hook lives in `lib/useSubscriptionText.ts`.
+- [x] **S4 Verify (ship pending):** chart-core 77, functions 456 (24 files), web 323 (22 files); `build:functions`, `lint --workspace=functions`, `build:web`; eslint in web at the baseline (5 errors, 1 warning, files not touched here); the date test passes in UTC, Los Angeles and Auckland. Browser check on the local mock (synthetic profiles, the app in a 1440 px iframe because the window is narrower than `xl`): all four states and the plain cards, no scrollbar (width 0, `scrollbar-width: none`, the list does scroll), drag 240 -> 300 -> 360, clamp at 440 and 220, arrows 16 and Shift 48, Home/End, double click back to 240 and the storage key removed, 400 kept after a reload, the sparkles in the header dropdown. Version 2.29.0. Open: PR, CI, merge, deploy, live read-only check (the mark needs a real subscription; none is created).
+
+---
+
 # Big Three: a compact, animated strip with an explanation
 
 Branch: `feat/big-three-compact-strip` (from `main` 987edfe, v2.27.0). Requested by Boris in chat on 2026-11-21: "Большая тройка теперь занимает слишком много места - добавь туда что-то, сделай более красивым желательно с анимацией и объяснением".

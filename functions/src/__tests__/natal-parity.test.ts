@@ -302,6 +302,7 @@ describe('shared aspect set against Astro-Seek (DEC-011, DEC-017)', () => {
 });
 
 describe('legacy fields stay unchanged (DEC-014)', () => {
+  const BASELINE_NUMBER_TOLERANCE_DEGREES = 1e-7;
   // Baseline written by origin/main e682fa3, before this feature, for the four datasets, the Einstein
   // chart and an unknown-time chart. points and aspects feed prompts, PDFs and transits.
   const baseline = JSON.parse(
@@ -313,7 +314,17 @@ describe('legacy fields stay unchanged (DEC-014)', () => {
   for (const [id, expected] of Object.entries(baseline.charts)) {
     it(`${id}: points and meta are identical to the baseline`, () => {
       const chart = computeNatalChart(expected.input);
-      expect(chart.points).toEqual(expected.points);
+      // The baseline was written on macOS and CI runs on Linux: the floating-point results of the
+      // ephemeris differ in the twelfth decimal (about 1e-8 arcseconds). Compare the numbers with a
+      // tolerance far below the arcsecond and everything else exactly.
+      const withoutNumbers = (points: ChartResult['points']) =>
+        points.map(({ lon: _lon, degreeInSign: _degreeInSign, ...rest }) => rest);
+      expect(withoutNumbers(chart.points)).toEqual(withoutNumbers(expected.points));
+      chart.points.forEach((point, i) => {
+        const before = expected.points[i];
+        expect(circularDeviation(point.lon, before.lon), `${id} ${point.body} lon`).toBeLessThan(BASELINE_NUMBER_TOLERANCE_DEGREES);
+        expect(Math.abs(point.degreeInSign - before.degreeInSign), `${id} ${point.body} degreeInSign`).toBeLessThan(BASELINE_NUMBER_TOLERANCE_DEGREES);
+      });
       expect(chart.meta).toEqual(expected.meta);
     });
 

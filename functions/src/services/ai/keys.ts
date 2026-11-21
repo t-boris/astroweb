@@ -19,7 +19,7 @@ const KEY_ENV: Record<AiProvider, string> = {
 const KEY_PATTERN: Record<AiProvider, RegExp> = {
   anthropic: /sk-ant-[A-Za-z0-9_-]+/,
   openai: /sk-[A-Za-z0-9_-]{20,}/,
-  gemini: /AIza[A-Za-z0-9_-]{30,}/,
+  gemini: /AIza[A-Za-z0-9_-]{30,}|^AQ\.[A-Za-z0-9_-]{30,}$/,
 };
 
 /** The provider's key, or null when it is missing or still the placeholder. */

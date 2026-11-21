@@ -175,8 +175,10 @@ export function ForecastView({
           await reloadHoroscopes();
           setFulfillError(
             t(
-              "directCheckout.stillProcessing",
-              "Платёж обрабатывается. Нажмите «Повторить», чтобы получить готовый гороскоп без повторной оплаты.",
+              res.status === "pending" ? "directCheckout.generationInProgress" : "directCheckout.stillProcessing",
+              res.status === "pending"
+                ? "Прогноз формируется. Подождите немного и нажмите «Повторить». Повторная оплата не нужна."
+                : "Платёж обрабатывается. Нажмите «Повторить», чтобы получить готовый гороскоп без повторной оплаты.",
             ),
           );
         }
@@ -442,7 +444,6 @@ export function ForecastView({
         </p>
       </div>
 
-      {/* Three clear period selector cards: Day (Free), Month ($4.99 / 5★), Year ($19.99 / 20★) */}
       <div className="grid gap-3 sm:grid-cols-3" role="tablist" aria-label={t("forecast.title")}>
         <button
           type="button"

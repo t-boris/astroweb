@@ -634,8 +634,10 @@ export function InterpretationView({
           await loadRecoverableSituationOrders();
           setOracleError(
             t(
-              "directCheckout.stillProcessing",
-              "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
+              res.status === "pending" ? "directCheckout.generationInProgress" : "directCheckout.stillProcessing",
+              res.status === "pending"
+                ? "Прогноз формируется. Подождите немного и нажмите «Повторить». Повторная оплата не нужна."
+                : "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
             ),
           );
         }

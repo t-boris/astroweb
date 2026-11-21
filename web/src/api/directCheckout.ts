@@ -166,6 +166,7 @@ export async function fulfillDirectOrder(orderId: string): Promise<FulfillDirect
   const fn = httpsCallable<{ orderId: string }, FulfillDirectOrderResponse>(
     functions,
     "fulfillDirectOrder",
+    { timeout: 310_000 },
   );
   return (await fn({ orderId })).data;
 }

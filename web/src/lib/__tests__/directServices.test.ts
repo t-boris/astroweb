@@ -20,15 +20,15 @@ describe("directServices client catalog and proportional star redemption (REQ-00
   it("matches approved USD base prices and full star thresholds", () => {
     expect(DIRECT_SERVICES.monthly_horoscope).toEqual({
       id: "monthly_horoscope",
-      basePriceCents: 499,
-      fullStarCost: 5,
+      basePriceCents: 399,
+      fullStarCost: 4,
       kind: "period",
       periodType: "month",
     });
     expect(DIRECT_SERVICES.yearly_horoscope).toEqual({
       id: "yearly_horoscope",
-      basePriceCents: 1999,
-      fullStarCost: 20,
+      basePriceCents: 399,
+      fullStarCost: 4,
       kind: "period",
       periodType: "year",
     });
@@ -50,14 +50,14 @@ describe("directServices client catalog and proportional star redemption (REQ-00
     expect(calculateDirectCheckoutQuote("monthly_horoscope", 0)).toMatchObject({
       appliedStars: 0,
       starDiscountCents: 0,
-      payableCents: 499,
+      payableCents: 399,
       surplusStars: 0,
       paymentPath: "usd_only",
     });
     expect(calculateDirectCheckoutQuote("yearly_horoscope", 0)).toMatchObject({
       appliedStars: 0,
       starDiscountCents: 0,
-      payableCents: 1999,
+      payableCents: 399,
       surplusStars: 0,
       paymentPath: "usd_only",
     });
@@ -78,20 +78,20 @@ describe("directServices client catalog and proportional star redemption (REQ-00
   });
 
   it("applies exact proportional rounding for partial star balances", () => {
-    // 2 stars on monthly ($4.99 / 5★) -> $2.99 payable
+    // Monthly with 2 of 4 stars -> $2.00 payable.
     expect(calculateDirectCheckoutQuote("monthly_horoscope", 2)).toMatchObject({
       appliedStars: 2,
-      starDiscountCents: 200,
-      payableCents: 299,
+      starDiscountCents: 199,
+      payableCents: 200,
       surplusStars: 0,
       paymentPath: "mixed",
     });
 
-    // 5 stars on yearly ($19.99 / 20★) -> $14.99 payable
-    expect(calculateDirectCheckoutQuote("yearly_horoscope", 5)).toMatchObject({
-      appliedStars: 5,
-      starDiscountCents: 500,
-      payableCents: 1499,
+    // Yearly with 3 of 4 stars -> $1.00 payable.
+    expect(calculateDirectCheckoutQuote("yearly_horoscope", 3)).toMatchObject({
+      appliedStars: 3,
+      starDiscountCents: 299,
+      payableCents: 100,
       surplusStars: 0,
       paymentPath: "mixed",
     });
@@ -114,16 +114,16 @@ describe("directServices client catalog and proportional star redemption (REQ-00
       surplusStars: 3,
       paymentPath: "stars_only",
     });
-    expect(calculateDirectCheckoutQuote("monthly_horoscope", 5)).toMatchObject({
-      appliedStars: 5,
-      starDiscountCents: 499,
+    expect(calculateDirectCheckoutQuote("monthly_horoscope", 4)).toMatchObject({
+      appliedStars: 4,
+      starDiscountCents: 399,
       payableCents: 0,
       surplusStars: 0,
       paymentPath: "stars_only",
     });
-    expect(calculateDirectCheckoutQuote("yearly_horoscope", 25)).toMatchObject({
-      appliedStars: 20,
-      starDiscountCents: 1999,
+    expect(calculateDirectCheckoutQuote("yearly_horoscope", 9)).toMatchObject({
+      appliedStars: 4,
+      starDiscountCents: 399,
       payableCents: 0,
       surplusStars: 5,
       paymentPath: "stars_only",

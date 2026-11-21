@@ -190,15 +190,39 @@ describe("sign-in and profile ownership gates (REQ-005 AC #16)", () => {
 });
 
 describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, REQ-005, DEC-004, DEC-007, DEC-008)", () => {
-  it("completes a monthly horoscope with 8 stars, deducts 5, preserves 3, and records a $0 purchase deduplicated by orderId", async () => {
+  it("keeps a running generation leased through the callable timeout and recovers a stale lease", async () => {
+    h.fake.seed("wallets", "u1", { tokens: 8 });
+    const checkout = await call(createDirectCheckout, owner, {
+      profileId: "p1", service: "monthly_horoscope", language: "ru",
+      confirmedPayableCents: 0, confirmedAppliedStars: 4,
+    });
+    const order = h.fake.all("directOrders").get(checkout.orderId)!;
+    h.fake.seed("directOrders", checkout.orderId, {
+      ...order, fulfillmentStatus: "generating", generatingStartedAt: new Date(Date.now() - 4 * 60_000).toISOString(),
+    });
+    const pending = await call(fulfillDirectOrder, owner, { orderId: checkout.orderId });
+    expect(pending.status).toBe("pending");
+    expect(h.runTask).not.toHaveBeenCalled();
+    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(4);
+
+    h.fake.seed("directOrders", checkout.orderId, {
+      ...order, fulfillmentStatus: "generating", generatingStartedAt: new Date(Date.now() - 7 * 60_000).toISOString(),
+    });
+    const recovered = await call(fulfillDirectOrder, owner, { orderId: checkout.orderId });
+    expect(recovered.status).toBe("completed");
+    expect(h.runTask).toHaveBeenCalledTimes(1);
+    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(4);
+  });
+
+  it("completes a monthly horoscope with 8 stars, deducts 4, preserves 4, and records a $0 purchase deduplicated by orderId", async () => {
     h.fake.seed("wallets", "u1", { tokens: 8 });
 
     const quoteRes = await call(getDirectCheckoutQuote, owner, { profileId: "p1", service: "monthly_horoscope" });
     expect(quoteRes.quote).toMatchObject({
-      basePriceCents: 499,
-      fullStarCost: 5,
-      appliedStars: 5,
-      surplusStars: 3,
+      basePriceCents: 399,
+      fullStarCost: 4,
+      appliedStars: 4,
+      surplusStars: 4,
       payableCents: 0,
       paymentPath: "stars_only",
     });
@@ -208,12 +232,12 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
       service: "monthly_horoscope",
       language: "ru",
       confirmedPayableCents: 0,
-      confirmedAppliedStars: 5,
+      confirmedAppliedStars: 4,
       analytics: { consent: "granted", clientId: "1234567890.1234567890" },
     });
-    expect(checkout).toMatchObject({ mode: "stars_only", payableCents: 0, appliedStars: 5, surplusStars: 3 });
+    expect(checkout).toMatchObject({ mode: "stars_only", payableCents: 0, appliedStars: 4, surplusStars: 4 });
     expect(h.stripeSessionsCreate).not.toHaveBeenCalled();
-    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(3);
+    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(4);
 
     // Purchase analytics must NOT fire before the order completes successfully (REQ-005 AC #17).
     expect(h.fetchMock).not.toHaveBeenCalled();
@@ -230,7 +254,7 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
     expect(h.fake.all("purchases").get(checkout.orderId)).toMatchObject({
       amountTotal: 0,
       paymentPath: "stars_only",
-      appliedStars: 5,
+      appliedStars: 4,
       stripeSessionId: null,
       livemode: true,
     });
@@ -245,7 +269,7 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
         value: 0,
         currency: "USD",
         payment_path: "stars_only",
-        stars_applied: 5,
+        stars_applied: 4,
       },
     });
 
@@ -258,7 +282,7 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
     expect(h.runTask).toHaveBeenCalledTimes(1);
     expect(h.fetchMock).toHaveBeenCalledTimes(1);
     expect(h.fake.all("purchases").size).toBe(1);
-    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(3);
+    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(4);
 
     // Attempting a second purchase for the same profile and calendar month skips checkout & charges nothing (DEC-007).
     const second = await call(createDirectCheckout, owner, {
@@ -268,7 +292,7 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
     });
     expect(second.mode).toBe("existing_horoscope");
     expect(second.horoscope.text).toBe(fulfilled.text);
-    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(3);
+    expect(h.fake.all("wallets").get("u1")?.tokens).toBe(4);
   });
 
   it("deduplicates anonymous star-only purchases with a deterministic pseudo client_id without a Stripe session", async () => {
@@ -294,20 +318,37 @@ describe("full star redemption, surplus preservation & GA4 $0 funnel (REQ-003, R
 });
 
 describe("partial star redemption, cancellation, quote change guard & webhook idempotency (REQ-005)", () => {
-  it("charges $2.99 on Stripe for monthly horoscope with 2 stars, leaves stars available on cancel, and deducts once on payment", async () => {
+  it.each([
+    ["monthly_horoscope", 499],
+    ["yearly_horoscope", 1999],
+  ])("charges $3.99 on Stripe for a new %s and rejects its former full price", async (service, oldPriceCents) => {
+    h.fake.seed("wallets", "u1", { tokens: 0 });
+    const input = { profileId: "p1", service, confirmedAppliedStars: 0 };
+
+    await expect(call(createDirectCheckout, owner, { ...input, confirmedPayableCents: oldPriceCents }))
+      .rejects.toMatchObject({ code: "aborted", message: "QUOTE_CHANGED" });
+    expect(h.stripeSessionsCreate).not.toHaveBeenCalled();
+
+    const checkout = await call(createDirectCheckout, owner, { ...input, confirmedPayableCents: 399 });
+    expect(checkout).toMatchObject({ mode: "stripe", payableCents: 399, appliedStars: 0 });
+    expect(h.stripeSessionsCreate).toHaveBeenCalledTimes(1);
+    expect(h.stripeSessionsCreate.mock.calls[0][0].line_items[0].price_data.unit_amount).toBe(399);
+  });
+
+  it("charges $2.00 on Stripe for monthly horoscope with 2 stars, leaves stars available on cancel, and deducts once on payment", async () => {
     h.fake.seed("wallets", "u1", { tokens: 2 });
 
-    // Start checkout: 2 stars applied -> $2.99 USD on Stripe.
+    // Start checkout: 2 stars applied -> $2.00 USD on Stripe.
     const checkout1 = await call(createDirectCheckout, owner, {
       profileId: "p1",
       service: "monthly_horoscope",
       language: "ru",
-      confirmedPayableCents: 299,
+      confirmedPayableCents: 200,
       confirmedAppliedStars: 2,
     });
-    expect(checkout1).toMatchObject({ mode: "stripe", payableCents: 299, appliedStars: 2 });
+    expect(checkout1).toMatchObject({ mode: "stripe", payableCents: 200, appliedStars: 2 });
     expect(h.stripeSessionsCreate).toHaveBeenCalledTimes(1);
-    expect(h.stripeSessionsCreate.mock.calls[0][0].line_items[0].price_data.unit_amount).toBe(299);
+    expect(h.stripeSessionsCreate.mock.calls[0][0].line_items[0].price_data.unit_amount).toBe(200);
     // Stars are NOT deducted while awaiting payment.
     expect(h.fake.all("wallets").get("u1")?.tokens).toBe(2);
 
@@ -316,7 +357,7 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
       profileId: "p1",
       service: "monthly_horoscope",
       language: "ru",
-      confirmedPayableCents: 299,
+      confirmedPayableCents: 200,
       confirmedAppliedStars: 2,
     });
     expect(concurrent).toMatchObject({ mode: "stripe", orderId: checkout1.orderId, url: checkout1.url });
@@ -332,24 +373,24 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
       profileId: "p1",
       service: "monthly_horoscope",
       language: "ru",
-      confirmedPayableCents: 299,
+      confirmedPayableCents: 200,
       confirmedAppliedStars: 2,
     });
     expect(checkout2.mode).toBe("stripe");
     expect(checkout2.orderId).not.toBe(checkout1.orderId);
 
-    // Webhook confirms payment -> deducts 2 stars once, records $2.99 purchase & GA4 event.
+    // Webhook confirms payment -> deducts 2 stars once, records $2.00 purchase & GA4 event.
     await confirmPaidDirectOrder(checkout2.orderId, {
       stripeSessionId: "cs_live_2",
       stripePaymentIntent: "pi_2",
-      amountTotalCents: 299,
+      amountTotalCents: 200,
       currency: "usd",
       customerEmail: "anna@example.com",
       livemode: true,
     });
     expect(h.fake.all("wallets").get("u1")?.tokens).toBe(0);
     expect(h.fake.all("purchases").get(checkout2.orderId)).toMatchObject({
-      amountTotal: 299,
+      amountTotal: 200,
       appliedStars: 2,
       paymentPath: "mixed",
       stripeSessionId: "cs_live_2",
@@ -358,7 +399,7 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
     const gaBody = JSON.parse(h.fetchMock.mock.calls[0][1].body);
     expect(gaBody.events[0].params).toMatchObject({
       transaction_id: checkout2.orderId,
-      value: 2.99,
+      value: 2,
       currency: "USD",
       payment_path: "mixed",
       stars_applied: 2,
@@ -368,7 +409,7 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
     const dup = await confirmPaidDirectOrder(checkout2.orderId, {
       stripeSessionId: "cs_live_2",
       stripePaymentIntent: "pi_2",
-      amountTotalCents: 299,
+      amountTotalCents: 200,
       currency: "usd",
       customerEmail: "anna@example.com",
       livemode: true,
@@ -398,7 +439,7 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
       call(createDirectCheckout, owner, {
         profileId: "p1",
         service: "monthly_horoscope",
-        confirmedPayableCents: 299, // stale quote from when balance was 2★
+        confirmedPayableCents: 200, // stale quote from when balance was 2★
         confirmedAppliedStars: 2,
       }),
     ).rejects.toMatchObject({ code: "aborted", message: "QUOTE_CHANGED" });
@@ -431,13 +472,13 @@ describe("partial star redemption, cancellation, quote change guard & webhook id
 
 describe("failed generation recovery and post-period access (REQ-003 AC #6-#8, REQ-005 AC #11, #12, #15)", () => {
   it("prevents a second purchase while generation failed and lets the user retry under the same order without extra charge or stars", async () => {
-    h.fake.seed("wallets", "u1", { tokens: 5 });
+    h.fake.seed("wallets", "u1", { tokens: 4 });
     const checkout = await call(createDirectCheckout, owner, {
       profileId: "p1",
       service: "monthly_horoscope",
       language: "ru",
       confirmedPayableCents: 0,
-      confirmedAppliedStars: 5,
+      confirmedAppliedStars: 4,
     });
     expect(h.fake.all("wallets").get("u1")?.tokens).toBe(0);
 

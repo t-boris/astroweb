@@ -1,5 +1,6 @@
 import { getFirestore } from "firebase-admin/firestore";
 import type { Profile, ProfileSubscription } from "../types";
+import { cancellationTookEffect } from "./subscriptionLifecycle";
 
 /** The fields of a `subscriptions/{profileId}` document the profile list needs. */
 export interface SubscriptionDoc {
@@ -21,12 +22,11 @@ export function summarizeSubscription(doc: SubscriptionDoc | undefined, now: Dat
   if (!doc) return null;
   const cadence = typeof doc.cadence === "string" ? doc.cadence : "";
   const until = typeof doc.currentPeriodEnd === "string" && doc.currentPeriodEnd ? doc.currentPeriodEnd : null;
-  const periodOpen = until !== null && Date.parse(until) > now.getTime();
 
   switch (doc.status) {
     case "active":
       if (!doc.canceledAt) return { state: "active", cadence, until };
-      return periodOpen ? { state: "ending", cadence, until } : null;
+      return cancellationTookEffect(doc, now) ? null : { state: "ending", cadence, until };
     case "paused":
       return { state: "paused", cadence, until };
     case "past_due":

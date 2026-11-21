@@ -10,6 +10,8 @@ export interface Ref {
   id: string;
   get(): Promise<Snap>;
   set(value: Doc, opts?: { merge?: boolean }): Promise<void>;
+  /** Fails when the document already exists, like the Admin SDK. */
+  create(value: Doc): Promise<void>;
   update(value: Doc): Promise<void>;
   delete(): Promise<void>;
   /** Subcollection: stored under the path "<col>/<id>/<name>". */
@@ -66,6 +68,10 @@ export function createFakeFirestore(): FakeFirestore {
         return { exists: d !== undefined, id, ref, data: () => (d ? { ...d } : undefined) };
       },
       set: async (value, opts) => applySet(col, id, value, opts),
+      create: async (value) => {
+        if (colMap(col).has(id)) throw new Error("ALREADY_EXISTS");
+        applySet(col, id, value);
+      },
       update: async (value) => applyUpdate(col, id, value),
     };
     return ref;

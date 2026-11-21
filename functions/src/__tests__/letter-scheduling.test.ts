@@ -52,6 +52,23 @@ function makeUpdatesFail(profileId: string) {
     return name === 'subscriptions' ? { ...base, where: (...args: unknown[]) => wrap(base.where(...args)) } : base;
   };
 }
+/** Makes the query over cancelled subscriptions (the one filtering on canceledAt) fail, as a missing index does. */
+function makeSweepFail() {
+  const db = holder.fake.db as { collection: (name: string) => unknown };
+  const collection = db.collection.bind(db);
+  const wrap = (chain: Chain, sweeping: boolean): Chain => ({
+    where: (...args) => wrap(chain.where(...args), sweeping || args[0] === 'canceledAt'),
+    limit: (n) => wrap(chain.limit(n), sweeping),
+    get: async () => {
+      if (sweeping) throw new Error('FAILED_PRECONDITION: the query requires an index');
+      return chain.get();
+    },
+  });
+  db.collection = (name: string) => {
+    const base = collection(name) as unknown as Chain & Record<string, unknown>;
+    return name === 'subscriptions' ? { ...base, where: (...args: unknown[]) => wrap(base.where(...args), args[0] === 'canceledAt') } : base;
+  };
+}
 const jobs = () => [...holder.fake.all('letterJobs').values()];
 const sub = (id: string) => holder.fake.all('subscriptions').get(id) as Record<string, unknown>;
 
@@ -93,7 +110,7 @@ describe('enqueueDueLetters', () => {
   it('sends no letter for a cancelled subscription whose period is over and closes it', async () => {
     seed('gone', { canceledAt: CANCELLED, currentPeriodEnd: PAST });
     const result = await enqueueDueLetters(NOW);
-    expect(result).toEqual({ due: 1, enqueued: 0, closed: 1 });
+    expect(result).toEqual({ due: 0, enqueued: 0, closed: 1 });
     expect(jobs()).toHaveLength(0);
     expect(sub('gone').status).toBe('canceled');
   });
@@ -117,7 +134,7 @@ describe('enqueueDueLetters', () => {
     seed('gone', { canceledAt: CANCELLED, currentPeriodEnd: PAST });
     seed('paid', { canceledAt: CANCELLED, currentPeriodEnd: FUTURE });
     const result = await enqueueDueLetters(NOW);
-    expect(result).toEqual({ due: 3, enqueued: 2, closed: 1 });
+    expect(result).toEqual({ due: 2, enqueued: 2, closed: 1 });
     expect(jobs().map((j) => j.profileId).sort()).toEqual(['a', 'paid']);
   });
 
@@ -139,6 +156,35 @@ describe('enqueueDueLetters', () => {
     expect(jobs()).toHaveLength(1);
   });
 
+  it('closes a cancelled subscription whose letter is not due yet, so no screen keeps showing it as active', async () => {
+    seed('gone', { canceledAt: CANCELLED, currentPeriodEnd: PAST, nextLetterAt: '2026-11-23T08:00:00.000Z' });
+    const result = await enqueueDueLetters(NOW);
+    expect(result).toEqual({ due: 0, enqueued: 0, closed: 1 });
+    expect(sub('gone').status).toBe('canceled');
+    expect(sub('gone').updatedAt).toBe(NOW.toISOString());
+  });
+
+  it('leaves a cancelled subscription alone while its paid period is still ahead', async () => {
+    seed('paid', { canceledAt: CANCELLED, currentPeriodEnd: FUTURE, nextLetterAt: '2026-11-23T08:00:00.000Z' });
+    const result = await enqueueDueLetters(NOW);
+    expect(result.closed).toBe(0);
+    expect(sub('paid').status).toBe('active');
+  });
+
+  it('does not touch a subscription that was never cancelled', async () => {
+    seed('running', { nextLetterAt: '2026-11-23T08:00:00.000Z', currentPeriodEnd: PAST });
+    await enqueueDueLetters(NOW);
+    expect(sub('running').status).toBe('active');
+  });
+
+  it('closes every cancelled subscription of an account, not only the first', async () => {
+    seed('one', { canceledAt: CANCELLED, currentPeriodEnd: PAST, nextLetterAt: '2026-11-22T21:00:00.000Z' });
+    seed('two', { canceledAt: CANCELLED, currentPeriodEnd: null, nextLetterAt: '2026-11-23T08:00:00.000Z' });
+    const result = await enqueueDueLetters(NOW);
+    expect(result.closed).toBe(2);
+    expect([sub('one').status, sub('two').status]).toEqual(['canceled', 'canceled']);
+  });
+
   it('still queues the others when closing one subscription fails, and sends nothing to the one it could not close', async () => {
     seed('a');
     seed('gone', { canceledAt: CANCELLED, currentPeriodEnd: PAST });
@@ -146,5 +192,16 @@ describe('enqueueDueLetters', () => {
     const result = await enqueueDueLetters(NOW);
     expect(result).toEqual({ due: 2, enqueued: 1, closed: 0 });
     expect(jobs().map((j) => j.profileId)).toEqual(['a']);
+  });
+
+  it('still queues the letters when the pass over cancelled subscriptions cannot run (for example its index is building)', async () => {
+    seed('a');
+    seed('gone', { canceledAt: CANCELLED, currentPeriodEnd: PAST });
+    makeSweepFail();
+    const result = await enqueueDueLetters(NOW);
+    // The due pass applies the same rule, so the cancelled one still gets no letter and is closed there.
+    expect(result).toEqual({ due: 2, enqueued: 1, closed: 1 });
+    expect(jobs().map((j) => j.profileId)).toEqual(['a']);
+    expect(sub('gone').status).toBe('canceled');
   });
 });

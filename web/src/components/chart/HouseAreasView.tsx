@@ -7,8 +7,14 @@ import {
   ASPECT_GLYPHS,
   ASPECT_COLORS,
   SIGN_ELEMENTS,
-  ELEMENT_COLORS,
-} from "@/components/chart/utils/constants";
+  formatDegreeMinute,
+  getHouseSystemInfo,
+  getSharedAspects,
+  isTimeEstimated,
+  formatSignedOrb,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "@/components/chart/utils/elementColors";
+import { houseSystemName } from "@/components/chart/utils/labels";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -19,13 +25,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HelpBubble } from "@/components/HelpBubble";
-import {
-  formatDegreeMinute,
-  getHouseSystemInfo,
-  getSharedAspects,
-  isTimeEstimated,
-} from "@/components/chart/utils/positions";
-import { formatSignedOrb, houseSystemName } from "@/components/chart/utils/viewModel";
 import {
   aspectHelpKey,
   houseHelpKey,

@@ -13,8 +13,9 @@ import {
   formatSignedOrb,
   formatUtcTime,
   houseOfLongitude,
-} from "@/components/chart/utils/viewModel";
-import { formatDegreeMinute, getSharedAspects } from "@/components/chart/utils/positions";
+  formatDegreeMinute,
+  getSharedAspects,
+} from "@astroweb/chart-core";
 import { RAW_KEY, charts, initI18n, tagsWith, textOf } from "./tablesTestSupport";
 
 beforeAll(async () => {
@@ -214,9 +215,20 @@ describe("profile wiring (REQ-001)", () => {
   });
 
   it("feeds every chart view from the one chart result", () => {
-    for (const view of ["PlanetsTable", "AspectsTable", "AspectMatrix", "ElementModalityGrid", "DegreeStrip", "HouseAreasView"]) {
+    for (const view of ["PlanetsTable", "AspectsTable", "ElementModalityGrid", "DegreeStrip", "HouseAreasView"]) {
       expect(source, view).toMatch(new RegExp(`<${view} chart=\\{chartData\\} />`));
     }
     expect(source).toContain("<ChartContextLine");
+  });
+
+  it("gives the wheel and the matrix the birth data for their image footer, without the name or coordinates", () => {
+    expect(source).toContain("<NatalChart chart={chartData} imageContext={imageContext} />");
+    expect(source).toContain("<AspectMatrix chart={chartData} imageContext={imageContext} />");
+    const block = source.match(/const imageContext = \{([\s\S]*?)\n {2}\};/)?.[1] ?? "";
+    expect(block).toContain("birthDate: profile.birthDate");
+    expect(block).toContain("birthTime: profile.birthTime");
+    expect(block).toContain("placeName: chartRelocated ? relocationPlace : profile.birthPlace");
+    expect(block).toContain("relocated: chartRelocated");
+    expect(block).not.toMatch(/profile\.name|\blat\b|\blng\b/);
   });
 });

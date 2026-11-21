@@ -28,6 +28,9 @@ jobs:
       - name: Install Dependencies (Root & Workspaces)
         run: npm ci
 
+      - name: Test Chart Core
+        run: npm test --workspace=@astroweb/chart-core
+
       - name: Build Functions
         run: npm run build:functions
 

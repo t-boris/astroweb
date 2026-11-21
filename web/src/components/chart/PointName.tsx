@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { HelpBubble } from "@/components/HelpBubble";
 import { planetHelpKey } from "@/lib/helpKeys";
-import { pointGlyph, pointLabel } from "./utils/viewModel";
+import { pointGlyph } from "@astroweb/chart-core";
+import { pointLabel } from "./utils/labels";
 
 /** Glyph of a point. Text glyphs (Vx, ASC, MC) are set smaller so they fit the glyph column. */
 export function PointGlyph({ id }: { id: string }) {

@@ -1,12 +1,13 @@
-import { ASPECT_COLORS, ASPECT_GLYPHS } from "./utils/constants";
 import {
+  ASPECT_COLORS,
+  ASPECT_GLYPHS,
   aspectStrokeOpacity,
   aspectStrokeWidth,
   type AspectSegment,
-} from "./utils/wheelLayout";
+} from "@astroweb/chart-core";
 
 interface AspectLinesProps {
-  /** The visible aspects as chords of the aspect circle (utils/wheelLayout.ts: aspectSegments). */
+  /** The visible aspects as chords of the aspect circle (chart-core wheelLayout: aspectSegments). */
   segments: AspectSegment[];
   focusId: string | null;
   /** Draw the aspect glyph on each line. */

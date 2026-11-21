@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { CHART_LAYOUT } from "./utils/constants";
-import { houseMidLongitude } from "./utils/wheelLayout";
+import { eclipticToSvgAngle, polarToCartesian, CHART_LAYOUT, houseMidLongitude } from "@astroweb/chart-core";
+import { PAGE_WHEEL_LOOK, type WheelLook } from "./wheelLook";
 
 interface HouseCuspsProps {
   /** The twelve cusp longitudes, house 1 first. Null when the birth time is unknown: no houses are drawn. */
@@ -9,6 +8,7 @@ interface HouseCuspsProps {
   /** Longitude drawn on the left (9 o'clock) axis. */
   rotation: number;
   revealed: boolean;
+  look?: WheelLook;
 }
 
 /**
@@ -16,7 +16,7 @@ interface HouseCuspsProps {
  * between its two cusps (the cusps need not be 30 degrees apart). The inner circle is always drawn;
  * without a birth time it is the only thing this layer draws.
  */
-export default function HouseCusps({ cusps, rotation, revealed }: HouseCuspsProps) {
+export default function HouseCusps({ cusps, rotation, revealed, look = PAGE_WHEEL_LOOK }: HouseCuspsProps) {
   const { cx, cy, houseOuter, houseInner, houseRingOuter, houseNumberRadius } = CHART_LAYOUT;
 
   const lines = useMemo(() => {
@@ -51,8 +51,8 @@ export default function HouseCusps({ cusps, rotation, revealed }: HouseCuspsProp
           cx={cx}
           cy={cy}
           r={houseRingOuter}
-          fill="rgba(255,255,255,0.03)"
-          stroke="rgba(255,255,255,0.14)"
+          fill={look.houseRingFill}
+          stroke={look.houseRingStroke}
           strokeWidth={1}
           style={{
             animation: revealed ? "chart-fade-in 0.4s ease-out 1.0s forwards" : "none",
@@ -70,8 +70,8 @@ export default function HouseCusps({ cusps, rotation, revealed }: HouseCuspsProp
           y1={outer.y}
           x2={inner.x}
           y2={inner.y}
-          stroke="rgba(255, 255, 255, 0.22)"
-          strokeWidth={1}
+          stroke={look.cuspStroke}
+          strokeWidth={look.cuspWidth}
           style={{
             animation: revealed
               ? `chart-fade-in 0.4s ease-out ${1.0 + index * 0.03}s forwards`
@@ -109,7 +109,7 @@ export default function HouseCusps({ cusps, rotation, revealed }: HouseCuspsProp
         cy={cy}
         r={houseInner}
         fill="none"
-        stroke="rgba(255,255,255,0.3)"
+        stroke={look.innerCircleStroke}
         strokeWidth={1}
         style={{
           animation: revealed

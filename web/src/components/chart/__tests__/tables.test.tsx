@@ -4,9 +4,15 @@ import type { ChartResult, SharedAspect } from "@/types";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
 import { AspectsList, AspectsTable } from "@/components/chart/AspectsTable";
 import { AspectMatrix } from "@/components/chart/AspectMatrix";
-import { ALL_ASPECT_TYPES, DEFAULT_ASPECT_TYPES, filterAspects } from "@/components/chart/utils/aspectFilters";
-import { getSharedAspects } from "@/components/chart/utils/positions";
-import { aspectPairKey, formatSignedOrb, getAnalysisPoints } from "@/components/chart/utils/viewModel";
+import {
+  ALL_ASPECT_TYPES,
+  DEFAULT_ASPECT_TYPES,
+  filterAspects,
+  getSharedAspects,
+  aspectPairKey,
+  formatSignedOrb,
+  getAnalysisPoints,
+} from "@astroweb/chart-core";
 import { RAW_KEY, charts, initI18n, positionRows, tagsWith, textOf } from "./tablesTestSupport";
 
 beforeAll(async () => {

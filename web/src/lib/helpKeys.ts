@@ -1,9 +1,4 @@
-import {
-  ASPECT_GLYPHS,
-  PLANET_GLYPHS,
-  SIGN_ELEMENTS,
-  ZODIAC_SIGNS,
-} from "@/components/chart/utils/constants";
+import { ASPECT_GLYPHS, PLANET_GLYPHS, SIGN_ELEMENTS, ZODIAC_SIGNS } from "@astroweb/chart-core";
 
 /**
  * Keys of the generic astrology help texts (`help.*` in the translation files).

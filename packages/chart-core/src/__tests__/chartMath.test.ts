@@ -8,7 +8,7 @@ import {
 } from "../chartMath";
 import { CHART_LAYOUT } from "../constants";
 import { wheelRotation } from "../positions";
-import { loadFixtures } from "../../__tests__/chartFixtures";
+import { loadFixtures } from "./chartFixtures";
 
 const { cx, cy } = CHART_LAYOUT;
 const R = 100;

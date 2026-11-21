@@ -1,21 +1,25 @@
 import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian, describeSector } from "./utils/chartMath";
 import {
+  eclipticToSvgAngle,
+  polarToCartesian,
+  describeSector,
   ZODIAC_SIGNS,
   SIGN_ELEMENTS,
-  ELEMENT_COLORS,
   CHART_LAYOUT,
-} from "./utils/constants";
-import { signGlyph } from "./utils/wheelLayout";
+  signGlyph,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "./utils/elementColors";
+import { PAGE_WHEEL_LOOK, type WheelLook } from "./wheelLook";
 
 interface ZodiacRingProps {
   /** Longitude drawn on the left (9 o'clock) axis. */
   rotation: number;
   revealed: boolean;
+  look?: WheelLook;
 }
 
 /** The sign band: twelve sign sectors with their glyphs and the outer border. */
-export default function ZodiacRing({ rotation, revealed }: ZodiacRingProps) {
+export default function ZodiacRing({ rotation, revealed, look = PAGE_WHEEL_LOOK }: ZodiacRingProps) {
   const { cx, cy, outerRadius, signInner } = CHART_LAYOUT;
 
   const sectors = useMemo(() => {
@@ -54,8 +58,8 @@ export default function ZodiacRing({ rotation, revealed }: ZodiacRingProps) {
           d={path}
           fill={colors.fill}
           stroke={colors.stroke}
-          strokeOpacity={0.3}
-          strokeWidth={1}
+          strokeOpacity={look.sectorStrokeOpacity}
+          strokeWidth={look.sectorStrokeWidth}
           style={{
             animation: revealed
               ? `chart-fade-in 0.6s ease-out ${0.3 + index * 0.05}s forwards`
@@ -93,8 +97,8 @@ export default function ZodiacRing({ rotation, revealed }: ZodiacRingProps) {
         cy={cy}
         r={outerRadius}
         fill="none"
-        stroke="rgba(255,255,255,0.15)"
-        strokeWidth={1.5}
+        stroke={look.outerRingStroke}
+        strokeWidth={look.outerRingWidth}
         style={{
           animation: revealed
             ? "chart-shimmer 4s ease-in-out infinite, chart-fade-in 0.8s ease-out forwards"

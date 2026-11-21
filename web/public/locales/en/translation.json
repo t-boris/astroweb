@@ -199,6 +199,20 @@
       "quincunx": "Quincunx"
     }
   },
+  "chartImage": {
+    "download": {
+      "wheel": "Download wheel image",
+      "wheelAria": "Download the natal chart wheel as a PNG image with the site address",
+      "matrix": "Download matrix image",
+      "matrixAria": "Download the aspect matrix as a PNG image with the site address",
+      "busy": "Preparing image…",
+      "error": "The image could not be created. Please try again."
+    },
+    "footer": {
+      "houses": "{{system}} houses",
+      "timeUnknown": "time unknown, positions for local noon"
+    }
+  },
   "natalWheel": {
     "ariaLabel": "Natal chart wheel: zodiac ring with degree scale, houses, angles, planets and aspect lines",
     "timeEstimatedNote": "Birth time unknown: positions are estimates for local noon. Houses and angles are not shown.",

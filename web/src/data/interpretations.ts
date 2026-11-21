@@ -1,4 +1,4 @@
-import { SIGN_ELEMENTS } from "@/components/chart/utils/constants";
+import { SIGN_ELEMENTS } from "@astroweb/chart-core";
 import type { ChartResult, ChartAspect } from "@/types";
 
 export interface InterpretationBlock {

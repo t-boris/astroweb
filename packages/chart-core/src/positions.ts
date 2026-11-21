@@ -8,7 +8,7 @@ import type {
   ChartPosition,
   ChartResult,
   SharedAspect,
-} from "@/types";
+} from "./types";
 import { ZODIAC_SIGNS } from "./constants";
 
 /** Ids of the four chart angles in SharedAspect.a / .b. */

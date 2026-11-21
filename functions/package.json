@@ -2,10 +2,15 @@
   "name": "astroweb-functions",
   "main": "lib/index.js",
   "scripts": {
+    "vendor": "[ ! -f ../scripts/vendor-chart-core.mjs ] || node ../scripts/vendor-chart-core.mjs",
+    "prebuild": "npm run vendor",
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
+    "prelint": "npm run vendor",
     "lint": "tsc --noEmit",
+    "pretest": "npm run vendor",
     "test": "vitest run",
+    "pretest:watch": "npm run vendor",
     "test:watch": "vitest"
   },
   "engines": {

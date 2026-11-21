@@ -4,11 +4,13 @@ Monorepo for a Firebase-backed astrology web app:
 
 - `web/`: React + TypeScript + Vite frontend (Tailwind, i18n)
 - `functions/`: Firebase Cloud Functions (Gen 2, Node.js 22) for profiles, natal chart computation, and AI-powered interpretations (Anthropic Claude)
+- `packages/chart-core/`: pure natal chart code shared by `web/` and `functions/` (data contract, wheel geometry, view-model helpers)
 
 ## Repo Layout
 
 - `web/` Vite app (served via Firebase Hosting in prod)
 - `functions/` Cloud Functions source (`src/`) and build output (`lib/`)
+- `packages/chart-core/` shared chart package (see its README for how `functions/` consumes it)
 - `firebase.json` Firebase Hosting / Functions / emulator config
 - `firestore.rules`, `firestore.indexes.json` Firestore configuration
 
@@ -23,7 +25,7 @@ Monorepo for a Firebase-backed astrology web app:
 npm ci
 ```
 
-This repo uses npm workspaces; installing at the repo root installs `web/` and `functions/`.
+This repo uses npm workspaces; installing at the repo root installs `web/`, `functions/` and `packages/*`.
 
 ## Local Development
 
@@ -93,7 +95,9 @@ Ownership is enforced via `ownerDeviceId` (generated/persisted by the client in 
 ## Tests
 
 ```bash
+npm run test --workspace=@astroweb/chart-core
 npm run test --workspace=functions
+npm run test --workspace=web
 ```
 
 ## Build

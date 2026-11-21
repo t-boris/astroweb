@@ -93,29 +93,6 @@ export const SIGN_ELEMENTS: Record<
   Pisces: "water",
 };
 
-export const ELEMENT_COLORS = {
-  fire: {
-    fill: "rgba(239, 68, 68, 0.08)",
-    stroke: "#ef4444",
-    text: "#fca5a5",
-  },
-  earth: {
-    fill: "rgba(34, 197, 94, 0.08)",
-    stroke: "#22c55e",
-    text: "#86efac",
-  },
-  air: {
-    fill: "rgba(234, 179, 8, 0.08)",
-    stroke: "#eab308",
-    text: "#fde047",
-  },
-  water: {
-    fill: "rgba(59, 130, 246, 0.08)",
-    stroke: "#3b82f6",
-    text: "#93c5fd",
-  },
-};
-
 export const ASPECT_COLORS: Record<string, string> = {
   conjunction: "#a855f7",
   opposition: "#ef4444",
@@ -179,7 +156,7 @@ export const POINT_LABEL_RADII = {
   minute: 260,
 } as const;
 
-/** Smallest angular distance between two point label stacks, in degrees (see utils/labelSpread.ts). */
+/** Smallest angular distance between two point label stacks, in degrees (see labelSpread.ts). */
 export const POINT_LABEL_GAP_DEG = 8;
 
 /** Colour of the four angle axes and their labels. */

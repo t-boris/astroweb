@@ -1,7 +1,15 @@
 import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { ANGLE_COLOR, CHART_LAYOUT, ELEMENT_COLORS, SIGN_ELEMENTS } from "./utils/constants";
-import { angleEntries, angleLabelCenter, signGlyph } from "./utils/wheelLayout";
+import {
+  eclipticToSvgAngle,
+  polarToCartesian,
+  ANGLE_COLOR,
+  CHART_LAYOUT,
+  SIGN_ELEMENTS,
+  angleEntries,
+  angleLabelCenter,
+  signGlyph,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "./utils/elementColors";
 import type { ChartAngles } from "@/types";
 
 interface AngleAxesProps {

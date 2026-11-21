@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { ChartResult } from "@/types";
-import { isTimeEstimated } from "@/components/chart/utils/positions";
-import { formatCoordinates, formatUtcTime } from "@/components/chart/utils/viewModel";
+import { isTimeEstimated, formatCoordinates, formatUtcTime } from "@astroweb/chart-core";
 
 interface ChartContextLineProps {
   chart: ChartResult;

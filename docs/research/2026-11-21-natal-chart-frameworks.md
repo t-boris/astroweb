@@ -635,7 +635,7 @@ Ideas for implementation of 3D representation of natal chart
 
 #### Evidence
 
-- [Project fact] Преобразование долготы и полярных координат уже выделено в независимые от React функции. — `web/src/components/chart/utils/chartMath.ts:1`
+- [Project fact] Преобразование долготы и полярных координат уже выделено в независимые от React функции. — `packages/chart-core/src/chartMath.ts:1`
 - [Project fact] Разведение маркеров сейчас использует разницу углов и радиальное смещение. — `web/src/components/chart/PlanetMarkers.tsx:26`
 - [External fact] При ортографической проекции размер объекта на экране не зависит от расстояния до камеры. — <https://threejs.org/docs/pages/OrthographicCamera.html>
 - [AI inference] Для ограниченного набора ракурсов можно оставить SVG и вычислять проекцию только при изменении вида. Для пересекающихся полупрозрачных поверхностей простого порядка SVG-элементов может быть недостаточно.
@@ -673,7 +673,7 @@ Ideas for implementation of 3D representation of natal chart
 
 #### Evidence
 
-- [Project fact] Преобразование долготы в текущем колесе ставит ASC на позицию 9 часов. — `web/src/components/chart/utils/chartMath.ts:5`
+- [Project fact] Преобразование долготы в текущем колесе ставит ASC на позицию 9 часов. — `packages/chart-core/src/chartMath.ts:5`
 - [External fact] OrbitControls поддерживает вращение, масштабирование, панорамирование и ограничения орбиты камеры. — <https://threejs.org/docs/pages/OrbitControls.html>
 - [AI inference] Знакомый начальный ракурс и явный сброс помогают вернуться к чтению углов после осмотра сцены.
 

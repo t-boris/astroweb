@@ -18,18 +18,19 @@ import {
   PLANET_GLYPHS,
   ZODIAC_GLYPHS,
   ZODIAC_SIGNS,
-} from "@/components/chart/utils/constants";
-import { ALL_ASPECT_TYPES, DEFAULT_ASPECT_TYPES, filterAspects } from "@/components/chart/utils/aspectFilters";
-import {
+  ALL_ASPECT_TYPES,
+  DEFAULT_ASPECT_TYPES,
+  filterAspects,
   getAngles,
   getPositions,
   getSharedAspects,
   splitLongitude,
   wheelRotation,
-} from "@/components/chart/utils/positions";
-import { aspectSegments, signGlyph } from "@/components/chart/utils/wheelLayout";
-import { formatSignedOrb } from "@/components/chart/utils/viewModel";
-import { loadFixtures, type FixtureName } from "./chartFixtures";
+  aspectSegments,
+  signGlyph,
+  formatSignedOrb,
+} from "@astroweb/chart-core";
+import { loadFixtures, type FixtureName } from "@astroweb/chart-core/test-fixtures";
 
 const { charts } = loadFixtures();
 const { cx, cy } = CHART_LAYOUT;

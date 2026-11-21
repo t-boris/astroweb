@@ -2,6 +2,7 @@
   "name": "astroweb",
   "private": true,
   "workspaces": [
+    "packages/*",
     "web",
     "functions"
   ],

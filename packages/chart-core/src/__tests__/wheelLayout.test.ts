@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadFixtures } from "../../__tests__/chartFixtures";
+import { loadFixtures } from "./chartFixtures";
 import { CHART_LAYOUT, CUSP_ANGLE_TOLERANCE_DEG, OUTER_LABEL_GAP_DEG, POINT_LABEL_GAP_DEG, SCALE_TICK_LENGTH } from "../constants";
 import { ALL_ASPECT_TYPES, DEFAULT_ASPECT_TYPES, filterAspects } from "../aspectFilters";
 import { eclipticToSvgAngle, polarToCartesian, signedAngleDelta } from "../chartMath";

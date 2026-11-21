@@ -35,6 +35,33 @@ export const ASPECT_DEFINITIONS = [
   { type: 'opposition' as const, angle: 180, orb: 6 },
 ] as const;
 
+/**
+ * Version of the calculation rules behind ChartResult. It is part of the chart
+ * cache key, so bumping it makes every cached chart be recalculated on read.
+ *
+ * 2: additive fields (positions, angles, sharedAspects, context) and the
+ *    Chiron / nodes / Lilith / Fortune / Vertex conventions of DEC-010, DEC-015, DEC-016, DEC-017.
+ */
+export const CALC_VERSION = 2;
+
+/**
+ * Orb table of the shared aspect set (DEC-017, derived from the Astro-Seek default orbs).
+ * Majors get a wider orb when the Sun or Moon is involved; the six minors use one orb.
+ */
+export const SHARED_ASPECT_DEFINITIONS = [
+  { type: 'conjunction' as const, angle: 0, major: true, orb: 7, luminaryOrb: 10 },
+  { type: 'semi-sextile' as const, angle: 30, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'semi-square' as const, angle: 45, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'sextile' as const, angle: 60, major: true, orb: 4, luminaryOrb: 6 },
+  { type: 'quintile' as const, angle: 72, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'square' as const, angle: 90, major: true, orb: 7, luminaryOrb: 10 },
+  { type: 'trine' as const, angle: 120, major: true, orb: 7, luminaryOrb: 10 },
+  { type: 'sesquiquadrate' as const, angle: 135, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'bi-quintile' as const, angle: 144, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'quincunx' as const, angle: 150, major: false, orb: 2.5, luminaryOrb: 2.5 },
+  { type: 'opposition' as const, angle: 180, major: true, orb: 7, luminaryOrb: 10 },
+] as const;
+
 /** Maps house system names to sweph single-char codes */
 export const HOUSE_SYSTEM_CODES: Record<string, string> = {
   placidus: 'P',

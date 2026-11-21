@@ -1,6 +1,7 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { createHash } from "crypto";
 import { ChartDocument, ChartResult } from "../types/index";
+import { CALC_VERSION } from "../astro/constants";
 
 /**
  * Chart Firestore service — stores and retrieves computed natal charts
@@ -21,6 +22,8 @@ function getCollection() {
 /**
  * Compute a deterministic SHA-256 hash of chart computation inputs.
  * Used for cache lookup — same inputs always produce the same hash.
+ * The calculation version is part of the key, so charts cached under older
+ * calculation rules are never returned and are recalculated on read.
  */
 export function computeInputHash(inputs: {
   birthDate: string;
@@ -37,6 +40,7 @@ export function computeInputHash(inputs: {
     inputs.lng.toFixed(6),
     inputs.timezone,
     inputs.houseSystem,
+    `v${CALC_VERSION}`,
   ].join("|");
 
   return createHash("sha256").update(canonical).digest("hex");

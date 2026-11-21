@@ -5,8 +5,8 @@ Cause: `toLocaleString()` / `toLocaleDateString()` without a language use the br
 
 - [x] `lib/subscriptionDates.ts`: `formatDay`, `formatDayTime` (no seconds), `formatPeriodEnd` (empty unless the end is still ahead; the epoch of a failed read, a missing or an unreadable value included); tests (8) with a mutation check (5 fail with the old calls).
 - [x] Used on the astrologer card (next letter, cancel date), the account page (next letter) and the letters inbox (letter date); the cancel pill shows no date when it is not ahead; `home.subscription.endingNoDate` ("Astrologer · ending") for the profile-list mark without a date.
-- [x] Web 331 tests, tsc and eslint clean on the touched files.
-- [ ] Ship: PR, CI, merge, deploy, read-only look at the card on the live site.
+- [x] Web 337 tests (after the rebase), tsc and eslint clean on the touched files.
+- [x] Ship: PR #31 (CI green, merge 22b7a76, deploy success, header v2.29.3). Live read-only look (2026-11-21, owner session, no names or addresses printed): the astrologer card shows "Следующее письмо: 22 нояб. 2026 г., 15:00" and the pill "Отменится в конце периода" without the stale date; the account page lists the next letters as "23 нояб. 2026 г." and "22 нояб. 2026 г."; no `m/d/yyyy` date anywhere on either page.
 
 ---
 
@@ -18,7 +18,7 @@ Cause: `scheduleLetters` picked subscriptions by `status == "active"` and `nextL
 - [x] `services/subscriptionLifecycle.ts`: `cancellationTookEffect(doc, now)` is true when `canceledAt` is set and the period end is missing, unreadable or not ahead (the owner's cancel wins over a stale date).
 - [x] `services/letterScheduling.ts` (`enqueueDueLetters`, used by `api/scheduleLetters.ts`): such a subscription gets no letter and is closed (`status: "canceled"`, what the Stripe event would do); a failed close is logged and does not stop the tick. The profile-list summary uses the same rule.
 - [x] Tests: `letter-scheduling.test.ts` (11, with a `create()` added to the fake Firestore); mutation check with the rule stubbed to `false` fails 6 tests. Functions 467 pass, `build:functions` and lint clean.
-- [ ] Ship: PR, CI, merge, deploy, then read the scheduler log (counts only) for `closed` and that letters stop.
+- [x] Ship: PR #30 (CI green, merge cd25e8a, deploy success). Live: the three letters of 2026-11-21 (11:38, 14:08, 21:09 UTC) went out before the deploy. The account has two subscriptions (daily, due 22 Nov; every 2 days, due 23 Nov); the cancelled one is closed at its next due tick instead of getting a letter. Still to read from the scheduler log (counts only) after 2026-11-22 21:00 UTC: `closed >= 1` and no letter for that subscription.
 - Open for the owner (not changed): `cancelSubscription` logs a failed Stripe call but still answers ok, so a failed `cancel_at_period_end` leaves Stripe billing; the Stripe webhook may not be receiving renewal / deleted events (endpoint events or signing secret); check the subscription in the Stripe dashboard.
 
 ---
@@ -32,6 +32,7 @@ Cause: a click or tap pins the point (`selectedId`) so the wheel works without h
 - [x] `NatalChart` listens on `document` for `click` and `keydown` only while something is pinned.
 - [x] Tests (`wheelSelection.test.ts`, 6): marker click keeps, empty wheel / page / missing target releases, only Escape releases, markers carry `data-point` / `data-angle`.
 - [x] Verified in the browser on the local mock (synthetic clicks): pin by click, click on the page / on the empty wheel / on a button releases, same marker toggles off, Enter keeps, Escape releases, another marker switches the tooltip. Web tests 329 pass, eslint clean on the touched files.
+- [x] Ship: PR #29 (CI green, merge 1dc7d04, deploy success, v2.29.1). Live read-only check on v2.29.3 (2026-11-21): the axis click pins the tooltip, a click on the page or on the empty wheel and Escape release it, a second click on the same axis unpins it.
 
 ---
 

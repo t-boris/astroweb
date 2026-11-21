@@ -104,6 +104,14 @@ describe("provider keys (DEC-019)", () => {
     expect(providerConfigured("openai")).toBe(true);
     expect(providerConfigured("gemini")).toBe(true);
   });
+
+  it("accepts a Gemini authorization key from Google AI Studio", () => {
+    const key = `AQ.${"test-only-".repeat(5)}`;
+    process.env.GEMINI_API_KEY = ` ${key}\n`;
+
+    expect(apiKeyFor("gemini")).toBe(key);
+    expect(providerConfigured("gemini")).toBe(true);
+  });
 });
 
 describe("task registry (DEC-003)", () => {

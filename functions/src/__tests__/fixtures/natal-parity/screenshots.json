@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "note": "Position tables transcribed by hand from the original Astro-Seek screenshots SRC-002 (dataset A) and SRC-003 (dataset B) in docs/features/natal-chart-parity-and-verification/references/. Values are printed to whole arcminutes (truncated), so the numerical reference for each dataset is the regenerated chart (DEC-012); these rows serve display verification. The summary totals are the element-by-modality counts printed beneath each chart.",
+  "A": {
+    "source": "SRC-002",
+    "points": [
+      ["Sun", "Aries", 9, 10, 3, false],
+      ["Moon", "Libra", 27, 35, 9, false],
+      ["Mercury", "Aries", 0, 50, 3, false],
+      ["Venus", "Aries", 27, 16, 3, false],
+      ["Mars", "Taurus", 19, 55, 4, false],
+      ["Jupiter", "Cancer", 6, 54, 6, false],
+      ["Saturn", "Gemini", 10, 15, 5, false],
+      ["Uranus", "Aquarius", 27, 12, 1, false],
+      ["Neptune", "Aquarius", 10, 27, 1, false],
+      ["Pluto", "Sagittarius", 17, 36, 11, true],
+      ["NorthNode", "Gemini", 21, 41, 5, true],
+      ["Lilith", "Pisces", 24, 33, 2, false],
+      ["Chiron", "Capricorn", 8, 54, 12, false]
+    ],
+    "angles": [["ASC", "Aquarius", 24, 58, 1], ["MC", "Scorpio", 20, 37, 10]],
+    "summary": { "entries": 15, "fire": 4, "earth": 2, "air": 6, "water": 3, "cardinal": 6, "fixed": 5, "mutable": 4 }
+  },
+  "B": {
+    "source": "SRC-003",
+    "points": [
+      ["Sun", "Libra", 1, 40, 1, false],
+      ["Moon", "Pisces", 28, 9, 6, false],
+      ["Mercury", "Libra", 14, 33, 1, false],
+      ["Venus", "Leo", 22, 19, 11, false],
+      ["Mars", "Sagittarius", 14, 38, 3, false],
+      ["Jupiter", "Taurus", 3, 25, 8, true],
+      ["Saturn", "Taurus", 16, 35, 8, true],
+      ["Uranus", "Aquarius", 13, 10, 5, true],
+      ["Neptune", "Aquarius", 1, 41, 5, true],
+      ["Pluto", "Sagittarius", 8, 6, 3, false],
+      ["NorthNode", "Leo", 10, 14, 11, true],
+      ["Lilith", "Sagittarius", 12, 30, 3, false],
+      ["Chiron", "Sagittarius", 0, 15, 3, false],
+      ["Fortune", "Aries", 20, 12, 7, null],
+      ["Vertex", "Cancer", 5, 19, 10, null]
+    ],
+    "angles": [["ASC", "Libra", 23, 43, 1], ["MC", "Cancer", 24, 19, 10]],
+    "summary": { "entries": 17, "fire": 7, "earth": 2, "air": 5, "water": 3, "cardinal": 6, "fixed": 6, "mutable": 5 }
+  }
+}

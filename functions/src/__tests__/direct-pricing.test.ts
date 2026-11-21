@@ -28,8 +28,8 @@ describe("daily horoscope subscription pricing (REQ-004, DEC-005)", () => {
 
 describe("direct checkout proportional star redemption (REQ-003, REQ-005, DEC-003, DEC-004, DEC-006, DEC-010)", () => {
   it("uses the approved catalog prices and star thresholds", () => {
-    expect(DIRECT_SERVICES.monthly_horoscope).toMatchObject({ basePriceCents: 499, fullStarCost: 5 });
-    expect(DIRECT_SERVICES.yearly_horoscope).toMatchObject({ basePriceCents: 1999, fullStarCost: 20 });
+    expect(DIRECT_SERVICES.monthly_horoscope).toMatchObject({ basePriceCents: 399, fullStarCost: 4 });
+    expect(DIRECT_SERVICES.yearly_horoscope).toMatchObject({ basePriceCents: 399, fullStarCost: 4 });
     expect(DIRECT_SERVICES.situation).toMatchObject({ basePriceCents: 199, fullStarCost: 1 });
     expect(DIRECT_SERVICES.relationship).toMatchObject({ basePriceCents: 399, fullStarCost: 2 });
   });
@@ -38,13 +38,13 @@ describe("direct checkout proportional star redemption (REQ-003, REQ-005, DEC-00
     expect(calculateDirectCheckoutQuote("monthly_horoscope", 0)).toMatchObject({
       appliedStars: 0,
       starDiscountCents: 0,
-      payableCents: 499,
+      payableCents: 399,
       surplusStars: 0,
       paymentPath: "usd_only",
     });
     expect(calculateDirectCheckoutQuote("yearly_horoscope", 0)).toMatchObject({
       appliedStars: 0,
-      payableCents: 1999,
+      payableCents: 399,
       paymentPath: "usd_only",
     });
     expect(calculateDirectCheckoutQuote("situation", 0)).toMatchObject({
@@ -60,20 +60,20 @@ describe("direct checkout proportional star redemption (REQ-003, REQ-005, DEC-00
   });
 
   it("applies partial stars proportionally with cent rounding (REQ-005 AC #6 and #7)", () => {
-    // Monthly ($4.99, 5★) with 2 stars -> $2.99 payable
+    // Monthly with 2 of 4 stars -> $2.00 payable.
     expect(calculateDirectCheckoutQuote("monthly_horoscope", 2)).toMatchObject({
       appliedStars: 2,
-      starDiscountCents: 200,
-      payableCents: 299,
+      starDiscountCents: 199,
+      payableCents: 200,
       surplusStars: 0,
       paymentPath: "mixed",
     });
 
-    // Yearly ($19.99, 20★) with 5 stars -> $14.99 payable
-    expect(calculateDirectCheckoutQuote("yearly_horoscope", 5)).toMatchObject({
-      appliedStars: 5,
-      starDiscountCents: 500,
-      payableCents: 1499,
+    // Yearly with 3 of 4 stars -> $1.00 payable.
+    expect(calculateDirectCheckoutQuote("yearly_horoscope", 3)).toMatchObject({
+      appliedStars: 3,
+      starDiscountCents: 299,
+      payableCents: 100,
       surplusStars: 0,
       paymentPath: "mixed",
     });
@@ -90,15 +90,15 @@ describe("direct checkout proportional star redemption (REQ-003, REQ-005, DEC-00
 
   it("charges $0, deducts exact required stars, and preserves surplus when balance >= threshold", () => {
     expect(calculateDirectCheckoutQuote("monthly_horoscope", 8)).toMatchObject({
-      appliedStars: 5,
-      starDiscountCents: 499,
+      appliedStars: 4,
+      starDiscountCents: 399,
       payableCents: 0,
-      surplusStars: 3,
+      surplusStars: 4,
       paymentPath: "stars_only",
     });
-    expect(calculateDirectCheckoutQuote("yearly_horoscope", 20)).toMatchObject({
-      appliedStars: 20,
-      starDiscountCents: 1999,
+    expect(calculateDirectCheckoutQuote("yearly_horoscope", 4)).toMatchObject({
+      appliedStars: 4,
+      starDiscountCents: 399,
       payableCents: 0,
       surplusStars: 0,
       paymentPath: "stars_only",

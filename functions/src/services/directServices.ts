@@ -31,11 +31,12 @@ export interface DirectServiceSpec {
   targetTab: "transits" | "oracle" | "compatibility";
 }
 
+const PERIOD_HOROSCOPE_PRICE = { basePriceCents: 399, fullStarCost: 4 };
+
 export const DIRECT_SERVICES: Record<DirectServiceId, DirectServiceSpec> = {
   monthly_horoscope: {
     id: "monthly_horoscope",
-    basePriceCents: 499,
-    fullStarCost: 5,
+    ...PERIOD_HOROSCOPE_PRICE,
     kind: "period",
     periodType: "month",
     spendFeature: "monthly_horoscope",
@@ -43,8 +44,7 @@ export const DIRECT_SERVICES: Record<DirectServiceId, DirectServiceSpec> = {
   },
   yearly_horoscope: {
     id: "yearly_horoscope",
-    basePriceCents: 1999,
-    fullStarCost: 20,
+    ...PERIOD_HOROSCOPE_PRICE,
     kind: "period",
     periodType: "year",
     spendFeature: "yearly_horoscope",

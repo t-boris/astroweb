@@ -252,7 +252,7 @@ function DirectCheckoutDialogOpen({
         setQuoteNotice(
           t(
             "directCheckout.quoteChanged",
-            "Ваш баланс звёзд обновился. Проверьте новую сумму и подтвердите снова.",
+            "Расчёт стоимости обновился. Проверьте новую сумму и подтвердите снова.",
           ),
         );
       } else if (err instanceof FirebaseError && err.message.includes("CHECKOUT_IN_PROGRESS")) {

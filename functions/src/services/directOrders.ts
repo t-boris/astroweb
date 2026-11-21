@@ -38,7 +38,9 @@ import type { SupportedLanguage } from "./prompts";
  */
 
 const CHECKOUT_LOCK_TTL_MS = 30 * 60 * 1000;
-const GENERATING_LEASE_TTL_MS = 3 * 60 * 1000;
+// Keep the lease beyond the callable's 300-second execution limit so a
+// retry cannot start a second generation while the first is still running.
+const GENERATING_LEASE_TTL_MS = 6 * 60 * 1000;
 
 export type DirectOrderPaymentStatus = "awaiting_payment" | "paid" | "canceled";
 export type DirectOrderFulfillmentStatus = "not_started" | "pending" | "generating" | "completed" | "failed";

@@ -133,11 +133,7 @@ export const getDirectCheckoutQuote = onCall(async (request) => {
 });
 
 /**
- * Start a direct purchase for any of the four launch services (REQ-003, REQ-005):
- *  - monthly_horoscope ($4.99 / 5★)
- *  - yearly_horoscope ($19.99 / 20★)
- *  - situation ($1.99 / 1★)
- *  - relationship ($3.99 / 2★)
+ * Start a direct purchase for a service in DIRECT_SERVICES (REQ-003, REQ-005).
  *
  * Automatically applies available stars proportionally, checks that the live
  * amount matches the confirmed breakdown, enforces one purchase per (profile,

@@ -1,0 +1,7065 @@
+{
+ "note": "ChartResult values produced by functions computeNatalChart (calcVersion 2) for the natal-parity datasets A (night, Whole Sign), B (day, Whole Sign), C (Koch), D (Placidus), an unknown-time chart, and A with a requested Placidus that fell back to Whole Sign (hand-edited context). Regenerate with the natal-parity datasets when the calculation version changes.",
+ "charts": {
+  "A": {
+   "meta": {
+    "houseSystem": "whole-sign",
+    "zodiac": "tropical",
+    "timeUsed": "03:30",
+    "timezoneUsed": "Africa/Johannesburg"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 9.172291502405923,
+     "sign": "Aries",
+     "degreeInSign": 9.172291502405926,
+     "house": 3
+    },
+    {
+     "body": "Moon",
+     "lon": 207.58821716118487,
+     "sign": "Libra",
+     "degreeInSign": 27.588217161184843,
+     "house": 9
+    },
+    {
+     "body": "Mercury",
+     "lon": 0.849883767133239,
+     "sign": "Aries",
+     "degreeInSign": 0.8498837671332353,
+     "house": 3
+    },
+    {
+     "body": "Venus",
+     "lon": 27.267851846408302,
+     "sign": "Aries",
+     "degreeInSign": 27.26785184640829,
+     "house": 3
+    },
+    {
+     "body": "Mars",
+     "lon": 49.91786890653155,
+     "sign": "Taurus",
+     "degreeInSign": 19.917868906531567,
+     "house": 4
+    },
+    {
+     "body": "Jupiter",
+     "lon": 96.90727746194152,
+     "sign": "Cancer",
+     "degreeInSign": 6.907277461941533,
+     "house": 6
+    },
+    {
+     "body": "Saturn",
+     "lon": 70.25775989837216,
+     "sign": "Gemini",
+     "degreeInSign": 10.257759898372171,
+     "house": 5
+    },
+    {
+     "body": "Uranus",
+     "lon": 327.2138497451527,
+     "sign": "Aquarius",
+     "degreeInSign": 27.21384974515263,
+     "house": 1
+    },
+    {
+     "body": "Neptune",
+     "lon": 310.4509279270508,
+     "sign": "Aquarius",
+     "degreeInSign": 10.45092792705077,
+     "house": 1
+    },
+    {
+     "body": "Pluto",
+     "lon": 257.6039290333481,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.603929033348095,
+     "house": 11
+    }
+   ],
+   "houses": {
+    "system": "whole-sign",
+    "cusps": [
+     300,
+     330,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150,
+     180,
+     210,
+     240,
+     270
+    ],
+    "asc": 324.98014501461233,
+    "mc": 230.62410082583418
+   },
+   "aspects": [
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 0.05,
+     "exactness": 0.99
+    },
+    {
+     "a": "Saturn",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 0.19,
+     "exactness": 0.97
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "opposition",
+     "orb": 0.32,
+     "exactness": 0.95
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 0.37,
+     "exactness": 0.94
+    },
+    {
+     "a": "Mars",
+     "b": "MC",
+     "type": "opposition",
+     "orb": 0.71,
+     "exactness": 0.88
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sextile",
+     "orb": 1.09,
+     "exactness": 0.82
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 1.28,
+     "exactness": 0.79
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "conjunction",
+     "orb": 2.23,
+     "exactness": 0.63
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 2.27,
+     "exactness": 0.62
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 2.29,
+     "exactness": 0.62
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "trine",
+     "orb": 2.61,
+     "exactness": 0.57
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 4.36,
+     "exactness": 0.27
+    },
+    {
+     "a": "Mars",
+     "b": "ASC",
+     "type": "square",
+     "orb": 5.06,
+     "exactness": 0.16
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "whole-sign",
+    "usedHouseSystem": "whole-sign",
+    "utc": "2002-03-30T01:30:00.000Z",
+    "lat": -33.933333,
+    "lng": 18.416667,
+    "timezone": "Africa/Johannesburg",
+    "timeEstimated": false,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 9.172291502405923,
+     "sign": "Aries",
+     "degreeInSign": 9.172291502405926,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.987782
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 207.58821716118487,
+     "sign": "Libra",
+     "degreeInSign": 27.588217161184843,
+     "house": 9,
+     "retrograde": false,
+     "speed": 15.044251
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 0.849883767133239,
+     "sign": "Aries",
+     "degreeInSign": 0.8498837671332353,
+     "house": 3,
+     "retrograde": false,
+     "speed": 1.900473
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 27.267851846408302,
+     "sign": "Aries",
+     "degreeInSign": 27.26785184640829,
+     "house": 3,
+     "retrograde": false,
+     "speed": 1.234109
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 49.91786890653155,
+     "sign": "Taurus",
+     "degreeInSign": 19.917868906531567,
+     "house": 4,
+     "retrograde": false,
+     "speed": 0.691563
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 96.90727746194152,
+     "sign": "Cancer",
+     "degreeInSign": 6.907277461941533,
+     "house": 6,
+     "retrograde": false,
+     "speed": 0.087398
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 70.25775989837216,
+     "sign": "Gemini",
+     "degreeInSign": 10.257759898372171,
+     "house": 5,
+     "retrograde": false,
+     "speed": 0.083876
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 327.2138497451527,
+     "sign": "Aquarius",
+     "degreeInSign": 27.21384974515263,
+     "house": 1,
+     "retrograde": false,
+     "speed": 0.046379
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 310.4509279270508,
+     "sign": "Aquarius",
+     "degreeInSign": 10.45092792705077,
+     "house": 1,
+     "retrograde": false,
+     "speed": 0.023141
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 257.6039290333481,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.603929033348095,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.005223
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 81.69372099630169,
+     "sign": "Gemini",
+     "degreeInSign": 21.693720996301693,
+     "house": 5,
+     "retrograde": true,
+     "speed": -0.052985
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 261.69372099630164,
+     "sign": "Sagittarius",
+     "degreeInSign": 21.693720996301636,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.052985
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 354.550730447602,
+     "sign": "Pisces",
+     "degreeInSign": 24.550730447602064,
+     "house": 2,
+     "retrograde": false,
+     "speed": 0.112033
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 278.9049051866141,
+     "sign": "Capricorn",
+     "degreeInSign": 8.904905186614087,
+     "house": 12,
+     "retrograde": false,
+     "speed": 0.026743
+    },
+    {
+     "id": "Fortune",
+     "kind": "point",
+     "lon": 126.56421935583342,
+     "sign": "Leo",
+     "degreeInSign": 6.564219355833416,
+     "house": 7,
+     "retrograde": null,
+     "speed": null
+    },
+    {
+     "id": "Vertex",
+     "kind": "point",
+     "lon": 97.90882619105419,
+     "sign": "Cancer",
+     "degreeInSign": 7.908826191054175,
+     "house": 6,
+     "retrograde": null,
+     "speed": null
+    }
+   ],
+   "angles": {
+    "asc": 324.98014501461233,
+    "dsc": 144.98014501461233,
+    "mc": 230.62410082583418,
+    "ic": 50.62410082583415
+   },
+   "sharedAspects": [
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.054,
+     "signedOrb": 0.054,
+     "maxOrb": 4,
+     "exactness": 0.9865,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Chiron",
+     "type": "square",
+     "major": true,
+     "orb": 0.2674,
+     "signedOrb": 0.2674,
+     "maxOrb": 10,
+     "exactness": 0.9733,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Neptune",
+     "type": "trine",
+     "major": true,
+     "orb": 0.1932,
+     "signedOrb": -0.1932,
+     "maxOrb": 7,
+     "exactness": 0.9724,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.3204,
+     "signedOrb": -0.3204,
+     "maxOrb": 10,
+     "exactness": 0.968,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "trine",
+     "major": true,
+     "orb": 0.3744,
+     "signedOrb": -0.3744,
+     "maxOrb": 10,
+     "exactness": 0.9626,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "Fortune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.1295,
+     "signedOrb": -0.1295,
+     "maxOrb": 2.5,
+     "exactness": 0.9482,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "DSC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.1303,
+     "signedOrb": 0.1303,
+     "maxOrb": 2.5,
+     "exactness": 0.9479,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "IC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 0.7062,
+     "signedOrb": 0.7062,
+     "maxOrb": 7,
+     "exactness": 0.8991,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "MC",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.7062,
+     "signedOrb": -0.7062,
+     "maxOrb": 7,
+     "exactness": 0.8991,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 1.2635,
+     "signedOrb": -1.2635,
+     "maxOrb": 10,
+     "exactness": 0.8737,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Fortune",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.3431,
+     "signedOrb": -0.3431,
+     "maxOrb": 2.5,
+     "exactness": 0.8628,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "Vertex",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.9961,
+     "signedOrb": -0.9961,
+     "maxOrb": 7,
+     "exactness": 0.8577,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Vertex",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.0015,
+     "signedOrb": 1.0015,
+     "maxOrb": 7,
+     "exactness": 0.8569,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "ASC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.4294,
+     "signedOrb": -0.4294,
+     "maxOrb": 2.5,
+     "exactness": 0.8282,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "DSC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.4294,
+     "signedOrb": 0.4294,
+     "maxOrb": 2.5,
+     "exactness": 0.8282,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.0855,
+     "signedOrb": 1.0855,
+     "maxOrb": 6,
+     "exactness": 0.8191,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "NorthNode",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.5214,
+     "signedOrb": 0.5214,
+     "maxOrb": 2.5,
+     "exactness": 0.7914,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.2786,
+     "signedOrb": -1.2786,
+     "maxOrb": 6,
+     "exactness": 0.7869,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 2.265,
+     "signedOrb": -2.265,
+     "maxOrb": 10,
+     "exactness": 0.7735,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": -2.6081,
+     "maxOrb": 10,
+     "exactness": 0.7392,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": -2.6081,
+     "maxOrb": 10,
+     "exactness": 0.7392,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Chiron",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.6833,
+     "signedOrb": -0.6833,
+     "maxOrb": 2.5,
+     "exactness": 0.7267,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Chiron",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.9976,
+     "signedOrb": -1.9976,
+     "maxOrb": 7,
+     "exactness": 0.7146,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 2.2337,
+     "signedOrb": 2.2337,
+     "maxOrb": 7,
+     "exactness": 0.6809,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "DSC",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.2337,
+     "signedOrb": -2.2337,
+     "maxOrb": 7,
+     "exactness": 0.6809,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.8079,
+     "signedOrb": -0.8079,
+     "maxOrb": 2.5,
+     "exactness": 0.6769,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.8079,
+     "signedOrb": 0.8079,
+     "maxOrb": 2.5,
+     "exactness": 0.6769,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.2877,
+     "signedOrb": -2.2877,
+     "maxOrb": 7,
+     "exactness": 0.6732,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Lilith",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.9002,
+     "signedOrb": -0.9002,
+     "maxOrb": 2.5,
+     "exactness": 0.6399,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "Lilith",
+     "type": "square",
+     "major": true,
+     "orb": 2.857,
+     "signedOrb": -2.857,
+     "maxOrb": 7,
+     "exactness": 0.5919,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "IC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.0696,
+     "signedOrb": 1.0696,
+     "maxOrb": 2.5,
+     "exactness": 0.5722,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "MC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.0696,
+     "signedOrb": -1.0696,
+     "maxOrb": 2.5,
+     "exactness": 0.5722,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.0752,
+     "signedOrb": 1.0752,
+     "maxOrb": 2.5,
+     "exactness": 0.5699,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.0752,
+     "signedOrb": -1.0752,
+     "maxOrb": 2.5,
+     "exactness": 0.5699,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "DSC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": 2.6081,
+     "maxOrb": 6,
+     "exactness": 0.5653,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "ASC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.2864,
+     "signedOrb": -3.2864,
+     "maxOrb": 7,
+     "exactness": 0.5305,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.2832,
+     "signedOrb": 1.2832,
+     "maxOrb": 2.5,
+     "exactness": 0.4867,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.2832,
+     "signedOrb": -1.2832,
+     "maxOrb": 2.5,
+     "exactness": 0.4867,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.3446,
+     "signedOrb": -1.3446,
+     "maxOrb": 2.5,
+     "exactness": 0.4622,
+     "applying": null
+    },
+    {
+     "a": "Saturn",
+     "b": "Chiron",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.3529,
+     "signedOrb": 1.3529,
+     "maxOrb": 2.5,
+     "exactness": 0.4589,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Vertex",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.359,
+     "signedOrb": -1.359,
+     "maxOrb": 2.5,
+     "exactness": 0.4564,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Fortune",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.8867,
+     "signedOrb": -3.8867,
+     "maxOrb": 7,
+     "exactness": 0.4448,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "MC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.9266,
+     "signedOrb": 3.9266,
+     "maxOrb": 7,
+     "exactness": 0.4391,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.2877,
+     "signedOrb": 2.2877,
+     "maxOrb": 4,
+     "exactness": 0.4281,
+     "applying": true
+    },
+    {
+     "a": "Pluto",
+     "b": "NorthNode",
+     "type": "opposition",
+     "major": true,
+     "orb": 4.0898,
+     "signedOrb": -4.0898,
+     "maxOrb": 7,
+     "exactness": 0.4157,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 5.8945,
+     "signedOrb": 5.8945,
+     "maxOrb": 10,
+     "exactness": 0.4106,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Chiron",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.546,
+     "signedOrb": 1.546,
+     "maxOrb": 2.5,
+     "exactness": 0.3816,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "NorthNode",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.7759,
+     "signedOrb": 1.7759,
+     "maxOrb": 2.5,
+     "exactness": 0.2897,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "ASC",
+     "type": "square",
+     "major": true,
+     "orb": 5.0623,
+     "signedOrb": -5.0623,
+     "maxOrb": 7,
+     "exactness": 0.2768,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "DSC",
+     "type": "square",
+     "major": true,
+     "orb": 5.0623,
+     "signedOrb": 5.0623,
+     "maxOrb": 7,
+     "exactness": 0.2768,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 5.5201,
+     "signedOrb": -5.5201,
+     "maxOrb": 7,
+     "exactness": 0.2114,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.9894,
+     "signedOrb": 1.9894,
+     "maxOrb": 2.5,
+     "exactness": 0.2042,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0101,
+     "signedOrb": -2.0101,
+     "maxOrb": 2.5,
+     "exactness": 0.196,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 5.7143,
+     "signedOrb": 5.7143,
+     "maxOrb": 7,
+     "exactness": 0.1837,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "DSC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.2864,
+     "signedOrb": 3.2864,
+     "maxOrb": 4,
+     "exactness": 0.1784,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "ASC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.0713,
+     "signedOrb": -2.0713,
+     "maxOrb": 2.5,
+     "exactness": 0.1715,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "DSC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0713,
+     "signedOrb": 2.0713,
+     "maxOrb": 2.5,
+     "exactness": 0.1715,
+     "applying": null
+    },
+    {
+     "a": "Sun",
+     "b": "Mercury",
+     "type": "conjunction",
+     "major": true,
+     "orb": 8.3224,
+     "signedOrb": 8.3224,
+     "maxOrb": 10,
+     "exactness": 0.1678,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 8.4316,
+     "signedOrb": -8.4316,
+     "maxOrb": 10,
+     "exactness": 0.1568,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 6.0574,
+     "signedOrb": 6.0574,
+     "maxOrb": 7,
+     "exactness": 0.1347,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Fortune",
+     "type": "square",
+     "major": true,
+     "orb": 8.976,
+     "signedOrb": -8.976,
+     "maxOrb": 10,
+     "exactness": 0.1024,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Lilith",
+     "type": "conjunction",
+     "major": true,
+     "orb": 6.2992,
+     "signedOrb": 6.2992,
+     "maxOrb": 7,
+     "exactness": 0.1001,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.2847,
+     "signedOrb": 2.2847,
+     "maxOrb": 2.5,
+     "exactness": 0.0861,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.2847,
+     "signedOrb": -2.2847,
+     "maxOrb": 2.5,
+     "exactness": 0.0861,
+     "applying": null
+    },
+    {
+     "a": "Saturn",
+     "b": "Fortune",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.6935,
+     "signedOrb": -3.6935,
+     "maxOrb": 4,
+     "exactness": 0.0766,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Pluto",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.3139,
+     "signedOrb": 2.3139,
+     "maxOrb": 2.5,
+     "exactness": 0.0744,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "trine",
+     "major": true,
+     "orb": 9.3191,
+     "signedOrb": -9.3191,
+     "maxOrb": 10,
+     "exactness": 0.0681,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Saturn",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.3305,
+     "signedOrb": 2.3305,
+     "maxOrb": 2.5,
+     "exactness": 0.0678,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "Fortune",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.3407,
+     "signedOrb": 2.3407,
+     "maxOrb": 2.5,
+     "exactness": 0.0637,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 2.3489,
+     "signedOrb": -2.3489,
+     "maxOrb": 2.5,
+     "exactness": 0.0604,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5897,
+     "signedOrb": -6.5897,
+     "maxOrb": 7,
+     "exactness": 0.0586,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5897,
+     "signedOrb": 6.5897,
+     "maxOrb": 7,
+     "exactness": 0.0586,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Jupiter",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.3606,
+     "signedOrb": -2.3606,
+     "maxOrb": 2.5,
+     "exactness": 0.0558,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.3901,
+     "signedOrb": -2.3901,
+     "maxOrb": 2.5,
+     "exactness": 0.044,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "IC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.9266,
+     "signedOrb": -3.9266,
+     "maxOrb": 4,
+     "exactness": 0.0183,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 2.4563,
+     "signedOrb": 2.4563,
+     "maxOrb": 2.5,
+     "exactness": 0.0175,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Lilith",
+     "type": "square",
+     "major": true,
+     "orb": 6.9468,
+     "signedOrb": 6.9468,
+     "maxOrb": 7,
+     "exactness": 0.0076,
+     "applying": false
+    }
+   ]
+  },
+  "B": {
+   "meta": {
+    "houseSystem": "whole-sign",
+    "zodiac": "tropical",
+    "timeUsed": "07:24",
+    "timezoneUsed": "Asia/Riyadh"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 181.66689571285772,
+     "sign": "Libra",
+     "degreeInSign": 1.6668957128576949,
+     "house": 1
+    },
+    {
+     "body": "Moon",
+     "lon": 358.1529203290557,
+     "sign": "Pisces",
+     "degreeInSign": 28.152920329055632,
+     "house": 6
+    },
+    {
+     "body": "Mercury",
+     "lon": 194.5661959009681,
+     "sign": "Libra",
+     "degreeInSign": 14.566195900968069,
+     "house": 1
+    },
+    {
+     "body": "Venus",
+     "lon": 142.3247705887117,
+     "sign": "Leo",
+     "degreeInSign": 22.324770588711658,
+     "house": 11
+    },
+    {
+     "body": "Mars",
+     "lon": 254.63979355526604,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.63979355526601,
+     "house": 3
+    },
+    {
+     "body": "Jupiter",
+     "lon": 33.42329566657298,
+     "sign": "Taurus",
+     "degreeInSign": 3.423295666572983,
+     "house": 8
+    },
+    {
+     "body": "Saturn",
+     "lon": 46.586685960200306,
+     "sign": "Taurus",
+     "degreeInSign": 16.586685960200327,
+     "house": 8
+    },
+    {
+     "body": "Uranus",
+     "lon": 313.18172584434944,
+     "sign": "Aquarius",
+     "degreeInSign": 13.181725844349444,
+     "house": 5
+    },
+    {
+     "body": "Neptune",
+     "lon": 301.68508303087117,
+     "sign": "Aquarius",
+     "degreeInSign": 1.6850830308711693,
+     "house": 5
+    },
+    {
+     "body": "Pluto",
+     "lon": 248.11478890458685,
+     "sign": "Sagittarius",
+     "degreeInSign": 8.114788904586817,
+     "house": 3
+    }
+   ],
+   "houses": {
+    "system": "whole-sign",
+    "cusps": [
+     180,
+     210,
+     240,
+     270,
+     300,
+     330,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "asc": 203.72002567347883,
+    "mc": 114.33019807973547
+   },
+   "aspects": [
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 0.02,
+     "exactness": 1
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 0.07,
+     "exactness": 0.99
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 0.61,
+     "exactness": 0.9
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 1.38,
+     "exactness": 0.77
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 1.4,
+     "exactness": 0.77
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 1.46,
+     "exactness": 0.76
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "square",
+     "orb": 1.74,
+     "exactness": 0.71
+    },
+    {
+     "a": "Saturn",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 3.4,
+     "exactness": 0.43
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "opposition",
+     "orb": 3.51,
+     "exactness": 0.41
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 3.53,
+     "exactness": 0.41
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "trine",
+     "orb": 3.82,
+     "exactness": 0.36
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 5.07,
+     "exactness": 0.16
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "square",
+     "orb": 5.74,
+     "exactness": 0.04
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "whole-sign",
+    "usedHouseSystem": "whole-sign",
+    "utc": "1999-09-25T04:24:00.000Z",
+    "lat": 24.716667,
+    "lng": 46.683333,
+    "timezone": "Asia/Riyadh",
+    "timeEstimated": false,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 181.66689571285772,
+     "sign": "Libra",
+     "degreeInSign": 1.6668957128576949,
+     "house": 1,
+     "retrograde": false,
+     "speed": 0.979178
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 358.1529203290557,
+     "sign": "Pisces",
+     "degreeInSign": 28.152920329055632,
+     "house": 6,
+     "retrograde": false,
+     "speed": 14.009525
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 194.5661959009681,
+     "sign": "Libra",
+     "degreeInSign": 14.566195900968069,
+     "house": 1,
+     "retrograde": false,
+     "speed": 1.613404
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 142.3247705887117,
+     "sign": "Leo",
+     "degreeInSign": 22.324770588711658,
+     "house": 11,
+     "retrograde": false,
+     "speed": 0.469051
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 254.63979355526604,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.63979355526601,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.680749
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 33.42329566657298,
+     "sign": "Taurus",
+     "degreeInSign": 3.423295666572983,
+     "house": 8,
+     "retrograde": true,
+     "speed": -0.09651
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 46.586685960200306,
+     "sign": "Taurus",
+     "degreeInSign": 16.586685960200327,
+     "house": 8,
+     "retrograde": true,
+     "speed": -0.044377
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 313.18172584434944,
+     "sign": "Aquarius",
+     "degreeInSign": 13.181725844349444,
+     "house": 5,
+     "retrograde": true,
+     "speed": -0.022006
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 301.68508303087117,
+     "sign": "Aquarius",
+     "degreeInSign": 1.6850830308711693,
+     "house": 5,
+     "retrograde": true,
+     "speed": -0.010146
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 248.11478890458685,
+     "sign": "Sagittarius",
+     "degreeInSign": 8.114788904586817,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.019955
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 130.24697615190817,
+     "sign": "Leo",
+     "degreeInSign": 10.246976151908143,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.052995
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 310.24697615190814,
+     "sign": "Aquarius",
+     "degreeInSign": 10.246976151908143,
+     "house": 5,
+     "retrograde": true,
+     "speed": -0.052995
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 252.5010474594626,
+     "sign": "Sagittarius",
+     "degreeInSign": 12.501047459462598,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.111649
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 240.26173585202417,
+     "sign": "Sagittarius",
+     "degreeInSign": 0.26173585202423055,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.086818
+    },
+    {
+     "id": "Fortune",
+     "kind": "point",
+     "lon": 20.206050289676796,
+     "sign": "Aries",
+     "degreeInSign": 20.206050289676796,
+     "house": 7,
+     "retrograde": null,
+     "speed": null
+    },
+    {
+     "id": "Vertex",
+     "kind": "point",
+     "lon": 95.32427368070822,
+     "sign": "Cancer",
+     "degreeInSign": 5.324273680708188,
+     "house": 10,
+     "retrograde": null,
+     "speed": null
+    }
+   ],
+   "angles": {
+    "asc": 203.72002567347883,
+    "dsc": 23.720025673478858,
+    "mc": 114.33019807973547,
+    "ic": 294.3301980797355
+   },
+   "sharedAspects": [
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "trine",
+     "major": true,
+     "orb": 0.0182,
+     "signedOrb": 0.0182,
+     "maxOrb": 10,
+     "exactness": 0.9982,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.0288,
+     "signedOrb": -0.0288,
+     "maxOrb": 2.5,
+     "exactness": 0.9885,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.0736,
+     "signedOrb": 0.0736,
+     "maxOrb": 4,
+     "exactness": 0.9816,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.0802,
+     "signedOrb": 0.0802,
+     "maxOrb": 2.5,
+     "exactness": 0.9679,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.1719,
+     "signedOrb": 0.1719,
+     "maxOrb": 2.5,
+     "exactness": 0.9313,
+     "applying": true
+    },
+    {
+     "a": "Vertex",
+     "b": "DSC",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.3958,
+     "signedOrb": -0.3958,
+     "maxOrb": 2.5,
+     "exactness": 0.8417,
+     "applying": null
+    },
+    {
+     "a": "Uranus",
+     "b": "Lilith",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.6807,
+     "signedOrb": 0.6807,
+     "maxOrb": 4,
+     "exactness": 0.8298,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "major": true,
+     "orb": 1.3845,
+     "signedOrb": -1.3845,
+     "maxOrb": 7,
+     "exactness": 0.8022,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 1.3953,
+     "signedOrb": -1.3953,
+     "maxOrb": 7,
+     "exactness": 0.8007,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Chiron",
+     "type": "trine",
+     "major": true,
+     "orb": 2.1088,
+     "signedOrb": -2.1088,
+     "maxOrb": 10,
+     "exactness": 0.7891,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "DSC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.5417,
+     "signedOrb": -0.5417,
+     "maxOrb": 2.5,
+     "exactness": 0.7833,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Chiron",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.4052,
+     "signedOrb": -1.4052,
+     "maxOrb": 6,
+     "exactness": 0.7658,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.6052,
+     "signedOrb": -0.6052,
+     "maxOrb": 2.5,
+     "exactness": 0.7579,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.6052,
+     "signedOrb": 0.6052,
+     "maxOrb": 2.5,
+     "exactness": 0.7579,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "square",
+     "major": true,
+     "orb": 1.7382,
+     "signedOrb": 1.7382,
+     "maxOrb": 7,
+     "exactness": 0.7517,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Chiron",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.6955,
+     "signedOrb": 0.6955,
+     "maxOrb": 2.5,
+     "exactness": 0.7218,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 2.1187,
+     "signedOrb": 2.1187,
+     "maxOrb": 7,
+     "exactness": 0.6973,
+     "applying": true
+    },
+    {
+     "a": "Pluto",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 2.1322,
+     "signedOrb": -2.1322,
+     "maxOrb": 7,
+     "exactness": 0.6954,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Lilith",
+     "type": "conjunction",
+     "major": true,
+     "orb": 2.1387,
+     "signedOrb": 2.1387,
+     "maxOrb": 7,
+     "exactness": 0.6945,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "Lilith",
+     "type": "trine",
+     "major": true,
+     "orb": 2.2541,
+     "signedOrb": 2.2541,
+     "maxOrb": 7,
+     "exactness": 0.678,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.3953,
+     "signedOrb": 1.3953,
+     "maxOrb": 4,
+     "exactness": 0.6512,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.514,
+     "signedOrb": -3.514,
+     "maxOrb": 10,
+     "exactness": 0.6486,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Chiron",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.4233,
+     "signedOrb": 1.4233,
+     "maxOrb": 4,
+     "exactness": 0.6442,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.4581,
+     "signedOrb": -1.4581,
+     "maxOrb": 4,
+     "exactness": 0.6355,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 3.6574,
+     "signedOrb": -3.6574,
+     "maxOrb": 10,
+     "exactness": 0.6343,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Chiron",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.92,
+     "signedOrb": 0.92,
+     "maxOrb": 2.5,
+     "exactness": 0.632,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "Vertex",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.9375,
+     "signedOrb": 0.9375,
+     "maxOrb": 2.5,
+     "exactness": 0.625,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.8227,
+     "signedOrb": -3.8227,
+     "maxOrb": 10,
+     "exactness": 0.6177,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.9729,
+     "signedOrb": 0.9729,
+     "maxOrb": 2.5,
+     "exactness": 0.6108,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "NorthNode",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.9347,
+     "signedOrb": -2.9347,
+     "maxOrb": 7,
+     "exactness": 0.5808,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Lilith",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.1658,
+     "signedOrb": -1.1658,
+     "maxOrb": 2.5,
+     "exactness": 0.5337,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Vertex",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.901,
+     "signedOrb": 1.901,
+     "maxOrb": 4,
+     "exactness": 0.5248,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.2154,
+     "signedOrb": 1.2154,
+     "maxOrb": 2.5,
+     "exactness": 0.5138,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.2154,
+     "signedOrb": -1.2154,
+     "maxOrb": 2.5,
+     "exactness": 0.5138,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Uranus",
+     "type": "square",
+     "major": true,
+     "orb": 3.405,
+     "signedOrb": 3.405,
+     "maxOrb": 7,
+     "exactness": 0.5136,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "ASC",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.514,
+     "signedOrb": -3.514,
+     "maxOrb": 7,
+     "exactness": 0.498,
+     "applying": null
+    },
+    {
+     "a": "Fortune",
+     "b": "DSC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 3.514,
+     "signedOrb": 3.514,
+     "maxOrb": 7,
+     "exactness": 0.498,
+     "applying": null
+    },
+    {
+     "a": "Mercury",
+     "b": "Lilith",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.0651,
+     "signedOrb": -2.0651,
+     "maxOrb": 4,
+     "exactness": 0.4837,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Pluto",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.3085,
+     "signedOrb": 1.3085,
+     "maxOrb": 2.5,
+     "exactness": 0.4766,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "DSC",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.4617,
+     "signedOrb": -1.4617,
+     "maxOrb": 2.5,
+     "exactness": 0.4153,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.5322,
+     "signedOrb": -3.5322,
+     "maxOrb": 6,
+     "exactness": 0.4113,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 4.1241,
+     "signedOrb": -4.1241,
+     "maxOrb": 7,
+     "exactness": 0.4108,
+     "applying": null
+    },
+    {
+     "a": "Fortune",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 4.1241,
+     "signedOrb": 4.1241,
+     "maxOrb": 7,
+     "exactness": 0.4108,
+     "applying": null
+    },
+    {
+     "a": "NorthNode",
+     "b": "ASC",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.473,
+     "signedOrb": 1.473,
+     "maxOrb": 2.5,
+     "exactness": 0.4108,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Lilith",
+     "type": "conjunction",
+     "major": true,
+     "orb": 4.3863,
+     "signedOrb": 4.3863,
+     "maxOrb": 7,
+     "exactness": 0.3734,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 4.3928,
+     "signedOrb": 4.3928,
+     "maxOrb": 7,
+     "exactness": 0.3725,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "IC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.8227,
+     "signedOrb": 3.8227,
+     "maxOrb": 6,
+     "exactness": 0.3629,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.7564,
+     "signedOrb": -1.7564,
+     "maxOrb": 2.5,
+     "exactness": 0.2974,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 7.1714,
+     "signedOrb": 7.1714,
+     "maxOrb": 10,
+     "exactness": 0.2829,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "IC",
+     "type": "trine",
+     "major": true,
+     "orb": 7.3367,
+     "signedOrb": -7.3367,
+     "maxOrb": 10,
+     "exactness": 0.2663,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "Vertex",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.8575,
+     "signedOrb": -1.8575,
+     "maxOrb": 2.5,
+     "exactness": 0.257,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Saturn",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.9469,
+     "signedOrb": 1.9469,
+     "maxOrb": 2.5,
+     "exactness": 0.2212,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 5.5663,
+     "signedOrb": 5.5663,
+     "maxOrb": 7,
+     "exactness": 0.2048,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Vertex",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0005,
+     "signedOrb": 2.0005,
+     "maxOrb": 2.5,
+     "exactness": 0.1998,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "IC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.0054,
+     "signedOrb": 2.0054,
+     "maxOrb": 2.5,
+     "exactness": 0.1978,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "MC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 2.0054,
+     "signedOrb": -2.0054,
+     "maxOrb": 2.5,
+     "exactness": 0.1978,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Fortune",
+     "type": "opposition",
+     "major": true,
+     "orb": 5.6399,
+     "signedOrb": -5.6399,
+     "maxOrb": 7,
+     "exactness": 0.1943,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.0205,
+     "signedOrb": -2.0205,
+     "maxOrb": 2.5,
+     "exactness": 0.1918,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Neptune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0453,
+     "signedOrb": 2.0453,
+     "maxOrb": 2.5,
+     "exactness": 0.1819,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "square",
+     "major": true,
+     "orb": 5.7381,
+     "signedOrb": 5.7381,
+     "maxOrb": 7,
+     "exactness": 0.1803,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "MC",
+     "type": "trine",
+     "major": true,
+     "orb": 5.9315,
+     "signedOrb": 5.9315,
+     "maxOrb": 7,
+     "exactness": 0.1526,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "NorthNode",
+     "type": "square",
+     "major": true,
+     "orb": 6.3397,
+     "signedOrb": -6.3397,
+     "maxOrb": 7,
+     "exactness": 0.0943,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Pluto",
+     "type": "conjunction",
+     "major": true,
+     "orb": 6.525,
+     "signedOrb": 6.525,
+     "maxOrb": 7,
+     "exactness": 0.0679,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "NorthNode",
+     "type": "square",
+     "major": true,
+     "orb": 6.8237,
+     "signedOrb": 6.8237,
+     "maxOrb": 7,
+     "exactness": 0.0252,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 9.9619,
+     "signedOrb": -9.9619,
+     "maxOrb": 10,
+     "exactness": 0.0038,
+     "applying": true
+    }
+   ]
+  },
+  "C": {
+   "meta": {
+    "houseSystem": "koch",
+    "zodiac": "tropical",
+    "timeUsed": "14:45",
+    "timezoneUsed": "America/New_York"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 110.34116320389991,
+     "sign": "Cancer",
+     "degreeInSign": 20.341163203899896,
+     "house": 9
+    },
+    {
+     "body": "Moon",
+     "lon": 50.21719495430391,
+     "sign": "Taurus",
+     "degreeInSign": 20.21719495430392,
+     "house": 7
+    },
+    {
+     "body": "Mercury",
+     "lon": 136.84647028706766,
+     "sign": "Leo",
+     "degreeInSign": 16.846470287067632,
+     "house": 10
+    },
+    {
+     "body": "Venus",
+     "lon": 66.97313298953557,
+     "sign": "Gemini",
+     "degreeInSign": 6.973132989535543,
+     "house": 8
+    },
+    {
+     "body": "Mars",
+     "lon": 111.96166616563785,
+     "sign": "Cancer",
+     "degreeInSign": 21.961666165637837,
+     "house": 9
+    },
+    {
+     "body": "Jupiter",
+     "lon": 314.803244402866,
+     "sign": "Aquarius",
+     "degreeInSign": 14.803244402866085,
+     "house": 3
+    },
+    {
+     "body": "Saturn",
+     "lon": 231.6048757494477,
+     "sign": "Scorpio",
+     "degreeInSign": 21.60487574944773,
+     "house": 1
+    },
+    {
+     "body": "Uranus",
+     "lon": 254.63701062328641,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.637010623286415,
+     "house": 2
+    },
+    {
+     "body": "Neptune",
+     "lon": 271.7391265881363,
+     "sign": "Capricorn",
+     "degreeInSign": 1.739126588136287,
+     "house": 2
+    },
+    {
+     "body": "Pluto",
+     "lon": 211.92436456539002,
+     "sign": "Scorpio",
+     "degreeInSign": 1.9243645653900785,
+     "house": 12
+    }
+   ],
+   "houses": {
+    "system": "koch",
+    "cusps": [
+     217.73669617020016,
+     245.15956565112,
+     275.2548745247302,
+     315.390068705946,
+     342.7142108776825,
+     10.327363838468841,
+     37.73669617020016,
+     65.15956565112003,
+     95.25487452473021,
+     135.39006870594602,
+     162.7142108776825,
+     190.32736383846884
+    ],
+    "asc": 217.73669617020016,
+    "mc": 135.39006870594602
+   },
+   "aspects": [
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "orb": 0.12,
+     "exactness": 0.98
+    },
+    {
+     "a": "Jupiter",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 0.17,
+     "exactness": 0.97
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 0.19,
+     "exactness": 0.97
+    },
+    {
+     "a": "Mars",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 0.36,
+     "exactness": 0.94
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "opposition",
+     "orb": 0.59,
+     "exactness": 0.9
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "trine",
+     "orb": 0.75,
+     "exactness": 0.87
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 1.26,
+     "exactness": 0.79
+    },
+    {
+     "a": "Moon",
+     "b": "Saturn",
+     "type": "opposition",
+     "orb": 1.39,
+     "exactness": 0.77
+    },
+    {
+     "a": "Mercury",
+     "b": "MC",
+     "type": "conjunction",
+     "orb": 1.46,
+     "exactness": 0.76
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "conjunction",
+     "orb": 1.62,
+     "exactness": 0.73
+    },
+    {
+     "a": "Moon",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 1.74,
+     "exactness": 0.71
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "opposition",
+     "orb": 2.04,
+     "exactness": 0.66
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 2.21,
+     "exactness": 0.63
+    },
+    {
+     "a": "Moon",
+     "b": "Mercury",
+     "type": "square",
+     "orb": 3.37,
+     "exactness": 0.44
+    },
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "square",
+     "orb": 4.76,
+     "exactness": 0.21
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "square",
+     "orb": 4.83,
+     "exactness": 0.2
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 5.41,
+     "exactness": 0.1
+    },
+    {
+     "a": "Pluto",
+     "b": "ASC",
+     "type": "conjunction",
+     "orb": 5.81,
+     "exactness": 0.03
+    },
+    {
+     "a": "Neptune",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 6,
+     "exactness": 0
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "koch",
+    "usedHouseSystem": "koch",
+    "utc": "1985-07-12T18:45:00.000Z",
+    "lat": 40.716667,
+    "lng": -74,
+    "timezone": "America/New_York",
+    "timeEstimated": false,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 110.34116320389991,
+     "sign": "Cancer",
+     "degreeInSign": 20.341163203899896,
+     "house": 9,
+     "retrograde": false,
+     "speed": 0.953868
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 50.21719495430391,
+     "sign": "Taurus",
+     "degreeInSign": 20.21719495430392,
+     "house": 7,
+     "retrograde": false,
+     "speed": 11.896777
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 136.84647028706766,
+     "sign": "Leo",
+     "degreeInSign": 16.846470287067632,
+     "house": 10,
+     "retrograde": false,
+     "speed": 1.014674
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 66.97313298953557,
+     "sign": "Gemini",
+     "degreeInSign": 6.973132989535543,
+     "house": 8,
+     "retrograde": false,
+     "speed": 1.091743
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 111.96166616563785,
+     "sign": "Cancer",
+     "degreeInSign": 21.961666165637837,
+     "house": 9,
+     "retrograde": false,
+     "speed": 0.651245
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 314.803244402866,
+     "sign": "Aquarius",
+     "degreeInSign": 14.803244402866085,
+     "house": 3,
+     "retrograde": true,
+     "speed": -0.106525
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 231.6048757494477,
+     "sign": "Scorpio",
+     "degreeInSign": 21.60487574944773,
+     "house": 1,
+     "retrograde": true,
+     "speed": -0.020928
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 254.63701062328641,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.637010623286415,
+     "house": 2,
+     "retrograde": true,
+     "speed": -0.030662
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 271.7391265881363,
+     "sign": "Capricorn",
+     "degreeInSign": 1.739126588136287,
+     "house": 2,
+     "retrograde": true,
+     "speed": -0.025226
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 211.92436456539002,
+     "sign": "Scorpio",
+     "degreeInSign": 1.9243645653900785,
+     "house": 12,
+     "retrograde": false,
+     "speed": 0.000241
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 44.94012213664244,
+     "sign": "Taurus",
+     "degreeInSign": 14.940122136642458,
+     "house": 7,
+     "retrograde": true,
+     "speed": -0.052944
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 224.94012213664246,
+     "sign": "Scorpio",
+     "degreeInSign": 14.940122136642458,
+     "house": 1,
+     "retrograde": true,
+     "speed": -0.052944
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 34.54340513727179,
+     "sign": "Taurus",
+     "degreeInSign": 4.5434051372718045,
+     "house": 6,
+     "retrograde": false,
+     "speed": 0.110794
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 72.06146681612893,
+     "sign": "Gemini",
+     "degreeInSign": 12.061466816128927,
+     "house": 8,
+     "retrograde": false,
+     "speed": 0.066428
+    },
+    {
+     "id": "Fortune",
+     "kind": "point",
+     "lon": 157.61272792060413,
+     "sign": "Virgo",
+     "degreeInSign": 7.612727920604129,
+     "house": 10,
+     "retrograde": null,
+     "speed": null
+    },
+    {
+     "id": "Vertex",
+     "kind": "point",
+     "lon": 78.3080832119111,
+     "sign": "Gemini",
+     "degreeInSign": 18.308083211911082,
+     "house": 8,
+     "retrograde": null,
+     "speed": null
+    }
+   ],
+   "angles": {
+    "asc": 217.73669617020016,
+    "dsc": 37.73669617020016,
+    "mc": 135.39006870594602,
+    "ic": 315.3900687059461
+   },
+   "sharedAspects": [
+    {
+     "a": "Venus",
+     "b": "Mars",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.0115,
+     "signedOrb": -0.0115,
+     "maxOrb": 2.5,
+     "exactness": 0.9954,
+     "applying": false
+    },
+    {
+     "a": "Fortune",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 0.124,
+     "signedOrb": -0.124,
+     "maxOrb": 7,
+     "exactness": 0.9823,
+     "applying": null
+    },
+    {
+     "a": "Jupiter",
+     "b": "NorthNode",
+     "type": "square",
+     "major": true,
+     "orb": 0.1369,
+     "signedOrb": 0.1369,
+     "maxOrb": 7,
+     "exactness": 0.9804,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.124,
+     "signedOrb": 0.124,
+     "maxOrb": 6,
+     "exactness": 0.9793,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "ASC",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.124,
+     "signedOrb": 0.124,
+     "maxOrb": 4,
+     "exactness": 0.969,
+     "applying": null
+    },
+    {
+     "a": "Jupiter",
+     "b": "Uranus",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.1662,
+     "signedOrb": 0.1662,
+     "maxOrb": 4,
+     "exactness": 0.9584,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Neptune",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.1073,
+     "signedOrb": -0.1073,
+     "maxOrb": 2.5,
+     "exactness": 0.9571,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.1852,
+     "signedOrb": -0.1852,
+     "maxOrb": 4,
+     "exactness": 0.9537,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Saturn",
+     "type": "trine",
+     "major": true,
+     "orb": 0.3568,
+     "signedOrb": -0.3568,
+     "maxOrb": 7,
+     "exactness": 0.949,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 0.4499,
+     "signedOrb": -0.4499,
+     "maxOrb": 7,
+     "exactness": 0.9357,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 0.4499,
+     "signedOrb": 0.4499,
+     "maxOrb": 7,
+     "exactness": 0.9357,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "IC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 0.5868,
+     "signedOrb": 0.5868,
+     "maxOrb": 7,
+     "exactness": 0.9162,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.5868,
+     "signedOrb": -0.5868,
+     "maxOrb": 7,
+     "exactness": 0.9162,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Fortune",
+     "type": "square",
+     "major": true,
+     "orb": 0.6396,
+     "signedOrb": 0.6396,
+     "maxOrb": 7,
+     "exactness": 0.9086,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "trine",
+     "major": true,
+     "orb": 0.7531,
+     "signedOrb": -0.7531,
+     "maxOrb": 7,
+     "exactness": 0.8924,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Uranus",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.2958,
+     "signedOrb": 0.2958,
+     "maxOrb": 2.5,
+     "exactness": 0.8817,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "NorthNode",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.3031,
+     "signedOrb": 0.3031,
+     "maxOrb": 2.5,
+     "exactness": 0.8788,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "trine",
+     "major": true,
+     "orb": 1.2637,
+     "signedOrb": 1.2637,
+     "maxOrb": 10,
+     "exactness": 0.8736,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Saturn",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.3877,
+     "signedOrb": -1.3877,
+     "maxOrb": 10,
+     "exactness": 0.8612,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.6205,
+     "signedOrb": 1.6205,
+     "maxOrb": 10,
+     "exactness": 0.8379,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "IC",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.7531,
+     "signedOrb": 0.7531,
+     "maxOrb": 4,
+     "exactness": 0.8117,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "IC",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.4564,
+     "signedOrb": -1.4564,
+     "maxOrb": 7,
+     "exactness": 0.7919,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "MC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.4564,
+     "signedOrb": 1.4564,
+     "maxOrb": 7,
+     "exactness": 0.7919,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "DSC",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.6045,
+     "signedOrb": 0.6045,
+     "maxOrb": 2.5,
+     "exactness": 0.7582,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Fortune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.6511,
+     "signedOrb": 0.6511,
+     "maxOrb": 2.5,
+     "exactness": 0.7396,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "NorthNode",
+     "type": "square",
+     "major": true,
+     "orb": 1.9063,
+     "signedOrb": 1.9063,
+     "maxOrb": 7,
+     "exactness": 0.7277,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Mars",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.7445,
+     "signedOrb": 1.7445,
+     "maxOrb": 6,
+     "exactness": 0.7093,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.0432,
+     "signedOrb": -2.0432,
+     "maxOrb": 7,
+     "exactness": 0.7081,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.7636,
+     "signedOrb": 0.7636,
+     "maxOrb": 2.5,
+     "exactness": 0.6946,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "DSC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.7636,
+     "signedOrb": -0.7636,
+     "maxOrb": 2.5,
+     "exactness": 0.6946,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "major": true,
+     "orb": 2.2095,
+     "signedOrb": -2.2095,
+     "maxOrb": 7,
+     "exactness": 0.6844,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Mercury",
+     "type": "square",
+     "major": true,
+     "orb": 3.3707,
+     "signedOrb": -3.3707,
+     "maxOrb": 10,
+     "exactness": 0.6629,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "DSC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.9003,
+     "signedOrb": -0.9003,
+     "maxOrb": 2.5,
+     "exactness": 0.6399,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Vertex",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.4616,
+     "signedOrb": -1.4616,
+     "maxOrb": 4,
+     "exactness": 0.6346,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Chiron",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.5755,
+     "signedOrb": -2.5755,
+     "maxOrb": 7,
+     "exactness": 0.6321,
+     "applying": true
+    },
+    {
+     "a": "Pluto",
+     "b": "Lilith",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.619,
+     "signedOrb": -2.619,
+     "maxOrb": 7,
+     "exactness": 0.6259,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.9512,
+     "signedOrb": 0.9512,
+     "maxOrb": 2.5,
+     "exactness": 0.6195,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Chiron",
+     "type": "trine",
+     "major": true,
+     "orb": 2.7418,
+     "signedOrb": -2.7418,
+     "maxOrb": 7,
+     "exactness": 0.6083,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Lilith",
+     "type": "trine",
+     "major": true,
+     "orb": 2.8043,
+     "signedOrb": 2.8043,
+     "maxOrb": 7,
+     "exactness": 0.5994,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "IC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.918,
+     "signedOrb": 2.918,
+     "maxOrb": 7,
+     "exactness": 0.5831,
+     "applying": null
+    },
+    {
+     "a": "Lilith",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 3.0693,
+     "signedOrb": 3.0693,
+     "maxOrb": 7,
+     "exactness": 0.5615,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "ASC",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.1933,
+     "signedOrb": -3.1933,
+     "maxOrb": 7,
+     "exactness": 0.5438,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "DSC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 3.1933,
+     "signedOrb": 3.1933,
+     "maxOrb": 7,
+     "exactness": 0.5438,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "IC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.3286,
+     "signedOrb": -3.3286,
+     "maxOrb": 7,
+     "exactness": 0.5245,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 4.8271,
+     "signedOrb": 4.8271,
+     "maxOrb": 10,
+     "exactness": 0.5173,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 4.8271,
+     "signedOrb": -4.8271,
+     "maxOrb": 10,
+     "exactness": 0.5173,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "Vertex",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.2353,
+     "signedOrb": -1.2353,
+     "maxOrb": 2.5,
+     "exactness": 0.5059,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Vertex",
+     "type": "trine",
+     "major": true,
+     "orb": 3.5048,
+     "signedOrb": 3.5048,
+     "maxOrb": 7,
+     "exactness": 0.4993,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Vertex",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.6711,
+     "signedOrb": -3.6711,
+     "maxOrb": 7,
+     "exactness": 0.4756,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "NorthNode",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.2771,
+     "signedOrb": 5.2771,
+     "maxOrb": 10,
+     "exactness": 0.4723,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.3247,
+     "signedOrb": -1.3247,
+     "maxOrb": 2.5,
+     "exactness": 0.4701,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.3491,
+     "signedOrb": -1.3491,
+     "maxOrb": 2.5,
+     "exactness": 0.4604,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.3491,
+     "signedOrb": 1.3491,
+     "maxOrb": 2.5,
+     "exactness": 0.4604,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 5.414,
+     "signedOrb": 5.414,
+     "maxOrb": 10,
+     "exactness": 0.4586,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Vertex",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.3837,
+     "signedOrb": -1.3837,
+     "maxOrb": 2.5,
+     "exactness": 0.4465,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "Fortune",
+     "type": "square",
+     "major": true,
+     "orb": 4.4487,
+     "signedOrb": -4.4487,
+     "maxOrb": 7,
+     "exactness": 0.3645,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Venus",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.632,
+     "signedOrb": -1.632,
+     "maxOrb": 2.5,
+     "exactness": 0.3472,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "ASC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.6752,
+     "signedOrb": 1.6752,
+     "maxOrb": 2.5,
+     "exactness": 0.3299,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "square",
+     "major": true,
+     "orb": 4.7584,
+     "signedOrb": 4.7584,
+     "maxOrb": 7,
+     "exactness": 0.3202,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "NorthNode",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.799,
+     "signedOrb": -1.799,
+     "maxOrb": 2.5,
+     "exactness": 0.2804,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Chiron",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.0883,
+     "signedOrb": 5.0883,
+     "maxOrb": 7,
+     "exactness": 0.2731,
+     "applying": true
+    },
+    {
+     "a": "Vertex",
+     "b": "MC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.918,
+     "signedOrb": -2.918,
+     "maxOrb": 4,
+     "exactness": 0.2705,
+     "applying": null
+    },
+    {
+     "a": "Moon",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.9091,
+     "signedOrb": -1.9091,
+     "maxOrb": 2.5,
+     "exactness": 0.2364,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.9359,
+     "signedOrb": -1.9359,
+     "maxOrb": 2.5,
+     "exactness": 0.2256,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Fortune",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.9921,
+     "signedOrb": 1.9921,
+     "maxOrb": 2.5,
+     "exactness": 0.2031,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 2.0331,
+     "signedOrb": 2.0331,
+     "maxOrb": 2.5,
+     "exactness": 0.1868,
+     "applying": true
+    },
+    {
+     "a": "Pluto",
+     "b": "ASC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.8123,
+     "signedOrb": 5.8123,
+     "maxOrb": 7,
+     "exactness": 0.1697,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "DSC",
+     "type": "opposition",
+     "major": true,
+     "orb": 5.8123,
+     "signedOrb": -5.8123,
+     "maxOrb": 7,
+     "exactness": 0.1697,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "MC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.3286,
+     "signedOrb": 3.3286,
+     "maxOrb": 4,
+     "exactness": 0.1678,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 5.8736,
+     "signedOrb": -5.8736,
+     "maxOrb": 7,
+     "exactness": 0.1609,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Venus",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.1267,
+     "signedOrb": -2.1267,
+     "maxOrb": 2.5,
+     "exactness": 0.1493,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 5.9976,
+     "signedOrb": 5.9976,
+     "maxOrb": 7,
+     "exactness": 0.1432,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 6.2148,
+     "signedOrb": -6.2148,
+     "maxOrb": 7,
+     "exactness": 0.1122,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 6.2148,
+     "signedOrb": 6.2148,
+     "maxOrb": 7,
+     "exactness": 0.1122,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "DSC",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.225,
+     "signedOrb": 2.225,
+     "maxOrb": 2.5,
+     "exactness": 0.11,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "Vertex",
+     "type": "conjunction",
+     "major": true,
+     "orb": 6.2466,
+     "signedOrb": 6.2466,
+     "maxOrb": 7,
+     "exactness": 0.1076,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "NorthNode",
+     "type": "sextile",
+     "major": true,
+     "orb": 5.401,
+     "signedOrb": 5.401,
+     "maxOrb": 6,
+     "exactness": 0.0998,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Fortune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.2716,
+     "signedOrb": 2.2716,
+     "maxOrb": 2.5,
+     "exactness": 0.0914,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.2874,
+     "signedOrb": -2.2874,
+     "maxOrb": 2.5,
+     "exactness": 0.0851,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "NorthNode",
+     "type": "opposition",
+     "major": true,
+     "orb": 6.6648,
+     "signedOrb": -6.6648,
+     "maxOrb": 7,
+     "exactness": 0.0479,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Saturn",
+     "type": "square",
+     "major": true,
+     "orb": 6.8016,
+     "signedOrb": -6.8016,
+     "maxOrb": 7,
+     "exactness": 0.0283,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Lilith",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 2.4297,
+     "signedOrb": 2.4297,
+     "maxOrb": 2.5,
+     "exactness": 0.0281,
+     "applying": false
+    }
+   ]
+  },
+  "D": {
+   "meta": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "timeUsed": "22:10",
+    "timezoneUsed": "Australia/Sydney"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 314.2695174672124,
+     "sign": "Aquarius",
+     "degreeInSign": 14.269517467212381,
+     "house": 5
+    },
+    {
+     "body": "Moon",
+     "lon": 256.74142818907967,
+     "sign": "Sagittarius",
+     "degreeInSign": 16.74142818907967,
+     "house": 3
+    },
+    {
+     "body": "Mercury",
+     "lon": 298.16123436332526,
+     "sign": "Capricorn",
+     "degreeInSign": 28.16123436332532,
+     "house": 5
+    },
+    {
+     "body": "Venus",
+     "lon": 317.20050406302056,
+     "sign": "Aquarius",
+     "degreeInSign": 17.200504063020617,
+     "house": 5
+    },
+    {
+     "body": "Mars",
+     "lon": 116.92935276631339,
+     "sign": "Cancer",
+     "degreeInSign": 26.9293527663134,
+     "house": 11
+    },
+    {
+     "body": "Jupiter",
+     "lon": 86.53408162419962,
+     "sign": "Gemini",
+     "degreeInSign": 26.534081624199644,
+     "house": 9
+    },
+    {
+     "body": "Saturn",
+     "lon": 148.14650084327226,
+     "sign": "Leo",
+     "degreeInSign": 28.146500843272293,
+     "house": 12
+    },
+    {
+     "body": "Uranus",
+     "lon": 226.28685331164755,
+     "sign": "Scorpio",
+     "degreeInSign": 16.28685331164752,
+     "house": 2
+    },
+    {
+     "body": "Neptune",
+     "lon": 257.75728017721,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.757280177210077,
+     "house": 3
+    },
+    {
+     "body": "Pluto",
+     "lon": 196.62643384362423,
+     "sign": "Libra",
+     "degreeInSign": 16.626433843624227,
+     "house": 1
+    }
+   ],
+   "houses": {
+    "system": "placidus",
+    "cusps": [
+     183.038782453957,
+     221.44746480656832,
+     248.8752265900282,
+     271.81414871383276,
+     295.02280047493366,
+     323.3497154708376,
+     3.038782453956969,
+     41.44746480656829,
+     68.8752265900282,
+     91.81414871383278,
+     115.02280047493366,
+     143.3497154708376
+    ],
+    "asc": 183.038782453957,
+    "mc": 91.81414871383278
+   },
+   "aspects": [
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 0.11,
+     "exactness": 0.98
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "orb": 0.46,
+     "exactness": 0.92
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 0.56,
+     "exactness": 0.91
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.57,
+     "exactness": 0.9
+    },
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 0.91,
+     "exactness": 0.85
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "conjunction",
+     "orb": 1.02,
+     "exactness": 0.83
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 1.13,
+     "exactness": 0.81
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 1.22,
+     "exactness": 0.8
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "opposition",
+     "orb": 1.23,
+     "exactness": 0.79
+    },
+    {
+     "a": "Jupiter",
+     "b": "Saturn",
+     "type": "sextile",
+     "orb": 1.61,
+     "exactness": 0.73
+    },
+    {
+     "a": "Sun",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 2.02,
+     "exactness": 0.66
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 2.36,
+     "exactness": 0.61
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "orb": 2.47,
+     "exactness": 0.59
+    },
+    {
+     "a": "Sun",
+     "b": "Venus",
+     "type": "conjunction",
+     "orb": 2.93,
+     "exactness": 0.51
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 3.49,
+     "exactness": 0.42
+    },
+    {
+     "a": "Saturn",
+     "b": "MC",
+     "type": "sextile",
+     "orb": 3.67,
+     "exactness": 0.39
+    },
+    {
+     "a": "Mercury",
+     "b": "ASC",
+     "type": "trine",
+     "orb": 4.88,
+     "exactness": 0.19
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "conjunction",
+     "orb": 5.28,
+     "exactness": 0.12
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "placidus",
+    "usedHouseSystem": "placidus",
+    "utc": "1978-02-03T11:10:00.000Z",
+    "lat": -33.866667,
+    "lng": 151.2,
+    "timezone": "Australia/Sydney",
+    "timeEstimated": false,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 314.2695174672124,
+     "sign": "Aquarius",
+     "degreeInSign": 14.269517467212381,
+     "house": 5,
+     "retrograde": false,
+     "speed": 1.01449
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 256.74142818907967,
+     "sign": "Sagittarius",
+     "degreeInSign": 16.74142818907967,
+     "house": 3,
+     "retrograde": false,
+     "speed": 14.564924
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 298.16123436332526,
+     "sign": "Capricorn",
+     "degreeInSign": 28.16123436332532,
+     "house": 5,
+     "retrograde": false,
+     "speed": 1.528162
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 317.20050406302056,
+     "sign": "Aquarius",
+     "degreeInSign": 17.200504063020617,
+     "house": 5,
+     "retrograde": false,
+     "speed": 1.255137
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 116.92935276631339,
+     "sign": "Cancer",
+     "degreeInSign": 26.9293527663134,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.33449
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 86.53408162419962,
+     "sign": "Gemini",
+     "degreeInSign": 26.534081624199644,
+     "house": 9,
+     "retrograde": true,
+     "speed": -0.055139
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 148.14650084327226,
+     "sign": "Leo",
+     "degreeInSign": 28.146500843272293,
+     "house": 12,
+     "retrograde": true,
+     "speed": -0.077292
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 226.28685331164755,
+     "sign": "Scorpio",
+     "degreeInSign": 16.28685331164752,
+     "house": 2,
+     "retrograde": false,
+     "speed": 0.014928
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 257.75728017721,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.757280177210077,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.024076
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 196.62643384362423,
+     "sign": "Libra",
+     "degreeInSign": 16.626433843624227,
+     "house": 1,
+     "retrograde": true,
+     "speed": -0.008873
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 188.78361537423277,
+     "sign": "Libra",
+     "degreeInSign": 8.783615374232795,
+     "house": 1,
+     "retrograde": true,
+     "speed": -0.052928
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 8.783615374232795,
+     "sign": "Aries",
+     "degreeInSign": 8.783615374232795,
+     "house": 7,
+     "retrograde": true,
+     "speed": -0.052928
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 91.87150115126556,
+     "sign": "Cancer",
+     "degreeInSign": 1.8715011512655337,
+     "house": 10,
+     "retrograde": false,
+     "speed": 0.112075
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 31.369586726730535,
+     "sign": "Taurus",
+     "degreeInSign": 1.3695867267305175,
+     "house": 7,
+     "retrograde": false,
+     "speed": 0.022262
+    },
+    {
+     "id": "Fortune",
+     "kind": "point",
+     "lon": 240.56687173208968,
+     "sign": "Sagittarius",
+     "degreeInSign": 0.5668717320896803,
+     "house": 2,
+     "retrograde": null,
+     "speed": null
+    },
+    {
+     "id": "Vertex",
+     "kind": "point",
+     "lon": 1.3092112190418301,
+     "sign": "Aries",
+     "degreeInSign": 1.3092112190418561,
+     "house": 6,
+     "retrograde": null,
+     "speed": null
+    }
+   ],
+   "angles": {
+    "asc": 183.038782453957,
+    "dsc": 3.038782453956969,
+    "mc": 91.81414871383278,
+    "ic": 271.81414871383276
+   },
+   "sharedAspects": [
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.0147,
+     "signedOrb": 0.0147,
+     "maxOrb": 2.5,
+     "exactness": 0.9941,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "IC",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.0574,
+     "signedOrb": -0.0574,
+     "maxOrb": 7,
+     "exactness": 0.9918,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "MC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 0.0574,
+     "signedOrb": 0.0574,
+     "maxOrb": 7,
+     "exactness": 0.9918,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "Vertex",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.0224,
+     "signedOrb": 0.0224,
+     "maxOrb": 2.5,
+     "exactness": 0.9911,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.115,
+     "signedOrb": 0.115,
+     "maxOrb": 6,
+     "exactness": 0.9808,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.0604,
+     "signedOrb": 0.0604,
+     "maxOrb": 2.5,
+     "exactness": 0.9758,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.1256,
+     "signedOrb": -0.1256,
+     "maxOrb": 2.5,
+     "exactness": 0.9498,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "NorthNode",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.1457,
+     "signedOrb": -0.1457,
+     "maxOrb": 2.5,
+     "exactness": 0.9417,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "IC",
+     "type": "trine",
+     "major": true,
+     "orb": 0.4446,
+     "signedOrb": -0.4446,
+     "maxOrb": 7,
+     "exactness": 0.9365,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 0.5049,
+     "signedOrb": -0.5049,
+     "maxOrb": 7,
+     "exactness": 0.9279,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 0.5049,
+     "signedOrb": 0.5049,
+     "maxOrb": 7,
+     "exactness": 0.9279,
+     "applying": null
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.4591,
+     "signedOrb": 0.4591,
+     "maxOrb": 6,
+     "exactness": 0.9235,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 0.5623,
+     "signedOrb": 0.5623,
+     "maxOrb": 7,
+     "exactness": 0.9197,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 0.5741,
+     "signedOrb": 0.5741,
+     "maxOrb": 7,
+     "exactness": 0.918,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.0159,
+     "signedOrb": 1.0159,
+     "maxOrb": 10,
+     "exactness": 0.8984,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "Vertex",
+     "type": "trine",
+     "major": true,
+     "orb": 0.7423,
+     "signedOrb": 0.7423,
+     "maxOrb": 7,
+     "exactness": 0.894,
+     "applying": null
+    },
+    {
+     "a": "Chiron",
+     "b": "MC",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.4446,
+     "signedOrb": 0.4446,
+     "maxOrb": 4,
+     "exactness": 0.8889,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "Chiron",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.5019,
+     "signedOrb": 0.5019,
+     "maxOrb": 4,
+     "exactness": 0.8745,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "square",
+     "major": true,
+     "orb": 0.9137,
+     "signedOrb": 0.9137,
+     "maxOrb": 7,
+     "exactness": 0.8695,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Lilith",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.329,
+     "signedOrb": -0.329,
+     "maxOrb": 2.5,
+     "exactness": 0.8684,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.3396,
+     "signedOrb": -0.3396,
+     "maxOrb": 2.5,
+     "exactness": 0.8642,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.5568,
+     "signedOrb": -0.5568,
+     "maxOrb": 4,
+     "exactness": 0.8608,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Chiron",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.3718,
+     "signedOrb": -0.3718,
+     "maxOrb": 2.5,
+     "exactness": 0.8513,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.3864,
+     "signedOrb": 0.3864,
+     "maxOrb": 2.5,
+     "exactness": 0.8455,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.3864,
+     "signedOrb": -0.3864,
+     "maxOrb": 2.5,
+     "exactness": 0.8455,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.3953,
+     "signedOrb": 0.3953,
+     "maxOrb": 2.5,
+     "exactness": 0.8419,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "ASC",
+     "type": "square",
+     "major": true,
+     "orb": 1.1673,
+     "signedOrb": 1.1673,
+     "maxOrb": 7,
+     "exactness": 0.8332,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "DSC",
+     "type": "square",
+     "major": true,
+     "orb": 1.1673,
+     "signedOrb": -1.1673,
+     "maxOrb": 7,
+     "exactness": 0.8332,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.2319,
+     "signedOrb": -1.2319,
+     "maxOrb": 7,
+     "exactness": 0.824,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.4546,
+     "signedOrb": 0.4546,
+     "maxOrb": 2.5,
+     "exactness": 0.8182,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Uranus",
+     "type": "square",
+     "major": true,
+     "orb": 2.0173,
+     "signedOrb": -2.0173,
+     "maxOrb": 10,
+     "exactness": 0.7983,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.5273,
+     "signedOrb": 0.5273,
+     "maxOrb": 2.5,
+     "exactness": 0.7891,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.5273,
+     "signedOrb": -0.5273,
+     "maxOrb": 2.5,
+     "exactness": 0.7891,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Lilith",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.5846,
+     "signedOrb": -0.5846,
+     "maxOrb": 2.5,
+     "exactness": 0.7661,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 2.3569,
+     "signedOrb": -2.3569,
+     "maxOrb": 10,
+     "exactness": 0.7643,
+     "applying": true
+    },
+    {
+     "a": "Vertex",
+     "b": "ASC",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.7296,
+     "signedOrb": -1.7296,
+     "maxOrb": 7,
+     "exactness": 0.7529,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "DSC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.7296,
+     "signedOrb": 1.7296,
+     "maxOrb": 7,
+     "exactness": 0.7529,
+     "applying": null
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.1308,
+     "signedOrb": 1.1308,
+     "maxOrb": 4,
+     "exactness": 0.7173,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Venus",
+     "type": "conjunction",
+     "major": true,
+     "orb": 2.931,
+     "signedOrb": 2.931,
+     "maxOrb": 10,
+     "exactness": 0.7069,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "Fortune",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.8027,
+     "signedOrb": 0.8027,
+     "maxOrb": 2.5,
+     "exactness": 0.6789,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.8383,
+     "signedOrb": -0.8383,
+     "maxOrb": 2.5,
+     "exactness": 0.6647,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "DSC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.8383,
+     "signedOrb": 0.8383,
+     "maxOrb": 2.5,
+     "exactness": 0.6647,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Fortune",
+     "type": "square",
+     "major": true,
+     "orb": 2.4204,
+     "signedOrb": 2.4204,
+     "maxOrb": 7,
+     "exactness": 0.6542,
+     "applying": false
+    },
+    {
+     "a": "Fortune",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.4719,
+     "signedOrb": 2.4719,
+     "maxOrb": 7,
+     "exactness": 0.6469,
+     "applying": null
+    },
+    {
+     "a": "Venus",
+     "b": "Vertex",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.8913,
+     "signedOrb": -0.8913,
+     "maxOrb": 2.5,
+     "exactness": 0.6435,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Saturn",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.6124,
+     "signedOrb": 1.6124,
+     "maxOrb": 4,
+     "exactness": 0.5969,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.4719,
+     "signedOrb": -2.4719,
+     "maxOrb": 6,
+     "exactness": 0.588,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Fortune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.0596,
+     "signedOrb": -1.0596,
+     "maxOrb": 2.5,
+     "exactness": 0.5762,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "DSC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.1077,
+     "signedOrb": 1.1077,
+     "maxOrb": 2.5,
+     "exactness": 0.5569,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Chiron",
+     "type": "square",
+     "major": true,
+     "orb": 3.2084,
+     "signedOrb": 3.2084,
+     "maxOrb": 7,
+     "exactness": 0.5417,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "Chiron",
+     "type": "trine",
+     "major": true,
+     "orb": 3.2231,
+     "signedOrb": -3.2231,
+     "maxOrb": 7,
+     "exactness": 0.5396,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Saturn",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.2171,
+     "signedOrb": 1.2171,
+     "maxOrb": 2.5,
+     "exactness": 0.5131,
+     "applying": false
+    },
+    {
+     "a": "Fortune",
+     "b": "IC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.2473,
+     "signedOrb": 1.2473,
+     "maxOrb": 2.5,
+     "exactness": 0.5011,
+     "applying": null
+    },
+    {
+     "a": "Fortune",
+     "b": "MC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.2473,
+     "signedOrb": -1.2473,
+     "maxOrb": 2.5,
+     "exactness": 0.5011,
+     "applying": null
+    },
+    {
+     "a": "Mars",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 3.6375,
+     "signedOrb": 3.6375,
+     "maxOrb": 7,
+     "exactness": 0.4804,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "Fortune",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.3046,
+     "signedOrb": -1.3046,
+     "maxOrb": 2.5,
+     "exactness": 0.4781,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "IC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.6676,
+     "signedOrb": 3.6676,
+     "maxOrb": 7,
+     "exactness": 0.4761,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 5.4859,
+     "signedOrb": 5.4859,
+     "maxOrb": 10,
+     "exactness": 0.4514,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Chiron",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.3877,
+     "signedOrb": -1.3877,
+     "maxOrb": 2.5,
+     "exactness": 0.4449,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.4878,
+     "signedOrb": -3.4878,
+     "maxOrb": 6,
+     "exactness": 0.4187,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "Neptune",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.4704,
+     "signedOrb": 1.4704,
+     "maxOrb": 2.5,
+     "exactness": 0.4118,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Fortune",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.4056,
+     "signedOrb": -2.4056,
+     "maxOrb": 4,
+     "exactness": 0.3986,
+     "applying": false
+    },
+    {
+     "a": "Fortune",
+     "b": "ASC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.4719,
+     "signedOrb": -2.4719,
+     "maxOrb": 4,
+     "exactness": 0.382,
+     "applying": null
+    },
+    {
+     "a": "Mars",
+     "b": "Vertex",
+     "type": "trine",
+     "major": true,
+     "orb": 4.3799,
+     "signedOrb": -4.3799,
+     "maxOrb": 7,
+     "exactness": 0.3743,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Chiron",
+     "type": "square",
+     "major": true,
+     "orb": 4.4402,
+     "signedOrb": -4.4402,
+     "maxOrb": 7,
+     "exactness": 0.3657,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.6272,
+     "signedOrb": -1.6272,
+     "maxOrb": 2.5,
+     "exactness": 0.3491,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "ASC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.6692,
+     "signedOrb": 1.6692,
+     "maxOrb": 2.5,
+     "exactness": 0.3323,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "DSC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.6692,
+     "signedOrb": -1.6692,
+     "maxOrb": 2.5,
+     "exactness": 0.3323,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.7026,
+     "signedOrb": 1.7026,
+     "maxOrb": 2.5,
+     "exactness": 0.3189,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Fortune",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.7026,
+     "signedOrb": 1.7026,
+     "maxOrb": 2.5,
+     "exactness": 0.3189,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 4.7751,
+     "signedOrb": -4.7751,
+     "maxOrb": 7,
+     "exactness": 0.3178,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "ASC",
+     "type": "trine",
+     "major": true,
+     "orb": 4.8775,
+     "signedOrb": -4.8775,
+     "maxOrb": 7,
+     "exactness": 0.3032,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.7519,
+     "signedOrb": -1.7519,
+     "maxOrb": 2.5,
+     "exactness": 0.2992,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.7519,
+     "signedOrb": 1.7519,
+     "maxOrb": 2.5,
+     "exactness": 0.2992,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "IC",
+     "type": "opposition",
+     "major": true,
+     "orb": 5.2801,
+     "signedOrb": -5.2801,
+     "maxOrb": 7,
+     "exactness": 0.2457,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.2801,
+     "signedOrb": 5.2801,
+     "maxOrb": 7,
+     "exactness": 0.2457,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Lilith",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.3374,
+     "signedOrb": 5.3374,
+     "maxOrb": 7,
+     "exactness": 0.2375,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Vertex",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.148,
+     "signedOrb": 3.148,
+     "maxOrb": 4,
+     "exactness": 0.213,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Vertex",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0397,
+     "signedOrb": 2.0397,
+     "maxOrb": 2.5,
+     "exactness": 0.1841,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "ASC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.7448,
+     "signedOrb": 5.7448,
+     "maxOrb": 7,
+     "exactness": 0.1793,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "DSC",
+     "type": "opposition",
+     "major": true,
+     "orb": 5.7448,
+     "signedOrb": -5.7448,
+     "maxOrb": 7,
+     "exactness": 0.1793,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Chiron",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.1691,
+     "signedOrb": 2.1691,
+     "maxOrb": 2.5,
+     "exactness": 0.1324,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 6.1094,
+     "signedOrb": -6.1094,
+     "maxOrb": 7,
+     "exactness": 0.1272,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "MC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.6676,
+     "signedOrb": -3.6676,
+     "maxOrb": 4,
+     "exactness": 0.0831,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "ASC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5047,
+     "signedOrb": 6.5047,
+     "maxOrb": 7,
+     "exactness": 0.0708,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "DSC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5047,
+     "signedOrb": -6.5047,
+     "maxOrb": 7,
+     "exactness": 0.0708,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Lilith",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.725,
+     "signedOrb": -3.725,
+     "maxOrb": 4,
+     "exactness": 0.0687,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "opposition",
+     "major": true,
+     "orb": 9.7927,
+     "signedOrb": -9.7927,
+     "maxOrb": 10,
+     "exactness": 0.0207,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "Lilith",
+     "type": "square",
+     "major": true,
+     "orb": 6.9121,
+     "signedOrb": 6.9121,
+     "maxOrb": 7,
+     "exactness": 0.0126,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 6.9695,
+     "signedOrb": -6.9695,
+     "maxOrb": 7,
+     "exactness": 0.0044,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 6.9695,
+     "signedOrb": 6.9695,
+     "maxOrb": 7,
+     "exactness": 0.0044,
+     "applying": true
+    }
+   ]
+  },
+  "unknownTime": {
+   "meta": {
+    "houseSystem": "koch",
+    "zodiac": "tropical",
+    "timeUsed": null,
+    "timezoneUsed": "Europe/London"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 84.08977083584041,
+     "sign": "Gemini",
+     "degreeInSign": 24.089770835840397,
+     "house": null
+    },
+    {
+     "body": "Moon",
+     "lon": 344.80150970354777,
+     "sign": "Pisces",
+     "degreeInSign": 14.801509703547708,
+     "house": null
+    },
+    {
+     "body": "Mercury",
+     "lon": 65.61924864121578,
+     "sign": "Gemini",
+     "degreeInSign": 5.6192486412157905,
+     "house": null
+    },
+    {
+     "body": "Venus",
+     "lon": 48.72861360719537,
+     "sign": "Taurus",
+     "degreeInSign": 18.72861360719537,
+     "house": null
+    },
+    {
+     "body": "Mars",
+     "lon": 11.011355780195629,
+     "sign": "Aries",
+     "degreeInSign": 11.011355780195629,
+     "house": null
+    },
+    {
+     "body": "Jupiter",
+     "lon": 105.88041112980565,
+     "sign": "Cancer",
+     "degreeInSign": 15.88041112980568,
+     "house": null
+    },
+    {
+     "body": "Saturn",
+     "lon": 294.03440482581726,
+     "sign": "Capricorn",
+     "degreeInSign": 24.03440482581732,
+     "house": null
+    },
+    {
+     "body": "Uranus",
+     "lon": 278.16686181974507,
+     "sign": "Capricorn",
+     "degreeInSign": 8.166861819745009,
+     "house": null
+    },
+    {
+     "body": "Neptune",
+     "lon": 283.7181399654337,
+     "sign": "Capricorn",
+     "degreeInSign": 13.718139965433693,
+     "house": null
+    },
+    {
+     "body": "Pluto",
+     "lon": 225.40239191685734,
+     "sign": "Scorpio",
+     "degreeInSign": 15.402391916857368,
+     "house": null
+    }
+   ],
+   "houses": {
+    "system": "koch",
+    "cusps": [
+     164.74206381761795,
+     193.03170272960378,
+     221.13412889367544,
+     249.98251431095616,
+     287.5915699896534,
+     316.6517851796998,
+     344.7420638176179,
+     13.031702729603808,
+     41.13412889367544,
+     69.98251431095618,
+     107.59156998965341,
+     136.65178517969983
+    ],
+    "asc": null,
+    "mc": null
+   },
+   "aspects": [
+    {
+     "a": "Jupiter",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.48,
+     "exactness": 0.92
+    },
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.6,
+     "exactness": 0.9
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "trine",
+     "orb": 1.08,
+     "exactness": 0.82
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 1.08,
+     "exactness": 0.82
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 1.68,
+     "exactness": 0.72
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "opposition",
+     "orb": 2.16,
+     "exactness": 0.64
+    },
+    {
+     "a": "Mars",
+     "b": "Neptune",
+     "type": "square",
+     "orb": 2.71,
+     "exactness": 0.55
+    },
+    {
+     "a": "Venus",
+     "b": "Jupiter",
+     "type": "sextile",
+     "orb": 2.85,
+     "exactness": 0.53
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 2.84,
+     "exactness": 0.53
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "opposition",
+     "orb": 3.33,
+     "exactness": 0.45
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "orb": 3.93,
+     "exactness": 0.35
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 4.87,
+     "exactness": 0.19
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 5.01,
+     "exactness": 0.16
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 5.31,
+     "exactness": 0.12
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 5.39,
+     "exactness": 0.1
+    },
+    {
+     "a": "Uranus",
+     "b": "Neptune",
+     "type": "conjunction",
+     "orb": 5.55,
+     "exactness": 0.07
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "koch",
+    "usedHouseSystem": "koch",
+    "utc": "1990-06-15T11:00:00.000Z",
+    "lat": 51.5074,
+    "lng": -0.1278,
+    "timezone": "Europe/London",
+    "timeEstimated": true,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 84.08977083584041,
+     "sign": "Gemini",
+     "degreeInSign": 24.089770835840397,
+     "house": null,
+     "retrograde": false,
+     "speed": 0.955105
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 344.80150970354777,
+     "sign": "Pisces",
+     "degreeInSign": 14.801509703547708,
+     "house": null,
+     "retrograde": false,
+     "speed": 13.346878
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 65.61924864121578,
+     "sign": "Gemini",
+     "degreeInSign": 5.6192486412157905,
+     "house": null,
+     "retrograde": false,
+     "speed": 1.714027
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 48.72861360719537,
+     "sign": "Taurus",
+     "degreeInSign": 18.72861360719537,
+     "house": null,
+     "retrograde": false,
+     "speed": 1.175946
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 11.011355780195629,
+     "sign": "Aries",
+     "degreeInSign": 11.011355780195629,
+     "house": null,
+     "retrograde": false,
+     "speed": 0.718991
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 105.88041112980565,
+     "sign": "Cancer",
+     "degreeInSign": 15.88041112980568,
+     "house": null,
+     "retrograde": false,
+     "speed": 0.216616
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 294.03440482581726,
+     "sign": "Capricorn",
+     "degreeInSign": 24.03440482581732,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.058595
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 278.16686181974507,
+     "sign": "Capricorn",
+     "degreeInSign": 8.166861819745009,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.038918
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 283.7181399654337,
+     "sign": "Capricorn",
+     "degreeInSign": 13.718139965433693,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.025018
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 225.40239191685734,
+     "sign": "Scorpio",
+     "degreeInSign": 15.402391916857368,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.020194
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 309.7000909305907,
+     "sign": "Aquarius",
+     "degreeInSign": 9.700090930590704,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.05297
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 129.7000909305907,
+     "sign": "Leo",
+     "degreeInSign": 9.700090930590704,
+     "house": null,
+     "retrograde": true,
+     "speed": -0.05297
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 234.94666354392712,
+     "sign": "Scorpio",
+     "degreeInSign": 24.946663543927116,
+     "house": null,
+     "retrograde": false,
+     "speed": 0.111961
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 106.05629877790524,
+     "sign": "Cancer",
+     "degreeInSign": 16.056298777905226,
+     "house": null,
+     "retrograde": false,
+     "speed": 0.101221
+    }
+   ],
+   "angles": null,
+   "sharedAspects": [
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.0554,
+     "signedOrb": 0.0554,
+     "maxOrb": 2.5,
+     "exactness": 0.9779,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Chiron",
+     "type": "conjunction",
+     "major": true,
+     "orb": 0.1759,
+     "signedOrb": 0.1759,
+     "maxOrb": 7,
+     "exactness": 0.9749,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 0.6009,
+     "signedOrb": -0.6009,
+     "maxOrb": 10,
+     "exactness": 0.9399,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 0.478,
+     "signedOrb": -0.478,
+     "maxOrb": 7,
+     "exactness": 0.9317,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Chiron",
+     "type": "trine",
+     "major": true,
+     "orb": 0.6539,
+     "signedOrb": -0.6539,
+     "maxOrb": 7,
+     "exactness": 0.9066,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "trine",
+     "major": true,
+     "orb": 1.0789,
+     "signedOrb": 1.0789,
+     "maxOrb": 10,
+     "exactness": 0.8921,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Chiron",
+     "type": "trine",
+     "major": true,
+     "orb": 1.2548,
+     "signedOrb": 1.2548,
+     "maxOrb": 10,
+     "exactness": 0.8745,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.0834,
+     "signedOrb": 1.0834,
+     "maxOrb": 6,
+     "exactness": 0.8194,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Lilith",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.9123,
+     "signedOrb": -0.9123,
+     "maxOrb": 4,
+     "exactness": 0.7719,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "NorthNode",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.6103,
+     "signedOrb": -0.6103,
+     "maxOrb": 2.5,
+     "exactness": 0.7559,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.1623,
+     "signedOrb": -2.1623,
+     "maxOrb": 7,
+     "exactness": 0.6911,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "NorthNode",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.3113,
+     "signedOrb": 1.3113,
+     "maxOrb": 4,
+     "exactness": 0.6722,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Chiron",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.3382,
+     "signedOrb": -2.3382,
+     "maxOrb": 7,
+     "exactness": 0.666,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Lilith",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.8569,
+     "signedOrb": 0.8569,
+     "maxOrb": 2.5,
+     "exactness": 0.6572,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Neptune",
+     "type": "square",
+     "major": true,
+     "orb": 2.7068,
+     "signedOrb": -2.7068,
+     "maxOrb": 7,
+     "exactness": 0.6133,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "square",
+     "major": true,
+     "orb": 2.8445,
+     "signedOrb": 2.8445,
+     "maxOrb": 7,
+     "exactness": 0.5936,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.6843,
+     "signedOrb": -1.6843,
+     "maxOrb": 4,
+     "exactness": 0.5789,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Lilith",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.0647,
+     "signedOrb": 1.0647,
+     "maxOrb": 2.5,
+     "exactness": 0.5741,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.0784,
+     "signedOrb": 1.0784,
+     "maxOrb": 2.5,
+     "exactness": 0.5686,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.3262,
+     "signedOrb": -3.3262,
+     "maxOrb": 7,
+     "exactness": 0.5248,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 4.0808,
+     "signedOrb": -4.0808,
+     "maxOrb": 7,
+     "exactness": 0.417,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "NorthNode",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.5332,
+     "signedOrb": 1.5332,
+     "maxOrb": 2.5,
+     "exactness": 0.3867,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Pluto",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 1.609,
+     "signedOrb": 1.609,
+     "maxOrb": 2.5,
+     "exactness": 0.3564,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.9271,
+     "signedOrb": 3.9271,
+     "maxOrb": 6,
+     "exactness": 0.3455,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Chiron",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.6723,
+     "signedOrb": -2.6723,
+     "maxOrb": 4,
+     "exactness": 0.3319,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 4.8691,
+     "signedOrb": 4.8691,
+     "maxOrb": 7,
+     "exactness": 0.3044,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "Lilith",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.7798,
+     "signedOrb": -1.7798,
+     "maxOrb": 2.5,
+     "exactness": 0.2881,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Jupiter",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.8482,
+     "signedOrb": -2.8482,
+     "maxOrb": 4,
+     "exactness": 0.2879,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "trine",
+     "major": true,
+     "orb": 5.0105,
+     "signedOrb": 5.0105,
+     "maxOrb": 7,
+     "exactness": 0.2842,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Chiron",
+     "type": "square",
+     "major": true,
+     "orb": 5.0449,
+     "signedOrb": 5.0449,
+     "maxOrb": 7,
+     "exactness": 0.2793,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "trine",
+     "major": true,
+     "orb": 5.3058,
+     "signedOrb": -5.3058,
+     "maxOrb": 7,
+     "exactness": 0.242,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "Neptune",
+     "type": "conjunction",
+     "major": true,
+     "orb": 5.5513,
+     "signedOrb": 5.5513,
+     "maxOrb": 7,
+     "exactness": 0.207,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "NorthNode",
+     "type": "square",
+     "major": true,
+     "orb": 5.7023,
+     "signedOrb": -5.7023,
+     "maxOrb": 7,
+     "exactness": 0.1854,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Neptune",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 2.0989,
+     "signedOrb": -2.0989,
+     "maxOrb": 2.5,
+     "exactness": 0.1604,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Lilith",
+     "type": "opposition",
+     "major": true,
+     "orb": 6.218,
+     "signedOrb": -6.218,
+     "maxOrb": 7,
+     "exactness": 0.1117,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Mercury",
+     "type": "square",
+     "major": true,
+     "orb": 9.1823,
+     "signedOrb": -9.1823,
+     "maxOrb": 10,
+     "exactness": 0.0818,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "square",
+     "major": true,
+     "orb": 9.2883,
+     "signedOrb": 9.2883,
+     "maxOrb": 10,
+     "exactness": 0.0712,
+     "applying": true
+    }
+   ]
+  },
+  "fallback": {
+   "meta": {
+    "houseSystem": "whole-sign",
+    "zodiac": "tropical",
+    "timeUsed": "03:30",
+    "timezoneUsed": "Africa/Johannesburg"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 9.172291502405923,
+     "sign": "Aries",
+     "degreeInSign": 9.172291502405926,
+     "house": 3
+    },
+    {
+     "body": "Moon",
+     "lon": 207.58821716118487,
+     "sign": "Libra",
+     "degreeInSign": 27.588217161184843,
+     "house": 9
+    },
+    {
+     "body": "Mercury",
+     "lon": 0.849883767133239,
+     "sign": "Aries",
+     "degreeInSign": 0.8498837671332353,
+     "house": 3
+    },
+    {
+     "body": "Venus",
+     "lon": 27.267851846408302,
+     "sign": "Aries",
+     "degreeInSign": 27.26785184640829,
+     "house": 3
+    },
+    {
+     "body": "Mars",
+     "lon": 49.91786890653155,
+     "sign": "Taurus",
+     "degreeInSign": 19.917868906531567,
+     "house": 4
+    },
+    {
+     "body": "Jupiter",
+     "lon": 96.90727746194152,
+     "sign": "Cancer",
+     "degreeInSign": 6.907277461941533,
+     "house": 6
+    },
+    {
+     "body": "Saturn",
+     "lon": 70.25775989837216,
+     "sign": "Gemini",
+     "degreeInSign": 10.257759898372171,
+     "house": 5
+    },
+    {
+     "body": "Uranus",
+     "lon": 327.2138497451527,
+     "sign": "Aquarius",
+     "degreeInSign": 27.21384974515263,
+     "house": 1
+    },
+    {
+     "body": "Neptune",
+     "lon": 310.4509279270508,
+     "sign": "Aquarius",
+     "degreeInSign": 10.45092792705077,
+     "house": 1
+    },
+    {
+     "body": "Pluto",
+     "lon": 257.6039290333481,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.603929033348095,
+     "house": 11
+    }
+   ],
+   "houses": {
+    "system": "whole-sign",
+    "cusps": [
+     300,
+     330,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150,
+     180,
+     210,
+     240,
+     270
+    ],
+    "asc": 324.98014501461233,
+    "mc": 230.62410082583418
+   },
+   "aspects": [
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 0.05,
+     "exactness": 0.99
+    },
+    {
+     "a": "Saturn",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 0.19,
+     "exactness": 0.97
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "opposition",
+     "orb": 0.32,
+     "exactness": 0.95
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 0.37,
+     "exactness": 0.94
+    },
+    {
+     "a": "Mars",
+     "b": "MC",
+     "type": "opposition",
+     "orb": 0.71,
+     "exactness": 0.88
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sextile",
+     "orb": 1.09,
+     "exactness": 0.82
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 1.28,
+     "exactness": 0.79
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "conjunction",
+     "orb": 2.23,
+     "exactness": 0.63
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 2.27,
+     "exactness": 0.62
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 2.29,
+     "exactness": 0.62
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "trine",
+     "orb": 2.61,
+     "exactness": 0.57
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 4.36,
+     "exactness": 0.27
+    },
+    {
+     "a": "Mars",
+     "b": "ASC",
+     "type": "square",
+     "orb": 5.06,
+     "exactness": 0.16
+    }
+   ],
+   "context": {
+    "calcVersion": 2,
+    "requestedHouseSystem": "placidus",
+    "usedHouseSystem": "whole-sign",
+    "utc": "2002-03-30T01:30:00.000Z",
+    "lat": -33.933333,
+    "lng": 18.416667,
+    "timezone": "Africa/Johannesburg",
+    "timeEstimated": false,
+    "conventions": {
+     "node": "mean",
+     "lilith": "mean",
+     "fortune": "by-horizon"
+    },
+    "chironAvailable": true
+   },
+   "positions": [
+    {
+     "id": "Sun",
+     "kind": "planet",
+     "lon": 9.172291502405923,
+     "sign": "Aries",
+     "degreeInSign": 9.172291502405926,
+     "house": 3,
+     "retrograde": false,
+     "speed": 0.987782
+    },
+    {
+     "id": "Moon",
+     "kind": "planet",
+     "lon": 207.58821716118487,
+     "sign": "Libra",
+     "degreeInSign": 27.588217161184843,
+     "house": 9,
+     "retrograde": false,
+     "speed": 15.044251
+    },
+    {
+     "id": "Mercury",
+     "kind": "planet",
+     "lon": 0.849883767133239,
+     "sign": "Aries",
+     "degreeInSign": 0.8498837671332353,
+     "house": 3,
+     "retrograde": false,
+     "speed": 1.900473
+    },
+    {
+     "id": "Venus",
+     "kind": "planet",
+     "lon": 27.267851846408302,
+     "sign": "Aries",
+     "degreeInSign": 27.26785184640829,
+     "house": 3,
+     "retrograde": false,
+     "speed": 1.234109
+    },
+    {
+     "id": "Mars",
+     "kind": "planet",
+     "lon": 49.91786890653155,
+     "sign": "Taurus",
+     "degreeInSign": 19.917868906531567,
+     "house": 4,
+     "retrograde": false,
+     "speed": 0.691563
+    },
+    {
+     "id": "Jupiter",
+     "kind": "planet",
+     "lon": 96.90727746194152,
+     "sign": "Cancer",
+     "degreeInSign": 6.907277461941533,
+     "house": 6,
+     "retrograde": false,
+     "speed": 0.087398
+    },
+    {
+     "id": "Saturn",
+     "kind": "planet",
+     "lon": 70.25775989837216,
+     "sign": "Gemini",
+     "degreeInSign": 10.257759898372171,
+     "house": 5,
+     "retrograde": false,
+     "speed": 0.083876
+    },
+    {
+     "id": "Uranus",
+     "kind": "planet",
+     "lon": 327.2138497451527,
+     "sign": "Aquarius",
+     "degreeInSign": 27.21384974515263,
+     "house": 1,
+     "retrograde": false,
+     "speed": 0.046379
+    },
+    {
+     "id": "Neptune",
+     "kind": "planet",
+     "lon": 310.4509279270508,
+     "sign": "Aquarius",
+     "degreeInSign": 10.45092792705077,
+     "house": 1,
+     "retrograde": false,
+     "speed": 0.023141
+    },
+    {
+     "id": "Pluto",
+     "kind": "planet",
+     "lon": 257.6039290333481,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.603929033348095,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.005223
+    },
+    {
+     "id": "NorthNode",
+     "kind": "node",
+     "lon": 81.69372099630169,
+     "sign": "Gemini",
+     "degreeInSign": 21.693720996301693,
+     "house": 5,
+     "retrograde": true,
+     "speed": -0.052985
+    },
+    {
+     "id": "SouthNode",
+     "kind": "node",
+     "lon": 261.69372099630164,
+     "sign": "Sagittarius",
+     "degreeInSign": 21.693720996301636,
+     "house": 11,
+     "retrograde": true,
+     "speed": -0.052985
+    },
+    {
+     "id": "Lilith",
+     "kind": "point",
+     "lon": 354.550730447602,
+     "sign": "Pisces",
+     "degreeInSign": 24.550730447602064,
+     "house": 2,
+     "retrograde": false,
+     "speed": 0.112033
+    },
+    {
+     "id": "Chiron",
+     "kind": "point",
+     "lon": 278.9049051866141,
+     "sign": "Capricorn",
+     "degreeInSign": 8.904905186614087,
+     "house": 12,
+     "retrograde": false,
+     "speed": 0.026743
+    },
+    {
+     "id": "Fortune",
+     "kind": "point",
+     "lon": 126.56421935583342,
+     "sign": "Leo",
+     "degreeInSign": 6.564219355833416,
+     "house": 7,
+     "retrograde": null,
+     "speed": null
+    },
+    {
+     "id": "Vertex",
+     "kind": "point",
+     "lon": 97.90882619105419,
+     "sign": "Cancer",
+     "degreeInSign": 7.908826191054175,
+     "house": 6,
+     "retrograde": null,
+     "speed": null
+    }
+   ],
+   "angles": {
+    "asc": 324.98014501461233,
+    "dsc": 144.98014501461233,
+    "mc": 230.62410082583418,
+    "ic": 50.62410082583415
+   },
+   "sharedAspects": [
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "sextile",
+     "major": true,
+     "orb": 0.054,
+     "signedOrb": 0.054,
+     "maxOrb": 4,
+     "exactness": 0.9865,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Chiron",
+     "type": "square",
+     "major": true,
+     "orb": 0.2674,
+     "signedOrb": 0.2674,
+     "maxOrb": 10,
+     "exactness": 0.9733,
+     "applying": false
+    },
+    {
+     "a": "Saturn",
+     "b": "Neptune",
+     "type": "trine",
+     "major": true,
+     "orb": 0.1932,
+     "signedOrb": -0.1932,
+     "maxOrb": 7,
+     "exactness": 0.9724,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.3204,
+     "signedOrb": -0.3204,
+     "maxOrb": 10,
+     "exactness": 0.968,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "trine",
+     "major": true,
+     "orb": 0.3744,
+     "signedOrb": -0.3744,
+     "maxOrb": 10,
+     "exactness": 0.9626,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "Fortune",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.1295,
+     "signedOrb": -0.1295,
+     "maxOrb": 2.5,
+     "exactness": 0.9482,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "DSC",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 0.1303,
+     "signedOrb": 0.1303,
+     "maxOrb": 2.5,
+     "exactness": 0.9479,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "IC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 0.7062,
+     "signedOrb": 0.7062,
+     "maxOrb": 7,
+     "exactness": 0.8991,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "MC",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.7062,
+     "signedOrb": -0.7062,
+     "maxOrb": 7,
+     "exactness": 0.8991,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Vertex",
+     "type": "square",
+     "major": true,
+     "orb": 1.2635,
+     "signedOrb": -1.2635,
+     "maxOrb": 10,
+     "exactness": 0.8737,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Fortune",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.3431,
+     "signedOrb": -0.3431,
+     "maxOrb": 2.5,
+     "exactness": 0.8628,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "Vertex",
+     "type": "opposition",
+     "major": true,
+     "orb": 0.9961,
+     "signedOrb": -0.9961,
+     "maxOrb": 7,
+     "exactness": 0.8577,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Vertex",
+     "type": "conjunction",
+     "major": true,
+     "orb": 1.0015,
+     "signedOrb": 1.0015,
+     "maxOrb": 7,
+     "exactness": 0.8569,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "ASC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 0.4294,
+     "signedOrb": -0.4294,
+     "maxOrb": 2.5,
+     "exactness": 0.8282,
+     "applying": false
+    },
+    {
+     "a": "Lilith",
+     "b": "DSC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 0.4294,
+     "signedOrb": 0.4294,
+     "maxOrb": 2.5,
+     "exactness": 0.8282,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.0855,
+     "signedOrb": 1.0855,
+     "maxOrb": 6,
+     "exactness": 0.8191,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "NorthNode",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.5214,
+     "signedOrb": 0.5214,
+     "maxOrb": 2.5,
+     "exactness": 0.7914,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "major": true,
+     "orb": 1.2786,
+     "signedOrb": -1.2786,
+     "maxOrb": 6,
+     "exactness": 0.7869,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 2.265,
+     "signedOrb": -2.265,
+     "maxOrb": 10,
+     "exactness": 0.7735,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": -2.6081,
+     "maxOrb": 10,
+     "exactness": 0.7392,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": -2.6081,
+     "maxOrb": 10,
+     "exactness": 0.7392,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Chiron",
+     "type": "quintile",
+     "major": false,
+     "orb": 0.6833,
+     "signedOrb": -0.6833,
+     "maxOrb": 2.5,
+     "exactness": 0.7267,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "Chiron",
+     "type": "opposition",
+     "major": true,
+     "orb": 1.9976,
+     "signedOrb": -1.9976,
+     "maxOrb": 7,
+     "exactness": 0.7146,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "conjunction",
+     "major": true,
+     "orb": 2.2337,
+     "signedOrb": 2.2337,
+     "maxOrb": 7,
+     "exactness": 0.6809,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "DSC",
+     "type": "opposition",
+     "major": true,
+     "orb": 2.2337,
+     "signedOrb": -2.2337,
+     "maxOrb": 7,
+     "exactness": 0.6809,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.8079,
+     "signedOrb": -0.8079,
+     "maxOrb": 2.5,
+     "exactness": 0.6769,
+     "applying": false
+    },
+    {
+     "a": "Sun",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 0.8079,
+     "signedOrb": 0.8079,
+     "maxOrb": 2.5,
+     "exactness": 0.6769,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "DSC",
+     "type": "trine",
+     "major": true,
+     "orb": 2.2877,
+     "signedOrb": -2.2877,
+     "maxOrb": 7,
+     "exactness": 0.6732,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Lilith",
+     "type": "semi-square",
+     "major": false,
+     "orb": 0.9002,
+     "signedOrb": -0.9002,
+     "maxOrb": 2.5,
+     "exactness": 0.6399,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "Lilith",
+     "type": "square",
+     "major": true,
+     "orb": 2.857,
+     "signedOrb": -2.857,
+     "maxOrb": 7,
+     "exactness": 0.5919,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "IC",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.0696,
+     "signedOrb": 1.0696,
+     "maxOrb": 2.5,
+     "exactness": 0.5722,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "MC",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.0696,
+     "signedOrb": -1.0696,
+     "maxOrb": 2.5,
+     "exactness": 0.5722,
+     "applying": true
+    },
+    {
+     "a": "Chiron",
+     "b": "ASC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.0752,
+     "signedOrb": 1.0752,
+     "maxOrb": 2.5,
+     "exactness": 0.5699,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "DSC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.0752,
+     "signedOrb": -1.0752,
+     "maxOrb": 2.5,
+     "exactness": 0.5699,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "DSC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.6081,
+     "signedOrb": 2.6081,
+     "maxOrb": 6,
+     "exactness": 0.5653,
+     "applying": true
+    },
+    {
+     "a": "NorthNode",
+     "b": "ASC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.2864,
+     "signedOrb": -3.2864,
+     "maxOrb": 7,
+     "exactness": 0.5305,
+     "applying": false
+    },
+    {
+     "a": "Jupiter",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.2832,
+     "signedOrb": 1.2832,
+     "maxOrb": 2.5,
+     "exactness": 0.4867,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 1.2832,
+     "signedOrb": -1.2832,
+     "maxOrb": 2.5,
+     "exactness": 0.4867,
+     "applying": true
+    },
+    {
+     "a": "Fortune",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.3446,
+     "signedOrb": -1.3446,
+     "maxOrb": 2.5,
+     "exactness": 0.4622,
+     "applying": null
+    },
+    {
+     "a": "Saturn",
+     "b": "Chiron",
+     "type": "quincunx",
+     "major": false,
+     "orb": 1.3529,
+     "signedOrb": 1.3529,
+     "maxOrb": 2.5,
+     "exactness": 0.4589,
+     "applying": false
+    },
+    {
+     "a": "Venus",
+     "b": "Vertex",
+     "type": "quintile",
+     "major": false,
+     "orb": 1.359,
+     "signedOrb": -1.359,
+     "maxOrb": 2.5,
+     "exactness": 0.4564,
+     "applying": true
+    },
+    {
+     "a": "Neptune",
+     "b": "Fortune",
+     "type": "opposition",
+     "major": true,
+     "orb": 3.8867,
+     "signedOrb": -3.8867,
+     "maxOrb": 7,
+     "exactness": 0.4448,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "MC",
+     "type": "trine",
+     "major": true,
+     "orb": 3.9266,
+     "signedOrb": 3.9266,
+     "maxOrb": 7,
+     "exactness": 0.4391,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "major": true,
+     "orb": 2.2877,
+     "signedOrb": 2.2877,
+     "maxOrb": 4,
+     "exactness": 0.4281,
+     "applying": true
+    },
+    {
+     "a": "Pluto",
+     "b": "NorthNode",
+     "type": "opposition",
+     "major": true,
+     "orb": 4.0898,
+     "signedOrb": -4.0898,
+     "maxOrb": 7,
+     "exactness": 0.4157,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 5.8945,
+     "signedOrb": 5.8945,
+     "maxOrb": 10,
+     "exactness": 0.4106,
+     "applying": false
+    },
+    {
+     "a": "Neptune",
+     "b": "Chiron",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.546,
+     "signedOrb": 1.546,
+     "maxOrb": 2.5,
+     "exactness": 0.3816,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "NorthNode",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 1.7759,
+     "signedOrb": 1.7759,
+     "maxOrb": 2.5,
+     "exactness": 0.2897,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "ASC",
+     "type": "square",
+     "major": true,
+     "orb": 5.0623,
+     "signedOrb": -5.0623,
+     "maxOrb": 7,
+     "exactness": 0.2768,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "DSC",
+     "type": "square",
+     "major": true,
+     "orb": 5.0623,
+     "signedOrb": 5.0623,
+     "maxOrb": 7,
+     "exactness": 0.2768,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "NorthNode",
+     "type": "trine",
+     "major": true,
+     "orb": 5.5201,
+     "signedOrb": -5.5201,
+     "maxOrb": 7,
+     "exactness": 0.2114,
+     "applying": false
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "semi-square",
+     "major": false,
+     "orb": 1.9894,
+     "signedOrb": 1.9894,
+     "maxOrb": 2.5,
+     "exactness": 0.2042,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0101,
+     "signedOrb": -2.0101,
+     "maxOrb": 2.5,
+     "exactness": 0.196,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Fortune",
+     "type": "trine",
+     "major": true,
+     "orb": 5.7143,
+     "signedOrb": 5.7143,
+     "maxOrb": 7,
+     "exactness": 0.1837,
+     "applying": false
+    },
+    {
+     "a": "NorthNode",
+     "b": "DSC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.2864,
+     "signedOrb": 3.2864,
+     "maxOrb": 4,
+     "exactness": 0.1784,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "ASC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.0713,
+     "signedOrb": -2.0713,
+     "maxOrb": 2.5,
+     "exactness": 0.1715,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "DSC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.0713,
+     "signedOrb": 2.0713,
+     "maxOrb": 2.5,
+     "exactness": 0.1715,
+     "applying": null
+    },
+    {
+     "a": "Sun",
+     "b": "Mercury",
+     "type": "conjunction",
+     "major": true,
+     "orb": 8.3224,
+     "signedOrb": 8.3224,
+     "maxOrb": 10,
+     "exactness": 0.1678,
+     "applying": true
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "trine",
+     "major": true,
+     "orb": 8.4316,
+     "signedOrb": -8.4316,
+     "maxOrb": 10,
+     "exactness": 0.1568,
+     "applying": true
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "square",
+     "major": true,
+     "orb": 6.0574,
+     "signedOrb": 6.0574,
+     "maxOrb": 7,
+     "exactness": 0.1347,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Fortune",
+     "type": "square",
+     "major": true,
+     "orb": 8.976,
+     "signedOrb": -8.976,
+     "maxOrb": 10,
+     "exactness": 0.1024,
+     "applying": false
+    },
+    {
+     "a": "Mercury",
+     "b": "Lilith",
+     "type": "conjunction",
+     "major": true,
+     "orb": 6.2992,
+     "signedOrb": 6.2992,
+     "maxOrb": 7,
+     "exactness": 0.1001,
+     "applying": false
+    },
+    {
+     "a": "Vertex",
+     "b": "IC",
+     "type": "semi-square",
+     "major": false,
+     "orb": 2.2847,
+     "signedOrb": 2.2847,
+     "maxOrb": 2.5,
+     "exactness": 0.0861,
+     "applying": null
+    },
+    {
+     "a": "Vertex",
+     "b": "MC",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.2847,
+     "signedOrb": -2.2847,
+     "maxOrb": 2.5,
+     "exactness": 0.0861,
+     "applying": null
+    },
+    {
+     "a": "Saturn",
+     "b": "Fortune",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.6935,
+     "signedOrb": -3.6935,
+     "maxOrb": 4,
+     "exactness": 0.0766,
+     "applying": true
+    },
+    {
+     "a": "Mars",
+     "b": "Pluto",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.3139,
+     "signedOrb": 2.3139,
+     "maxOrb": 2.5,
+     "exactness": 0.0744,
+     "applying": false
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "trine",
+     "major": true,
+     "orb": 9.3191,
+     "signedOrb": -9.3191,
+     "maxOrb": 10,
+     "exactness": 0.0681,
+     "applying": true
+    },
+    {
+     "a": "Moon",
+     "b": "Saturn",
+     "type": "sesquiquadrate",
+     "major": false,
+     "orb": 2.3305,
+     "signedOrb": 2.3305,
+     "maxOrb": 2.5,
+     "exactness": 0.0678,
+     "applying": false
+    },
+    {
+     "a": "Chiron",
+     "b": "Fortune",
+     "type": "quincunx",
+     "major": false,
+     "orb": 2.3407,
+     "signedOrb": 2.3407,
+     "maxOrb": 2.5,
+     "exactness": 0.0637,
+     "applying": true
+    },
+    {
+     "a": "Saturn",
+     "b": "Vertex",
+     "type": "semi-sextile",
+     "major": false,
+     "orb": 2.3489,
+     "signedOrb": -2.3489,
+     "maxOrb": 2.5,
+     "exactness": 0.0604,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "IC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5897,
+     "signedOrb": -6.5897,
+     "maxOrb": 7,
+     "exactness": 0.0586,
+     "applying": true
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "square",
+     "major": true,
+     "orb": 6.5897,
+     "signedOrb": 6.5897,
+     "maxOrb": 7,
+     "exactness": 0.0586,
+     "applying": true
+    },
+    {
+     "a": "Venus",
+     "b": "Jupiter",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.3606,
+     "signedOrb": -2.3606,
+     "maxOrb": 2.5,
+     "exactness": 0.0558,
+     "applying": false
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "quintile",
+     "major": false,
+     "orb": 2.3901,
+     "signedOrb": -2.3901,
+     "maxOrb": 2.5,
+     "exactness": 0.044,
+     "applying": true
+    },
+    {
+     "a": "Lilith",
+     "b": "IC",
+     "type": "sextile",
+     "major": true,
+     "orb": 3.9266,
+     "signedOrb": -3.9266,
+     "maxOrb": 4,
+     "exactness": 0.0183,
+     "applying": true
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "bi-quintile",
+     "major": false,
+     "orb": 2.4563,
+     "signedOrb": 2.4563,
+     "maxOrb": 2.5,
+     "exactness": 0.0175,
+     "applying": false
+    },
+    {
+     "a": "Pluto",
+     "b": "Lilith",
+     "type": "square",
+     "major": true,
+     "orb": 6.9468,
+     "signedOrb": 6.9468,
+     "maxOrb": 7,
+     "exactness": 0.0076,
+     "applying": false
+    }
+   ]
+  }
+ }
+}

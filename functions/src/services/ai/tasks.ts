@@ -305,7 +305,7 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
   {
     id: "monthlyHoroscope",
     label: "Monthly horoscope",
-    description: "Personal one-time horoscope for the current calendar month ($4.99 or 5 stars). Saved once per profile and month.",
+    description: "Personal one-time horoscope for the current calendar month. Saved once per profile and month.",
     languages: ["en", "ru"],
     parts: PERIOD_HOROSCOPE_PARTS,
     defaults: {
@@ -323,7 +323,7 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
   {
     id: "yearlyHoroscope",
     label: "Yearly horoscope",
-    description: "Personal one-time horoscope for the current calendar year ($19.99 or 20 stars). Saved once per profile and year.",
+    description: "Personal one-time horoscope for the current calendar year. Saved once per profile and year.",
     languages: ["en", "ru"],
     parts: PERIOD_HOROSCOPE_PARTS,
     defaults: {

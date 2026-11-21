@@ -165,8 +165,10 @@ export function RelationshipView({
           await loadRecoverable();
           setError(
             t(
-              "directCheckout.stillProcessing",
-              "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
+              res.status === "pending" ? "directCheckout.generationInProgress" : "directCheckout.stillProcessing",
+              res.status === "pending"
+                ? "Прогноз формируется. Подождите немного и нажмите «Повторить». Повторная оплата не нужна."
+                : "Платёж обрабатывается. Нажмите «Повторить», чтобы получить прогноз без повторной оплаты.",
             ),
           );
         }

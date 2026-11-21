@@ -64,13 +64,14 @@
     "confirmPay": "Pay {{amount}}",
     "processing": "Processing…",
     "canceledNotice": "Checkout was canceled. You were not charged and all of your stars remain untouched.",
-    "quoteChanged": "Your star balance changed. Review the updated amount and confirm again.",
+    "quoteChanged": "The checkout total changed. Review the updated amount and confirm again.",
     "inProgress": "Checkout for this period is already in progress. Wait a moment and try again.",
     "failed": "Could not start checkout. Please try again.",
     "alreadyOwned": "This horoscope is already purchased and saved for this profile. You can reopen it without paying or spending stars.",
     "alreadyPaidRecover": "This period is already paid for. No second payment is needed — click below to open or retry generation on your original order.",
     "retryPaidOrder": "Continue without paying again",
     "stillProcessing": "Payment is still finalizing. Click retry to open your forecast without paying again.",
+    "generationInProgress": "Your forecast is being generated. Wait a moment and retry. You will not be charged again.",
     "generationFailedRecoverable": "Could not generate the forecast. Your payment is safe — click retry generation; no second charge or star deduction is required.",
     "forecastWindow3m": "3-month outlook: {{range}}",
     "paidOrderReady": "Paid relationship forecast",
@@ -189,7 +190,27 @@
       "opposition": "Opposition",
       "trine": "Trine",
       "square": "Square",
-      "sextile": "Sextile"
+      "sextile": "Sextile",
+      "semi-sextile": "Semi-sextile",
+      "semi-square": "Semi-square",
+      "quintile": "Quintile",
+      "sesquiquadrate": "Sesquiquadrate",
+      "bi-quintile": "Bi-quintile",
+      "quincunx": "Quincunx"
+    }
+  },
+  "natalWheel": {
+    "ariaLabel": "Natal chart wheel: zodiac ring with degree scale, houses, angles, planets and aspect lines",
+    "timeEstimatedNote": "Birth time unknown: positions are estimates for local noon. Houses and angles are not shown.",
+    "aspectSymbols": "Aspect symbols on lines",
+    "filters": {
+      "major": "Major aspects",
+      "minor": "Minor aspects",
+      "showAll": "Show all",
+      "reset": "Reset"
+    },
+    "tooltip": {
+      "more": "+{{count}} more"
     }
   },
   "tabs": {
@@ -234,7 +255,7 @@
     "expandExplanation": "Expand"
   },
   "houseAreas": {
-    "timeUnknownWarning": "Birth time is unknown, so house and almuten analysis is less reliable.",
+    "timeUnknownWarning": "Birth time is unknown, so the houses, house cusps and the Ascendant and Midheaven are not calculated. The planets are shown for local noon.",
     "houseShort": "house",
     "almutenLabel": "Almuten",
     "topScores": "Top scores",
@@ -305,7 +326,8 @@
       "placidus": "Placidus",
       "koch": "Koch",
       "wholeSign": "Whole Sign"
-    }
+    },
+    "houseSystemFallback": "Requested: {{requested}} — calculated with {{used}}. {{requested}} cannot be calculated for this place, so the chart uses {{used}}."
   },
   "tables": {
     "planets": {
@@ -317,11 +339,81 @@
     },
     "aspects": {
       "title": "Aspects",
-      "bodyA": "Planet",
+      "bodyA": "Point",
       "type": "Aspect",
-      "bodyB": "Planet",
+      "bodyB": "Point",
       "orb": "Orb",
       "exactness": "Exactness"
+    }
+  },
+  "natalChart": {
+    "points": {
+      "Sun": "Sun",
+      "Moon": "Moon",
+      "Mercury": "Mercury",
+      "Venus": "Venus",
+      "Mars": "Mars",
+      "Jupiter": "Jupiter",
+      "Saturn": "Saturn",
+      "Uranus": "Uranus",
+      "Neptune": "Neptune",
+      "Pluto": "Pluto",
+      "NorthNode": "North Node",
+      "SouthNode": "South Node",
+      "Lilith": "Black Moon Lilith",
+      "Chiron": "Chiron",
+      "Fortune": "Part of Fortune",
+      "Vertex": "Vertex",
+      "ASC": "Ascendant",
+      "DSC": "Descendant",
+      "MC": "Midheaven",
+      "IC": "Imum Coeli"
+    },
+    "houseSystem": {
+      "label": "House system"
+    },
+    "context": {
+      "label": "Calculated for",
+      "zoneWithUtc": "{{timezone}}, {{utc}} UTC",
+      "localTime": "{{time}} local ({{zone}})",
+      "noonEstimated": "12:00 local noon, estimated ({{zone}})",
+      "relocatedPlace": "{{place}} (relocated)",
+      "estimatedNote": "The birth time is unknown, so the positions are calculated for local noon and may be off by a few degrees, the Moon most of all. The Ascendant, Midheaven, house cusps and house numbers are not calculated."
+    },
+    "positions": {
+      "retrograde": "Retrograde",
+      "retrogradeShort": "R",
+      "notApplicable": "Not applicable",
+      "noHouse": "No house: the birth time is unknown",
+      "estimateNote": "The birth time is unknown, so the positions are calculated for local noon. Houses, the Ascendant and the Midheaven are not shown.",
+      "chironUnavailable": "Chiron could not be calculated for this date, so it is not listed."
+    },
+    "aspects": {
+      "status": "Status",
+      "applying": "Applying",
+      "separating": "Separating",
+      "applyingShort": "a",
+      "separatingShort": "s",
+      "empty": "No aspects of the selected types."
+    },
+    "matrix": {
+      "title": "Aspect matrix",
+      "description": "Every aspect between two points with its orb and, where it applies, an a for applying or an s for separating. All aspect types are shown; use the filters to hide some.",
+      "legend": "a = applying, s = separating. A minus sign means the angle is narrower than the exact aspect.",
+      "anglesNote": "Aspects to the Descendant and Imum Coeli mirror those of the Ascendant and Midheaven, so they are listed only in the Aspects list. The South Node mirrors the North Node and takes no part in aspects."
+    },
+    "summary": {
+      "gridTitle": "Elements and modalities",
+      "stripTitle": "Degree within the sign",
+      "stripDescription": "Every point at its degree within its sign on one scale from 0° to 30°, with its sign glyph.",
+      "inclusionRule": "Counts the {{count}} points of the positions table (the ten bodies, North Node, Lilith and Chiron, plus Part of Fortune, Vertex, the Ascendant and Midheaven when the birth time is known) without the South Node, which mirrors the North Node.",
+      "total": "Total",
+      "pointLabel": "{{name}}, {{sign}} {{position}}",
+      "modalities": {
+        "cardinal": "Cardinal",
+        "fixed": "Fixed",
+        "mutable": "Mutable"
+      }
     }
   },
   "interpretation": {
@@ -991,7 +1083,8 @@
       "residence": "The place where you live now, not where you were born. Choosing a place turns relocation on, and your Personal Astrologer also uses it for local weather and news in the letters.",
       "residenceHint": "Your current residence is used to relocate the houses of your chart and, in your astrologer's letters, for local weather and news. Until you set a place, the app uses your birth place.",
       "relocationSwitch": "Switches between your natal chart, drawn for your birth place, and a relocated chart for the place you live now. Relocation recalculates the houses, Rising sign and Midheaven for that place; the planets keep their zodiac positions. It needs a current residence.",
-      "relocationHint": "ASC is the Ascendant, which is your Rising sign, and MC is the Midheaven, the highest point of the chart. They and the houses depend on the place the chart is drawn for, so relocating moves them while the planets stay where they are."
+      "relocationHint": "ASC is the Ascendant, which is your Rising sign, and MC is the Midheaven, the highest point of the chart. They and the houses depend on the place the chart is drawn for, so relocating moves them while the planets stay where they are.",
+      "houseSystem": "Chooses how the chart is divided into twelve houses: Koch (the default), Whole Sign or Placidus. The planets keep their zodiac positions, while the houses and every house number change with the system. If a system cannot be calculated for the place, the chart uses Whole Sign and the Houses tab says so."
     },
     "premium": {
       "balance": "Your star balance. Stars never expire, are shared by all your profiles, automatically reduce what you pay for situation, relationship, monthly or yearly forecasts, and four unlock the full interpretation with the PDF.",
@@ -1087,7 +1180,13 @@
       "opposition": "An opposition is when two bodies are about 180° apart, on opposite sides of the chart. It creates tension, a pull between two needs or viewpoints that asks for conscious balance.",
       "trine": "A trine is when two bodies are about 120° apart. Their energies flow together easily, which often shows as a natural talent or ease in that area, though it can also be taken for granted.",
       "square": "A square is when two bodies are about 90° apart. It creates friction and tension that push you to act, and such challenges are often a source of drive and growth.",
-      "sextile": "A sextile is when two bodies are about 60° apart. It is a gentle, supportive link that offers opportunities, which work best when you take the initiative."
+      "sextile": "A sextile is when two bodies are about 60° apart. It is a gentle, supportive link that offers opportunities, which work best when you take the initiative.",
+      "semi-sextile": "A semi-sextile is when two bodies are about 30° apart, one zodiac sign. It is a minor aspect: a subtle link between two quite different energies that asks for small adjustments rather than big changes.",
+      "semi-square": "A semi-square is when two bodies are about 45° apart, half of a square. It is a minor aspect of mild friction, a small irritation that tends to push you to act or adjust.",
+      "quintile": "A quintile is when two bodies are about 72° apart, one fifth of the circle. It is a minor aspect linked with talent, creativity and a knack for a particular skill.",
+      "sesquiquadrate": "A sesquiquadrate is when two bodies are about 135° apart, a square and a half. It is a minor aspect of friction and restlessness that tends to build up until you act on it.",
+      "bi-quintile": "A bi-quintile is when two bodies are about 144° apart, two fifths of the circle. Like the quintile it is a minor aspect linked with talent and creative ability.",
+      "quincunx": "A quincunx is when two bodies are about 150° apart. It is a minor aspect that joins two areas of life with little in common, so it asks for constant adjustment and compromise."
     },
     "houseSystems": {
       "placidus": "A house system divides the chart into twelve houses. Placidus is widely used: it is based on time, gives houses of unequal size and cannot be calculated in polar regions. Other systems can put the same planet in a different house.",
@@ -1104,17 +1203,20 @@
       "bigThree": "The Big Three are your Sun sign, Moon sign and Rising sign (Ascendant). Together they give the quickest portrait of a chart: core identity, emotional nature and outward manner. The Rising sign needs a known birth time.",
       "ascendant": "The Ascendant (ASC), or Rising sign, is the zodiac sign and degree rising over the eastern horizon at the moment of birth. It describes your outward manner and first impressions, and the aspect list treats it like a planet. It needs an accurate birth time.",
       "midheaven": "The Midheaven (MC) is the point of the zodiac highest in the sky at the moment of birth. It relates to career, public image and life direction, and the aspect list treats it like a planet. It needs an accurate birth time.",
-      "orb": "The orb is how far, in degrees, an aspect is from being exact. Here two bodies form an aspect when they are within 6 degrees of the exact angle; the smaller the orb, the stronger the aspect.",
-      "exactness": "Exactness shows how close an aspect is to perfect, as a percentage: 100% means exact and 0% means a 6 degree orb, the largest allowed. For example, an orb of 3 degrees gives 50%. The higher the figure, the stronger the aspect.",
+      "orb": "The orb is how far, in degrees and minutes, an aspect is from being exact; the smaller it is, the stronger the aspect. A minus sign means the angle is narrower than the exact aspect, a plus sign wider. Allowed orbs run from 2.5 degrees for the minor aspects up to 10 degrees for a conjunction, square, trine or opposition involving the Sun or Moon.",
+      "exactness": "Exactness shows how close an aspect is to perfect, as a percentage: 100% means exact and 0% means the largest orb allowed for that aspect. For example, an orb of 3 degrees out of an allowed 6 gives 50%. The higher the figure, the stronger the aspect.",
       "cusp": "A cusp is the point where a house begins, given as a zodiac sign and degree. The sign on the cusp sets the style of that area of life, and the house runs from there to the next cusp.",
       "ruler": "The ruler of a house is the planet traditionally linked with the sign on its cusp, such as Mars for Aries or Venus for Taurus. It acts as that area's manager, so its sign, house and aspects show how the area works.",
       "almuten": "The almuten is the planet with the most points for a house in this app's own scoring, counting only the seven traditional planets. Points go for ruling the cusp sign, its element or its 10-degree section (face), being exalted there, and sitting in the house. Ties show with a slash.",
       "degree": "The degree is the exact position of the body inside its sign, from 0° to 30°, followed by arc minutes (60 minutes make one degree). Exact degrees are also used to measure the angles between bodies, which are the aspects.",
-      "body": "A body is one of the ten celestial bodies in the chart: the Sun, the Moon and Mercury to Pluto. Astrologers call them all planets; each stands for a different part of personality. The aspect list can also include the Ascendant (ASC) and Midheaven (MC).",
+      "body": "A body is one of the ten celestial bodies in the chart: the Sun, the Moon and Mercury to Pluto. Astrologers call them all planets; each stands for a different part of personality. The tables also list calculated points such as the lunar nodes, Lilith, Chiron, Part of Fortune, Vertex, the Ascendant (ASC) and the Midheaven (MC).",
       "sign": "The sign is the part of the zodiac the body is in: one of twelve equal 30-degree sections, which the Sun passes through during a year. A body's sign describes the style in which its energy is expressed.",
       "house": "A house is one of the twelve areas of life the chart is divided into, numbered 1 to 12. A body's house shows where in life its energy is most at work. A dash means the birth time is unknown, so houses cannot be placed.",
       "aspect": "An aspect is the angle between two bodies in the chart. The main ones are conjunction (0°), sextile (60°), square (90°), trine (120°) and opposition (180°), and each shows whether two energies blend, support or challenge each other.",
-      "planetsInHouse": "The planets that sit inside this house. They show which energies are active in that area of life, so a house with several planets usually draws more attention."
+      "planetsInHouse": "The planets that sit inside this house. They show which energies are active in that area of life, so a house with several planets usually draws more attention.",
+      "retrograde": "R marks a retrograde body, one that appears to move backwards through the zodiac as seen from Earth. A dash means motion does not apply, as for the Ascendant, Midheaven, Part of Fortune and Vertex, which are calculated points rather than moving bodies.",
+      "applying": "An aspect is applying when the faster point is still moving toward the exact angle, and separating when it has already passed it. The matrix marks applying with a and separating with s. Two points that turn with the daily rotation (Ascendant, Midheaven, Part of Fortune, Vertex) get no status.",
+      "modality": "Modality groups the signs by how they act: cardinal signs start things, fixed signs sustain them and mutable signs adapt and change. Every sign has one element and one modality, so the grid counts each point once."
     },
     "ui": {
       "title": "Help",

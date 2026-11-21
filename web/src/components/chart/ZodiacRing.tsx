@@ -2,32 +2,34 @@ import { useMemo } from "react";
 import { eclipticToSvgAngle, polarToCartesian, describeSector } from "./utils/chartMath";
 import {
   ZODIAC_SIGNS,
-  ZODIAC_GLYPHS,
   SIGN_ELEMENTS,
   ELEMENT_COLORS,
   CHART_LAYOUT,
 } from "./utils/constants";
+import { signGlyph } from "./utils/wheelLayout";
 
 interface ZodiacRingProps {
-  ascDegree: number;
+  /** Longitude drawn on the left (9 o'clock) axis. */
+  rotation: number;
   revealed: boolean;
 }
 
-export default function ZodiacRing({ ascDegree, revealed }: ZodiacRingProps) {
-  const { cx, cy, outerRadius, zodiacInner } = CHART_LAYOUT;
+/** The sign band: twelve sign sectors with their glyphs and the outer border. */
+export default function ZodiacRing({ rotation, revealed }: ZodiacRingProps) {
+  const { cx, cy, outerRadius, signInner } = CHART_LAYOUT;
 
   const sectors = useMemo(() => {
     return ZODIAC_SIGNS.map((sign, i) => {
       const startEcliptic = i * 30;
       const endEcliptic = (i + 1) * 30;
 
-      const startAngle = eclipticToSvgAngle(startEcliptic, ascDegree);
-      const endAngle = eclipticToSvgAngle(endEcliptic, ascDegree);
+      const startAngle = eclipticToSvgAngle(startEcliptic, rotation);
+      const endAngle = eclipticToSvgAngle(endEcliptic, rotation);
 
-      const path = describeSector(cx, cy, zodiacInner, outerRadius, startAngle, endAngle);
+      const path = describeSector(cx, cy, signInner, outerRadius, startAngle, endAngle);
 
-      const midAngle = eclipticToSvgAngle(startEcliptic + 15, ascDegree);
-      const glyphPos = polarToCartesian(cx, cy, (outerRadius + zodiacInner) / 2, midAngle);
+      const midAngle = eclipticToSvgAngle(startEcliptic + 15, rotation);
+      const glyphPos = polarToCartesian(cx, cy, (outerRadius + signInner) / 2, midAngle);
 
       const element = SIGN_ELEMENTS[sign];
       const colors = ELEMENT_COLORS[element];
@@ -37,14 +39,14 @@ export default function ZodiacRing({ ascDegree, revealed }: ZodiacRingProps) {
         index: i,
         path,
         glyphPos,
-        glyph: ZODIAC_GLYPHS[sign],
+        glyph: signGlyph(sign),
         colors,
       };
     });
-  }, [ascDegree, cx, cy, outerRadius, zodiacInner]);
+  }, [rotation, cx, cy, outerRadius, signInner]);
 
   return (
-    <g>
+    <g data-layer="zodiac-ring">
       {/* Sign sector wedges */}
       {sectors.map(({ sign, index, path, colors }) => (
         <path
@@ -67,6 +69,7 @@ export default function ZodiacRing({ ascDegree, revealed }: ZodiacRingProps) {
       {sectors.map(({ sign, index, glyphPos, glyph, colors }) => (
         <text
           key={`glyph-${sign}`}
+          data-sign={sign}
           x={glyphPos.x}
           y={glyphPos.y}
           fontSize={28}

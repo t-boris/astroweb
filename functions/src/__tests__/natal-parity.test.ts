@@ -128,6 +128,38 @@ describe('longitudes against JPL Horizons (section 3.3)', () => {
   }
 });
 
+describe('longitudes against the original screenshots (display verification, section 3.2)', () => {
+  const screenshots = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'screenshots.json'), 'utf8')) as Record<
+    string,
+    {
+      points: [string, string, number, number, number, boolean | null][];
+      angles: [string, string, number, number, number][];
+    }
+  >;
+  const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+  for (const id of ['A', 'B']) {
+    it(`${id}: sign, degree, minute, house and retrograde marker equal the printed screenshot values`, () => {
+      const chart = charts[id];
+      const shown = screenshots[id];
+      // Printed rows are truncated to the arcminute; the same truncation is applied to the AstroWeb longitude.
+      const minutes = (lon: number) => Math.floor(lon * 60 + 1e-7);
+      const printed = (sign: string, deg: number, min: number) => SIGNS.indexOf(sign) * 1800 + deg * 60 + min;
+
+      for (const [pid, sign, deg, min, house, retro] of shown.points) {
+        const p = positionById(chart, pid);
+        expect(minutes(p.lon), `${id} ${pid}`).toBe(printed(sign, deg, min));
+        expect(p.house, `${id} ${pid} house`).toBe(house);
+        if (retro !== null) expect(p.retrograde, `${id} ${pid} retrograde`).toBe(retro);
+      }
+      for (const [aid, sign, deg, min] of shown.angles) {
+        expect(minutes(longitudeOf(chart, aid)), `${id} ${aid}`).toBe(printed(sign, deg, min));
+      }
+      expect(positionById(chart, 'Pluto').house).toBe(id === 'A' ? 11 : 3);
+    });
+  }
+});
+
 describe('point conventions (DEC-010, DEC-016)', () => {
   it('the South Node is 180 degrees from the mean North Node and shares its retrograde marker', () => {
     for (const ds of datasets) {

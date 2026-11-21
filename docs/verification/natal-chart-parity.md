@@ -11,6 +11,9 @@ This file defines the comparison rules **before** any formal comparison is evalu
 | Astro-Seek reference results with the explicit settings used | `functions/src/__tests__/fixtures/natal-parity/astro-seek/` |
 | JPL Horizons request parameters, parsed longitudes, raw responses | `functions/src/__tests__/fixtures/natal-parity/horizons/` |
 | Script that refreshes the Horizons snapshots | `scripts/natal-parity/fetch-horizons.mjs` |
+| Baseline of the legacy `points`, `aspects`, `houses` written by `origin/main` e682fa3 before this feature | `functions/src/__tests__/fixtures/natal-parity/regression/legacy-chart-fields.json` |
+| Acceptance tests | `functions/src/__tests__/natal-parity.test.ts` (parsers in `functions/src/__tests__/helpers/natalParity.ts`) |
+| Wheel element inventory and display verification | `docs/verification/natal-chart-wheel-inventory.md` |
 | Chiron data file (DEC-015) | `functions/ephe/seas_18.se1`, SHA-256 `911a60ed2d706049dab426c03ebc58978fbef20ffd22f9ad957daa2a721e7d89` |
 | Rules, results, convention evidence, discrepancies | this file |
 
@@ -72,7 +75,12 @@ Matched conditions, recorded with the results:
 
 ### 3.4 Aspect rules for the matched comparison
 
-Eligibility and orb rules for the shared aspect set are defined from the reference inventory (REQ-003, plan I-5) and recorded in section 5 before the aspect comparison is evaluated. For the matched comparison Astro-Seek is configured with an explicit orb rule rather than its default orbs, so that both sides apply the same rule.
+Amended on 2026-11-21, after the eight Astro-Seek aspect lists were captured and before any aspect comparison was evaluated. The first draft of this section planned one explicit Astro-Seek orb rule for both sides. The captures showed that Astro-Seek lists one type per pair at a fixed 15° orb and takes the first type of its list in angle order (a pair 1° from a 135° aspect is listed as a trine at 13°54′), so the 15° list cannot be filtered into the set that a closest-type rule produces. The matched comparison therefore uses both captures of every dataset:
+
+1. **Default-orb list (primary).** The AstroWeb orb table of DEC-017 was derived from the default-orb captures of the four datasets and is compared with the same four captures: the set of (point pair, aspect type) must equal the Astro-Seek set, the orb magnitude must fall in the printed arcminute bin (0.05′ slack), the orb sign must agree for orbs of at least one arcminute, and applying or separating must agree (exclusions: section 6). The table is a fit to these captures, so this comparison shows the table is internally consistent with the reference rather than independent of it; the 15° lists below provide the independent check of its limits.
+2. **15° lists (independent bounds).** Everything AstroWeb reports must also be listed by Astro-Seek for that pair (same type with the same orb and status, or a type that precedes it in the list), and everything Astro-Seek lists inside the AstroWeb allowance must be reported by AstroWeb (as the same type, or as a closer one). A printed orb equal to the allowance is a boundary case, because the print is truncated.
+
+The bounds that the 15° captures put on the orb table are: majors 6.97° to 7.02° (non-luminary) and 9.95° to 10.32° (with Sun or Moon), sextile 3.72° to 4.32° and 5.40° to 6.45°, minors 2.45° to 2.54°. The table values 7, 10, 4, 6 and 2.5 sit inside every interval.
 
 ## 4. Release evidence
 
@@ -80,12 +88,65 @@ The release evidence is this file with sections 5 to 7 filled in, the fixtures l
 
 ## 5. Point conventions and evidence (DEC-010)
 
-_To be completed with the reproduction results._
+All values below are deviations from the regenerated Astro-Seek charts (arcsecond tables) of datasets A to D, computed with the Swiss Ephemeris Moshier model that the profile uses (Chiron: the bundled `seas_18.se1`). The deviation is measured to the centre of the printed bin, so a perfect match shows up to 0.5″. An agreement with a regenerated chart verifies the explicitly configured convention for that chart; it says nothing about the settings of the original screenshots A and B, which are not stated in the images (DEC-012).
+
+| Point | Convention adopted | Evidence | Alternatives rejected |
+|---|---|---|---|
+| North Node | Mean node; South Node = North Node + 180° | Mean node: 0.00′ to 0.01′ deviation on A, B, C, D | True node: 68.2′, 101.9′, 76.3′, 84.0′ |
+| Black Moon Lilith | Mean lunar apogee | Mean apogee: 0.00′ on all four | Osculating apogee: 193′, 1210′, 196′, 1542′; interpolated apogee: 169′, 69′, 81′, 286′ |
+| Chiron | Swiss Ephemeris Chiron from `seas_18.se1` (DEC-015) | 0.16″, 0.25″, 0.22″, 0.01″ | Not calculable with the Moshier model alone ("SwissEph file 'seas_18.se1' not found") |
+| Part of Fortune | Day formula (ASC + Moon − Sun) when the Sun is above the true horizon, night formula (ASC + Sun − Moon) otherwise (DEC-016) | By horizon: 0.69″, 0.28″, 1.32″, 0.24″. A and D are night charts, B and C day charts | Always day: 132595″ on A and 414202″ on D. Always night: 25301″ on B and 432894″ on C. By the Sun's house (7 to 12 is day): 25301″ on B, where the Sun is in house 1 of a day chart |
+| Vertex | Swiss Ephemeris vertex from the ARMC with the mean obliquity (DEC-018) | Mean obliquity: 0.27″, 0.11″, 0.40″, 0.34″ | True obliquity: 4.73″, 27.92″, 10.09″ (0.20″ on D). On B it shows 5°18′ Cancer where SRC-003 shows 5°19′ |
+| House cusps, ASC, MC | Swiss Ephemeris ARMC with the mean obliquity (DEC-018) | Largest cusp deviation from the printed bin centre across 48 cusps: 0.58″; ASC and MC within 0.44″ of the printed bin centres | True obliquity: quadrant cusps off by up to 6.4″ (Placidus) and 3.3″ (Koch) |
+| Retrograde marker | Longitude speed below zero | All 15 listed points of the four charts agree, including "Stationary => D" for Pluto on C (speed above zero) | none |
+| Zodiac, ayanamsa | Tropical | Astro-Seek `aya=` empty in every capture | none |
+
+The Fortune rule is a single decision of the owner (answered in this conversation, 2026-11-21): by horizon, because the evidence alone left "always day" and "by the Sun's house" excluded and "by horizon" as the only rule that fits all four charts. The screenshot of A (SRC-002) shows no Fortune and no Vertex, so that image cannot confirm either; B (SRC-003) shows Fortune at 20°12′ Aries in house 7 and Vertex at 5°19′ Cancer in house 10, and both agree with the regenerated chart.
+
+### 5.1 Regenerated Astro-Seek charts and their explicit settings
+
+Each chart was generated with `https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/` on 2026-11-21 with these explicit parameters (the exact URL of every capture is stored in its JSON file under `functions/src/__tests__/fixtures/natal-parity/astro-seek/`): manual coordinates in whole minutes, manual UT offset with no DST flag (the offset already includes daylight saving time), `house_system` as in the table, mean node and mean Lilith (`true_uzel` and `true_lilith` unchecked), Fortune, Vertex, Chiron, Lilith, node and ASC included in the aspects, all six minor aspects on, tropical zodiac (`aya=` empty). The printed UT of every capture is asserted equal to the dataset UTC instant by the acceptance tests.
+
+| Dataset | House system | UT offset | Captures (retrieved 2026-11-21 UTC) |
+|---|---|---|---|
+| A | Whole Sign (`whole_horizon`) | +2 | `A-default-orbs.json` 18:30:38, `A-fixed15-orbs.json` 18:30:58 |
+| B | Whole Sign | +3 | `B-default-orbs.json` 18:31:10, `B-fixed15-orbs.json` 18:31:19 |
+| C | Koch | −4 | `C-default-orbs.json` 18:31:27, `C-fixed15-orbs.json` 18:31:36 |
+| D | Placidus | +11 | `D-default-orbs.json` 18:31:44, `D-fixed15-orbs.json` 18:31:51 |
+
+The default-orb captures use `tolerance=1`; the others use `tolerance=fixed_15.0`.
+
+Original screenshot settings that could not be confirmed (recorded as required by REQ-002): the time zone and UT offset of A and B, the node type, the Lilith type and the aspect orbs. The screenshot of A omits Fortune and Vertex; the regenerated chart adds them.
 
 ## 6. Discrepancy log
 
-_None recorded yet._
+| Id | Observation | Resolution |
+|---|---|---|
+| X-1 | With the Swiss Ephemeris default (true obliquity) the Vertex differs from Astro-Seek by 4.7″, 27.9″ and 10.1″ on A, B, C, and the quadrant cusps of C and D by up to 3.3″ and 6.4″ | Resolved by DEC-018: the houses are calculated with the mean obliquity, which reproduces all 48 cusps and four Vertex values within 1.1″ |
+| X-2 | Astro-Seek never lists an aspect between ASC and MC (it would be a square at 4.4° on A) | Adopted: two angles never form an aspect (DEC-017) |
+| X-3 | Astro-Seek's Fortune-to-Vertex rows are computed with Vertex at 0° Aries: A lists "Fortune Tri Vertex 6°33′" and D "Fortune Tri Vertex −0°34′", which equal the Fortune longitude measured against 0° Aries, and B and C list nothing for the pair | Reference defect. The pair is excluded from the comparison on both sides; AstroWeb computes it from the real longitudes |
+| X-4 | Applying or separating for a pair of two points of the daily rotation (ASC, DSC, MC, IC, Vertex, Fortune): 21 rows over the four charts, 11 agree with numeric rates, and no assignment of speeds to the four families reproduces all 21 | AstroWeb shows no status for these pairs (`applying: null`) and the comparison asserts that. All 290 other comparable rows agree (two more are the boundary rows of X-5) |
+| X-5 | Orb printed as 0°00′ for Venus octile Mars (C) and Mercury quintile Saturn (D): the side of the exact aspect is not decidable from the print | Boundary cases: the test requires a boolean status and does not compare the side |
+| X-6 | Astro-Seek prints "end of 3" for Jupiter on C (35′ before the cusp of house 4) and "Stationary => D" for Pluto on C | Read as house 3 and as not retrograde; both agree with AstroWeb |
+| X-7 | The 15° list takes the first type in angle order, not the closest | Section 3.4 compares the 15° lists in both directions instead of filtering them |
+| X-8 | The original screenshot of A shows no Fortune or Vertex, and the screenshots omit zone, node, Lilith and orb settings | Recorded in 5.1; regenerated charts are the numerical reference (DEC-012) |
+| X-9 | The accepted fact of SRC-002 says retrograde markers appear beside Uranus, Pluto and the lunar nodes. Enlarged, the wheel of the screenshot shows no marker at Uranus, its table shows R only for Pluto and the Node, and Uranus is direct on 30 Mar 2002 in the regenerated chart and in AstroWeb | The fact is imprecise; the screenshot agrees with the calculation (Pluto and the nodes). Not a calculation discrepancy |
 
 ## 7. Results
 
-_To be completed by the acceptance tests and the comparison run._
+Command: `npm test --workspace=functions` (file `src/__tests__/natal-parity.test.ts`, 63 tests; the final full-suite counts are in the pull request).
+
+| Dataset | Points compared to the arcsecond tables | Largest deviation from the bin centre | Cusps compared | Largest cusp deviation | Horizons: ten bodies, largest deviation | Aspects (default-orb list) | Applying or separating compared |
+|---|---|---|---|---|---|---|---|
+| A | 17 | 0.92″ (Moon) | 12 | 0.50″ | 0.491″ (Moon) | 76 of 76 equal, plus Fortune–Vertex | 72, 0 differences |
+| B | 17 | 1.01″ (Moon) | 12 | 0.50″ | 0.482″ (Moon) | 65 of 65 equal, plus Fortune–Vertex | 60, 0 differences |
+| C | 17 | 1.40″ (Moon) | 12 | 0.39″ | 1.157″ (Moon) | 82 of 82 equal | 77, 0 differences (1 boundary row) |
+| D | 17 | 0.66″ (Pluto) | 12 | 0.58″ | 0.694″ (Pluto) | 90 of 90 equal, plus Fortune–Vertex | 81, 0 differences (1 boundary row) |
+
+Every deviation is inside the tolerance of section 3 (1.5″, 3″ for Pluto, 5″ for the Moon, plus the 0.5″ half bin). Categorical comparisons (sign, degree, minute, house, retrograde marker) have no mismatches. "Plus Fortune–Vertex" counts the pair that the reference computes wrongly (X-3).
+
+### 7.1 Original screenshots (display verification, arcminute bin)
+
+The position tables of SRC-002 (dataset A) and SRC-003 (dataset B) were transcribed into `functions/src/__tests__/fixtures/natal-parity/screenshots.json`. For every printed row of both images (A: 13 points plus ASC and MC; B: 15 points plus ASC and MC) the AstroWeb sign, degree, minute (truncated like the print), house and retrograde marker are equal to the printed values: 32 of 32 position rows, 28 of 28 point house numbers, and every printed retrograde marker (A: Pluto, Node; B: Jupiter, Saturn, Uranus, Neptune, Node). The element-by-modality totals of the two images are recorded in the same file and are reconciled with the profile summaries in the web tests.
+
+_Display verification of the profile wheel against SRC-002, SRC-003 and SRC-004 in the MarkView browser, the live walkthrough of the deployed version and the calculation of the original screenshot minute values are added to this section when they are done._

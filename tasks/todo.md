@@ -1,3 +1,15 @@
+## Cancelled subscriptions still marked active (fix/close-ended-cancellations, v2.29.4)
+
+Report: "у профайла Борис и у профайла Настя есть активная subscription, но мы его не показываем как subscription ... мы отменили, тогда она не должна быть активной. Ты это починил или нет?"
+Finding (live, read-only, 2026-11-21): both subscriptions are cancelled (`canceledAt` set: the card shows "Отменится в конце периода") yet the stored `status` is still "active", so the card says "активна", the account page lists them with a next letter, and the profiles panel (which uses the cancel rule) shows no mark on any of the 18 profiles. Three places, three answers. v2.29.2 only stopped the letters, and only at the next due tick, so the status stayed "active" until then.
+Cause: only a Stripe `deleted` webhook event (not arriving) or a due letter could flip the status; the card and the account page already hide `status == "canceled"`.
+
+- [x] `closeEndedCancellations` in `services/letterScheduling.ts`: every tick closes the active, cancelled subscriptions whose paid period is over (status "canceled"), due or not; needs the new `(status, canceledAt)` index in `firestore.indexes.json`; if that pass fails (index still building) letters are not held back and the due pass applies the same rule.
+- [x] Tests: 16 in `letter-scheduling.test.ts` (5 new: not-due closed, paid period kept, never-cancelled untouched, several closed, sweep failure); mutation check with the pass disabled fails 4. Functions 472 pass, build and lint clean.
+- [ ] Ship: PR, CI, merge, deploy (index build), then read-only: the scheduler log shows `closed: 2`, the card and the account list no longer show the two subscriptions, the panel stays unmarked.
+
+---
+
 ## Subscription dates in the wrong format (fix/subscription-dates, v2.29.3)
 
 Report (screenshot of the astrologer card): "проблемы с подпиской - посмотри на даты". The Russian card showed "Следующее письмо: 11/21/2026, 3:00:35 PM" and "Отменится в конце периода · 7/3/2026".

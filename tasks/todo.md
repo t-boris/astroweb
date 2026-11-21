@@ -1,3 +1,16 @@
+## Letters kept coming after the subscription was cancelled (fix/canceled-subscription-letters, v2.29.2)
+
+Report: "письма все еще идут, а я прекратил подписку давно".
+Cause: `scheduleLetters` picked subscriptions by `status == "active"` and `nextLetterAt <= now` only. A cancel sets `canceledAt` and asks Stripe to cancel at period end, but the record stays `active` until Stripe's `customer.subscription.deleted` event reaches the webhook; the webhook log shows almost no traffic, so that event never flipped the record and letters (a paid AI generation and an email each) went on, 1-2 a day up to the day of the report. `currentPeriodEnd` was stale too (it is only refreshed by `invoice.payment_succeeded`), which also made the card announce a cancellation in the past.
+
+- [x] `services/subscriptionLifecycle.ts`: `cancellationTookEffect(doc, now)` is true when `canceledAt` is set and the period end is missing, unreadable or not ahead (the owner's cancel wins over a stale date).
+- [x] `services/letterScheduling.ts` (`enqueueDueLetters`, used by `api/scheduleLetters.ts`): such a subscription gets no letter and is closed (`status: "canceled"`, what the Stripe event would do); a failed close is logged and does not stop the tick. The profile-list summary uses the same rule.
+- [x] Tests: `letter-scheduling.test.ts` (11, with a `create()` added to the fake Firestore); mutation check with the rule stubbed to `false` fails 6 tests. Functions 467 pass, `build:functions` and lint clean.
+- [ ] Ship: PR, CI, merge, deploy, then read the scheduler log (counts only) for `closed` and that letters stop.
+- Open for the owner (not changed): `cancelSubscription` logs a failed Stripe call but still answers ok, so a failed `cancel_at_period_end` leaves Stripe billing; the Stripe webhook may not be receiving renewal / deleted events (endpoint events or signing secret); check the subscription in the Stripe dashboard.
+
+---
+
 ## Wheel tooltip could not be dismissed (fix/wheel-tooltip-dismiss, v2.29.1)
 
 Report: after clicking a point or an axis (DSC in the report) the tooltip stayed on the wheel and could not be closed.

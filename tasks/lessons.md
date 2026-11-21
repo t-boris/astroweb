@@ -370,3 +370,10 @@ A pinned state (tooltip, popover, selection) needs a way out that does not depen
 elsewhere and Escape, and the listeners exist only while it is pinned. Check this whenever a hover feature gets a "tap to keep"
 mode for touch devices.
 
+## A state that only an external event can change needs a fallback inside the system
+
+"Cancelled" was recorded locally but the record stayed "active" until a payment-provider webhook arrived, and the job that does the
+paid work (letters) looked at the status alone. When the webhook is missing the work never stops. Anything that costs money per run
+must check the owner's own intent (the cancel date, the paid period) itself, and a stored date that only a webhook refreshes counts
+as stale, not as truth. When a bug report says "still happening after I cancelled", look at the worker's own query first.
+

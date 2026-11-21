@@ -19,6 +19,7 @@ import { toAppLanguage } from "@/lib/language";
 import { cleanAiArtifacts } from "@/lib/localContent";
 import { Input } from "@/components/ui/input";
 import { useAuthUser } from "@/lib/useAuthUser";
+import { formatDay } from "@/lib/subscriptionDates";
 
 function LetterCard({ profileId, letter, first }: { profileId: string; letter: Letter; first: boolean }) {
   const { t, i18n } = useTranslation();
@@ -62,7 +63,7 @@ function LetterCard({ profileId, letter, first }: { profileId: string; letter: L
 
   return (
     <div className="ds-card space-y-4 p-4 sm:p-5">
-      <p className="text-xs text-muted-foreground">{new Date(letter.generatedAt).toLocaleDateString()}</p>
+      <p className="text-xs text-muted-foreground">{formatDay(letter.generatedAt, i18n.resolvedLanguage ?? i18n.language)}</p>
       <div
         className="space-y-3 text-[15px] leading-relaxed text-muted-foreground [&_h3]:mt-1 [&_h3]:font-serif [&_h3]:text-base [&_h3]:text-[#8fb6ff] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_li]:marker:text-[#8fb6ff]/70"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(letter.html, { USE_PROFILES: { html: true } }) }}

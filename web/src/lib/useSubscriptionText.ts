@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { cadenceTextKey } from "@/lib/subscriptionMark";
 import type { ProfileSubscription } from "@/types";
 
-/** "Astrologer · every 2 days", "Astrologer · until 5 Dec", "Astrologer · paused" or "Astrologer · payment failed". */
+/** "Astrologer · every 2 days", "Astrologer · until 5 Dec" (or "ending" when the end is not known), "Astrologer · paused" or "Astrologer · payment failed". */
 export function useSubscriptionText(subscription: ProfileSubscription): string {
   const { t, i18n } = useTranslation();
   switch (subscription.state) {
@@ -14,7 +14,7 @@ export function useSubscriptionText(subscription: ProfileSubscription): string {
       const date = subscription.until
         ? new Intl.DateTimeFormat(i18n.language, { day: "numeric", month: "short" }).format(new Date(subscription.until))
         : "";
-      return date ? t("home.subscription.ending", { date }) : t("home.subscription.astrologer");
+      return date ? t("home.subscription.ending", { date }) : t("home.subscription.endingNoDate");
     }
     case "paused":
       return t("home.subscription.paused");

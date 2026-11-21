@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { enablePush, pushSupported, notificationPermission } from "@/lib/push";
 import { HelpBubble } from "@/components/HelpBubble";
+import { formatDay } from "@/lib/subscriptionDates";
 
 interface SubRow extends Subscription {
   profileName: string;
@@ -60,7 +61,8 @@ function NotificationsCard() {
 }
 
 export default function Account() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? i18n.language;
   const deviceId = useDeviceId();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
@@ -173,7 +175,7 @@ export default function Account() {
               )}
             </div>
             <div className="mt-1.5 grid gap-1 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{cadenceLabel(s.cadence)} · {t("hub.nextLetter", "Next letter")}: {new Date(s.nextLetterAt).toLocaleDateString()}</span>
+              <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{cadenceLabel(s.cadence)} · {t("hub.nextLetter", "Next letter")}: {formatDay(s.nextLetterAt, language)}</span>
               {s.channels?.email && <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" />{t("hub.emailTo", "Email to")}: {user.email}</span>}
             </div>
           </div>

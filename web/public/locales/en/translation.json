@@ -88,6 +88,7 @@
       "astrologer": "Astrologer",
       "active": "Astrologer · {{cadence}}",
       "ending": "Astrologer · until {{date}}",
+      "endingNoDate": "Astrologer · ending",
       "paused": "Astrologer · paused",
       "pastDue": "Astrologer · payment failed"
     },

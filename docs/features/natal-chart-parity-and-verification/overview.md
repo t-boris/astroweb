@@ -2,7 +2,7 @@
 type: feature
 id: natal-chart-parity-and-verification
 title: Natal Chart Parity and Verification
-status: implementing
+status: verified
 owner: Boris Tsekinovsky
 created: 2026-11-21
 provenance: Created from the feature intake

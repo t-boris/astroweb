@@ -149,4 +149,41 @@ Every deviation is inside the tolerance of section 3 (1.5″, 3″ for Pluto, 5�
 
 The position tables of SRC-002 (dataset A) and SRC-003 (dataset B) were transcribed into `functions/src/__tests__/fixtures/natal-parity/screenshots.json`. For every printed row of both images (A: 13 points plus ASC and MC; B: 15 points plus ASC and MC) the AstroWeb sign, degree, minute (truncated like the print), house and retrograde marker are equal to the printed values: 32 of 32 position rows, 28 of 28 point house numbers, and every printed retrograde marker (A: Pluto, Node; B: Jupiter, Saturn, Uranus, Neptune, Node). The element-by-modality totals of the two images are recorded in the same file and are reconciled with the profile summaries in the web tests.
 
-_Display verification of the profile wheel against SRC-002, SRC-003 and SRC-004 in the MarkView browser, the live walkthrough of the deployed version and the calculation of the original screenshot minute values are added to this section when they are done._
+### 7.2 Aspect glyph inventory (REQ-003)
+
+Every aspect glyph visible in the matrices of SRC-002 and SRC-003 (SRC-003 shows all eleven kinds), the Astro-Seek aspect code of its list, the supported type and the glyph of the profile. Astro-Seek abbreviates to three letters, so the codes `Tri` and `Qui` are ambiguous and the tests resolve them from the longitudes (section 3.4).
+
+| Picture glyph | Astro-Seek code | Type (angle) | Profile glyph | Class |
+|---|---|---|---|---|
+| ☌ (dotted-border cells) | Con | conjunction (0°) | ☌ | major |
+| green ⚺-like "V" | Sem | semi-sextile (30°) | ⚺ | minor |
+| red ∠ | Oct | semi-square (45°) | ∠ | minor |
+| blue ✱ | Sex | sextile (60°) | ⚹ | major |
+| green Q | Qui | quintile (72°) | Q | minor |
+| red □ | Squ | square (90°) | □ | major |
+| blue △ | Tri | trine (120°) | △ | major |
+| red square with a tail | Tri | sesquiquadrate (135°) | ⚼ | minor |
+| green bQ | Bi- | bi-quintile (144°) | bQ | minor |
+| green ⚻-like "⊼" | Qui | quincunx (150°) | ⚻ | minor |
+| red ☍ | Opp | opposition (180°) | ☍ | major |
+
+### 7.3 Display verification in the MarkView browser (REQ-001)
+
+Method: the production calculation code (`functions/lib/astro/chart.js`) behind a local mock of the `getProfile` and `getChart` callables, the web app served by Vite, synthetic profiles with the birth inputs of datasets A to D, an unknown-time profile and a polar-latitude profile; the MarkView browser compared the page with the images. After the merge the deployed page was opened read-only (section 7.4).
+
+| Check | Result |
+|---|---|
+| A, Whole Sign, against SRC-002 | House 1 is Aquarius on the 9 o'clock axis, the zodiac runs counter-clockwise. ASC 24°58′ Aquarius lies at its own longitude below the axis, MC 20°37′ Scorpio at the top, DSC and IC opposite. Pluto, the North Node and the South Node carry R. The positions table equals the printed table row by row (also asserted by `natal-parity.test.ts`). Element totals are those of SRC-002 plus Part of Fortune and Vertex, which the screenshot lacks: Fire 5 (4), Earth 2 (2), Air 6 (6), Water 4 (3), Cardinal 7 (6), Fixed 6 (5), Mutable 4 (4). |
+| B, Whole Sign, against SRC-003 | ASC 23°43′ Libra, MC 24°19′ Cancer, Fortune 20°12′ Aries (house 7), Vertex 5°19′ Cancer (house 10), all twelve cusp labels `0° sign 00′`, R on Jupiter, Saturn, Uranus, Neptune and the nodes. Element totals equal the picture: Fire 7, Earth 2, Air 5, Water 3, Cardinal 6, Fixed 6, Mutable 5. |
+| SRC-004 by element | The inventory (`docs/verification/natal-chart-wheel-inventory.md`) lists every element of the three pictures; none is left undrawn. Differences in layout only: the circled ASC and MC markers of SRC-003 and the short labels inside the house ring of SRC-004 are drawn as name, sign, degree and minute at the ring end. |
+| Aspect list and matrix | The list opens with the five major types, the matrix with all eleven; the pairs, types, signed orbs and a/s markers are identical (asserted by `tables.test.tsx`). |
+| Unknown birth time | No angles, houses, cusps or house numbers; the zodiac starts at 0° Aries on the left; a note says the positions are local-noon estimates; the Houses tab shows only that notice. |
+| Placidus at 69.6°N | The Houses tab names Whole Sign as the actual system and shows the requested system apart from it. |
+| Phone width (390 px) | No horizontal scroll of the page; the wheel scales to the column. |
+
+Hover on a point was checked in the browser: the tooltip shows sign, degree, minute, house and the shared aspects of the point with signed orb and applying or separating. Tap selection is covered by the pure-function tests only.
+
+### 7.4 Deployed version
+
+CI run `44941696018` (push of merge commit `1a4780d` to `main`) built and deployed with Firebase. The deployed page shows `v2.26.0`. On the live page, read-only (no purchase, unlock or generation), the Chart tab shows the new wheel for a real profile with Chiron present (the bundled ephemeris file works in the Cloud Function), the selector switches Koch to Whole Sign and the wheel redraws with twelve cusp labels, the Planets tab lists 18 position rows and the four element rows, the Aspects tab lists 47 aspects with the default filters and a 16-row matrix, the Houses tab names the system and prints no `°60′`, and the browser console has no errors.
+

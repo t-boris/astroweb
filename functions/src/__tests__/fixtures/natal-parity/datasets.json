@@ -11,12 +11,13 @@
       "place": "Cape Town (ZA)",
       "lat": -33.933333,
       "lng": 18.416667,
-      "latDms": "33°56+S, lngDms: 18°25E",
+      "latDms": "33°56′S",
       "timezone": "Africa/Johannesburg",
       "houseSystem": "whole-sign",
       "utcOffsetHours": 2,
       "dstObserved": false,
-      "utc": "2002-03-30T01:30:00Z"
+      "utc": "2002-03-30T01:30:00Z",
+      "lngDms": "18°25′E"
     },
     {
       "id": "B",
@@ -27,12 +28,13 @@
       "place": "Riyadh (SA)",
       "lat": 24.716667,
       "lng": 46.683333,
-      "latDms": "24°43+N, lngDms: 46°41E",
+      "latDms": "24°43′N",
       "timezone": "Asia/Riyadh",
       "houseSystem": "whole-sign",
       "utcOffsetHours": 3,
       "dstObserved": false,
-      "utc": "1999-09-25T04:24:00Z"
+      "utc": "1999-09-25T04:24:00Z",
+      "lngDms": "46°41′E"
     },
     {
       "id": "C",
@@ -43,12 +45,13 @@
       "place": "New York (US)",
       "lat": 40.716667,
       "lng": -74,
-      "latDms": "40°43+N, lngDms: 74°00W",
+      "latDms": "40°43′N",
       "timezone": "America/New_York",
       "houseSystem": "koch",
       "utcOffsetHours": -4,
       "dstObserved": true,
-      "utc": "1985-07-12T18:45:00Z"
+      "utc": "1985-07-12T18:45:00Z",
+      "lngDms": "74°00′W"
     },
     {
       "id": "D",
@@ -59,12 +62,13 @@
       "place": "Sydney (AU)",
       "lat": -33.866667,
       "lng": 151.2,
-      "latDms": "33°52+S, lngDms: 151°12E",
+      "latDms": "33°52′S",
       "timezone": "Australia/Sydney",
       "houseSystem": "placidus",
       "utcOffsetHours": 11,
       "dstObserved": true,
-      "utc": "1978-02-03T11:10:00Z"
+      "utc": "1978-02-03T11:10:00Z",
+      "lngDms": "151°12′E"
     }
   ]
 }

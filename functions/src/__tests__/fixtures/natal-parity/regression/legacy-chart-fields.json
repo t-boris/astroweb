@@ -1,0 +1,1310 @@
+{
+ "schema": 1,
+ "note": "points, aspects and houses of computeNatalChart as produced by origin/main e682fa3 (before this feature). Regenerate only to record an intended change of the legacy fields.",
+ "charts": {
+  "A": {
+   "input": {
+    "birthDate": "2002-03-30",
+    "birthTime": "03:30",
+    "timeUnknown": false,
+    "lat": -33.933333,
+    "lng": 18.416667,
+    "timezone": "Africa/Johannesburg",
+    "houseSystem": "whole-sign"
+   },
+   "meta": {
+    "houseSystem": "whole-sign",
+    "zodiac": "tropical",
+    "timeUsed": "03:30",
+    "timezoneUsed": "Africa/Johannesburg"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 9.172291502405923,
+     "sign": "Aries",
+     "degreeInSign": 9.172291502405926,
+     "house": 3
+    },
+    {
+     "body": "Moon",
+     "lon": 207.58821716118487,
+     "sign": "Libra",
+     "degreeInSign": 27.588217161184843,
+     "house": 9
+    },
+    {
+     "body": "Mercury",
+     "lon": 0.849883767133239,
+     "sign": "Aries",
+     "degreeInSign": 0.8498837671332353,
+     "house": 3
+    },
+    {
+     "body": "Venus",
+     "lon": 27.267851846408302,
+     "sign": "Aries",
+     "degreeInSign": 27.26785184640829,
+     "house": 3
+    },
+    {
+     "body": "Mars",
+     "lon": 49.91786890653155,
+     "sign": "Taurus",
+     "degreeInSign": 19.917868906531567,
+     "house": 4
+    },
+    {
+     "body": "Jupiter",
+     "lon": 96.90727746194152,
+     "sign": "Cancer",
+     "degreeInSign": 6.907277461941533,
+     "house": 6
+    },
+    {
+     "body": "Saturn",
+     "lon": 70.25775989837216,
+     "sign": "Gemini",
+     "degreeInSign": 10.257759898372171,
+     "house": 5
+    },
+    {
+     "body": "Uranus",
+     "lon": 327.2138497451527,
+     "sign": "Aquarius",
+     "degreeInSign": 27.21384974515263,
+     "house": 1
+    },
+    {
+     "body": "Neptune",
+     "lon": 310.4509279270508,
+     "sign": "Aquarius",
+     "degreeInSign": 10.45092792705077,
+     "house": 1
+    },
+    {
+     "body": "Pluto",
+     "lon": 257.6039290333481,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.603929033348095,
+     "house": 11
+    }
+   ],
+   "aspects": [
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 0.05,
+     "exactness": 0.99
+    },
+    {
+     "a": "Saturn",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 0.19,
+     "exactness": 0.97
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "opposition",
+     "orb": 0.32,
+     "exactness": 0.95
+    },
+    {
+     "a": "Moon",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 0.37,
+     "exactness": 0.94
+    },
+    {
+     "a": "Mars",
+     "b": "MC",
+     "type": "opposition",
+     "orb": 0.71,
+     "exactness": 0.88
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "sextile",
+     "orb": 1.09,
+     "exactness": 0.82
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 1.28,
+     "exactness": 0.79
+    },
+    {
+     "a": "Uranus",
+     "b": "ASC",
+     "type": "conjunction",
+     "orb": 2.23,
+     "exactness": 0.63
+    },
+    {
+     "a": "Sun",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 2.27,
+     "exactness": 0.62
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 2.29,
+     "exactness": 0.62
+    },
+    {
+     "a": "Moon",
+     "b": "ASC",
+     "type": "trine",
+     "orb": 2.61,
+     "exactness": 0.57
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 4.36,
+     "exactness": 0.27
+    },
+    {
+     "a": "Mars",
+     "b": "ASC",
+     "type": "square",
+     "orb": 5.06,
+     "exactness": 0.16
+    }
+   ],
+   "houses": {
+    "system": "whole-sign",
+    "cusps": [
+     300,
+     330,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150,
+     180,
+     210,
+     240,
+     270
+    ],
+    "asc": 324.98023522184957,
+    "mc": 230.62422185292644
+   }
+  },
+  "B": {
+   "input": {
+    "birthDate": "1999-09-25",
+    "birthTime": "07:24",
+    "timeUnknown": false,
+    "lat": 24.716667,
+    "lng": 46.683333,
+    "timezone": "Asia/Riyadh",
+    "houseSystem": "whole-sign"
+   },
+   "meta": {
+    "houseSystem": "whole-sign",
+    "zodiac": "tropical",
+    "timeUsed": "07:24",
+    "timezoneUsed": "Asia/Riyadh"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 181.66689571285772,
+     "sign": "Libra",
+     "degreeInSign": 1.6668957128576949,
+     "house": 1
+    },
+    {
+     "body": "Moon",
+     "lon": 358.1529203290557,
+     "sign": "Pisces",
+     "degreeInSign": 28.152920329055632,
+     "house": 6
+    },
+    {
+     "body": "Mercury",
+     "lon": 194.5661959009681,
+     "sign": "Libra",
+     "degreeInSign": 14.566195900968069,
+     "house": 1
+    },
+    {
+     "body": "Venus",
+     "lon": 142.3247705887117,
+     "sign": "Leo",
+     "degreeInSign": 22.324770588711658,
+     "house": 11
+    },
+    {
+     "body": "Mars",
+     "lon": 254.63979355526604,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.63979355526601,
+     "house": 3
+    },
+    {
+     "body": "Jupiter",
+     "lon": 33.42329566657298,
+     "sign": "Taurus",
+     "degreeInSign": 3.423295666572983,
+     "house": 8
+    },
+    {
+     "body": "Saturn",
+     "lon": 46.586685960200306,
+     "sign": "Taurus",
+     "degreeInSign": 16.586685960200327,
+     "house": 8
+    },
+    {
+     "body": "Uranus",
+     "lon": 313.18172584434944,
+     "sign": "Aquarius",
+     "degreeInSign": 13.181725844349444,
+     "house": 5
+    },
+    {
+     "body": "Neptune",
+     "lon": 301.68508303087117,
+     "sign": "Aquarius",
+     "degreeInSign": 1.6850830308711693,
+     "house": 5
+    },
+    {
+     "body": "Pluto",
+     "lon": 248.11478890458685,
+     "sign": "Sagittarius",
+     "degreeInSign": 8.114788904586817,
+     "house": 3
+    }
+   ],
+   "aspects": [
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 0.02,
+     "exactness": 1
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 0.07,
+     "exactness": 0.99
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 0.61,
+     "exactness": 0.9
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 1.38,
+     "exactness": 0.77
+    },
+    {
+     "a": "Venus",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 1.4,
+     "exactness": 0.77
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 1.46,
+     "exactness": 0.76
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "square",
+     "orb": 1.74,
+     "exactness": 0.71
+    },
+    {
+     "a": "Saturn",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 3.4,
+     "exactness": 0.43
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "opposition",
+     "orb": 3.51,
+     "exactness": 0.41
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 3.53,
+     "exactness": 0.41
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "trine",
+     "orb": 3.82,
+     "exactness": 0.36
+    },
+    {
+     "a": "Uranus",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 5.07,
+     "exactness": 0.16
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "square",
+     "orb": 5.74,
+     "exactness": 0.04
+    }
+   ],
+   "houses": {
+    "system": "whole-sign",
+    "cusps": [
+     180,
+     210,
+     240,
+     270,
+     300,
+     330,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "asc": 203.72006082760606,
+    "mc": 114.33043659470704
+   }
+  },
+  "C": {
+   "input": {
+    "birthDate": "1985-07-12",
+    "birthTime": "14:45",
+    "timeUnknown": false,
+    "lat": 40.716667,
+    "lng": -74,
+    "timezone": "America/New_York",
+    "houseSystem": "koch"
+   },
+   "meta": {
+    "houseSystem": "koch",
+    "zodiac": "tropical",
+    "timeUsed": "14:45",
+    "timezoneUsed": "America/New_York"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 110.34116320389991,
+     "sign": "Cancer",
+     "degreeInSign": 20.341163203899896,
+     "house": 9
+    },
+    {
+     "body": "Moon",
+     "lon": 50.21719495430391,
+     "sign": "Taurus",
+     "degreeInSign": 20.21719495430392,
+     "house": 7
+    },
+    {
+     "body": "Mercury",
+     "lon": 136.84647028706766,
+     "sign": "Leo",
+     "degreeInSign": 16.846470287067632,
+     "house": 10
+    },
+    {
+     "body": "Venus",
+     "lon": 66.97313298953557,
+     "sign": "Gemini",
+     "degreeInSign": 6.973132989535543,
+     "house": 8
+    },
+    {
+     "body": "Mars",
+     "lon": 111.96166616563785,
+     "sign": "Cancer",
+     "degreeInSign": 21.961666165637837,
+     "house": 9
+    },
+    {
+     "body": "Jupiter",
+     "lon": 314.803244402866,
+     "sign": "Aquarius",
+     "degreeInSign": 14.803244402866085,
+     "house": 3
+    },
+    {
+     "body": "Saturn",
+     "lon": 231.6048757494477,
+     "sign": "Scorpio",
+     "degreeInSign": 21.60487574944773,
+     "house": 1
+    },
+    {
+     "body": "Uranus",
+     "lon": 254.63701062328641,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.637010623286415,
+     "house": 2
+    },
+    {
+     "body": "Neptune",
+     "lon": 271.7391265881363,
+     "sign": "Capricorn",
+     "degreeInSign": 1.739126588136287,
+     "house": 2
+    },
+    {
+     "body": "Pluto",
+     "lon": 211.92436456539002,
+     "sign": "Scorpio",
+     "degreeInSign": 1.9243645653900785,
+     "house": 12
+    }
+   ],
+   "aspects": [
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "orb": 0.12,
+     "exactness": 0.98
+    },
+    {
+     "a": "Jupiter",
+     "b": "Uranus",
+     "type": "sextile",
+     "orb": 0.17,
+     "exactness": 0.97
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 0.19,
+     "exactness": 0.97
+    },
+    {
+     "a": "Mars",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 0.36,
+     "exactness": 0.94
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "opposition",
+     "orb": 0.59,
+     "exactness": 0.9
+    },
+    {
+     "a": "Uranus",
+     "b": "MC",
+     "type": "trine",
+     "orb": 0.75,
+     "exactness": 0.87
+    },
+    {
+     "a": "Sun",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 1.26,
+     "exactness": 0.79
+    },
+    {
+     "a": "Moon",
+     "b": "Saturn",
+     "type": "opposition",
+     "orb": 1.39,
+     "exactness": 0.77
+    },
+    {
+     "a": "Mercury",
+     "b": "MC",
+     "type": "conjunction",
+     "orb": 1.46,
+     "exactness": 0.76
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "conjunction",
+     "orb": 1.62,
+     "exactness": 0.73
+    },
+    {
+     "a": "Moon",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 1.74,
+     "exactness": 0.71
+    },
+    {
+     "a": "Mercury",
+     "b": "Jupiter",
+     "type": "opposition",
+     "orb": 2.04,
+     "exactness": 0.66
+    },
+    {
+     "a": "Mercury",
+     "b": "Uranus",
+     "type": "trine",
+     "orb": 2.21,
+     "exactness": 0.63
+    },
+    {
+     "a": "Moon",
+     "b": "Mercury",
+     "type": "square",
+     "orb": 3.37,
+     "exactness": 0.44
+    },
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "square",
+     "orb": 4.76,
+     "exactness": 0.21
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "square",
+     "orb": 4.83,
+     "exactness": 0.2
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 5.41,
+     "exactness": 0.1
+    },
+    {
+     "a": "Pluto",
+     "b": "ASC",
+     "type": "conjunction",
+     "orb": 5.81,
+     "exactness": 0.03
+    },
+    {
+     "a": "Neptune",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 6,
+     "exactness": 0
+    }
+   ],
+   "houses": {
+    "system": "koch",
+    "cusps": [
+     217.73625004457247,
+     245.15885013033648,
+     275.25379972263806,
+     315.3897024445019,
+     342.7137491363099,
+     10.32695074427005,
+     37.736250044572444,
+     65.15885013033648,
+     95.25379972263806,
+     135.3897024445019,
+     162.7137491363099,
+     190.32695074427005
+    ],
+    "asc": 217.73625004457247,
+    "mc": 135.3897024445019
+   }
+  },
+  "D": {
+   "input": {
+    "birthDate": "1978-02-03",
+    "birthTime": "22:10",
+    "timeUnknown": false,
+    "lat": -33.866667,
+    "lng": 151.2,
+    "timezone": "Australia/Sydney",
+    "houseSystem": "placidus"
+   },
+   "meta": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "timeUsed": "22:10",
+    "timezoneUsed": "Australia/Sydney"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 314.2695174672124,
+     "sign": "Aquarius",
+     "degreeInSign": 14.269517467212381,
+     "house": 5
+    },
+    {
+     "body": "Moon",
+     "lon": 256.74142818907967,
+     "sign": "Sagittarius",
+     "degreeInSign": 16.74142818907967,
+     "house": 3
+    },
+    {
+     "body": "Mercury",
+     "lon": 298.16123436332526,
+     "sign": "Capricorn",
+     "degreeInSign": 28.16123436332532,
+     "house": 5
+    },
+    {
+     "body": "Venus",
+     "lon": 317.20050406302056,
+     "sign": "Aquarius",
+     "degreeInSign": 17.200504063020617,
+     "house": 5
+    },
+    {
+     "body": "Mars",
+     "lon": 116.92935276631339,
+     "sign": "Cancer",
+     "degreeInSign": 26.9293527663134,
+     "house": 11
+    },
+    {
+     "body": "Jupiter",
+     "lon": 86.53408162419962,
+     "sign": "Gemini",
+     "degreeInSign": 26.534081624199644,
+     "house": 9
+    },
+    {
+     "body": "Saturn",
+     "lon": 148.14650084327226,
+     "sign": "Leo",
+     "degreeInSign": 28.146500843272293,
+     "house": 12
+    },
+    {
+     "body": "Uranus",
+     "lon": 226.28685331164755,
+     "sign": "Scorpio",
+     "degreeInSign": 16.28685331164752,
+     "house": 2
+    },
+    {
+     "body": "Neptune",
+     "lon": 257.75728017721,
+     "sign": "Sagittarius",
+     "degreeInSign": 17.757280177210077,
+     "house": 3
+    },
+    {
+     "body": "Pluto",
+     "lon": 196.62643384362423,
+     "sign": "Libra",
+     "degreeInSign": 16.626433843624227,
+     "house": 1
+    }
+   ],
+   "aspects": [
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 0.11,
+     "exactness": 0.98
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "orb": 0.46,
+     "exactness": 0.92
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 0.56,
+     "exactness": 0.91
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.57,
+     "exactness": 0.9
+    },
+    {
+     "a": "Venus",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 0.91,
+     "exactness": 0.85
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "conjunction",
+     "orb": 1.02,
+     "exactness": 0.83
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 1.13,
+     "exactness": 0.81
+    },
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "square",
+     "orb": 1.22,
+     "exactness": 0.8
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "opposition",
+     "orb": 1.23,
+     "exactness": 0.79
+    },
+    {
+     "a": "Jupiter",
+     "b": "Saturn",
+     "type": "sextile",
+     "orb": 1.61,
+     "exactness": 0.73
+    },
+    {
+     "a": "Sun",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 2.02,
+     "exactness": 0.66
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 2.36,
+     "exactness": 0.61
+    },
+    {
+     "a": "Sun",
+     "b": "Moon",
+     "type": "sextile",
+     "orb": 2.47,
+     "exactness": 0.59
+    },
+    {
+     "a": "Sun",
+     "b": "Venus",
+     "type": "conjunction",
+     "orb": 2.93,
+     "exactness": 0.51
+    },
+    {
+     "a": "Sun",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 3.49,
+     "exactness": 0.42
+    },
+    {
+     "a": "Saturn",
+     "b": "MC",
+     "type": "sextile",
+     "orb": 3.67,
+     "exactness": 0.39
+    },
+    {
+     "a": "Mercury",
+     "b": "ASC",
+     "type": "trine",
+     "orb": 4.88,
+     "exactness": 0.19
+    },
+    {
+     "a": "Jupiter",
+     "b": "MC",
+     "type": "conjunction",
+     "orb": 5.28,
+     "exactness": 0.12
+    }
+   ],
+   "houses": {
+    "system": "placidus",
+    "cusps": [
+     183.03856980970298,
+     221.44585982383393,
+     248.87421027266788,
+     271.81418406338605,
+     295.02385655114955,
+     323.3512116366817,
+     3.038569809702949,
+     41.44585982383393,
+     68.87421027266788,
+     91.81418406338604,
+     115.02385655114956,
+     143.35121163668168
+    ],
+    "asc": 183.03856980970298,
+    "mc": 91.81418406338604
+   }
+  },
+  "Einstein": {
+   "input": {
+    "birthDate": "1879-03-14",
+    "birthTime": "11:30",
+    "timeUnknown": false,
+    "lat": 48.4011,
+    "lng": 9.9876,
+    "timezone": "Europe/Berlin",
+    "houseSystem": "placidus"
+   },
+   "meta": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "timeUsed": "11:30",
+    "timezoneUsed": "Europe/Berlin"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 353.4984260312475,
+     "sign": "Pisces",
+     "degreeInSign": 23.498426031247504,
+     "house": 10
+    },
+    {
+     "body": "Moon",
+     "lon": 254.3957314260915,
+     "sign": "Sagittarius",
+     "degreeInSign": 14.395731426091515,
+     "house": 6
+    },
+    {
+     "body": "Mercury",
+     "lon": 3.1256300206684906,
+     "sign": "Aries",
+     "degreeInSign": 3.1256300206684955,
+     "house": 10
+    },
+    {
+     "body": "Venus",
+     "lon": 16.973496075294552,
+     "sign": "Aries",
+     "degreeInSign": 16.973496075294577,
+     "house": 11
+    },
+    {
+     "body": "Mars",
+     "lon": 296.907401767208,
+     "sign": "Capricorn",
+     "degreeInSign": 26.907401767208057,
+     "house": 8
+    },
+    {
+     "body": "Jupiter",
+     "lon": 327.4818936434596,
+     "sign": "Aquarius",
+     "degreeInSign": 27.48189364345967,
+     "house": 9
+    },
+    {
+     "body": "Saturn",
+     "lon": 4.188660028074258,
+     "sign": "Aries",
+     "degreeInSign": 4.188660028074253,
+     "house": 10
+    },
+    {
+     "body": "Uranus",
+     "lon": 151.2887604653748,
+     "sign": "Virgo",
+     "degreeInSign": 1.2887604653748213,
+     "house": 3
+    },
+    {
+     "body": "Neptune",
+     "lon": 37.871938540435515,
+     "sign": "Taurus",
+     "degreeInSign": 7.871938540435508,
+     "house": 11
+    },
+    {
+     "body": "Pluto",
+     "lon": 54.72524252085581,
+     "sign": "Taurus",
+     "degreeInSign": 24.72524252085583,
+     "house": 11
+    }
+   ],
+   "aspects": [
+    {
+     "a": "ASC",
+     "b": "MC",
+     "type": "trine",
+     "orb": 0.38,
+     "exactness": 0.94
+    },
+    {
+     "a": "Neptune",
+     "b": "ASC",
+     "type": "sextile",
+     "orb": 0.95,
+     "exactness": 0.84
+    },
+    {
+     "a": "Mercury",
+     "b": "Saturn",
+     "type": "conjunction",
+     "orb": 1.06,
+     "exactness": 0.82
+    },
+    {
+     "a": "Sun",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 1.23,
+     "exactness": 0.8
+    },
+    {
+     "a": "Neptune",
+     "b": "MC",
+     "type": "sextile",
+     "orb": 1.34,
+     "exactness": 0.78
+    },
+    {
+     "a": "Mars",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 2.18,
+     "exactness": 0.64
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "trine",
+     "orb": 2.58,
+     "exactness": 0.57
+    },
+    {
+     "a": "Jupiter",
+     "b": "Pluto",
+     "type": "square",
+     "orb": 2.76,
+     "exactness": 0.54
+    },
+    {
+     "a": "Sun",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 3.41,
+     "exactness": 0.43
+    },
+    {
+     "a": "Jupiter",
+     "b": "Uranus",
+     "type": "opposition",
+     "orb": 3.81,
+     "exactness": 0.37
+    },
+    {
+     "a": "Saturn",
+     "b": "ASC",
+     "type": "square",
+     "orb": 4.64,
+     "exactness": 0.23
+    },
+    {
+     "a": "Moon",
+     "b": "MC",
+     "type": "square",
+     "orb": 5.19,
+     "exactness": 0.14
+    },
+    {
+     "a": "Mercury",
+     "b": "ASC",
+     "type": "square",
+     "orb": 5.7,
+     "exactness": 0.05
+    }
+   ],
+   "houses": {
+    "system": "placidus",
+    "cusps": [
+     98.82411365298029,
+     115.87095002897988,
+     134.78520148037697,
+     159.2084044358287,
+     193.99721396999502,
+     239.12974780683749,
+     278.82411365298026,
+     295.8709500289799,
+     314.78520148037694,
+     339.2084044358287,
+     13.997213969995022,
+     59.12974780683749
+    ],
+    "asc": 98.82411365298029,
+    "mc": 339.2084044358287
+   }
+  },
+  "UnknownTime": {
+   "input": {
+    "birthDate": "1990-06-15",
+    "birthTime": null,
+    "timeUnknown": true,
+    "lat": 51.5074,
+    "lng": -0.1278,
+    "timezone": "Europe/London",
+    "houseSystem": "placidus"
+   },
+   "meta": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "timeUsed": null,
+    "timezoneUsed": "Europe/London"
+   },
+   "points": [
+    {
+     "body": "Sun",
+     "lon": 84.08977083584041,
+     "sign": "Gemini",
+     "degreeInSign": 24.089770835840397,
+     "house": null
+    },
+    {
+     "body": "Moon",
+     "lon": 344.80150970354777,
+     "sign": "Pisces",
+     "degreeInSign": 14.801509703547708,
+     "house": null
+    },
+    {
+     "body": "Mercury",
+     "lon": 65.61924864121578,
+     "sign": "Gemini",
+     "degreeInSign": 5.6192486412157905,
+     "house": null
+    },
+    {
+     "body": "Venus",
+     "lon": 48.72861360719537,
+     "sign": "Taurus",
+     "degreeInSign": 18.72861360719537,
+     "house": null
+    },
+    {
+     "body": "Mars",
+     "lon": 11.011355780195629,
+     "sign": "Aries",
+     "degreeInSign": 11.011355780195629,
+     "house": null
+    },
+    {
+     "body": "Jupiter",
+     "lon": 105.88041112980565,
+     "sign": "Cancer",
+     "degreeInSign": 15.88041112980568,
+     "house": null
+    },
+    {
+     "body": "Saturn",
+     "lon": 294.03440482581726,
+     "sign": "Capricorn",
+     "degreeInSign": 24.03440482581732,
+     "house": null
+    },
+    {
+     "body": "Uranus",
+     "lon": 278.16686181974507,
+     "sign": "Capricorn",
+     "degreeInSign": 8.166861819745009,
+     "house": null
+    },
+    {
+     "body": "Neptune",
+     "lon": 283.7181399654337,
+     "sign": "Capricorn",
+     "degreeInSign": 13.718139965433693,
+     "house": null
+    },
+    {
+     "body": "Pluto",
+     "lon": 225.40239191685734,
+     "sign": "Scorpio",
+     "degreeInSign": 15.402391916857368,
+     "house": null
+    }
+   ],
+   "aspects": [
+    {
+     "a": "Jupiter",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.48,
+     "exactness": 0.92
+    },
+    {
+     "a": "Moon",
+     "b": "Pluto",
+     "type": "trine",
+     "orb": 0.6,
+     "exactness": 0.9
+    },
+    {
+     "a": "Moon",
+     "b": "Jupiter",
+     "type": "trine",
+     "orb": 1.08,
+     "exactness": 0.82
+    },
+    {
+     "a": "Moon",
+     "b": "Neptune",
+     "type": "sextile",
+     "orb": 1.08,
+     "exactness": 0.82
+    },
+    {
+     "a": "Neptune",
+     "b": "Pluto",
+     "type": "sextile",
+     "orb": 1.68,
+     "exactness": 0.72
+    },
+    {
+     "a": "Jupiter",
+     "b": "Neptune",
+     "type": "opposition",
+     "orb": 2.16,
+     "exactness": 0.64
+    },
+    {
+     "a": "Mars",
+     "b": "Neptune",
+     "type": "square",
+     "orb": 2.71,
+     "exactness": 0.55
+    },
+    {
+     "a": "Venus",
+     "b": "Jupiter",
+     "type": "sextile",
+     "orb": 2.85,
+     "exactness": 0.53
+    },
+    {
+     "a": "Mars",
+     "b": "Uranus",
+     "type": "square",
+     "orb": 2.84,
+     "exactness": 0.53
+    },
+    {
+     "a": "Venus",
+     "b": "Pluto",
+     "type": "opposition",
+     "orb": 3.33,
+     "exactness": 0.45
+    },
+    {
+     "a": "Moon",
+     "b": "Venus",
+     "type": "sextile",
+     "orb": 3.93,
+     "exactness": 0.35
+    },
+    {
+     "a": "Mars",
+     "b": "Jupiter",
+     "type": "square",
+     "orb": 4.87,
+     "exactness": 0.19
+    },
+    {
+     "a": "Venus",
+     "b": "Neptune",
+     "type": "trine",
+     "orb": 5.01,
+     "exactness": 0.16
+    },
+    {
+     "a": "Venus",
+     "b": "Saturn",
+     "type": "trine",
+     "orb": 5.31,
+     "exactness": 0.12
+    },
+    {
+     "a": "Mercury",
+     "b": "Mars",
+     "type": "sextile",
+     "orb": 5.39,
+     "exactness": 0.1
+    },
+    {
+     "a": "Uranus",
+     "b": "Neptune",
+     "type": "conjunction",
+     "orb": 5.55,
+     "exactness": 0.07
+    }
+   ],
+   "houses": {
+    "system": "placidus",
+    "cusps": [
+     164.7422868727448,
+     186.66657632901803,
+     214.92155686397916,
+     249.98272574511853,
+     287.25903296112455,
+     319.1302851492686,
+     344.7422868727448,
+     6.666576329018028,
+     34.92155686397916,
+     69.98272574511853,
+     107.25903296112456,
+     139.13028514926864
+    ],
+    "asc": null,
+    "mc": null
+   }
+  }
+ }
+}

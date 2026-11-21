@@ -46,6 +46,8 @@ Astro-Seek prints longitudes truncated to whole arcminutes (observed: 14°33.972
 | Aspect orb | AstroWeb orb inside the displayed arcminute bin | 0.05' slack |
 | Applying or separating | Categorical equality | none |
 
+The regenerated Astro-Seek charts also publish an HTML table with longitudes to whole arcseconds (also truncated) and orbs to whole arcminutes. For those tables the same bin rule applies at the printed resolution: the AstroWeb longitude must fall inside `[shown, shown + 1")` widened by the tolerance of its body in section 3.3 (1.5" for the Sun and Mercury to Neptune, 3" for Pluto, 5" for the Moon) and by 1.5" for every other point (nodes, Lilith, Chiron, Fortune, Vertex, ASC, MC, cusps). The arcminute rules in the table above govern the screenshots (display verification of A and B).
+
 A deviation outside the tolerance, or a categorical mismatch, is a discrepancy (section 6). It is investigated and resolved against these rules before acceptance; it is never absorbed by widening the tolerance after the fact.
 
 ### 3.3 AstroWeb against JPL Horizons (independent longitudes)

@@ -2,7 +2,7 @@
 type: feature
 id: admin-control-of-ai-models-and-prompts
 title: Admin control of AI models and prompts
-status: exploring
+status: verified
 owner: Boris Tsekinovsky
 created: 2026-10-18
 provenance: Created by an AI agent through MarkView from Owner request in chat, 2026-10-18
@@ -18,6 +18,7 @@ understanding:
   Analytics: n/a
   Dependencies: known
   Acceptance Criteria: partial
+schema: 1
 ---
 
 # Admin control of AI models and prompts

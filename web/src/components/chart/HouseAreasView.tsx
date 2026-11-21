@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HelpBubble } from "@/components/HelpBubble";
+import { getHouseSystemInfo, isTimeEstimated } from "@/components/chart/utils/positions";
+import { houseSystemName } from "@/components/chart/utils/viewModel";
 import {
   aspectHelpKey,
   houseHelpKey,
@@ -146,12 +148,6 @@ const AREA_HOUSES: Record<AreaSummary["key"], number[]> = {
   home: [4],
 };
 const HOUSE_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
-/** `houseAreas.houseSystemNames.*` key of each house system the server can report. */
-const HOUSE_SYSTEM_NAME_KEYS: Record<ChartResult["meta"]["houseSystem"], string> = {
-  placidus: "placidus",
-  koch: "koch",
-  "whole-sign": "wholeSign",
-};
 
 function emptyScores(): Record<TraditionalPlanet, number> {
   return {
@@ -345,6 +341,7 @@ function summarizeArea(chart: ChartResult, key: AreaSummary["key"]): AreaSummary
 
 export function HouseAreasView({ chart }: HouseAreasViewProps) {
   const { t } = useTranslation();
+  const houseSystem = getHouseSystemInfo(chart);
 
   const areas = useMemo(
     () => [
@@ -403,24 +400,39 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
     );
   };
 
+  // Houses, cusps and the angles need the birth time; with an estimated noon time none of them is shown (REQ-001).
+  if (isTimeEstimated(chart)) {
+    return (
+      <div
+        role="status"
+        className="rounded-md border border-[#e8c969]/40 bg-[#e8c969]/10 p-3 text-sm text-[#f2dd9a]"
+      >
+        {t("houseAreas.timeUnknownWarning")}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {HOUSE_SYSTEM_NAME_KEYS[chart.meta.houseSystem] && (
-        <HelpBubble helpKey={houseSystemHelpKey(chart.meta.houseSystem)}>
+      <div className="space-y-2">
+        <HelpBubble helpKey={houseSystemHelpKey(houseSystem.used)}>
           <p className="w-fit text-sm text-muted-foreground">
             {t("houseAreas.houseSystemLabel")}:{" "}
-            <span className="font-medium text-foreground">
-              {t(`houseAreas.houseSystemNames.${HOUSE_SYSTEM_NAME_KEYS[chart.meta.houseSystem]}`)}
-            </span>
+            <span className="font-medium text-foreground">{houseSystemName(t, houseSystem.used)}</span>
           </p>
         </HelpBubble>
-      )}
-
-      {chart.meta.timeUsed === null && (
-        <div className="rounded-md border border-[#e8c969]/40 bg-[#e8c969]/10 p-3 text-sm text-[#f2dd9a]">
-          {t("houseAreas.timeUnknownWarning")}
-        </div>
-      )}
+        {houseSystem.fellBack && (
+          <div
+            role="status"
+            className="rounded-md border border-[#e8c969]/40 bg-[#e8c969]/10 p-3 text-sm text-[#f2dd9a]"
+          >
+            {t("houseAreas.houseSystemFallback", {
+              requested: houseSystemName(t, houseSystem.requested),
+              used: houseSystemName(t, houseSystem.used),
+            })}
+          </div>
+        )}
+      </div>
 
       <Card className="glass-card">
         <CardHeader>

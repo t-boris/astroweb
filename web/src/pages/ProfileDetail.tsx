@@ -21,6 +21,12 @@ import NatalChart from "@/components/chart/NatalChart";
 import { ForecastView } from "@/components/chart/ForecastView";
 import { PlanetsTable } from "@/components/chart/PlanetsTable";
 import { AspectsTable } from "@/components/chart/AspectsTable";
+import { AspectMatrix } from "@/components/chart/AspectMatrix";
+import { ElementModalityGrid } from "@/components/chart/ElementModalityGrid";
+import { DegreeStrip } from "@/components/chart/DegreeStrip";
+import { ChartContextLine } from "@/components/chart/ChartContextLine";
+import { HouseSystemSelector } from "@/components/chart/HouseSystemSelector";
+import { DEFAULT_HOUSE_SYSTEM, type HouseSystem } from "@/components/chart/utils/viewModel";
 import { InterpretationView } from "@/components/chart/InterpretationView";
 import { HouseAreasView } from "@/components/chart/HouseAreasView";
 import { RelationshipView } from "@/components/chart/RelationshipView";
@@ -114,6 +120,16 @@ function signFromLongitude(lon: number): string {
   return SIGN_ORDER[Math.floor(n / 30)];
 }
 
+/** Tabs that show the chart itself; the house system and the calculation context apply to them. */
+const CHART_TABS = ["chart", "planets", "aspects", "houses"];
+
+/** The chart place is the relocation place when the result was calculated for other coordinates than the birth place. */
+function isRelocatedChart(chart: ChartResult, profile: Profile): boolean {
+  const context = chart.context;
+  if (!context) return false;
+  return Math.abs(context.lat - profile.lat) > 1e-4 || Math.abs(context.lng - profile.lng) > 1e-4;
+}
+
 export default function ProfileDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -127,6 +143,7 @@ export default function ProfileDetail() {
   const [chartLoading, setChartLoading] = useState(true);
   const [chartError, setChartError] = useState<string | null>(null);
   const [chartRetryCount, setChartRetryCount] = useState(0);
+  const [houseSystem, setHouseSystem] = useState<HouseSystem>(DEFAULT_HOUSE_SYSTEM);
   const [relocationEnabled, setRelocationEnabled] = useState(false);
   const [relocationPlace, setRelocationPlace] = useState("");
   const [relocationLat, setRelocationLat] = useState<number | null>(null);
@@ -295,7 +312,7 @@ export default function ProfileDetail() {
         const { chart } = await getChart(
           id!,
           deviceId,
-          "koch",
+          houseSystem,
           relocationEnabled && relocationLat !== null && relocationLng !== null
             ? { lat: relocationLat, lng: relocationLng }
             : null,
@@ -314,7 +331,7 @@ export default function ProfileDetail() {
       cancelled = true;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile, id, deviceId, chartRetryCount, relocationEnabled, relocationLat, relocationLng]);
+  }, [profile, id, deviceId, chartRetryCount, relocationEnabled, relocationLat, relocationLng, houseSystem]);
 
   useEffect(() => {
     if (!id || !profile) return;
@@ -508,6 +525,8 @@ export default function ProfileDetail() {
     return null;
   }
 
+  const chartRelocated = chartData !== null && isRelocatedChart(chartData, profile);
+
   return (
     <div className="space-y-6 relative z-10">
       <motion.div
@@ -598,6 +617,19 @@ export default function ProfileDetail() {
               </HelpBubble>
             ))}
           </TabsList>
+
+          {CHART_TABS.includes(activeTab) && (
+            <div className="space-y-3" aria-busy={chartLoading}>
+              <HouseSystemSelector value={houseSystem} onChange={setHouseSystem} />
+              <ChartContextLine
+                chart={chartData}
+                birthDate={profile.birthDate}
+                birthTime={profile.birthTime}
+                placeName={chartRelocated ? relocationPlace : profile.birthPlace}
+                relocated={chartRelocated}
+              />
+            </div>
+          )}
 
           <TabsContent value="chart">
             <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_0.85fr]">
@@ -699,19 +731,34 @@ export default function ProfileDetail() {
           </TabsContent>
 
           <TabsContent value="planets">
-            <Card className="ds-card">
-              <CardContent className="pt-6">
-                <PlanetsTable points={chartData.points} />
-              </CardContent>
-            </Card>
+            <div className="space-y-5">
+              <Card className="ds-card">
+                <CardContent className="pt-6">
+                  <PlanetsTable chart={chartData} />
+                </CardContent>
+              </Card>
+              <Card className="ds-card">
+                <CardContent className="space-y-8 pt-6">
+                  <ElementModalityGrid chart={chartData} />
+                  <DegreeStrip chart={chartData} />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="aspects">
-            <Card className="ds-card">
-              <CardContent className="pt-6">
-                <AspectsTable aspects={chartData.aspects} />
-              </CardContent>
-            </Card>
+            <div className="space-y-5">
+              <Card className="ds-card">
+                <CardContent className="pt-6">
+                  <AspectsTable chart={chartData} />
+                </CardContent>
+              </Card>
+              <Card className="ds-card">
+                <CardContent className="pt-6">
+                  <AspectMatrix chart={chartData} />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="houses">

@@ -16,16 +16,23 @@ interface WheelRoot {
 /** Points and axes carry these attributes (PlanetMarkers, AngleAxes). */
 export const MARKER_SELECTOR = "[data-point], [data-angle]";
 
-/** True when the click landed on one of the wheel's own points or axes: that click has its own select/unselect rule. */
-export function isWheelMarker(target: unknown, wheel: WheelRoot | null): boolean {
-  if (!wheel || !target || typeof (target as MarkerCandidate).closest !== "function") return false;
-  if (!wheel.contains(target)) return false;
-  return Boolean((target as MarkerCandidate).closest(MARKER_SELECTOR));
+/** One wheel, or every wheel on the page (the profile page's and the maximised one). */
+type Wheels = WheelRoot | null | readonly (WheelRoot | null)[];
+
+function wheelList(wheels: Wheels): (WheelRoot | null)[] {
+  return Array.isArray(wheels) ? [...(wheels as readonly (WheelRoot | null)[])] : [wheels as WheelRoot | null];
 }
 
-/** A click keeps the pinned point only when it is on a point or axis of the wheel; anywhere else lets it go. */
-export function clickReleasesPinned(target: unknown, wheel: WheelRoot | null): boolean {
-  return !isWheelMarker(target, wheel);
+/** True when the click landed on a point or axis of one of the wheels: that click has its own select/unselect rule. */
+export function isWheelMarker(target: unknown, wheels: Wheels): boolean {
+  if (!target || typeof (target as MarkerCandidate).closest !== "function") return false;
+  const inWheel = wheelList(wheels).some((wheel) => wheel !== null && wheel.contains(target));
+  return inWheel && Boolean((target as MarkerCandidate).closest(MARKER_SELECTOR));
+}
+
+/** A click keeps the pinned point only when it is on a point or axis of a wheel; anywhere else lets it go. */
+export function clickReleasesPinned(target: unknown, wheels: Wheels): boolean {
+  return !isWheelMarker(target, wheels);
 }
 
 export function keyReleasesPinned(key: string): boolean {

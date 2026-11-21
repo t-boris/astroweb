@@ -396,3 +396,9 @@ at every screen that shows it on the live site before saying it is done.
 `open(p,'w').write(s+"\\n")` inside a quoted heredoc appends a literal backslash and n. Append with a real newline at the end of a
 triple-quoted string, and look at the last bytes of the file (`tail -c 40 file | od -c`) after any scripted append. This happened twice.
 
+## When the owner asks for a feature and I only ask about it, build it
+
+I read "maximize" as "fill the picture", did that, and put the full-screen option in the report as a question. It was the thing they
+wanted, so they had to ask again, louder. When a request has a likely reading that is cheap to build, build both readings (here: the
+bigger picture and the full-screen view) and say what was done, instead of finishing one and asking about the other.
+

@@ -1,3 +1,16 @@
+## Maximise the natal chart (feat/wheel-maximize, v2.30.0)
+
+Request (asked twice, the second time with emphasis): "картинку натальной карты максимайз". v2.27.0 only made the *downloaded* picture fill its frame and gave the PNG its largest size; there was no way to see the wheel bigger on the page, where it stops at 600 px. I had asked about a full-screen button in the report instead of building it.
+
+- [x] `MaximizedWheel` (native modal `dialog`, `showModal()`): the wheel over the whole window, sized by the smaller side of the window (`min(100vw - 2rem, 100dvh - 2rem)`), dense backdrop, close button, Escape, click on the empty area, page scroll locked while open, focus kept inside by the browser. It mounts the wheel only while open, so the page never holds two drawings.
+- [x] `WheelStage` (wheel + tooltip, extracted from `NatalChart`) is used by the page and by the dialog, so hover, tap-to-pin, aspect lines and the tooltip work the same in both; the pin rule (`clickReleasesPinned`) takes every wheel on the page; closing the dialog clears the hover that could not be cleared by a pointer leaving.
+- [x] A round button with the "maximise" icon in the top right corner of the chart card (EN "Maximize the chart", RU "Развернуть карту"). First put in the corner of the centred 600 px wheel, which is not the corner of the card on a wide layout (owner: "Кнопка максимайз должна быть в правом верхнем углу"); now on the full-width container: 0 px from the right and top edge of the chart area (measured in a 1440 px layout).
+- [x] Tests: `wheelMaximize.test.tsx` (10): button name in both languages, closed dialog without a second wheel, dialog markup (labelled, fills the window, shows only when open), size rule, pin with two wheels. Web 347 pass, build, tsc and eslint clean.
+- [x] Browser check on the local mock (940 x 922 window): wheel 600 px on the page, 890 x 890 in the dialog, focus on the close button, tooltip in the dialog, real Escape closes it, click on the empty area closes it, close button closes it, scroll lock released, no tooltip left on the page.
+- [ ] Ship: PR, CI, merge, deploy, read-only live check on the real site.
+
+---
+
 ## Cancelled subscriptions still marked active (fix/close-ended-cancellations, v2.29.4)
 
 Report: "у профайла Борис и у профайла Настя есть активная subscription, но мы его не показываем как subscription ... мы отменили, тогда она не должна быть активной. Ты это починил или нет?"

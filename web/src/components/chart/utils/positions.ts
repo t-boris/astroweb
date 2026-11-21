@@ -49,20 +49,50 @@ export function getAngles(chart: ChartResult): ChartAngles | null {
   return { asc, dsc: (asc + 180) % 360, mc, ic: (mc + 180) % 360 };
 }
 
-/** The shared aspect set used by the wheel, the matrix and the Aspects list. */
+/** Exact angle of each aspect type that a chart cached before calculation version 2 can contain. */
+const LEGACY_EXACT_ANGLES: Record<ChartResult["aspects"][number]["type"], number> = {
+  conjunction: 0,
+  sextile: 60,
+  square: 90,
+  trine: 120,
+  opposition: 180,
+};
+
+/** Longitude of a point or angle named in a legacy aspect (ten bodies, ASC, MC). */
+function legacyLongitude(chart: ChartResult, id: string): number | null {
+  if (id === "ASC") return chart.houses.asc;
+  if (id === "MC") return chart.houses.mc;
+  return chart.points.find((p) => p.body === id)?.lon ?? null;
+}
+
+/**
+ * The shared aspect set used by the wheel, the matrix and the Aspects list. A chart cached before
+ * calculation version 2 only has the five major aspects of the legacy list: their signed orb is rebuilt
+ * from the longitudes (actual angle minus exact angle) and no applying or separating status is known.
+ */
 export function getSharedAspects(chart: ChartResult): SharedAspect[] {
   if (chart.sharedAspects) return chart.sharedAspects;
-  return chart.aspects.map((a) => ({
-    a: a.a,
-    b: a.b,
-    type: a.type,
-    major: true,
-    orb: a.orb,
-    signedOrb: a.orb,
-    maxOrb: 6,
-    exactness: a.exactness,
-    applying: null,
-  }));
+  return chart.aspects.map((a) => {
+    const lonA = legacyLongitude(chart, a.a);
+    const lonB = legacyLongitude(chart, a.b);
+    let signedOrb = a.orb;
+    if (lonA !== null && lonB !== null) {
+      const raw = Math.abs(lonA - lonB) % 360;
+      const separation = raw > 180 ? 360 - raw : raw;
+      signedOrb = Math.round((separation - LEGACY_EXACT_ANGLES[a.type]) * 10000) / 10000;
+    }
+    return {
+      a: a.a,
+      b: a.b,
+      type: a.type,
+      major: true,
+      orb: a.orb,
+      signedOrb,
+      maxOrb: 6,
+      exactness: a.exactness,
+      applying: null,
+    };
+  });
 }
 
 /** Longitude of any plotted id: a position id or one of ASC, DSC, MC, IC. */

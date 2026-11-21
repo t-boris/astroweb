@@ -10,9 +10,11 @@ import {
   DEFAULT_HOUSE_SYSTEM,
   HOUSE_SYSTEMS,
   formatCoordinates,
+  formatSignedOrb,
   formatUtcTime,
   houseOfLongitude,
 } from "@/components/chart/utils/viewModel";
+import { formatDegreeMinute, getSharedAspects } from "@/components/chart/utils/positions";
 import { RAW_KEY, charts, initI18n, tagsWith, textOf } from "./tablesTestSupport";
 
 beforeAll(async () => {
@@ -136,6 +138,35 @@ describe("Houses tab house system (REQ-001)", () => {
     expect(text).not.toContain("House system:");
     expect(text).not.toContain("Cusp");
     expect(html).not.toMatch(RAW_KEY);
+  });
+
+  it("prints cusp positions with truncated minutes like every other view", () => {
+    for (const name of ["C", "D"] as const) {
+      const chart = charts[name];
+      const text = textOf(render(<HouseAreasView chart={chart} />));
+      for (const cusp of chart.houses.cusps) {
+        expect(text, `${name} cusp ${cusp}`).toContain(formatDegreeMinute(cusp));
+      }
+    }
+  });
+
+  it("never prints a minute value of 60", () => {
+    const chart: ChartResult = {
+      ...charts.C,
+      houses: { ...charts.C.houses, cusps: charts.C.houses.cusps.map((c, i) => (i === 1 ? 42.99999 : c)) },
+    };
+    const text = textOf(render(<HouseAreasView chart={chart} />));
+    expect(text).toContain("12°59′");
+    expect(text).not.toMatch(/°60′/);
+  });
+
+  it("lists only aspects of the shared set, with the same signed orb text as the Aspects list", () => {
+    const text = textOf(render(<HouseAreasView chart={charts.C} />));
+    expect(text).not.toMatch(/\d\.\d°/);
+    const shown = [...text.matchAll(/([−+]\d+°\d{2}′) ·/g)].map((m) => m[1]);
+    expect(shown.length).toBeGreaterThan(0);
+    const known = new Set(getSharedAspects(charts.C).filter((a) => a.major).map((a) => formatSignedOrb(a)));
+    for (const orb of shown) expect(known.has(orb), orb).toBe(true);
   });
 
   it("says the same in Russian without leaking translation keys", async () => {

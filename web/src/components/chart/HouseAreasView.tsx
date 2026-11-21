@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import type { ChartAspect, ChartResult } from "@/types";
+import type { ChartResult, SharedAspect } from "@/types";
 import {
   PLANET_GLYPHS,
   ZODIAC_GLYPHS,
@@ -19,8 +19,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HelpBubble } from "@/components/HelpBubble";
-import { getHouseSystemInfo, isTimeEstimated } from "@/components/chart/utils/positions";
-import { houseSystemName } from "@/components/chart/utils/viewModel";
+import {
+  formatDegreeMinute,
+  getHouseSystemInfo,
+  getSharedAspects,
+  isTimeEstimated,
+} from "@/components/chart/utils/positions";
+import { formatSignedOrb, houseSystemName } from "@/components/chart/utils/viewModel";
 import {
   aspectHelpKey,
   houseHelpKey,
@@ -120,6 +125,8 @@ const FACE_RULERS: Record<string, [TraditionalPlanet, TraditionalPlanet, Traditi
 interface HouseAlmuten {
   house: number;
   sign: string;
+  /** Cusp longitude; the position text is built from it so that minutes are truncated like in every other view. */
+  cuspLon: number;
   degreeInSign: number;
   ruler: TraditionalPlanet;
   almuten: TraditionalPlanet[];
@@ -134,7 +141,7 @@ interface AreaSummary {
   areaAlmuten: TraditionalPlanet[];
   areaScore: number;
   areaScores: Record<TraditionalPlanet, number>;
-  relevantAspects: ChartAspect[];
+  relevantAspects: SharedAspect[];
 }
 
 interface HouseAreasViewProps {
@@ -194,12 +201,6 @@ function formatSignName(sign: string): string {
   return `${ZODIAC_GLYPHS[sign] ?? ""} ${sign}`.trim();
 }
 
-function formatDegree(degreeInSign: number): string {
-  const deg = Math.floor(degreeInSign);
-  const min = Math.round((degreeInSign % 1) * 60);
-  return `${deg}\u00b0${String(min).padStart(2, "0")}'`;
-}
-
 /** A planet as "glyph name" with its help bubble. */
 function PlanetName({ planet }: { planet: string }) {
   return (
@@ -224,13 +225,13 @@ function PlanetList({ planets, separator }: { planets: string[]; separator: stri
 }
 
 /** "glyph Sign 12°30'" with the help bubble on the sign. */
-function SignPosition({ sign, degreeInSign }: { sign: string; degreeInSign: number }) {
+function SignPosition({ sign, lon }: { sign: string; lon: number }) {
   return (
     <>
       <HelpBubble helpKey={signHelpKey(sign)}>
         <span>{formatSignName(sign)}</span>
       </HelpBubble>{" "}
-      {formatDegree(degreeInSign)}
+      {formatDegreeMinute(lon)}
     </>
   );
 }
@@ -292,6 +293,7 @@ function scoreHouseAlmuten(chart: ChartResult, house: number): HouseAlmuten {
   return {
     house,
     sign,
+    cuspLon,
     degreeInSign,
     ruler,
     almuten: top.planets,
@@ -301,10 +303,26 @@ function scoreHouseAlmuten(chart: ChartResult, house: number): HouseAlmuten {
   };
 }
 
-function getAreaAspects(chart: ChartResult, houses: number[]): ChartAspect[] {
+/** The points this tab interprets: the ten bodies plus ASC and MC (the angles carry no house). */
+const INTERPRETED_POINTS = new Set([
+  "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+  "ASC", "MC",
+]);
+
+/**
+ * The five major aspects of the shared set among the interpreted points, so that this tab never shows an
+ * aspect, orb or type that the wheel, the Aspects list and the matrix do not (REQ-003).
+ */
+function getInterpretedAspects(chart: ChartResult): SharedAspect[] {
+  return getSharedAspects(chart).filter(
+    (aspect) => aspect.major && INTERPRETED_POINTS.has(aspect.a) && INTERPRETED_POINTS.has(aspect.b),
+  );
+}
+
+function getAreaAspects(chart: ChartResult, houses: number[]): SharedAspect[] {
   const bodyToHouse = new Map(chart.points.map((point) => [point.body, point.house]));
 
-  return chart.aspects
+  return getInterpretedAspects(chart)
     .filter((aspect) => {
       const houseA = bodyToHouse.get(aspect.a);
       const houseB = bodyToHouse.get(aspect.b);
@@ -359,7 +377,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
     const house11 = scoreHouseAlmuten(chart, 11);
 
     const socialPlanets = new Set(["Mercury", "Venus", "Mars", "Moon", "Sun", "Jupiter", "Saturn"]);
-    const aspects = chart.aspects
+    const aspects = getInterpretedAspects(chart)
       .filter((aspect) => socialPlanets.has(aspect.a) || socialPlanets.has(aspect.b))
       .sort((a, b) => b.exactness - a.exactness)
       .slice(0, 10);
@@ -372,7 +390,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
     [chart],
   );
 
-  const renderAspectItem = (key: string, aspect: ChartAspect) => {
+  const renderAspectItem = (key: string, aspect: SharedAspect) => {
     const glyph = ASPECT_GLYPHS[aspect.type] ?? "•";
     const color = ASPECT_COLORS[aspect.type] ?? "currentColor";
     const hint = t(`houseAreas.aspectHints.${aspect.type}`, {
@@ -394,7 +412,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
           <span style={{ color }} className="font-semibold">
             {glyph}
           </span>{" "}
-          {aspect.orb.toFixed(1)}° · {hint}
+          {formatSignedOrb(aspect)} · {hint}
         </p>
       </div>
     );
@@ -464,7 +482,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                     <HelpBubble helpKey="terms.cusp" enabled={first}>
                       <span className="text-muted-foreground">{t("houseAreas.table.cusp")}: </span>
                     </HelpBubble>
-                    <SignPosition sign={houseData.sign} degreeInSign={houseData.degreeInSign} />
+                    <SignPosition sign={houseData.sign} lon={houseData.cuspLon} />
                   </p>
                   <p className="text-sm">
                     <HelpBubble helpKey="terms.ruler" enabled={first}>
@@ -510,7 +528,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 <HelpBubble helpKey={houseHelpKey(3)}>
                   <span>3 {t("houseAreas.houseShort")}</span>
                 </HelpBubble>
-                : <SignPosition sign={peopleInsights.house3.sign} degreeInSign={peopleInsights.house3.degreeInSign} />
+                : <SignPosition sign={peopleInsights.house3.sign} lon={peopleInsights.house3.cuspLon} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 <HelpBubble helpKey="terms.almuten">
@@ -527,7 +545,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 <HelpBubble helpKey={houseHelpKey(7)}>
                   <span>7 {t("houseAreas.houseShort")}</span>
                 </HelpBubble>
-                : <SignPosition sign={peopleInsights.house7.sign} degreeInSign={peopleInsights.house7.degreeInSign} />
+                : <SignPosition sign={peopleInsights.house7.sign} lon={peopleInsights.house7.cuspLon} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {t("houseAreas.almutenLabel")}:{" "}
@@ -542,7 +560,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                 <HelpBubble helpKey={houseHelpKey(11)}>
                   <span>11 {t("houseAreas.houseShort")}</span>
                 </HelpBubble>
-                : <SignPosition sign={peopleInsights.house11.sign} degreeInSign={peopleInsights.house11.degreeInSign} />
+                : <SignPosition sign={peopleInsights.house11.sign} lon={peopleInsights.house11.cuspLon} />
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {t("houseAreas.almutenLabel")}:{" "}
@@ -613,7 +631,7 @@ export function HouseAreasView({ chart }: HouseAreasViewProps) {
                           <TableCell>{houseData.house}</TableCell>
                         </HelpBubble>
                         <TableCell style={{ color: signColor }}>
-                          <SignPosition sign={houseData.sign} degreeInSign={houseData.degreeInSign} />
+                          <SignPosition sign={houseData.sign} lon={houseData.cuspLon} />
                         </TableCell>
                         <TableCell>
                           <PlanetName planet={houseData.ruler} />

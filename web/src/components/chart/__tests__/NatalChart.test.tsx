@@ -21,7 +21,6 @@ import {
 } from "@/components/chart/utils/constants";
 import { ALL_ASPECT_TYPES, DEFAULT_ASPECT_TYPES, filterAspects } from "@/components/chart/utils/aspectFilters";
 import {
-  formatOrb,
   getAngles,
   getPositions,
   getSharedAspects,
@@ -29,6 +28,7 @@ import {
   wheelRotation,
 } from "@/components/chart/utils/positions";
 import { aspectSegments, signGlyph } from "@/components/chart/utils/wheelLayout";
+import { formatSignedOrb } from "@/components/chart/utils/viewModel";
 import { loadFixtures, type FixtureName } from "./chartFixtures";
 
 const { charts } = loadFixtures();
@@ -643,11 +643,11 @@ describe("ChartTooltipContent", () => {
     expect(shared.length).toBeGreaterThan(0);
     const html = textOf(renderToStaticMarkup(<ChartTooltipContent target={target("A", "Sun")} aspects={shared} />));
     for (const a of shared) {
-      expect(html).toContain(formatOrb(a.orb));
+      expect(html).toContain(formatSignedOrb(a));
       if (a.applying !== null) expect(html).toContain((a.applying ? natalChart.aspects.applying : natalChart.aspects.separating).toLowerCase());
     }
-    // The orb is the same value the other views show: whole degrees and minutes of the shared orb
-    expect(html).toMatch(/\(\d+°\d{2}′(, (applying|separating))?\)/);
+    // The orb is the value the Aspects list and the matrix show: signed degrees and minutes of the shared orb
+    expect(html).toMatch(/\([−+]?\d+°\d{2}′(, (applying|separating))?\)/);
   });
 
   it("shows no applying or separating for a pair that has none", () => {

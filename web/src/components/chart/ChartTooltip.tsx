@@ -2,7 +2,8 @@ import { useEffect, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { signLabel } from "@/lib/signs";
 import { CHART_LAYOUT, ASPECT_GLYPHS } from "./utils/constants";
-import { formatDegreeMinute, formatOrb, splitLongitude } from "./utils/positions";
+import { formatDegreeMinute, splitLongitude } from "./utils/positions";
+import { formatSignedOrb } from "./utils/viewModel";
 import type { Point2D } from "./utils/wheelLayout";
 import { pointGlyph, pointLabel } from "./utils/viewModel";
 import type { SharedAspect } from "@/types";
@@ -73,7 +74,7 @@ export function ChartTooltipContent({ target, aspects }: { target: TooltipTarget
             return (
               <div key={`${asp.a}-${asp.b}-${asp.type}`} className="text-white/60">
                 {ASPECT_GLYPHS[asp.type] ?? ""} {t(`chart.aspects.${asp.type}`, asp.type)} {pointLabel(t, other)} (
-                {formatOrb(asp.orb)}
+                {formatSignedOrb(asp)}
                 {motion ? `, ${motion}` : ""})
               </div>
             );

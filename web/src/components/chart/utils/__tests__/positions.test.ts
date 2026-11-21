@@ -40,6 +40,22 @@ describe("splitLongitude / formatDegreeMinute", () => {
   });
 });
 
+describe("legacy aspects without the additive fields", () => {
+  const chart = (moonLon: number): ChartResult => ({
+    ...legacy,
+    points: [
+      { body: "Sun", lon: 10, sign: "Aries", degreeInSign: 10, house: 1 },
+      { body: "Moon", lon: moonLon, sign: "Cancer", degreeInSign: moonLon % 30, house: 4 },
+    ],
+    aspects: [{ a: "Sun", b: "Moon", type: "square", orb: Math.abs(moonLon - 10 - 90), exactness: 0.5 }],
+  });
+
+  it("rebuilds the sign of the orb from the longitudes instead of showing a false plus", () => {
+    expect(getSharedAspects(chart(102))[0]).toMatchObject({ orb: 2, signedOrb: 2, applying: null });
+    expect(getSharedAspects(chart(97))[0]).toMatchObject({ orb: 3, signedOrb: -3, applying: null });
+  });
+});
+
 describe("result accessors", () => {
   it("fall back to the legacy fields for a result without the additive fields", () => {
     expect(getPositions(legacy).map((p) => p.id)).toEqual(["Sun", "Moon"]);

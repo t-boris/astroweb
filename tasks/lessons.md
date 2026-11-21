@@ -351,3 +351,16 @@ the default state clearly smaller; put the extra detail behind a toggle.
 
 `helpContent.test.ts` fails when a help text has no place where it is shown. When a screen element goes away, delete its help key in
 both languages in the same change.
+
+## Browser checks with synthetic events: wait for React, and mind the viewport
+
+Reading the layout right after `dispatchEvent` shows the old state, because React renders in the next task: wait a few tens of
+milliseconds before measuring. A synthetic `PointerEvent` has no active pointer, so `setPointerCapture` throws; the handler wraps it.
+The embedded browser window can be narrower than a Tailwind breakpoint (here `xl`, 1280 px): load the app in a same-origin
+`<iframe>` of the needed width to see the docked layout instead of the drawer.
+
+## A component that reads `window` must survive a server render
+
+The tests render with `renderToStaticMarkup` in Node, where `window` does not exist: use `typeof window === "undefined"` for the
+first value of state that starts from the window size, and keep storage access inside `try/catch`.
+

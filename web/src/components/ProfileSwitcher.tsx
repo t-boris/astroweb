@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, Check, Plus } from "lucide-react";
+import { SubscriptionSparkle } from "@/components/SubscriptionBadge";
 import type { Profile } from "@/types";
 
 /**
@@ -55,7 +56,10 @@ export default function ProfileSwitcher({ profiles }: { profiles: Profile[] }) {
               >
                 <Check className={`h-3.5 w-3.5 flex-none ${p.id === currentId ? "opacity-100 text-[#8fb6ff]" : "opacity-0"}`} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-serif">{p.name}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="min-w-0 truncate font-serif">{p.name}</span>
+                    {p.subscription && <SubscriptionSparkle subscription={p.subscription} />}
+                  </span>
                   <span className="block truncate text-[11px] text-muted-foreground">{p.birthDate}</span>
                 </span>
               </button>

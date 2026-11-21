@@ -84,6 +84,14 @@
     }
   },
   "home": {
+    "subscription": {
+      "astrologer": "Astrologer",
+      "active": "Astrologer · {{cadence}}",
+      "ending": "Astrologer · until {{date}}",
+      "paused": "Astrologer · paused",
+      "pastDue": "Astrologer · payment failed"
+    },
+    "panelResize": "Resize the profiles panel",
     "title": "Profiles",
     "createProfile": "Create Profile",
     "noProfiles": "No profiles yet. Create your first one!",

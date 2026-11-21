@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
-import { Sun, Heart, Compass, Zap, Clock, Sparkles, Archive, ArchiveRestore, Menu, X } from "lucide-react";
+import { Sun, Heart, Compass, Zap, Clock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { listProfiles, archiveProfile } from "@/api/profiles";
@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Profile } from "@/types";
-import SignInNotice from "@/components/SignInNotice";
+import ProfilesMenu from "@/components/ProfilesMenu";
 
 const QUESTION_ICONS = { Sun, Heart, Compass, Zap, Clock, Sparkles } as const;
 const QUESTION_KEYS = ["personality", "relationships", "career", "challenges", "timing", "purpose"] as const;
@@ -180,132 +180,6 @@ function FeaturesSection() {
         </div>
       </div>
     </section>
-  );
-}
-
-interface ProfilesMenuProps {
-  profiles: Profile[];
-  deviceId: string;
-  onDelete: (id: string) => void;
-  onUnarchive: (id: string) => void;
-}
-
-/**
- * Left-side profiles menu. Always visible as a fixed sidebar on wide screens
- * (xl+, where there is gutter room), and an off-canvas drawer toggled by a
- * button on smaller screens — so it never covers the central hero artwork.
- */
-function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive }: ProfilesMenuProps) {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-
-  const active = profiles.filter((p) => !p.archived);
-  const archived = profiles.filter((p) => p.archived);
-  if (profiles.length === 0) return null;
-
-  return (
-    <>
-      {/* Toggle (hidden on xl, where the sidebar is always shown) */}
-      <div className="fixed left-3 top-20 z-50 flex items-center gap-1 xl:hidden">
-        <HelpBubble helpKey="home.menu" actionable label={t("landing.profiles.title")}>
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={t("landing.profiles.title")}
-            className="rounded-md border border-primary/30 bg-background/80 p-2 text-primary backdrop-blur-sm"
-          >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
-        </HelpBubble>
-      </div>
-
-      {/* Backdrop on mobile when open */}
-      {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/40 xl:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed left-0 top-14 z-40 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-primary/15 bg-background/85 px-3 py-5 backdrop-blur-md transition-transform duration-300 xl:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <h2 className="mb-3 px-1 font-serif text-xs uppercase tracking-[0.15em] text-primary/70">
-          {t("landing.profiles.title")}
-        </h2>
-        <SignInNotice deviceId={deviceId} profileCount={profiles.length} />
-        <Button
-          size="sm"
-          className="mb-4 w-full border border-primary bg-primary/20 text-primary hover:bg-primary/30"
-          asChild
-        >
-          <Link to="/profile/new" onClick={() => setOpen(false)}>
-            {t("home.createProfile")}
-          </Link>
-        </Button>
-        <div className="flex flex-col gap-2 overflow-y-auto">
-          {active.map((profile) => (
-            <div key={profile.id} className="group relative">
-              <Link
-                to={`/profile/${profile.id}`}
-                onClick={() => setOpen(false)}
-                className="ds-card block p-2.5 pr-9 pointer-coarse:pr-16 transition-colors hover:border-primary/60"
-              >
-                <p className="truncate font-serif text-sm text-primary">{profile.name}</p>
-                <p className="truncate text-[11px] text-muted-foreground">{profile.birthDate}</p>
-                <p className="truncate text-[11px] text-muted-foreground">{profile.birthPlace}</p>
-              </Link>
-              <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
-                <HelpBubble helpKey="home.archive" actionable label={t("common.archive")}>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(profile.id)}
-                    aria-label={t("common.archive")}
-                    className="rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                  >
-                    <Archive className="h-3.5 w-3.5" />
-                  </button>
-                </HelpBubble>
-              </div>
-            </div>
-          ))}
-
-          {archived.length > 0 && (
-            <div className="mt-4 border-t border-primary/10 pt-3">
-              <h3 className="mb-2 px-1 font-serif text-[11px] uppercase tracking-[0.15em] text-muted-foreground/70">
-                {t("home.archivedSection")}
-              </h3>
-              {archived.map((profile) => (
-                <div key={profile.id} className="group relative mb-2">
-                  <Link
-                    to={`/profile/${profile.id}`}
-                    onClick={() => setOpen(false)}
-                    className="ds-card block p-2.5 pr-9 pointer-coarse:pr-16 opacity-55 transition-opacity hover:opacity-100"
-                  >
-                    <p className="truncate font-serif text-sm text-muted-foreground">{profile.name}</p>
-                    <p className="truncate text-[11px] text-muted-foreground/70">{profile.birthDate}</p>
-                  </Link>
-                  <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
-                    <HelpBubble helpKey="home.restore" actionable label={t("common.unarchive")}>
-                      <button
-                        type="button"
-                        onClick={() => onUnarchive(profile.id)}
-                        aria-label={t("common.unarchive")}
-                        className="rounded-md border border-border/60 bg-background/60 p-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                      >
-                        <ArchiveRestore className="h-3.5 w-3.5" />
-                      </button>
-                    </HelpBubble>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </aside>
-    </>
   );
 }
 

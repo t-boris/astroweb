@@ -7,7 +7,7 @@ Request (asked twice, the second time with emphasis): "картинку ната
 - [x] A round button with the "maximise" icon in the top right corner of the chart card (EN "Maximize the chart", RU "Развернуть карту"). First put in the corner of the centred 600 px wheel, which is not the corner of the card on a wide layout (owner: "Кнопка максимайз должна быть в правом верхнем углу"); now on the full-width container: 0 px from the right and top edge of the chart area (measured in a 1440 px layout).
 - [x] Tests: `wheelMaximize.test.tsx` (10): button name in both languages, closed dialog without a second wheel, dialog markup (labelled, fills the window, shows only when open), size rule, pin with two wheels. Web 347 pass, build, tsc and eslint clean.
 - [x] Browser check on the local mock (940 x 922 window): wheel 600 px on the page, 890 x 890 in the dialog, focus on the close button, tooltip in the dialog, real Escape closes it, click on the empty area closes it, close button closes it, scroll lock released, no tooltip left on the page.
-- [ ] Ship: PR, CI, merge, deploy, read-only live check on the real site.
+- [x] Ship: PR #34 (CI green, merge 712edd7, deploy success, header v2.30.0). Live read-only check (2026-11-21, 940 x 922 window): the button is in the top right corner of the chart area (0 px from the right and top edge), label "Развернуть карту"; the wheel is 600 px on the page and 890 px in the dialog; the tooltip works in the dialog; a real Escape closes it, one wheel is left on the page, the scroll lock is released and no tooltip is left.
 
 ---
 
@@ -19,7 +19,8 @@ Cause: only a Stripe `deleted` webhook event (not arriving) or a due letter coul
 
 - [x] `closeEndedCancellations` in `services/letterScheduling.ts`: every tick closes the active, cancelled subscriptions whose paid period is over (status "canceled"), due or not; needs the new `(status, canceledAt)` index in `firestore.indexes.json`; if that pass fails (index still building) letters are not held back and the due pass applies the same rule.
 - [x] Tests: 16 in `letter-scheduling.test.ts` (5 new: not-due closed, paid period kept, never-cancelled untouched, several closed, sweep failure); mutation check with the pass disabled fails 4. Functions 472 pass, build and lint clean.
-- [ ] Ship: PR, CI, merge, deploy (index build), then read-only: the scheduler log shows `closed: 2`, the card and the account list no longer show the two subscriptions, the panel stays unmarked.
+- [x] Ship: PR #33 (CI green, merge 142ed89, deploy success incl. the index, which was READY at 21:38 UTC). Live (2026-11-21, read-only): the 21:51:02 UTC scheduler tick logged `due 0, enqueued 0, closed 2` and sent no letter; the account page now says "Нет активных подписок"; the astrologer tab of the profile is back to the subscribe offer (no "активна", no cancel pill, no next letter); the profiles panel stays unmarked (18 profiles, 0 marked).
+- Still open for the owner: `cancelSubscription` answers ok even when the Stripe call fails, and the Stripe webhook seems not to receive renewal / deleted events; check both subscriptions in the Stripe dashboard (a closed record does not cancel the Stripe side).
 
 ---
 

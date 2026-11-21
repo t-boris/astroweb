@@ -292,3 +292,50 @@ The legacy-fields baseline held longitudes written by the Swiss Ephemeris on mac
 differing in the twelfth decimal (about 1e-8 arcseconds), so `toEqual` failed on six tests that passed locally. Compare
 computed floating-point values with a tolerance far below the quantity of interest (here 1e-7 degrees) and everything else
 exactly, and run the suite on the CI platform before relying on a baseline.
+
+## `firebase deploy` uploads the folder `functions/` only, so shared code must be inside it
+
+A workspace package outside `functions/` (here `packages/chart-core`) is missing in Cloud Build: a dependency on it would be
+fetched from the npm registry or fail, and an import with `../../` breaks the compiled `lib/`. Shared code is therefore vendored
+at build time: `scripts/vendor-chart-core.mjs` copies the sources into the git-ignored `functions/src/vendor/chart-core/`
+before `tsc`, tests and lint (npm `pre*` scripts of the functions workspace), and `functions/lib` carries the compiled copy.
+Before relying on any new shared-code mechanism, prove it the way Cloud Build runs it: copy `functions/` without `node_modules`
+to a clean directory, `npm install --omit=dev`, then load `lib/index.js` there. Running `vitest` or `tsc` in `functions/`
+directly (not through npm scripts) skips the vendoring step.
+
+## `tsc` compiles the test files too: a green `vitest` run is not a green build
+
+An edit to a functions test (`l.id.endsWith(...)` on an optional field) passed under vitest and failed `npm run build:functions`
+(TS18048), which is exactly what the CI build step runs. After touching any file in `functions/src`, run the build and the
+`lint` script as well as the tests, and use `?.` with `=== true` for optional fields in assertions.
+
+## Verify a download in the real browser by hooking the anchor click
+
+The web workspace has no jsdom, so the download flow is unit-tested against stand-in services. For the real thing: in the page,
+replace `HTMLAnchorElement.prototype.click` so a click on an `<a download>` reads its blob URL (`fetch(a.href)` to a data URL)
+instead of saving, press the button with a real mouse click, then show the data URL in a full-screen `<img>` overlay and take a
+screenshot (wait a moment: a 3200 px image is not painted yet when the screenshot is taken at once). `browser_evaluate` scripts
+need an explicit `return` to give a value back.
+
+## A report should show what the screen shows by default
+
+The first PDF wheel drew all eleven aspect types and looked crowded while the profile wheel opens with the five majors. A
+generated document that mirrors a view uses that view's default filter and takes the rest as an explicit argument.
+
+## pdfkit: a text box that crosses the bottom margin starts a new page
+
+`doc.text(str, x, y, { width })` page-breaks when the box ends inside the bottom margin, even for one short line. Enlarging the PDF
+wheel pushed the site link under the margin and a stray page appeared. Draw such a line without a text box (`lineBreak: false`,
+manual centring) and add the link with `doc.link(...)`. The old tests only counted link annotations, so they missed it: a layout
+test must draw the real page (margins, fonts) and assert `bufferedPageRange().count === 1`, and be mutation-checked by shrinking
+the reserve.
+
+## A blob URL must outlive the click that starts the download
+
+Revoking the object URL in `finally` right after `a.click()` can cancel the download in Safari and Firefox. Release it with a
+timer (60 s) and revoke at once only when starting the download threw.
+
+## Radix tabs ignore a programmatic `.click()`
+
+In browser checks, change a tab with a real mouse click (`browser_click`), not `element.click()` from a script.
+

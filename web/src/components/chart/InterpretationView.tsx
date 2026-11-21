@@ -15,7 +15,7 @@ import {
   ZODIAC_SIGNS,
   SIGN_ELEMENTS,
 } from "@astroweb/chart-core";
-import { ELEMENT_COLORS } from "@/components/chart/utils/elementColors";
+import { ELEMENT_COLORS, hexToRgba } from "@/components/chart/utils/elementColors";
 import { signLabel } from "@/lib/signs";
 import { aspectHelpKey, elementHelpKey, planetHelpKey, signHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";
@@ -131,16 +131,6 @@ function getBlockInstanceKey(block: InterpretationBlock): string {
 }
 
 type ElementKey = "fire" | "earth" | "air" | "water";
-
-function hexToRgba(hex: string, alpha: number): string {
-  let h = hex.replace("#", "");
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
-  const n = Number.parseInt(h, 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 function signElement(sign: string | null | undefined): ElementKey | null {
   if (!sign) return null;

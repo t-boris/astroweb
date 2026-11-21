@@ -339,3 +339,15 @@ timer (60 s) and revoke at once only when starting the download threw.
 
 In browser checks, change a tab with a real mouse click (`browser_click`), not `element.click()` from a script.
 
+
+
+## A "compact" redesign must be measured, not assumed
+
+The first Big Three strip showed the explanation at once and ended up taller than the card it replaced (about 400 px against 270 px).
+When the request is "it takes too much space", measure the old and the new height in the browser (`getBoundingClientRect`) and keep
+the default state clearly smaller; put the extra detail behind a toggle.
+
+## Removing a UI element can orphan its help text
+
+`helpContent.test.ts` fails when a help text has no place where it is shown. When a screen element goes away, delete its help key in
+both languages in the same change.

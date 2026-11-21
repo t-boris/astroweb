@@ -98,6 +98,35 @@
     "archiveConfirmAction": "Archive",
     "archivedSection": "Archived"
   },
+  "bigThree": {
+    "pick": "Choose one of the three",
+    "house": "House {{n}}",
+    "more": "Details",
+    "less": "Less",
+    "fullReading": "Full reading",
+    "role": {
+      "sun": {
+        "label": "Sun",
+        "title": "Your core",
+        "about": "Who you are, what drives you and what you want to become."
+      },
+      "moon": {
+        "label": "Moon",
+        "title": "Your inner world",
+        "about": "What you feel and what you need to feel safe."
+      },
+      "rising": {
+        "label": "Rising",
+        "title": "Your mask",
+        "about": "The first impression you make and how you meet the world."
+      }
+    },
+    "rising": {
+      "unknownShort": "Unknown",
+      "unknownText": "The Rising sign is the sign that was rising over the eastern horizon at the minute you were born, so it changes about every two hours. Without the exact birth time it cannot be worked out.",
+      "addTime": "Add the birth time"
+    }
+  },
   "profile": {
     "create": {
       "title": "Create Profile",
@@ -1089,8 +1118,7 @@
     },
     "profile": {
       "birthTime": "The time of day this person was born. The exact time decides the Rising sign and which house each planet falls in. When it is unknown, the chart is calculated for noon, those are left out and the Houses tab is only approximate.",
-      "coordinates": "The latitude and longitude of the birth place, in degrees. Together with the date and time they fix the point on Earth the sky is measured from, which sets the Rising sign and the houses.",
-      "risingUnknown": "A dash means the Rising sign could not be worked out. It depends on the exact birth time, and that time is unknown. Add the time by editing the profile to see it."
+      "coordinates": "The latitude and longitude of the birth place, in degrees. Together with the date and time they fix the point on Earth the sky is measured from, which sets the Rising sign and the houses."
     },
     "chart": {
       "mode": "Chooses which version of the chart you see: the natal chart for the place you were born, or a relocated chart for the place you live now. The choice also applies to situation and relationship forecasts, the interpretation and the PDF.",

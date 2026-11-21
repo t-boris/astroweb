@@ -195,6 +195,18 @@
   .ax-star, .ax-meteor { animation: none !important; }
 }
 
+/* ===== Big Three cards: a dot orbiting the glyph and a soft pulse on the picked card ===== */
+@keyframes bt-orbit { to { transform: rotate(360deg); } }
+@keyframes bt-glow {
+  0%, 100% { box-shadow: 0 0 0 0 transparent, 0 0 14px -6px var(--bt-c); }
+  50%      { box-shadow: 0 0 0 3px transparent, 0 0 26px -2px var(--bt-c); }
+}
+.bt-orbit { animation: bt-orbit var(--bt-orbit-s, 20s) linear infinite; }
+.bt-glow { animation: bt-glow 3.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .bt-orbit, .bt-glow { animation: none !important; }
+}
+
 /* Hide scrollbar for tab navigation on mobile */
 .scrollbar-hidden {
   -ms-overflow-style: none;

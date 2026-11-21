@@ -255,6 +255,9 @@
     "ariaLabel": "Natal chart wheel: zodiac ring with degree scale, houses, angles, planets and aspect lines",
     "timeEstimatedNote": "Birth time unknown: positions are estimates for local noon. Houses and angles are not shown.",
     "aspectSymbols": "Aspect symbols on lines",
+    "maximize": "Maximize the chart",
+    "maximizedLabel": "Natal chart, maximized",
+    "closeMaximized": "Close",
     "filters": {
       "major": "Major aspects",
       "minor": "Minor aspects",

@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { HelpBubble } from "@/components/HelpBubble";
+import { formatDayTime, formatPeriodEnd } from "@/lib/subscriptionDates";
 
 const RANDOM_NAMES = ["Vega", "Lyra", "Orion", "Selene", "Cassio", "Astra", "Sol"];
 
@@ -35,10 +36,13 @@ export interface AstrologerPanelProps {
 }
 
 export default function AstrologerPanel({ profileId, profileName, onOpenFreeToday }: AstrologerPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? i18n.language;
   const navigate = useNavigate();
   const deviceId = useDeviceId();
   const [sub, setSub] = useState<Subscription | null>(null);
+  // Only a period end that is still ahead is shown (the stored one is not refreshed by every renewal).
+  const periodEnd = formatPeriodEnd(sub?.currentPeriodEnd, language);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(Boolean(auth.currentUser));
@@ -237,7 +241,7 @@ export default function AstrologerPanel({ profileId, profileName, onOpenFreeToda
           <HelpBubble helpKey="astrologer.nextLetter">
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-[#8fb6ff]" />
-              {t("hub.nextLetter")}: {new Date(sub.nextLetterAt).toLocaleString()}
+              {t("hub.nextLetter")}: {formatDayTime(sub.nextLetterAt, language)}
             </span>
           </HelpBubble>
           {sub.channels?.email &&
@@ -280,7 +284,8 @@ export default function AstrologerPanel({ profileId, profileName, onOpenFreeToda
           {sub.canceledAt && (
             <HelpBubble helpKey="astrologer.cancelsAt">
               <span className="rounded-full border border-[#e8c969]/40 bg-[#e8c969]/10 px-2.5 py-1 text-[#e8c969]">
-                {t("hub.cancelsAt")} · {new Date(sub.currentPeriodEnd).toLocaleDateString()}
+                {t("hub.cancelsAt")}
+                {periodEnd ? ` · ${periodEnd}` : ""}
               </span>
             </HelpBubble>
           )}

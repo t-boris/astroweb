@@ -377,3 +377,9 @@ paid work (letters) looked at the status alone. When the webhook is missing the 
 must check the owner's own intent (the cancel date, the paid period) itself, and a stored date that only a webhook refreshes counts
 as stale, not as truth. When a bug report says "still happening after I cancelled", look at the worker's own query first.
 
+## Never format a date for the screen without the interface language
+
+`toLocaleString()` and `toLocaleDateString()` with no argument follow the browser, not the page: a Russian page can show 11/21/2026.
+Use `Intl.DateTimeFormat(i18n.resolvedLanguage, ...)` through a shared helper, spell the month as a word, and leave out a date that
+is not ahead when the sentence is about the future.
+

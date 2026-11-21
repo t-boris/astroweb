@@ -136,7 +136,7 @@ describe("subscription marks", () => {
     const until = "2026-12-05T12:00:00.000Z";
     const expected = new Intl.DateTimeFormat("en", { day: "numeric", month: "short" }).format(new Date(until));
     expect(text(SUB("ending", "every_2_days", until))).toBe(`Astrologer · until ${expected}`);
-    expect(text(SUB("ending", "daily", null))).toBe("Astrologer");
+    expect(text(SUB("ending", "daily", null))).toBe("Astrologer · ending");
     expect(text(SUB("paused"))).toBe("Astrologer · paused");
     expect(text(SUB("past_due"))).toBe("Astrologer · payment failed");
   });

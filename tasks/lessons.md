@@ -285,3 +285,10 @@ to an angle, spread the rest), not a documented gap. Check each inventory row ag
 The old wheel mapped longitude with `180 - (lon - asc)`, which mirrors the zodiac against the reference pictures (they run
 counter-clockwise from the left axis). A worker rebuilt it from the pictures and found the mirror. When a spec asks for
 parity with a picture, compare the picture with the existing geometry numerically before building on it.
+
+## A regression baseline of floating-point output written on macOS fails on the Linux CI runner
+
+The legacy-fields baseline held longitudes written by the Swiss Ephemeris on macOS; CI on Linux returned the same numbers
+differing in the twelfth decimal (about 1e-8 arcseconds), so `toEqual` failed on six tests that passed locally. Compare
+computed floating-point values with a tolerance far below the quantity of interest (here 1e-7 degrees) and everything else
+exactly, and run the suite on the CI platform before relying on a baseline.

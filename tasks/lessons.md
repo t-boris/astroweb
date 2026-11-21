@@ -390,4 +390,9 @@ is not ahead when the sentence is about the future.
 After the letters fix, the profiles panel used the cancel rule while the card and the account page still read the raw status, so
 the same subscription was "not shown" in one place and "active" in two others. Fix the stored state, not each reader, and look
 at every screen that shows it on the live site before saying it is done.
-\n
+
+## In a Python heredoc write real newlines, not backslash-n, when appending to a file
+
+`open(p,'w').write(s+"\\n")` inside a quoted heredoc appends a literal backslash and n. Append with a real newline at the end of a
+triple-quoted string, and look at the last bytes of the file (`tail -c 40 file | od -c`) after any scripted append. This happened twice.
+

@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "source": "NASA JPL Horizons API",
+  "endpoint": "https://ssd.jpl.nasa.gov/api/horizons.api",
+  "fetchedAt": "2026-11-21T18:27:40.335Z",
+  "request": {
+    "EPHEM_TYPE": "OBSERVER",
+    "CENTER": "500@399",
+    "QUANTITIES": "31",
+    "TIME_TYPE": "UT",
+    "ANG_FORMAT": "DEG",
+    "CSV_FORMAT": "YES",
+    "OBJ_DATA": "NO",
+    "TLIST": "2452363.5625000 2451446.6833333 2446259.2812500 2443542.9652778"
+  },
+  "note": "Apparent geocentric (center 500@399) ecliptic longitude of date for the body centre, from the JPL DE441 numerical ephemeris. Times are UT as Julian Day of the fixture UTC instant.",
+  "instants": [
+    {
+      "id": "A",
+      "utc": "2002-03-30T01:30:00Z",
+      "jd": 2452363.5625
+    },
+    {
+      "id": "B",
+      "utc": "1999-09-25T04:24:00Z",
+      "jd": 2451446.683333333
+    },
+    {
+      "id": "C",
+      "utc": "1985-07-12T18:45:00Z",
+      "jd": 2446259.28125
+    },
+    {
+      "id": "D",
+      "utc": "1978-02-03T11:10:00Z",
+      "jd": 2443542.965277778
+    }
+  ],
+  "bodies": {
+    "Sun": {
+      "command": "10",
+      "target": "Sun (10)",
+      "longitudes": {
+        "D": 314.269503,
+        "C": 110.3411579,
+        "B": 181.6668891,
+        "A": 9.1722903
+      },
+      "latitudes": {
+        "D": 0.0002109,
+        "C": -0.0000209,
+        "B": 0.0000078,
+        "A": 0.0001464
+      }
+    },
+    "Moon": {
+      "command": "301",
+      "target": "Moon (301)",
+      "longitudes": {
+        "D": 256.7415549,
+        "C": 50.2168736,
+        "B": 358.1527864,
+        "A": 207.5883535
+      },
+      "latitudes": {
+        "D": 4.7814503,
+        "C": 0.356889,
+        "B": -3.6954358,
+        "A": 4.0192257
+      }
+    },
+    "Mercury": {
+      "command": "199",
+      "target": "Mercury (199)",
+      "longitudes": {
+        "D": 298.1612267,
+        "C": 136.846465,
+        "B": 194.566194,
+        "A": 0.8498759
+      },
+      "latitudes": {
+        "D": -1.3858448,
+        "C": -0.2790487,
+        "B": 0.1518801,
+        "A": -1.8759066
+      }
+    },
+    "Venus": {
+      "command": "299",
+      "target": "Venus (299)",
+      "longitudes": {
+        "D": 317.2004876,
+        "C": 66.9731198,
+        "B": 142.3248117,
+        "A": 27.267837
+      },
+      "latitudes": {
+        "D": -1.3062527,
+        "C": -2.6131482,
+        "B": -4.5605493,
+        "A": -0.6229419
+      }
+    },
+    "Mars": {
+      "command": "499",
+      "target": "Mars (499)",
+      "longitudes": {
+        "D": 116.9293734,
+        "C": 111.9616749,
+        "B": 254.6397527,
+        "A": 49.9178665
+      },
+      "latitudes": {
+        "D": 4.3837708,
+        "C": 1.0181625,
+        "B": -1.8245921,
+        "A": 0.5697853
+      }
+    },
+    "Jupiter": {
+      "command": "599",
+      "target": "Jupiter (599)",
+      "longitudes": {
+        "D": 86.5340406,
+        "C": 314.8031427,
+        "B": 33.4233006,
+        "A": 96.907204
+      },
+      "latitudes": {
+        "D": -0.1464281,
+        "C": -0.7941211,
+        "B": -1.5188374,
+        "A": 0.1706904
+      }
+    },
+    "Saturn": {
+      "command": "699",
+      "target": "Saturn (699)",
+      "longitudes": {
+        "D": 148.146519,
+        "C": 231.6048671,
+        "B": 46.5866803,
+        "A": 70.2578934
+      },
+      "latitudes": {
+        "D": 1.5196787,
+        "C": 2.2089262,
+        "B": -2.5615745,
+        "A": -1.4548578
+      }
+    },
+    "Uranus": {
+      "command": "799",
+      "target": "Uranus (799)",
+      "longitudes": {
+        "D": 226.2867899,
+        "C": 254.6369306,
+        "B": 313.181678,
+        "A": 327.2137815
+      },
+      "latitudes": {
+        "D": 0.3941645,
+        "C": -0.0342875,
+        "B": -0.7019941,
+        "A": -0.7058553
+      }
+    },
+    "Neptune": {
+      "command": "899",
+      "target": "Neptune (899)",
+      "longitudes": {
+        "D": 257.7572273,
+        "C": 271.739101,
+        "B": 301.6851059,
+        "A": 310.450953
+      },
+      "latitudes": {
+        "D": 1.4325658,
+        "C": 1.1583873,
+        "B": 0.2644977,
+        "A": 0.0904716
+      }
+    },
+    "Pluto": {
+      "command": "999",
+      "target": "Pluto (999)",
+      "longitudes": {
+        "D": 196.6262412,
+        "C": 211.92431,
+        "B": 248.1148493,
+        "A": 257.6039567
+      },
+      "latitudes": {
+        "D": 17.3393023,
+        "C": 16.7966534,
+        "B": 11.1662964,
+        "A": 10.0334114
+      }
+    }
+  },
+  "signature": {
+    "source": "NASA/JPL Horizons API",
+    "version": "1.2"
+  },
+  "header": {
+    "center": "GEOCENTRIC",
+    "centerBody": "Earth (399)",
+    "targetSource": "DE441",
+    "lightBending": "Sun",
+    "refraction": "NO (AIRLESS)",
+    "calendarMode": "Mixed Julian/Gregorian",
+    "eopFile": "eop.261120.p270216"
+  }
+}

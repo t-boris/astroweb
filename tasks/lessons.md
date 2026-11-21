@@ -260,3 +260,28 @@ the production code, with no API call and no production data. The fake store nee
 ## Guard signed-out panels against unauthenticated callable fetches
 
 Components rendered on public/device-owned profile screens (`AstrologerPanel`, `LettersInbox`) should check `auth.currentUser` before calling auth-gated callables so signed-out visitors exploring offers never trigger 401 console noise.
+
+## Matching an external astrology reference: pin its conventions with regenerated charts, not screenshots
+
+Screenshots print truncated arcminutes and hide their settings (zone, node and Lilith type, orbs). Regenerate the same charts
+with explicit settings and compare at the finest printed resolution (arcseconds), then adopt a convention only when the
+alternatives miss by orders of magnitude. What it took here: mean node and mean Lilith (true/osculating miss by 1 to 25
+degrees), the day or night Part of Fortune chosen by the Sun above or below the true horizon (always-day and Sun-in-house both
+fail on some dataset), and the mean obliquity for cusps, ASC, MC and Vertex (the true obliquity misses by up to 28 arcseconds
+and would print a different arcminute). Astro-Seek truncates degrees and minutes instead of rounding, prints one aspect type
+per pair at a fixed 15 degree orb in angle order (a pair 1 degree from a 135 degree aspect appears as a trine at 13 degrees),
+never aspects ASC with MC, and pairs Fortune with a Vertex at 0 Aries. Record such reference defects in the discrepancy log
+instead of copying them. Compare category outputs (set of aspect pairs and types, applying or separating) in both directions
+against the wide list.
+
+## A criterion that says "every inventory element is drawn" forbids an inventory row that says "not drawn"
+
+The wheel inventory first listed the house cusp labels as not drawn because they would crowd the angle labels. The criterion
+and the owner's requirement said every picture element must be drawn, so the answer was a label layout (skip a cusp equal
+to an angle, spread the rest), not a documented gap. Check each inventory row against the criterion before accepting it.
+
+## Check the old formula of an existing view before reusing it
+
+The old wheel mapped longitude with `180 - (lon - asc)`, which mirrors the zodiac against the reference pictures (they run
+counter-clockwise from the left axis). A worker rebuilt it from the pictures and found the mirror. When a spec asks for
+parity with a picture, compare the picture with the existing geometry numerically before building on it.

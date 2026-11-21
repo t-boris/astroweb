@@ -1,126 +1,99 @@
 import { useMemo } from "react";
 import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { PLANET_GLYPHS, CHART_LAYOUT } from "./utils/constants";
-import type { ChartPoint } from "@/types";
+import {
+  CHART_LAYOUT,
+  ELEMENT_COLORS,
+  POINT_LABEL_RADII,
+  SIGN_ELEMENTS,
+} from "./utils/constants";
+import { signGlyph, type PlacedPoint } from "./utils/wheelLayout";
 
 interface PlanetMarkersProps {
-  points: ChartPoint[];
-  ascDegree: number;
-  hoveredPlanet: string | null;
-  hoveredPlanetAspects: Set<string> | null;
-  onPlanetHover: (body: string | null) => void;
-  onPlanetSelect?: (body: string) => void;
+  points: PlacedPoint[];
+  /** Longitude drawn on the left (9 o'clock) axis. */
+  rotation: number;
+  focusId: string | null;
+  connectedIds: Set<string> | null;
+  onPointHover: (id: string | null) => void;
+  onPointSelect?: (id: string) => void;
   revealed: boolean;
 }
 
-interface PlacedPlanet {
-  body: string;
-  lon: number;
-  degreeInSign: number;
-  svgAngle: number;
-  placedAngle: number;
-  radius: number;
-  hasLeader: boolean;
-}
+/** Length of the short tick on the degree scale and on the inner circle that marks the exact longitude. */
+const RING_TICK = 9;
+const INNER_TICK = 7;
+/** Half the height of a glyph: where the leader line meets the glyph. */
+const GLYPH_HALF = 16;
+/** Distance of the retrograde "R" from the glyph centre, along the circle (neighbours are at least a label gap away). */
+const RETROGRADE_OFFSET = 21;
+const RAD_TO_DEG = 180 / Math.PI;
 
-const MIN_SEPARATION_DEG = 8;
-const OFFSET_STEP = 30;
+const POINT_COLOR = "#dfeaff";
+const TICK_COLOR = "rgba(143, 182, 255, 0.95)";
 
-function resolvePlanetCollisions(
-  points: ChartPoint[],
-  ascDegree: number,
-): PlacedPlanet[] {
-  const { planetRadius } = CHART_LAYOUT;
-
-  // Convert each planet's lon to SVG angle and sort
-  const sorted = points
-    .map((p) => ({
-      body: p.body,
-      lon: p.lon,
-      degreeInSign: p.degreeInSign,
-      svgAngle: eclipticToSvgAngle(p.lon, ascDegree),
-    }))
-    .sort((a, b) => a.svgAngle - b.svgAngle);
-
-  const placed: PlacedPlanet[] = [];
-
-  for (const planet of sorted) {
-    let radius = planetRadius;
-    let hasLeader = false;
-
-    // Check collision with already-placed planets at the same radius
-    for (const existing of placed) {
-      const angleDiff = Math.abs(planet.svgAngle - existing.placedAngle);
-      if (angleDiff < MIN_SEPARATION_DEG && radius === existing.radius) {
-        radius += OFFSET_STEP;
-        hasLeader = true;
-      }
-    }
-
-    placed.push({
-      body: planet.body,
-      lon: planet.lon,
-      degreeInSign: planet.degreeInSign,
-      svgAngle: planet.svgAngle,
-      placedAngle: planet.svgAngle,
-      radius,
-      hasLeader,
-    });
-  }
-
-  return placed;
-}
-
+/**
+ * Every plotted point: its glyph with degree, sign glyph and minute, an "R" when retrograde, a tick
+ * at the exact longitude on the degree scale (and on the inner circle) and a leader line from that
+ * tick to the label. The labels may stand apart from the exact longitude where points are crowded
+ * (utils/labelSpread.ts); the leader keeps them tied to it.
+ */
 export default function PlanetMarkers({
   points,
-  ascDegree,
-  hoveredPlanet,
-  hoveredPlanetAspects,
-  onPlanetHover,
-  onPlanetSelect,
+  rotation,
+  focusId,
+  connectedIds,
+  onPointHover,
+  onPointSelect,
   revealed,
 }: PlanetMarkersProps) {
-  const { cx, cy, planetRadius, zodiacInner } = CHART_LAYOUT;
+  const { cx, cy, zodiacInner, houseInner } = CHART_LAYOUT;
 
-  const placedPlanets = useMemo(
-    () => resolvePlanetCollisions(points, ascDegree),
-    [points, ascDegree],
+  const geometry = useMemo(
+    () =>
+      points.map((point) => {
+        const exactAngle = eclipticToSvgAngle(point.lon, rotation);
+        const labelAngle = eclipticToSvgAngle(point.displayLon, rotation);
+        return {
+          point,
+          ringTickStart: polarToCartesian(cx, cy, zodiacInner, exactAngle),
+          ringTickEnd: polarToCartesian(cx, cy, zodiacInner - RING_TICK, exactAngle),
+          innerTickStart: polarToCartesian(cx, cy, houseInner, exactAngle),
+          innerTickEnd: polarToCartesian(cx, cy, houseInner + INNER_TICK, exactAngle),
+          leaderEnd: polarToCartesian(cx, cy, POINT_LABEL_RADII.glyph + GLYPH_HALF, labelAngle),
+          glyph: polarToCartesian(cx, cy, POINT_LABEL_RADII.glyph, labelAngle),
+          // Beside the glyph, in the direction of increasing longitude: the label stack runs radially
+          // inwards, so any other side may collide with it.
+          retrograde: polarToCartesian(
+            cx,
+            cy,
+            POINT_LABEL_RADII.glyph,
+            labelAngle + (RETROGRADE_OFFSET / POINT_LABEL_RADII.glyph) * RAD_TO_DEG,
+          ),
+          degree: polarToCartesian(cx, cy, POINT_LABEL_RADII.degree, labelAngle),
+          sign: polarToCartesian(cx, cy, POINT_LABEL_RADII.sign, labelAngle),
+          minute: polarToCartesian(cx, cy, POINT_LABEL_RADII.minute, labelAngle),
+        };
+      }),
+    [points, rotation, cx, cy, zodiacInner, houseInner],
   );
 
   return (
-    <g className="planet-markers">
-      {placedPlanets.map((placed, index) => {
-        const pos = polarToCartesian(cx, cy, placed.radius, placed.placedAngle);
-        const degLabelPos = polarToCartesian(
-          cx,
-          cy,
-          placed.radius + 18,
-          placed.placedAngle,
-        );
-        const glyph = PLANET_GLYPHS[placed.body] ?? "?";
-
-        // Leader line endpoints (from true ecliptic position to placed position)
-        const truePos = placed.hasLeader
-          ? polarToCartesian(cx, cy, planetRadius, placed.svgAngle)
-          : null;
+    <g className="planet-markers" data-layer="points">
+      {geometry.map((g, index) => {
+        const { point } = g;
+        const isHoverActive = focusId !== null;
+        const isFocused = point.id === focusId;
+        const signColor = ELEMENT_COLORS[SIGN_ELEMENTS[point.sign]].text;
+        // Long glyph text such as "Vx" must fit the same space as a single glyph.
+        const glyphSize = point.glyph.length > 1 ? 19 : 28;
 
         // Hover opacity logic — when hover is active, skip animation styles
-        const isHoverActive = hoveredPlanet !== null;
         let opacity: number | undefined;
         if (isHoverActive) {
-          if (
-            placed.body === hoveredPlanet ||
-            hoveredPlanetAspects?.has(placed.body)
-          ) {
-            opacity = 1;
-          } else {
-            opacity = 0.15;
-          }
+          opacity = isFocused || connectedIds?.has(point.id) ? 1 : 0.15;
         } else if (!revealed) {
           opacity = 0;
         }
-
-        const isHovered = placed.body === hoveredPlanet;
 
         // Animation style — only when hover is not active
         const animationStyle: React.CSSProperties = isHoverActive
@@ -132,89 +105,127 @@ export default function PlanetMarkers({
               opacity: revealed ? undefined : 0,
             };
 
-        // Tick line from the sign band toward the planet marker (prototype style)
-        const tickStart = polarToCartesian(cx, cy, zodiacInner - 6, placed.placedAngle);
-        const tickEnd = polarToCartesian(cx, cy, placed.radius + 22, placed.placedAngle);
-
         return (
           <g
-            key={placed.body}
+            key={point.id}
             className="planet-group transition-opacity duration-200"
-            data-planet={placed.body}
+            data-point={point.id}
+            data-lon={point.lon.toFixed(4)}
+            data-displaced={point.displaced ? "true" : undefined}
             style={{ ...animationStyle, cursor: "pointer" }}
-            onPointerEnter={() => onPlanetHover(placed.body)}
-            onPointerLeave={() => onPlanetHover(null)}
-            onClick={() => onPlanetSelect?.(placed.body)}
+            onPointerEnter={() => onPointHover(point.id)}
+            onPointerLeave={() => onPointHover(null)}
+            onClick={() => onPointSelect?.(point.id)}
           >
-            {/* Tick line linking the sign band to the planet */}
+            {/* Exact-longitude ticks: on the degree scale and on the inner circle */}
             <line
-              x1={tickStart.x}
-              y1={tickStart.y}
-              x2={tickEnd.x}
-              y2={tickEnd.y}
-              stroke="rgba(143, 182, 255, 0.4)"
-              strokeWidth={1}
+              data-tick="ring"
+              x1={g.ringTickStart.x}
+              y1={g.ringTickStart.y}
+              x2={g.ringTickEnd.x}
+              y2={g.ringTickEnd.y}
+              stroke={TICK_COLOR}
+              strokeWidth={2.2}
+              strokeLinecap="round"
+            />
+            <line
+              data-tick="inner"
+              x1={g.innerTickStart.x}
+              y1={g.innerTickStart.y}
+              x2={g.innerTickEnd.x}
+              y2={g.innerTickEnd.y}
+              stroke={TICK_COLOR}
+              strokeWidth={1.6}
+              strokeLinecap="round"
             />
 
-            {/* Leader line connecting offset planet to true ecliptic position */}
-            {placed.hasLeader && truePos && (
-              <line
-                x1={truePos.x}
-                y1={truePos.y}
-                x2={pos.x}
-                y2={pos.y}
-                stroke="rgba(143, 182, 255, 0.25)"
-                strokeWidth={0.5}
-              />
-            )}
-
-            {/* Planet disc */}
-            <circle
-              cx={pos.x}
-              cy={pos.y}
-              r={isHovered ? 32 : 29}
-              fill="#0b1124"
-              stroke={isHovered ? "#8fb6ff" : "rgba(143, 182, 255, 0.55)"}
-              strokeWidth={isHovered ? 1.6 : 1}
-              className="transition-all duration-200"
+            {/* Leader from the exact-longitude tick to the label */}
+            <line
+              data-leader
+              x1={g.ringTickEnd.x}
+              y1={g.ringTickEnd.y}
+              x2={g.leaderEnd.x}
+              y2={g.leaderEnd.y}
+              stroke="rgba(143, 182, 255, 0.45)"
+              strokeWidth={point.displaced ? 1 : 0.8}
+              strokeDasharray={point.displaced ? "3 2" : undefined}
             />
 
-            {/* Planet glyph */}
+            {/* Glyph */}
             <text
-              x={pos.x}
-              y={pos.y}
-              fontSize={isHovered ? 26 : 22}
+              data-field="glyph"
+              x={g.glyph.x}
+              y={g.glyph.y}
+              fontSize={isFocused ? glyphSize + 4 : glyphSize}
               textAnchor="middle"
               dominantBaseline="central"
-              fill="#dfeaff"
+              fill={isFocused ? "#ffffff" : POINT_COLOR}
               fontFamily="serif"
               filter="url(#glow)"
               className="transition-[font-size] duration-200"
             >
-              {glyph}
+              {point.glyph}
             </text>
 
-            {/* Invisible touch target */}
-            <circle
-              cx={pos.x}
-              cy={pos.y}
-              r={32}
-              fill="transparent"
-              pointerEvents="all"
-              data-planet={placed.body}
-            />
+            {/* Retrograde marker */}
+            {point.retrograde && (
+              <text
+                data-retrograde-marker={point.id}
+                x={g.retrograde.x}
+                y={g.retrograde.y}
+                fontSize={13}
+                fontWeight={700}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#fca5a5"
+              >
+                R
+              </text>
+            )}
 
-            {/* Degree label */}
+            {/* Degree, sign glyph and minute, stepping inwards from the glyph */}
             <text
-              x={degLabelPos.x}
-              y={degLabelPos.y}
-              fontSize={10}
+              data-field="degree"
+              x={g.degree.x}
+              y={g.degree.y}
+              fontSize={16}
               textAnchor="middle"
               dominantBaseline="central"
-              fill="rgba(143, 182, 255, 0.55)"
+              fill="rgba(223, 234, 255, 0.9)"
             >
-              {`${Math.floor(placed.degreeInSign)}\u00B0`}
+              {`${point.degree}°`}
             </text>
+            <text
+              data-field="sign"
+              x={g.sign.x}
+              y={g.sign.y}
+              fontSize={16}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill={signColor}
+            >
+              {signGlyph(point.sign)}
+            </text>
+            <text
+              data-field="minute"
+              x={g.minute.x}
+              y={g.minute.y}
+              fontSize={16}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="rgba(223, 234, 255, 0.9)"
+            >
+              {`${String(point.minute).padStart(2, "0")}′`}
+            </text>
+
+            {/* Invisible touch target over the whole label stack */}
+            <circle
+              cx={g.glyph.x}
+              cy={g.glyph.y}
+              r={22}
+              fill="transparent"
+              pointerEvents="all"
+            />
           </g>
         );
       })}

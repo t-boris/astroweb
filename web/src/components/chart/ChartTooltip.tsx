@@ -1,21 +1,93 @@
 import { useEffect, useState, type RefObject } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { PLANET_GLYPHS, ASPECT_GLYPHS, CHART_LAYOUT } from "./utils/constants";
-import type { ChartPoint, ChartAspect } from "@/types";
+import { useTranslation } from "react-i18next";
+import { signLabel } from "@/lib/signs";
+import { CHART_LAYOUT, ASPECT_GLYPHS } from "./utils/constants";
+import { formatDegreeMinute, formatOrb, splitLongitude } from "./utils/positions";
+import type { Point2D } from "./utils/wheelLayout";
+import { pointGlyph, pointLabel } from "./utils/viewModel";
+import type { SharedAspect } from "@/types";
 
-interface ChartTooltipProps {
-  planet: ChartPoint;
-  aspects: ChartAspect[];
-  svgRef: RefObject<SVGSVGElement | null>;
-  ascDegree: number;
+export interface TooltipTarget {
+  /** A position id, or one of ASC, DSC, MC, IC. */
+  id: string;
+  lon: number;
+  /** Null for the angles and when the birth time is unknown. */
+  house: number | null;
+  retrograde: boolean;
 }
 
-export default function ChartTooltip({
-  planet,
-  aspects,
-  svgRef,
-  ascDegree,
-}: ChartTooltipProps) {
+interface ChartTooltipProps {
+  target: TooltipTarget;
+  /** The aspects of the target that are drawn on the wheel (the filters apply). */
+  aspects: SharedAspect[];
+  /** Where the target is drawn, in SVG coordinates. */
+  anchor: Point2D;
+  svgRef: RefObject<SVGSVGElement | null>;
+}
+
+/** The longest aspect list the tooltip shows; the rest is summarised. */
+const MAX_ASPECT_ROWS = 12;
+
+/** What the tooltip says about a point or angle: position, house, retrograde and its drawn aspects. */
+export function ChartTooltipContent({ target, aspects }: { target: TooltipTarget; aspects: SharedAspect[] }) {
+  const { t } = useTranslation();
+  const { sign } = splitLongitude(target.lon);
+  const shown = [...aspects].sort((a, b) => a.orb - b.orb).slice(0, MAX_ASPECT_ROWS);
+  const hidden = aspects.length - shown.length;
+
+  return (
+    <>
+      {/* Name and glyph */}
+      <div className="mb-1 font-semibold">
+        {pointGlyph(target.id)} {pointLabel(t, target.id)}
+        {target.retrograde && (
+          <span className="ml-2 text-xs font-normal text-red-300">
+            {t("natalChart.positions.retrograde")}
+          </span>
+        )}
+      </div>
+
+      {/* Degree, minute and sign */}
+      <div className="text-white/70">
+        {formatDegreeMinute(target.lon)} {signLabel(t, sign)}
+      </div>
+
+      {/* House */}
+      {target.house !== null && (
+        <div className="text-white/70">
+          {t("tables.planets.house")} {target.house}
+        </div>
+      )}
+
+      {/* Aspects of this point: orb, and applying or separating where the shared set says so */}
+      {shown.length > 0 && (
+        <div className="mt-2 space-y-0.5 border-t border-white/10 pt-2">
+          {shown.map((asp) => {
+            const other = asp.a === target.id ? asp.b : asp.a;
+            const motion =
+              asp.applying === null
+                ? null
+                : asp.applying
+                  ? t("natalChart.aspects.applying").toLowerCase()
+                  : t("natalChart.aspects.separating").toLowerCase();
+            return (
+              <div key={`${asp.a}-${asp.b}-${asp.type}`} className="text-white/60">
+                {ASPECT_GLYPHS[asp.type] ?? ""} {t(`chart.aspects.${asp.type}`, asp.type)} {pointLabel(t, other)} (
+                {formatOrb(asp.orb)}
+                {motion ? `, ${motion}` : ""})
+              </div>
+            );
+          })}
+          {hidden > 0 && (
+            <div className="text-white/40">{t("natalWheel.tooltip.more", { count: hidden })}</div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function ChartTooltip({ target, aspects, anchor, svgRef }: ChartTooltipProps) {
   const [position, setPosition] = useState<{
     left: number;
     top: number;
@@ -29,37 +101,28 @@ export default function ChartTooltip({
     const ctm = svg.getScreenCTM();
     if (!ctm) return;
 
-    const { cx, cy, planetRadius } = CHART_LAYOUT;
-    const angle = eclipticToSvgAngle(planet.lon, ascDegree);
-    const pos = polarToCartesian(cx, cy, planetRadius, angle);
-
     // Convert SVG coordinates to screen coordinates
     const pt = svg.createSVGPoint();
-    pt.x = pos.x;
-    pt.y = pos.y;
+    pt.x = anchor.x;
+    pt.y = anchor.y;
     const screenPt = pt.matrixTransform(ctm);
 
     // Get SVG bounding rect for relative positioning
     const svgRect = svg.getBoundingClientRect();
 
-    const left = screenPt.x - svgRect.left;
-    const top = screenPt.y - svgRect.top;
-
-    // Determine if planet is on right half of chart
-    const alignRight = pos.x > cx;
-
-    setPosition({ left, top, alignRight });
-  }, [planet, svgRef, ascDegree]);
+    setPosition({
+      left: screenPt.x - svgRect.left,
+      top: screenPt.y - svgRect.top,
+      // Right half of the chart: open the tooltip towards the left
+      alignRight: anchor.x > CHART_LAYOUT.cx,
+    });
+  }, [anchor, svgRef]);
 
   if (!position) return null;
 
-  const glyph = PLANET_GLYPHS[planet.body] ?? "?";
-  const wholeDeg = Math.floor(planet.degreeInSign);
-  const arcMin = Math.round((planet.degreeInSign % 1) * 60);
-
   return (
     <div
-      className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-white/10 bg-black/80 p-3 text-sm text-white backdrop-blur-sm"
+      className="pointer-events-none absolute z-10 max-w-[240px] rounded-lg border border-white/10 bg-black/80 p-3 text-sm text-white backdrop-blur-sm"
       style={{
         left: position.left,
         top: position.top,
@@ -68,38 +131,7 @@ export default function ChartTooltip({
           : "translate(12px, -50%)",
       }}
     >
-      {/* Planet name and glyph */}
-      <div className="mb-1 font-semibold">
-        {glyph} {planet.body}
-      </div>
-
-      {/* Sign + degree */}
-      <div className="text-white/70">
-        {wholeDeg}&deg;{arcMin < 10 ? `0${arcMin}` : arcMin}&apos; {planet.sign}
-      </div>
-
-      {/* House */}
-      {planet.house !== null && (
-        <div className="text-white/70">House {planet.house}</div>
-      )}
-
-      {/* Aspect summary (up to 5) */}
-      {aspects.length > 0 && (
-        <div className="mt-2 space-y-0.5 border-t border-white/10 pt-2">
-          {aspects.slice(0, 5).map((asp) => {
-            const otherBody =
-              asp.a === planet.body ? asp.b : asp.a;
-            const aspGlyph = ASPECT_GLYPHS[asp.type] ?? "";
-            return (
-              <div key={`${asp.a}-${asp.b}`} className="text-white/60">
-                {aspGlyph}{" "}
-                {asp.type.charAt(0).toUpperCase() + asp.type.slice(1)}{" "}
-                {otherBody} ({asp.orb.toFixed(1)}&deg;)
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ChartTooltipContent target={target} aspects={aspects} />
     </div>
   );
 }

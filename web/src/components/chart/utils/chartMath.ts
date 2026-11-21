@@ -2,15 +2,30 @@
 
 export const DEG_TO_RAD = Math.PI / 180;
 
+/** Normalize an angle in degrees to [0, 360). A value already in range is returned unchanged. */
+export function normalizeDegrees(value: number): number {
+  const remainder = value % 360;
+  // "+ 0" turns a negative zero into 0.
+  return (remainder < 0 ? remainder + 360 : remainder) + 0;
+}
+
+/** Signed shortest rotation from `from` to `to`, in (-180, 180]. */
+export function signedAngleDelta(from: number, to: number): number {
+  const delta = normalizeDegrees(to - from);
+  return delta > 180 ? delta - 360 : delta;
+}
+
 /**
- * Convert ecliptic longitude to SVG angle.
- * Places the Ascendant at the 9-o'clock position (180 deg in SVG space).
+ * Convert ecliptic longitude to the angle used by polarToCartesian (degrees, counter-clockwise,
+ * 0 = 3 o'clock). `rotation` is the longitude drawn on the left (9 o'clock) axis: the house 1 cusp
+ * when the birth time is known, 0 degrees Aries when it is not (see wheelRotation).
+ * The zodiac runs counter-clockwise: from the left axis, longitude grows towards 6 o'clock.
  */
 export function eclipticToSvgAngle(
   eclipticDegree: number,
-  ascDegree: number,
+  rotation: number,
 ): number {
-  return 180 - (eclipticDegree - ascDegree);
+  return 180 + (eclipticDegree - rotation);
 }
 
 /**

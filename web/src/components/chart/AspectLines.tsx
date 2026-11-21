@@ -1,81 +1,43 @@
-import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { ASPECT_COLORS, CHART_LAYOUT } from "./utils/constants";
-import type { ChartAspect, ChartPoint } from "@/types";
+import { ASPECT_COLORS, ASPECT_GLYPHS } from "./utils/constants";
+import {
+  aspectStrokeOpacity,
+  aspectStrokeWidth,
+  type AspectSegment,
+} from "./utils/wheelLayout";
 
 interface AspectLinesProps {
-  aspects: ChartAspect[];
-  points: ChartPoint[];
-  ascDegree: number;
-  hoveredPlanet: string | null;
-  hoveredPlanetAspects: Set<string> | null;
+  /** The visible aspects as chords of the aspect circle (utils/wheelLayout.ts: aspectSegments). */
+  segments: AspectSegment[];
+  focusId: string | null;
+  /** Draw the aspect glyph on each line. */
+  showSymbols: boolean;
   revealed: boolean;
 }
 
-export default function AspectLines({
-  aspects,
-  points,
-  ascDegree,
-  hoveredPlanet,
-  revealed,
-}: AspectLinesProps) {
-  const { cx, cy, aspectRadius } = CHART_LAYOUT;
+/** Dash pattern of the minor aspects; the major aspects are solid. */
+const MINOR_DASH = "6 5";
+/** Lines shorter than this get no glyph: it would only blot out the line. */
+const MIN_SYMBOL_LENGTH = 36;
 
-  const lines = useMemo(() => {
-    // Build lookup map for body -> ecliptic longitude
-    const bodyToLon: Record<string, number> = {};
-    for (const p of points) {
-      bodyToLon[p.body] = p.lon;
-    }
-
-    return aspects
-      .map((aspect) => {
-        const lonA = bodyToLon[aspect.a];
-        const lonB = bodyToLon[aspect.b];
-        if (lonA === undefined || lonB === undefined) return null;
-
-        const angleA = eclipticToSvgAngle(lonA, ascDegree);
-        const angleB = eclipticToSvgAngle(lonB, ascDegree);
-
-        const posA = polarToCartesian(cx, cy, aspectRadius, angleA);
-        const posB = polarToCartesian(cx, cy, aspectRadius, angleB);
-
-        const lineLength = Math.sqrt(
-          (posB.x - posA.x) ** 2 + (posB.y - posA.y) ** 2,
-        );
-
-        return {
-          key: `${aspect.a}-${aspect.b}-${aspect.type}`,
-          x1: posA.x,
-          y1: posA.y,
-          x2: posB.x,
-          y2: posB.y,
-          stroke: ASPECT_COLORS[aspect.type] ?? "#ffffff",
-          strokeWidth: 1 + aspect.exactness,
-          strokeOpacity: 0.3 + aspect.exactness * 0.4,
-          type: aspect.type,
-          a: aspect.a,
-          b: aspect.b,
-          lineLength,
-        };
-      })
-      .filter((line): line is NonNullable<typeof line> => line !== null);
-  }, [aspects, points, ascDegree, cx, cy, aspectRadius]);
-
+/**
+ * Aspect lines inside the inner circle. Colour tells the aspect type, a dashed stroke tells a minor
+ * aspect, and the line weight grows with the tightness of the orb. Which aspects are drawn is decided
+ * by the caller (the filters); this layer draws exactly what it is given.
+ */
+export default function AspectLines({ segments, focusId, showSymbols, revealed }: AspectLinesProps) {
   return (
-    <g className="aspect-lines">
-      {lines.map((line, index) => {
+    <g className="aspect-lines" data-layer="aspects" filter="url(#line-glow)">
+      {segments.map((line, index) => {
         // Hover opacity logic — when hover is active, skip animation styles
-        const isHoverActive = hoveredPlanet !== null;
+        const isHoverActive = focusId !== null;
 
         let opacity: number | undefined;
-        let strokeWidth = line.strokeWidth;
-        let strokeOpacity = line.strokeOpacity;
+        let strokeWidth = aspectStrokeWidth(line.exactness);
+        let strokeOpacity = aspectStrokeOpacity(line.exactness);
 
         if (isHoverActive) {
-          const connectsToHovered =
-            line.a === hoveredPlanet || line.b === hoveredPlanet;
-          if (connectsToHovered) {
+          const connectsToFocus = line.a === focusId || line.b === focusId;
+          if (connectsToFocus) {
             opacity = 1;
             strokeWidth += 0.5;
             strokeOpacity = Math.min(strokeOpacity + 0.2, 1);
@@ -84,35 +46,67 @@ export default function AspectLines({
           }
         }
 
-        // Animation style — only when hover is not active
+        // Majors are drawn in with a stroke-dash reveal; the dash pattern of a minor line must survive,
+        // so minors fade in instead.
+        const drawIn = line.major;
         const animationStyle: React.CSSProperties = isHoverActive
           ? { opacity }
-          : {
-              "--line-length": `${line.lineLength}`,
-              strokeDasharray: line.lineLength,
-              animation: revealed
-                ? `chart-line-draw 0.8s ease-out ${2.0 + index * 0.02}s forwards`
-                : "none",
-              strokeDashoffset: revealed ? undefined : line.lineLength,
-            } as React.CSSProperties;
+          : drawIn
+            ? ({
+                "--line-length": `${line.length}`,
+                strokeDasharray: line.length,
+                animation: revealed
+                  ? `chart-line-draw 0.8s ease-out ${2.0 + index * 0.02}s forwards`
+                  : "none",
+                strokeDashoffset: revealed ? undefined : line.length,
+              } as React.CSSProperties)
+            : {
+                animation: revealed
+                  ? `chart-fade-in 0.8s ease-out ${2.0 + index * 0.02}s forwards`
+                  : "none",
+                opacity: revealed ? undefined : 0,
+              };
+
+        const color = ASPECT_COLORS[line.type] ?? "#ffffff";
 
         return (
-          <line
-            key={line.key}
-            x1={line.x1}
-            y1={line.y1}
-            x2={line.x2}
-            y2={line.y2}
-            stroke={line.stroke}
-            strokeWidth={strokeWidth}
-            strokeOpacity={strokeOpacity}
-            filter="url(#line-glow)"
-            className="transition-opacity duration-200"
-            style={animationStyle}
-            data-aspect-type={line.type}
-            data-aspect-a={line.a}
-            data-aspect-b={line.b}
-          />
+          <g key={line.key} className="transition-opacity duration-200" style={isHoverActive ? { opacity } : undefined}>
+            <line
+              x1={line.from.x}
+              y1={line.from.y}
+              x2={line.to.x}
+              y2={line.to.y}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              strokeOpacity={strokeOpacity}
+              strokeDasharray={line.major ? undefined : MINOR_DASH}
+              strokeLinecap="round"
+              style={isHoverActive ? undefined : animationStyle}
+              data-aspect-type={line.type}
+              data-aspect-class={line.major ? "major" : "minor"}
+              data-aspect-a={line.a}
+              data-aspect-b={line.b}
+            />
+            {showSymbols && line.length >= MIN_SYMBOL_LENGTH && (
+              <text
+                data-aspect-symbol={line.type}
+                x={line.symbol.x}
+                y={line.symbol.y}
+                fontSize={14}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill={color}
+                stroke="#070714"
+                strokeWidth={3}
+                paintOrder="stroke"
+                pointerEvents="none"
+                aria-hidden="true"
+                style={isHoverActive || revealed ? undefined : { opacity: 0 }}
+              >
+                {ASPECT_GLYPHS[line.type]}
+              </text>
+            )}
+          </g>
         );
       })}
     </g>

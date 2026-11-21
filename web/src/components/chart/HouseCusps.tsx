@@ -1,74 +1,77 @@
 import { useMemo } from "react";
 import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
 import { CHART_LAYOUT } from "./utils/constants";
+import { houseMidLongitude } from "./utils/wheelLayout";
 
 interface HouseCuspsProps {
-  cusps: number[];
-  ascDegree: number;
-  asc: number | null;
-  mc: number | null;
+  /** The twelve cusp longitudes, house 1 first. Null when the birth time is unknown: no houses are drawn. */
+  cusps: readonly number[] | null;
+  /** Longitude drawn on the left (9 o'clock) axis. */
+  rotation: number;
   revealed: boolean;
 }
 
-export default function HouseCusps({ cusps, ascDegree, asc, mc, revealed }: HouseCuspsProps) {
-  const { cx, cy, houseOuter, houseInner } = CHART_LAYOUT;
+/**
+ * The houses: a thin line at every calculated cusp, the house number ring and the number of each house
+ * between its two cusps (the cusps need not be 30 degrees apart). The inner circle is always drawn;
+ * without a birth time it is the only thing this layer draws.
+ */
+export default function HouseCusps({ cusps, rotation, revealed }: HouseCuspsProps) {
+  const { cx, cy, houseOuter, houseInner, houseRingOuter, houseNumberRadius } = CHART_LAYOUT;
 
   const lines = useMemo(() => {
+    if (!cusps) return [];
     return cusps.map((cusp, i) => {
-      const angle = eclipticToSvgAngle(cusp, ascDegree);
-      const outer = polarToCartesian(cx, cy, houseOuter, angle);
-      const inner = polarToCartesian(cx, cy, houseInner, angle);
-
-      // ASC = cusp index 0, MC = cusp index 9
-      const isAsc = i === 0 && asc !== null;
-      const isMc = i === 9 && mc !== null;
-      const emphasized = isAsc || isMc;
-
+      const angle = eclipticToSvgAngle(cusp, rotation);
       return {
         index: i,
-        outer,
-        inner,
-        stroke: emphasized ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)",
-        strokeWidth: emphasized ? 2 : 1,
+        outer: polarToCartesian(cx, cy, houseOuter, angle),
+        inner: polarToCartesian(cx, cy, houseInner, angle),
       };
     });
-  }, [cusps, ascDegree, asc, mc, cx, cy, houseOuter, houseInner]);
+  }, [cusps, rotation, cx, cy, houseOuter, houseInner]);
 
   const numbers = useMemo(() => {
-    return cusps.map((cusp, i) => {
-      const nextCusp = cusps[(i + 1) % 12];
-      let start = cusp;
-      let end = nextCusp;
-
-      // Handle 0/360 wrap
-      if (end < start) {
-        end += 360;
-      }
-
-      const midEcliptic = (start + end) / 2;
-      const midAngle = eclipticToSvgAngle(midEcliptic, ascDegree);
-      const pos = polarToCartesian(cx, cy, houseInner + 30, midAngle);
-
+    if (!cusps) return [];
+    return cusps.map((_, i) => {
+      const midAngle = eclipticToSvgAngle(houseMidLongitude(cusps, i), rotation);
       return {
         index: i,
         houseNumber: i + 1,
-        pos,
+        pos: polarToCartesian(cx, cy, houseNumberRadius, midAngle),
       };
     });
-  }, [cusps, ascDegree, cx, cy, houseInner]);
+  }, [cusps, rotation, cx, cy, houseNumberRadius]);
 
   return (
-    <g>
+    <g data-layer="houses">
+      {/* House number ring */}
+      {cusps && (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={houseRingOuter}
+          fill="rgba(255,255,255,0.03)"
+          stroke="rgba(255,255,255,0.14)"
+          strokeWidth={1}
+          style={{
+            animation: revealed ? "chart-fade-in 0.4s ease-out 1.0s forwards" : "none",
+            opacity: revealed ? undefined : 0,
+          }}
+        />
+      )}
+
       {/* House cusp lines */}
-      {lines.map(({ index, outer, inner, stroke, strokeWidth }) => (
+      {lines.map(({ index, outer, inner }) => (
         <line
           key={`cusp-${index}`}
+          data-house-cusp={index + 1}
           x1={outer.x}
           y1={outer.y}
           x2={inner.x}
           y2={inner.y}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
+          stroke="rgba(255, 255, 255, 0.22)"
+          strokeWidth={1}
           style={{
             animation: revealed
               ? `chart-fade-in 0.4s ease-out ${1.0 + index * 0.03}s forwards`
@@ -82,10 +85,11 @@ export default function HouseCusps({ cusps, ascDegree, asc, mc, revealed }: Hous
       {numbers.map(({ index, houseNumber, pos }) => (
         <text
           key={`house-num-${index}`}
+          data-house-number={houseNumber}
           x={pos.x}
           y={pos.y}
-          fontSize={14}
-          fill="rgba(255,255,255,0.4)"
+          fontSize={15}
+          fill="rgba(255,255,255,0.55)"
           textAnchor="middle"
           dominantBaseline="central"
           style={{
@@ -99,13 +103,13 @@ export default function HouseCusps({ cusps, ascDegree, asc, mc, revealed }: Hous
         </text>
       ))}
 
-      {/* Inner circle boundary */}
+      {/* Inner circle boundary: the aspect lines end on it */}
       <circle
         cx={cx}
         cy={cy}
         r={houseInner}
         fill="none"
-        stroke="rgba(255,255,255,0.1)"
+        stroke="rgba(255,255,255,0.3)"
         strokeWidth={1}
         style={{
           animation: revealed

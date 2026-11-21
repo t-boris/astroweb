@@ -12,8 +12,7 @@ import { auth } from "@/lib/firebase";
 import { ensureSignedIn } from "@/lib/contentSync";
 import { PROFILE_TABS, type ProfileTab } from "@/lib/analyticsEvents";
 import { getWalletInfo } from "@/api/wallet";
-import { signLabel } from "@/lib/signs";
-import { planetHelpKey, signHelpKey, tabHelpKey } from "@/lib/helpKeys";
+import { tabHelpKey } from "@/lib/helpKeys";
 import { motion } from "framer-motion";
 import PlaceSearch from "@/components/PlaceSearch";
 import { HelpBubble } from "@/components/HelpBubble";
@@ -24,6 +23,7 @@ import { AspectsTable } from "@/components/chart/AspectsTable";
 import { AspectMatrix } from "@/components/chart/AspectMatrix";
 import { ElementModalityGrid } from "@/components/chart/ElementModalityGrid";
 import { DegreeStrip } from "@/components/chart/DegreeStrip";
+import { BigThree } from "@/components/chart/BigThree";
 import { ChartContextLine } from "@/components/chart/ChartContextLine";
 import { HouseSystemSelector } from "@/components/chart/HouseSystemSelector";
 import { DEFAULT_HOUSE_SYSTEM, type HouseSystem } from "@astroweb/chart-core";
@@ -109,15 +109,6 @@ function readStoredRelocation(profileId: string): StoredRelocation | null {
   } catch {
     return null;
   }
-}
-
-const SIGN_ORDER = [
-  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
-];
-function signFromLongitude(lon: number): string {
-  const n = ((lon % 360) + 360) % 360;
-  return SIGN_ORDER[Math.floor(n / 30)];
 }
 
 /** Tabs that show the chart itself; the house system and the calculation context apply to them. */
@@ -646,39 +637,11 @@ export default function ProfileDetail() {
                 </CardContent>
               </Card>
               <div className="space-y-5">
-                <Card className="ds-card">
-                  <CardHeader className="border-b border-border/40">
-                    <HelpBubble helpKey="terms.bigThree">
-                      <CardTitle className="font-serif text-lg text-[#8fb6ff]">{t("profile.detail.bigThree", "The Big Three")}</CardTitle>
-                    </HelpBubble>
-                  </CardHeader>
-                  <CardContent className="space-y-4 pt-5">
-                    {[
-                      { body: "Sun", glyph: "☉", label: t("profile.detail.sun", "Sun"), sign: chartData.points.find((p) => p.body === "Sun")?.sign },
-                      { body: "Moon", glyph: "☽", label: t("profile.detail.moon", "Moon"), sign: chartData.points.find((p) => p.body === "Moon")?.sign },
-                      { body: "ASC", glyph: "↑", label: t("profile.detail.rising", "Rising"), sign: chartData.houses.asc !== null && !profile.timeUnknown ? signFromLongitude(chartData.houses.asc) : undefined },
-                    ].map((b) => {
-                      const signText = <div className="font-serif text-lg">{signLabel(t, b.sign)}</div>;
-                      return (
-                        <div key={b.label} className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-primary/40 font-serif text-lg text-[#8fb6ff]">{b.glyph}</div>
-                          <div>
-                            <HelpBubble helpKey={planetHelpKey(b.body)}>
-                              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{b.label}</div>
-                            </HelpBubble>
-                            {b.sign ? (
-                              <HelpBubble helpKey={signHelpKey(b.sign)}>{signText}</HelpBubble>
-                            ) : b.body === "ASC" ? (
-                              <HelpBubble helpKey="profile.risingUnknown">{signText}</HelpBubble>
-                            ) : (
-                              signText
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </CardContent>
-                </Card>
+                <BigThree
+                  chart={chartData}
+                  onOpenReading={() => setActiveTab("interpretation")}
+                  editHref={`/profile/${profile.id}/edit`}
+                />
 
                 <Card className="ds-card">
                   <CardHeader className="border-b border-border/40">

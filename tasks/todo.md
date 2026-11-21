@@ -1,3 +1,18 @@
+# Big Three: a compact, animated strip with an explanation
+
+Branch: `feat/big-three-compact-strip` (from `main` 987edfe, v2.27.0). Requested by Boris in chat on 2026-11-21: "Большая тройка теперь занимает слишком много места - добавь туда что-то, сделай более красивым желательно с анимацией и объяснением".
+Status: APPROVED CHOICE (Boris, 2026-11-21): a compact strip of three cards (not a one-line triptych).
+
+Findings: the Chart tab card (`pages/ProfileDetail.tsx`, right column) is a tall list of three rows (glyph, label, sign). `InterpretationView` has its own compact three-card strip; it is left as it is. The per-sign texts `interpretation.{sun,moon,ascendant}.<sign>.text` already exist in EN and RU, so the explanation reuses them. `framer-motion` is already used on the page; there is no jsdom in web tests (pure model tests plus `renderToStaticMarkup`).
+
+Plan (tick as done):
+- [x] **B1 Model:** `bigThreeModel.ts` (pure): the three items (glyph, sign, degree, element, modality, house, text key), Rising unknown when the chart is a noon estimate; tests.
+- [x] **B2 Component + styles:** `BigThree.tsx`: three cards in a row in the element colour; animated orbit ring around the glyph and a soft pulse on the picked card (CSS, off under `prefers-reduced-motion`); staggered entry, cross-fade of the explanation and animated "Details" (framer-motion, off under reduced motion). Compact by default: cards plus a one-line explanation of the picked card; "Details" opens the element, modality, house chips, the existing per-sign reading (clamped) and "Full reading" (opens the Interpretation tab). Rising without a birth time says why the time is needed and links to the profile edit page. EN and RU texts. First version showed the reading at once and was taller than the old card (about 400 px against 270 px), so the details were made collapsible.
+- [x] **B3 Wire:** the tall card in `ProfileDetail.tsx` is replaced; `hexToRgba` moved to `utils/elementColors.ts` (shared with `InterpretationView`); the help text `profile.risingUnknown` described the removed dash and is deleted (EN and RU), the new texts live under `bigThree.*`.
+- [x] **B4 Verify (ship pending):** web 312 tests (10 new), `build:web`, eslint on the touched files clean. Browser check on the local mock (synthetic profiles), RU: closed block 215 px high at a 875 px column (the old card was about 270 px), Moon picked and opened (amber glow, chips, reading, link), unknown time (dashed "?" ring, explanation, link to `/profile/U/edit`). Version 2.28.0. Open: PR, CI, merge, deploy, live read-only check.
+
+---
+
 # Download the natal wheel and the aspect matrix as images; draw the new wheel in the PDF
 
 Branch: `feat/chart-image-download-and-pdf-wheel` (from `origin/main` 8a25ef3, v2.26.0). Requested by Boris in chat on 2026-11-21.

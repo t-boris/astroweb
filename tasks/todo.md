@@ -1,3 +1,15 @@
+## Subscription dates in the wrong format (fix/subscription-dates, v2.29.3)
+
+Report (screenshot of the astrologer card): "проблемы с подпиской - посмотри на даты". The Russian card showed "Следующее письмо: 11/21/2026, 3:00:35 PM" and "Отменится в конце периода · 7/3/2026".
+Cause: `toLocaleString()` / `toLocaleDateString()` without a language use the browser's own setting, so a Russian page printed the American order (7/3/2026 is a July date there and a March one to a Russian reader). The cancel date was also a stale `currentPeriodEnd` (see v2.29.2) that lay in the past.
+
+- [x] `lib/subscriptionDates.ts`: `formatDay`, `formatDayTime` (no seconds), `formatPeriodEnd` (empty unless the end is still ahead; the epoch of a failed read, a missing or an unreadable value included); tests (8) with a mutation check (5 fail with the old calls).
+- [x] Used on the astrologer card (next letter, cancel date), the account page (next letter) and the letters inbox (letter date); the cancel pill shows no date when it is not ahead; `home.subscription.endingNoDate` ("Astrologer · ending") for the profile-list mark without a date.
+- [x] Web 331 tests, tsc and eslint clean on the touched files.
+- [ ] Ship: PR, CI, merge, deploy, read-only look at the card on the live site.
+
+---
+
 ## Letters kept coming after the subscription was cancelled (fix/canceled-subscription-letters, v2.29.2)
 
 Report: "письма все еще идут, а я прекратил подписку давно".

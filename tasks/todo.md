@@ -1,3 +1,15 @@
+## Wheel tooltip could not be dismissed (fix/wheel-tooltip-dismiss, v2.29.1)
+
+Report: after clicking a point or an axis (DSC in the report) the tooltip stayed on the wheel and could not be closed.
+Cause: a click or tap pins the point (`selectedId`) so the wheel works without hovering; the only way to let it go was another click on the same marker, and the tooltip itself is `pointer-events-none`.
+
+- [x] Pure rules in `chart/wheelSelection.ts`: a click that is not on a point or axis of the wheel releases the pinned point, and so does Escape (a click on a marker keeps its own select/unselect rule).
+- [x] `NatalChart` listens on `document` for `click` and `keydown` only while something is pinned.
+- [x] Tests (`wheelSelection.test.ts`, 6): marker click keeps, empty wheel / page / missing target releases, only Escape releases, markers carry `data-point` / `data-angle`.
+- [x] Verified in the browser on the local mock (synthetic clicks): pin by click, click on the page / on the empty wheel / on a button releases, same marker toggles off, Enter keeps, Escape releases, another marker switches the tooltip. Web tests 329 pass, eslint clean on the touched files.
+
+---
+
 # Profiles panel: resizable, no visible scrollbar, subscription marks
 
 Branch: `feat/profiles-panel-resize-subscription` (stacked on `feat/big-three-compact-strip`, v2.28.0 -> 2.29.0). Requested by Boris in chat on 2026-11-21: "сделай панель с профилями с изменяющейся шириной и спрячь скролл, еще показывай как-то те профили у которых есть подписка".

@@ -12,6 +12,7 @@ import { useAspectFilters } from "./utils/useAspectFilters";
 import { buildWheelModel } from "./wheelModel";
 import WheelSvg from "./WheelSvg";
 import ChartTooltip, { type TooltipTarget } from "./ChartTooltip";
+import { clickReleasesPinned, keyReleasesPinned } from "./wheelSelection";
 import AspectFilters from "./AspectFilters";
 import { ImageDownloadButton } from "./image/ImageDownloadButton";
 import { buildWheelImage } from "./image/buildImages";
@@ -81,6 +82,25 @@ export default function NatalChart({ chart, imageContext }: NatalChartProps) {
   function toggleSelected(id: string) {
     setSelectedId((prev) => (prev === id ? null : id));
   }
+
+  // A pinned point stays until it is let go: a click anywhere else, or Escape. (A click on a point or axis keeps
+  // its own rule: it pins that one, and a second click on the same one unpins it.)
+  const pinned = selectedId !== null;
+  useEffect(() => {
+    if (!pinned) return;
+    const onClick = (event: MouseEvent) => {
+      if (clickReleasesPinned(event.target, svgRef.current)) setSelectedId(null);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (keyReleasesPinned(event.key)) setSelectedId(null);
+    };
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [pinned]);
 
   return (
     <div className="relative w-full max-w-[600px] mx-auto">

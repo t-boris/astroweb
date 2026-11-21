@@ -364,3 +364,9 @@ The embedded browser window can be narrower than a Tailwind breakpoint (here `xl
 The tests render with `renderToStaticMarkup` in Node, where `window` does not exist: use `typeof window === "undefined"` for the
 first value of state that starts from the window size, and keep storage access inside `try/catch`.
 
+## Anything that opens on click must also close without hunting for the opener
+
+A pinned state (tooltip, popover, selection) needs a way out that does not depend on finding the control that set it: a click
+elsewhere and Escape, and the listeners exist only while it is pinned. Check this whenever a hover feature gets a "tap to keep"
+mode for touch devices.
+

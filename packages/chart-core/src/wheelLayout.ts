@@ -9,7 +9,7 @@ import type {
   ChartResult,
   SharedAspect,
   SharedAspectType,
-} from "@/types";
+} from "./types";
 import {
   ANGLE_LABELS,
   CHART_LAYOUT,

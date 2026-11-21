@@ -22,3 +22,6 @@ functions/lib/
 # MarkView data
 .dde/
 .markview/
+
+# Generated copy of packages/chart-core (scripts/vendor-chart-core.mjs)
+functions/src/vendor/

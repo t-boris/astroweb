@@ -11,7 +11,7 @@ import {
   layoutDegreeStrip,
   type Element,
   type Modality,
-} from "@/components/chart/utils/viewModel";
+} from "@astroweb/chart-core";
 import { RAW_KEY, charts, initI18n, positionRows, tagsWith, textOf } from "./tablesTestSupport";
 
 beforeAll(async () => {

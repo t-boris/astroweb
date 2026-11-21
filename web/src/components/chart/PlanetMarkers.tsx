@@ -1,12 +1,14 @@
 import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
 import {
+  eclipticToSvgAngle,
+  polarToCartesian,
   CHART_LAYOUT,
-  ELEMENT_COLORS,
   POINT_LABEL_RADII,
   SIGN_ELEMENTS,
-} from "./utils/constants";
-import { signGlyph, type PlacedPoint } from "./utils/wheelLayout";
+  signGlyph,
+  type PlacedPoint,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "./utils/elementColors";
 
 interface PlanetMarkersProps {
   points: PlacedPoint[];
@@ -35,7 +37,7 @@ const TICK_COLOR = "rgba(143, 182, 255, 0.95)";
  * Every plotted point: its glyph with degree, sign glyph and minute, an "R" when retrograde, a tick
  * at the exact longitude on the degree scale (and on the inner circle) and a leader line from that
  * tick to the label. The labels may stand apart from the exact longitude where points are crowded
- * (utils/labelSpread.ts); the leader keeps them tied to it.
+ * (chart-core labelSpread); the leader keeps them tied to it.
  */
 export default function PlanetMarkers({
   points,

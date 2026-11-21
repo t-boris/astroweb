@@ -1,9 +1,16 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChartResult } from "@/types";
-import { ELEMENT_COLORS, SIGN_ELEMENTS, ZODIAC_GLYPHS } from "@/components/chart/utils/constants";
-import { formatDegreeMinute } from "@/components/chart/utils/positions";
-import { getAnalysisPoints, layoutDegreeStrip, pointGlyph, pointLabel } from "@/components/chart/utils/viewModel";
+import {
+  SIGN_ELEMENTS,
+  ZODIAC_GLYPHS,
+  formatDegreeMinute,
+  getAnalysisPoints,
+  layoutDegreeStrip,
+  pointGlyph,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "@/components/chart/utils/elementColors";
+import { pointLabel } from "@/components/chart/utils/labels";
 import { signLabel } from "@/lib/signs";
 
 /** Markers closer than this share of the scale (about 3 degrees) go to different rows so no label is hidden. */

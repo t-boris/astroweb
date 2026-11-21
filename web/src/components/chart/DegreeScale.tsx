@@ -1,6 +1,5 @@
 import { useMemo } from "react";
-import { CHART_LAYOUT } from "./utils/constants";
-import { degreeScaleTicks, type ScaleTickKind } from "./utils/wheelLayout";
+import { CHART_LAYOUT, degreeScaleTicks, type ScaleTickKind } from "@astroweb/chart-core";
 
 interface DegreeScaleProps {
   /** Longitude drawn on the left (9 o'clock) axis. */

@@ -1,15 +1,15 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChartResult } from "@/types";
-import { ELEMENT_COLORS } from "@/components/chart/utils/constants";
 import {
   ELEMENTS,
   MODALITIES,
   getAnalysisPoints,
   groupByElementModality,
   pointGlyph,
-  pointLabel,
-} from "@/components/chart/utils/viewModel";
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "@/components/chart/utils/elementColors";
+import { pointLabel } from "@/components/chart/utils/labels";
 import { elementHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";
 

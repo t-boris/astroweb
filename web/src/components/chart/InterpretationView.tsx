@@ -10,12 +10,12 @@ import {
 import {
   PLANET_GLYPHS,
   ASPECT_GLYPHS,
-  ELEMENT_COLORS,
   ASPECT_COLORS,
   ZODIAC_GLYPHS,
   ZODIAC_SIGNS,
   SIGN_ELEMENTS,
-} from "@/components/chart/utils/constants";
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "@/components/chart/utils/elementColors";
 import { signLabel } from "@/lib/signs";
 import { aspectHelpKey, elementHelpKey, planetHelpKey, signHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";

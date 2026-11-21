@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { houseSystemHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";
 import { Label } from "@/components/ui/label";
-import { HOUSE_SYSTEMS, houseSystemName, type HouseSystem } from "@/components/chart/utils/viewModel";
+import { HOUSE_SYSTEMS, type HouseSystem } from "@astroweb/chart-core";
+import { houseSystemName } from "@/components/chart/utils/labels";
 
 interface HouseSystemSelectorProps {
   value: HouseSystem;

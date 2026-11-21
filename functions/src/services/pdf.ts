@@ -7,6 +7,7 @@ import type {
   ChartResult,
   Profile,
 } from "../types";
+import { drawNatalWheel, drawSiteLink, drawWheelLegend, wheelFrame, wheelSide, WHEEL_COLORS } from "./pdfWheel";
 
 export interface PremiumPdfSection {
   title: string;
@@ -46,6 +47,7 @@ const INK_LIGHT = "#3C332A";
 const SOFT_LINE = "#D8C39D";
 const PAGE_WIDTH = 612;
 const PAGE_HEIGHT = 792;
+
 
 type PdfLanguage = "en" | "ru";
 type PdfPageTheme = "cover" | "chart" | "planets" | "houses" | "aspects" | "portrait";
@@ -139,21 +141,6 @@ const SIGN_IN_PHRASE_LABELS_RU: Record<string, string> = {
   Pisces: "Рыб",
 };
 
-const SIGN_SHORT_LABELS: Record<string, Record<PdfLanguage, string>> = {
-  Aries: { en: "Ari", ru: "Ов" },
-  Taurus: { en: "Tau", ru: "Тел" },
-  Gemini: { en: "Gem", ru: "Бл" },
-  Cancer: { en: "Can", ru: "Рак" },
-  Leo: { en: "Leo", ru: "Лев" },
-  Virgo: { en: "Vir", ru: "Дев" },
-  Libra: { en: "Lib", ru: "Вес" },
-  Scorpio: { en: "Sco", ru: "Ско" },
-  Sagittarius: { en: "Sag", ru: "Стр" },
-  Capricorn: { en: "Cap", ru: "Коз" },
-  Aquarius: { en: "Aqu", ru: "Вод" },
-  Pisces: { en: "Pis", ru: "Рыб" },
-};
-
 const BODY_LABELS: Record<string, Record<PdfLanguage, string>> = {
   Sun: { en: "Sun", ru: "Солнце" },
   Moon: { en: "Moon", ru: "Луна" },
@@ -167,21 +154,6 @@ const BODY_LABELS: Record<string, Record<PdfLanguage, string>> = {
   Pluto: { en: "Pluto", ru: "Плутон" },
   ASC: { en: "Ascendant", ru: "Асцендент" },
   MC: { en: "Midheaven", ru: "Середина неба" },
-};
-
-const BODY_SHORT_LABELS: Record<string, string> = {
-  Sun: "Su",
-  Moon: "Mo",
-  Mercury: "Me",
-  Venus: "Ve",
-  Mars: "Ma",
-  Jupiter: "Ju",
-  Saturn: "Sa",
-  Uranus: "Ur",
-  Neptune: "Ne",
-  Pluto: "Pl",
-  ASC: "AC",
-  MC: "MC",
 };
 
 const BODY_MEANINGS: Record<string, Record<PdfLanguage, string>> = {
@@ -523,16 +495,21 @@ function getFontPath(fileName: string): string | null {
   return fs.existsSync(fontPath) ? fontPath : null;
 }
 
-function registerFonts(doc: PDFKit.PDFDocument): {
+type PdfFonts = {
   regular: string;
   bold: string;
   sans: string;
   sansBold: string;
-} {
+  /** Astrological glyphs for the wheel (Noto Sans Symbols). */
+  symbols: string;
+};
+
+function registerFonts(doc: PDFKit.PDFDocument): PdfFonts {
   const serifRegularPath = getFontPath("NotoSerif-Regular.ttf");
   const serifBoldPath = getFontPath("NotoSerif-Bold.ttf");
   const sansRegularPath = getFontPath("NotoSans-Regular.ttf");
   const sansBoldPath = getFontPath("NotoSans-Bold.ttf");
+  const symbolsPath = getFontPath("NotoSansSymbols-Regular.ttf");
 
   if (serifRegularPath) {
     doc.registerFont("NotoSerif", serifRegularPath);
@@ -546,12 +523,16 @@ function registerFonts(doc: PDFKit.PDFDocument): {
   if (sansBoldPath) {
     doc.registerFont("NotoSans-Bold", sansBoldPath);
   }
+  if (symbolsPath) {
+    doc.registerFont("NotoSansSymbols", symbolsPath);
+  }
 
   return {
     regular: serifRegularPath ? "NotoSerif" : "Helvetica",
     bold: serifBoldPath ? "NotoSerif-Bold" : "Helvetica-Bold",
     sans: sansRegularPath ? "NotoSans" : "Helvetica",
     sansBold: sansBoldPath ? "NotoSans-Bold" : "Helvetica-Bold",
+    symbols: symbolsPath ? "NotoSansSymbols" : sansRegularPath ? "NotoSans" : "Helvetica",
   };
 }
 
@@ -748,12 +729,6 @@ function formatPointPlacement(point: ChartPoint, language: PdfLanguage): string 
         : `house ${point.house}`;
 
   return `${degree} ${sign}, ${house}`;
-}
-
-function pointLongitude(chart: ChartResult, name: string): number | null {
-  if (name === "ASC") return chart.houses.asc;
-  if (name === "MC") return chart.houses.mc;
-  return chart.points.find((point) => point.body === name)?.lon ?? null;
 }
 
 function pointPlacementDescription(
@@ -1010,188 +985,6 @@ function addSectionTitle(
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke()
     .moveDown(0.8);
-}
-
-function drawDecorativeWheel(
-  doc: PDFKit.PDFDocument,
-  centerX: number,
-  centerY: number,
-  radius: number,
-): void {
-  doc
-    .save()
-    .strokeColor(SOFT_LINE)
-    .lineWidth(0.7)
-    .opacity(0.7)
-    .circle(centerX, centerY, radius)
-    .stroke()
-    .circle(centerX, centerY, radius * 0.72)
-    .stroke()
-    .circle(centerX, centerY, radius * 0.42)
-    .stroke();
-
-  for (let index = 0; index < 12; index += 1) {
-    const angle = ((index * 30 - 90) * Math.PI) / 180;
-    doc
-      .moveTo(centerX + Math.cos(angle) * radius * 0.42, centerY + Math.sin(angle) * radius * 0.42)
-      .lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius)
-      .stroke();
-  }
-
-  doc.restore();
-}
-
-function drawNatalChart(
-  doc: PDFKit.PDFDocument,
-  chart: ChartResult,
-  language: PdfLanguage,
-  centerX: number,
-  centerY: number,
-  radius: number,
-  fonts: { regular: string; bold: string; sans: string; sansBold: string },
-): void {
-  const outerRadius = radius;
-  const zodiacRadius = radius - 24;
-  const planetRadius = radius - 52;
-  const aspectRadius = radius - 86;
-
-  drawDecorativeWheel(doc, centerX, centerY, outerRadius);
-
-  doc
-    .save()
-    .strokeColor("#CDA65F")
-    .lineWidth(1.4)
-    .circle(centerX, centerY, outerRadius)
-    .stroke()
-    .circle(centerX, centerY, zodiacRadius)
-    .stroke()
-    .restore();
-
-  for (let index = 0; index < 12; index += 1) {
-    const boundaryAngle = ((index * 30 - 90) * Math.PI) / 180;
-    const labelAngle = (((index * 30) + 15 - 90) * Math.PI) / 180;
-    const sign = SIGN_ORDER[index];
-
-    doc
-      .save()
-      .strokeColor(SOFT_LINE)
-      .lineWidth(0.8)
-      .moveTo(
-        centerX + Math.cos(boundaryAngle) * zodiacRadius,
-        centerY + Math.sin(boundaryAngle) * zodiacRadius,
-      )
-      .lineTo(
-        centerX + Math.cos(boundaryAngle) * outerRadius,
-        centerY + Math.sin(boundaryAngle) * outerRadius,
-      )
-      .stroke()
-      .font(fonts.sansBold)
-      .fontSize(8)
-      .fillColor(DEEP_GOLD)
-      .text(
-        labelFor(SIGN_SHORT_LABELS, sign, language),
-        centerX + Math.cos(labelAngle) * (outerRadius - 13) - 16,
-        centerY + Math.sin(labelAngle) * (outerRadius - 13) - 5,
-        { width: 32, align: "center" },
-      )
-      .restore();
-  }
-
-  if (chart.houses.asc !== null && chart.houses.mc !== null) {
-    chart.houses.cusps.forEach((cusp, index) => {
-      const angle = ((cusp - 90) * Math.PI) / 180;
-      doc
-        .save()
-        .strokeColor(index === 0 || index === 9 ? GOLD : "#C9B088")
-        .lineWidth(index === 0 || index === 9 ? 1.5 : 0.65)
-        .moveTo(
-          centerX + Math.cos(angle) * (aspectRadius - 16),
-          centerY + Math.sin(angle) * (aspectRadius - 16),
-        )
-        .lineTo(
-          centerX + Math.cos(angle) * zodiacRadius,
-          centerY + Math.sin(angle) * zodiacRadius,
-        )
-        .stroke()
-        .font(fonts.sans)
-        .fontSize(7)
-        .fillColor(MUTED)
-        .text(
-          String(index + 1),
-          centerX + Math.cos(angle) * (aspectRadius - 29) - 8,
-          centerY + Math.sin(angle) * (aspectRadius - 29) - 4,
-          { width: 16, align: "center" },
-        )
-        .restore();
-    });
-  }
-
-  for (const aspect of chart.aspects.slice(0, 24)) {
-    const lonA = pointLongitude(chart, aspect.a);
-    const lonB = pointLongitude(chart, aspect.b);
-    if (lonA === null || lonB === null) continue;
-
-    const angleA = ((lonA - 90) * Math.PI) / 180;
-    const angleB = ((lonB - 90) * Math.PI) / 180;
-    doc
-      .save()
-      .opacity(0.32)
-      .strokeColor(ASPECT_COLORS[aspect.type])
-      .lineWidth(0.85)
-      .moveTo(centerX + Math.cos(angleA) * aspectRadius, centerY + Math.sin(angleA) * aspectRadius)
-      .lineTo(centerX + Math.cos(angleB) * aspectRadius, centerY + Math.sin(angleB) * aspectRadius)
-      .stroke()
-      .restore();
-  }
-
-  const sortedPoints = [...chart.points].sort((a, b) => a.lon - b.lon);
-  let previousLongitude = -999;
-  let lane = 0;
-
-  for (const point of sortedPoints) {
-    if (Math.abs(point.lon - previousLongitude) < 8) {
-      lane = (lane + 1) % 3;
-    } else {
-      lane = 0;
-    }
-    previousLongitude = point.lon;
-
-    const angle = ((point.lon - 90) * Math.PI) / 180;
-    const markerRadius = planetRadius - lane * 13;
-    const x = centerX + Math.cos(angle) * markerRadius;
-    const y = centerY + Math.sin(angle) * markerRadius;
-
-    doc
-      .save()
-      .fillColor("#FFF9EF")
-      .strokeColor(GOLD)
-      .lineWidth(0.9)
-      .circle(x, y, 9)
-      .fillAndStroke()
-      .font(fonts.sansBold)
-      .fontSize(6.8)
-      .fillColor(TEXT)
-      .text(BODY_SHORT_LABELS[point.body] ?? point.body.slice(0, 2), x - 9, y - 4.5, {
-        width: 18,
-        align: "center",
-      })
-      .restore();
-  }
-
-  doc
-    .save()
-    .font(fonts.sans)
-    .fontSize(7.5)
-    .fillColor(MUTED)
-    .text(
-      language === "ru"
-        ? "Внешнее кольцо - знаки, внутренние линии - дома и аспекты"
-        : "Outer ring: signs; inner lines: houses and aspects",
-      centerX - radius,
-      centerY + radius + 14,
-      { width: radius * 2, align: "center" },
-    )
-    .restore();
 }
 
 function renderKeyValueGrid(
@@ -2159,6 +1952,8 @@ export async function generateInterpretationPdf(
           { width: contentWidth, align: "center", characterSpacing: 1.2 },
         );
 
+      drawSiteLink(doc, fonts, doc.page.margins.left, 664, contentWidth, "#F4D28B", 11);
+
       addPage("chart");
       renderChapterDivider(
         doc,
@@ -2223,7 +2018,22 @@ export async function generateInterpretationPdf(
           language === "ru" ? "Натальная карта" : "Natal Wheel",
           language === "ru" ? "визуальная схема" : "visual map",
         );
-        drawNatalChart(doc, report.chart, language, PAGE_WIDTH / 2, 356, 210, fonts);
+        // The wheel is the profile page wheel (shared geometry), as large as the page allows: the full width
+        // between small side margins, and the height left under the section title once the legend, the site
+        // link and the page footer have their room.
+        const wheelTop = doc.y + 8;
+        const frame = wheelFrame(PAGE_WIDTH / 2, wheelTop, wheelSide(PAGE_WIDTH, PAGE_HEIGHT, wheelTop));
+        const plan = drawNatalWheel(doc, report.chart, language, frame, fonts);
+        const legendBottom = drawWheelLegend(
+          doc,
+          plan,
+          language,
+          fonts,
+          doc.page.margins.left,
+          frame.top + frame.side + 8,
+          contentWidth,
+        );
+        drawSiteLink(doc, fonts, doc.page.margins.left, legendBottom + 6, contentWidth, WHEEL_COLORS.deepGold);
       }
 
       if (report.chart) {

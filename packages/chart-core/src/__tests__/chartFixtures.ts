@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ChartResult } from "@/types";
+import type { ChartResult } from "../types";
 
 /** Real backend results (calcVersion 2) for the natal-parity datasets; see fixtures/charts.json. */
 export type FixtureName = "A" | "B" | "C" | "D" | "unknownTime" | "fallback";

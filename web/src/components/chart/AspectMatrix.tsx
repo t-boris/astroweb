@@ -1,19 +1,21 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import type { ChartResult, SharedAspect } from "@/types";
-import { ASPECT_COLORS, ASPECT_GLYPHS } from "@/components/chart/utils/constants";
-import { ALL_ASPECT_TYPES, filterAspects, useAspectFilters } from "@/components/chart/utils/aspectFilters";
-import { getSharedAspects } from "@/components/chart/utils/positions";
+import type { ChartResult } from "@/types";
 import {
-  aspectPairKey,
-  aspectsAmong,
+  ASPECT_COLORS,
+  ASPECT_GLYPHS,
+  ALL_ASPECT_TYPES,
   formatSignedOrb,
-  getAnalysisPoints,
   pointGlyph,
-  pointLabel,
-} from "@/components/chart/utils/viewModel";
+} from "@astroweb/chart-core";
+import { aspectStatus, buildMatrixModel, matrixAspect } from "./matrixModel";
+import { useAspectFilters } from "@/components/chart/utils/useAspectFilters";
+import { pointLabel } from "@/components/chart/utils/labels";
 import { HelpBubble } from "@/components/HelpBubble";
 import AspectFilters from "@/components/chart/AspectFilters";
+import { ImageDownloadButton } from "./image/ImageDownloadButton";
+import { buildMatrixImage } from "./image/buildImages";
+import { composeFooterLines, type ChartImageContext } from "./image/imageCommon";
 
 const CELL = "min-w-[3.75rem] border border-[var(--line-soft)] p-1 text-center align-middle";
 
@@ -26,19 +28,11 @@ function glyphStyle(glyph: string) {
  * an a (applying) or s (separating) marker; the marker is left out when the status does not apply.
  * The matrix opens with every aspect type visible; its filters only hide cells.
  */
-export function AspectMatrix({ chart }: { chart: ChartResult }) {
-  const { t } = useTranslation();
+export function AspectMatrix({ chart, imageContext }: { chart: ChartResult; imageContext?: ChartImageContext }) {
+  const { t, i18n } = useTranslation();
   const filters = useAspectFilters(ALL_ASPECT_TYPES);
-  const points = useMemo(() => getAnalysisPoints(chart), [chart]);
-  const pairs = useMemo(() => {
-    const among = aspectsAmong(getSharedAspects(chart), points);
-    return new Map<string, SharedAspect>(
-      filterAspects(among, filters.activeFilters).map((aspect) => [aspectPairKey(aspect.a, aspect.b), aspect]),
-    );
-  }, [chart, points, filters.activeFilters]);
-
-  const columns = points.slice(0, -1);
-  const rows = points.slice(1);
+  const model = useMemo(() => buildMatrixModel(chart, filters.activeFilters), [chart, filters.activeFilters]);
+  const { columns, rows } = model;
 
   return (
     <div className="space-y-3">
@@ -52,6 +46,28 @@ export function AspectMatrix({ chart }: { chart: ChartResult }) {
         onToggle={filters.onToggle}
         onShowAll={filters.onShowAll}
       />
+      {imageContext && (
+        <div className="flex justify-center">
+          <ImageDownloadButton
+            kind="matrix"
+            build={() =>
+              buildMatrixImage({
+                chart,
+                activeFilters: filters.activeFilters,
+                footerLines: composeFooterLines(t, i18n.language, chart, imageContext),
+                labels: {
+                  title: t("natalChart.matrix.title"),
+                  legend: t("natalChart.matrix.legend"),
+                  ariaLabel: t("natalChart.matrix.title"),
+                  pointLabel: (id) => pointLabel(t, id),
+                  applyingShort: t("natalChart.aspects.applyingShort"),
+                  separatingShort: t("natalChart.aspects.separatingShort"),
+                },
+              })
+            }
+          />
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="border-collapse text-xs" aria-label={t("natalChart.matrix.title")}>
           <thead>
@@ -87,10 +103,10 @@ export function AspectMatrix({ chart }: { chart: ChartResult }) {
                   </span>
                 </th>
                 {columns.slice(0, rowIndex + 1).map((column) => {
-                  const aspect = pairs.get(aspectPairKey(row.id, column.id));
+                  const aspect = matrixAspect(model, row.id, column.id);
                   if (!aspect) return <td key={column.id} className={CELL} />;
                   const color = ASPECT_COLORS[aspect.type];
-                  const status = aspect.applying === null ? null : aspect.applying ? "applying" : "separating";
+                  const status = aspectStatus(aspect);
                   const orb = formatSignedOrb(aspect);
                   const label = [
                     `${pointLabel(t, column.id)} ${t(`chart.aspects.${aspect.type}`)} ${pointLabel(t, row.id)}`,

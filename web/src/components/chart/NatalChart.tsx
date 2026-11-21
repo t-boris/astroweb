@@ -1,42 +1,32 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { CHART_LAYOUT } from "./utils/constants";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { filterAspects, useAspectFilters } from "./utils/aspectFilters";
 import {
-  getAngles,
-  getPositions,
-  getSharedAspects,
-  isTimeEstimated,
-  wheelRotation,
-} from "./utils/positions";
-import {
+  CHART_LAYOUT,
+  eclipticToSvgAngle,
+  polarToCartesian,
   angleEntries,
-  aspectSegments,
   connectedIds,
-  placePoints,
-} from "./utils/wheelLayout";
-import ZodiacRing from "./ZodiacRing";
-import DegreeScale from "./DegreeScale";
-import HouseCusps from "./HouseCusps";
-import CuspLabels from "./CuspLabels";
-import AspectLines from "./AspectLines";
-import AngleAxes from "./AngleAxes";
-import PlanetMarkers from "./PlanetMarkers";
+} from "@astroweb/chart-core";
+import { useAspectFilters } from "./utils/useAspectFilters";
+import { buildWheelModel } from "./wheelModel";
+import WheelSvg from "./WheelSvg";
 import ChartTooltip, { type TooltipTarget } from "./ChartTooltip";
 import AspectFilters from "./AspectFilters";
+import { ImageDownloadButton } from "./image/ImageDownloadButton";
+import { buildWheelImage } from "./image/buildImages";
+import { composeFooterLines, type ChartImageContext } from "./image/imageCommon";
 import type { ChartResult } from "@/types";
 
-export default function NatalChart({ chart }: { chart: ChartResult }) {
-  const { t } = useTranslation();
-  const { size, cx, cy, planetRadius, houseInner } = CHART_LAYOUT;
+interface NatalChartProps {
+  chart: ChartResult;
+  /** Birth data for the footer of the downloaded image; without it the download button is not shown. */
+  imageContext?: ChartImageContext;
+}
 
-  // Without a birth time the positions are local-noon estimates: no houses, no angles (REQ-001).
-  const estimated = isTimeEstimated(chart);
-  const rotation = wheelRotation(chart);
-  const angles = estimated ? null : getAngles(chart);
-  const cusps = estimated || chart.houses.cusps.length !== 12 ? null : chart.houses.cusps;
+export default function NatalChart({ chart, imageContext }: NatalChartProps) {
+  const { t, i18n } = useTranslation();
+  const { cx, cy, planetRadius, houseInner } = CHART_LAYOUT;
 
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -56,17 +46,9 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
     return () => cancelAnimationFrame(timer);
   }, []);
 
-  const placed = useMemo(() => placePoints(getPositions(chart)), [chart]);
-
-  // One shared aspect set; the filters only decide which of its aspects are drawn (DEC-011).
-  const visibleAspects = useMemo(
-    () => filterAspects(getSharedAspects(chart), activeFilters),
-    [chart, activeFilters],
-  );
-  const segments = useMemo(
-    () => aspectSegments(chart, visibleAspects, rotation),
-    [chart, visibleAspects, rotation],
-  );
+  // Everything the wheel draws; the image export builds the same model (see wheelModel.ts).
+  const model = useMemo(() => buildWheelModel(chart, activeFilters), [chart, activeFilters]);
+  const { estimated, rotation, angles, placed, visibleAspects } = model;
   const linked = useMemo(() => connectedIds(focusId, visibleAspects), [focusId, visibleAspects]);
 
   const focus = useMemo(() => {
@@ -102,89 +84,18 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
 
   return (
     <div className="relative w-full max-w-[600px] mx-auto">
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${size} ${size}`}
-        className="w-full h-auto"
-        role="img"
-        aria-label={t("natalWheel.ariaLabel")}
-      >
-        {/* Dark cosmic background */}
-        <defs>
-          <radialGradient id="chart-bg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0f0f2e" />
-            <stop offset="100%" stopColor="#070714" />
-          </radialGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="glow-bright">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="line-glow">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Background disc: the wheel and the angle labels around it */}
-        <circle cx={cx} cy={cy} r={size / 2} fill="url(#chart-bg)" />
-
-        {/* Sign band, then the graduated degree scale */}
-        <ZodiacRing rotation={rotation} revealed={revealed} />
-        <DegreeScale rotation={rotation} revealed={revealed} />
-
-        {/* House cusps and numbers (none without a birth time), inner circle */}
-        <HouseCusps cusps={cusps} rotation={rotation} revealed={revealed} />
-
-        {/* Longitude of every house cusp outside the sign band (only with a birth time) */}
-        {cusps && angles && (
-          <CuspLabels cusps={cusps} angles={angles} rotation={rotation} revealed={revealed} />
-        )}
-
-        {/* Aspect lines (inside the inner circle, behind the points) */}
-        <AspectLines
-          segments={segments}
-          focusId={focusId}
-          showSymbols={showSymbols}
-          revealed={revealed}
-        />
-
-        {/* ASC, DSC, MC, IC (only with a birth time) */}
-        {angles && (
-          <AngleAxes
-            angles={angles}
-            rotation={rotation}
-            focusId={focusId}
-            connectedIds={linked}
-            onHover={setHoveredId}
-            onSelect={toggleSelected}
-            revealed={revealed}
-          />
-        )}
-
-        {/* Points (on top of aspect lines) */}
-        <PlanetMarkers
-          points={placed}
-          rotation={rotation}
-          focusId={focusId}
-          connectedIds={linked}
-          onPointHover={setHoveredId}
-          onPointSelect={toggleSelected}
-          revealed={revealed}
-        />
-      </svg>
+      <WheelSvg
+        model={model}
+        showSymbols={showSymbols}
+        ariaLabel={t("natalWheel.ariaLabel")}
+        revealed={revealed}
+        focusId={focusId}
+        linked={linked}
+        onHover={setHoveredId}
+        onSelect={toggleSelected}
+        svgRef={svgRef}
+        rootProps={{ className: "w-full h-auto" }}
+      />
 
       {/* Tooltip overlay (HTML, outside SVG) */}
       {focus && (
@@ -212,8 +123,8 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
         onReset={onReset}
       />
 
-      {/* Display option, not a filter: the aspect glyph at the middle of each line */}
-      <div className="mt-3 flex justify-center">
+      {/* Display option, not a filter: the aspect glyph at the middle of each line; then the image download */}
+      <div className="mt-3 flex flex-wrap items-start justify-center gap-2">
         <button
           type="button"
           aria-pressed={showSymbols}
@@ -225,6 +136,20 @@ export default function NatalChart({ chart }: { chart: ChartResult }) {
         >
           {t("natalWheel.aspectSymbols")}
         </button>
+        {imageContext && (
+          <ImageDownloadButton
+            kind="wheel"
+            build={() =>
+              buildWheelImage({
+                chart,
+                activeFilters,
+                showSymbols,
+                ariaLabel: t("natalWheel.ariaLabel"),
+                footerLines: composeFooterLines(t, i18n.language, chart, imageContext),
+              })
+            }
+          />
+        )}
       </div>
     </div>
   );

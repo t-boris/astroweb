@@ -26,7 +26,7 @@ import { ElementModalityGrid } from "@/components/chart/ElementModalityGrid";
 import { DegreeStrip } from "@/components/chart/DegreeStrip";
 import { ChartContextLine } from "@/components/chart/ChartContextLine";
 import { HouseSystemSelector } from "@/components/chart/HouseSystemSelector";
-import { DEFAULT_HOUSE_SYSTEM, type HouseSystem } from "@/components/chart/utils/viewModel";
+import { DEFAULT_HOUSE_SYSTEM, type HouseSystem } from "@astroweb/chart-core";
 import { InterpretationView } from "@/components/chart/InterpretationView";
 import { HouseAreasView } from "@/components/chart/HouseAreasView";
 import { RelationshipView } from "@/components/chart/RelationshipView";
@@ -526,6 +526,13 @@ export default function ProfileDetail() {
   }
 
   const chartRelocated = chartData !== null && isRelocatedChart(chartData, profile);
+  // What the downloaded chart images say about the chart: no name and no coordinates.
+  const imageContext = {
+    birthDate: profile.birthDate,
+    birthTime: profile.birthTime,
+    placeName: chartRelocated ? relocationPlace : profile.birthPlace,
+    relocated: chartRelocated,
+  };
 
   return (
     <div className="space-y-6 relative z-10">
@@ -635,7 +642,7 @@ export default function ProfileDetail() {
             <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_0.85fr]">
               <Card className="ds-card">
                 <CardContent className="pt-6">
-                  <NatalChart chart={chartData} />
+                  <NatalChart chart={chartData} imageContext={imageContext} />
                 </CardContent>
               </Card>
               <div className="space-y-5">
@@ -755,7 +762,7 @@ export default function ProfileDetail() {
               </Card>
               <Card className="ds-card">
                 <CardContent className="pt-6">
-                  <AspectMatrix chart={chartData} />
+                  <AspectMatrix chart={chartData} imageContext={imageContext} />
                 </CardContent>
               </Card>
             </div>

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
-import type { ChartResult } from "@/types";
+import { loadFixtures, type FixtureName } from "@astroweb/chart-core/test-fixtures";
 
 /**
  * Shared setup of the table, matrix, summary and profile tests: the real EN and RU translation files
@@ -14,11 +14,9 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf-8")) as T;
 }
 
-export type FixtureName = "A" | "B" | "C" | "D" | "unknownTime" | "fallback";
+export type { FixtureName };
 
-export const charts = readJson<{ charts: Record<FixtureName, ChartResult> }>(
-  join(__dirname, "fixtures", "charts.json"),
-).charts;
+export const charts = loadFixtures().charts;
 
 export async function initI18n(lng: "en" | "ru"): Promise<void> {
   const resources = {

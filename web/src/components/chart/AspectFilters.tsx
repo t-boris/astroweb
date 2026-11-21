@@ -5,8 +5,9 @@ import {
   ASPECT_GLYPHS,
   MAJOR_ASPECT_TYPES,
   MINOR_ASPECT_TYPES,
-} from "./utils/constants";
-import { ALL_ASPECT_TYPES, DEFAULT_ASPECT_TYPES } from "./utils/aspectFilters";
+  ALL_ASPECT_TYPES,
+  DEFAULT_ASPECT_TYPES,
+} from "@astroweb/chart-core";
 import { aspectHelpKey } from "@/lib/helpKeys";
 import { HelpBubble } from "@/components/HelpBubble";
 

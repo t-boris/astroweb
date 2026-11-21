@@ -3,8 +3,7 @@
  * Everything here reads the chart through positions.ts, so sign, degree, minute, house, retrograde
  * marker and aspect values are the same ones the wheel draws (REQ-002, REQ-003, REQ-004).
  */
-import type { TFunction } from "i18next";
-import type { ChartResult, PositionId, SharedAspect } from "@/types";
+import type { ChartResult, PositionId, SharedAspect } from "./types";
 import { ANGLE_LABELS, EXTRA_POINT_GLYPHS, PLANET_GLYPHS, SIGN_ELEMENTS } from "./constants";
 import { formatOrb, getAngles, getPositions, isTimeEstimated, splitLongitude } from "./positions";
 
@@ -88,11 +87,6 @@ export function pointGlyph(id: string): string {
   return PLANET_GLYPHS[id] ?? EXTRA_POINT_GLYPHS[id] ?? ANGLE_LABELS[id] ?? "";
 }
 
-/** Localized name of a point or angle id (`natalChart.points.*`). */
-export function pointLabel(t: TFunction, id: string): string {
-  return t(`natalChart.points.${id}`, id);
-}
-
 // ---- House systems ---------------------------------------------------------------------------
 
 export type HouseSystem = ChartResult["meta"]["houseSystem"];
@@ -102,11 +96,6 @@ export const HOUSE_SYSTEMS: readonly HouseSystem[] = ["koch", "whole-sign", "pla
 
 /** Koch is the system the profile chart opens with (DEC-009). */
 export const DEFAULT_HOUSE_SYSTEM: HouseSystem = "koch";
-
-/** Localized name of a house system (`houseAreas.houseSystemNames.*`). */
-export function houseSystemName(t: TFunction, system: HouseSystem): string {
-  return t(`houseAreas.houseSystemNames.${system === "whole-sign" ? "wholeSign" : system}`);
-}
 
 // ---- Aspects ---------------------------------------------------------------------------------
 

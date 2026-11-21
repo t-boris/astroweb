@@ -1,7 +1,15 @@
 import { useMemo } from "react";
-import { eclipticToSvgAngle, polarToCartesian } from "./utils/chartMath";
-import { CHART_LAYOUT, ELEMENT_COLORS, SIGN_ELEMENTS } from "./utils/constants";
-import { CUSP_LABEL_START_RADIUS, cuspLabelCenter, cuspLabels, signGlyph } from "./utils/wheelLayout";
+import {
+  eclipticToSvgAngle,
+  polarToCartesian,
+  CHART_LAYOUT,
+  SIGN_ELEMENTS,
+  CUSP_LABEL_START_RADIUS,
+  cuspLabelCenter,
+  cuspLabels,
+  signGlyph,
+} from "@astroweb/chart-core";
+import { ELEMENT_COLORS } from "./utils/elementColors";
 import type { ChartAngles } from "@/types";
 
 interface CuspLabelsProps {

@@ -1,3 +1,17 @@
+## Chart images: only a small caption and the link, always in English (feat/image-caption-english, v2.31.0)
+
+Request: "на картинках ... для натальной карты и для матрицы ... внизу мелкими буквами ... линк, мелко внизу слева описание, что это такое, что это NatalMystic ... а дальше информации о другом ничего не должно быть, то есть ни дата рождения, ничто другое ... ни в коем случае не пиши ничего по-русски в созданных картинках."
+Before: the footer printed the address large in the centre, then the birth date and time, the place (or relocation place) and the house system, in the interface language; the matrix image also had a title, point names, the legend and the a/s marks in the interface language.
+
+- [x] Footer of both images: one small line, the caption on the left ("Natal chart wheel · made with NatalMystic", "Natal chart aspect matrix · made with NatalMystic") and the link https://natalmystic.com on the right. No birth date, time, place, relocation or house system; the image code no longer receives any of it.
+- [x] Every text of both images is English whatever the interface language (fixed English translator, aria labels included); the matrix title goes (the caption says what the picture is), the English legend stays because it explains the a/s marks and the minus sign.
+- [x] The page gives the chart components only a flag that offers the download (`allowImageDownload`) instead of the birth data; the unused footer texts and helpers are removed.
+- [x] Tests: footer holds exactly the caption (left, start anchor) and the link (right, end anchor) on one line; no Cyrillic anywhere in either SVG (attributes included) with the interface in Russian, while the page's own matrix in Russian has Cyrillic (the check can fail); no year, time, house system or relocation text for five fixtures; download buttons only where the page allows them. Mutation: the image translator switched to the interface language fails the English test.
+- [x] Visual check in the browser of both images built with the interface in Russian (decoded as an image, as the download does): wheel 1012 x 1068, matrix 1738 x 1278; "Natal chart wheel · made with NatalMystic" bottom left, https://natalmystic.com bottom right, small; matrix without title, English point names and legend; no Cyrillic in either file. Web 342 pass, build and tsc clean, eslint clean on the changed files (the 5 errors of `eslint src` are on main already, in files not touched here).
+- [ ] Ship: PR, CI, merge, deploy, live read-only check of both downloads.
+
+---
+
 ## Maximise the natal chart (feat/wheel-maximize, v2.30.0)
 
 Request (asked twice, the second time with emphasis): "картинку натальной карты максимайз". v2.27.0 only made the *downloaded* picture fill its frame and gave the PNG its largest size; there was no way to see the wheel bigger on the page, where it stops at 600 px. I had asked about a full-screen button in the report instead of building it.

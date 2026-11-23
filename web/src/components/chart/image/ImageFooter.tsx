@@ -1,27 +1,19 @@
-import { IMAGE_GOLD, IMAGE_INK_SOFT, SITE_URL } from "./imageCommon";
+import { FOOTER_FONT_SIZE, FOOTER_HEIGHT, FOOTER_INSET, IMAGE_GOLD, IMAGE_INK_SOFT, SITE_URL } from "./imageCommon";
 
-/** The band under a chart image: the site address, then the lines about the chart. Drawn from y to y + FOOTER_HEIGHT. */
-export default function ImageFooter({ width, y, lines }: { width: number; y: number; lines: string[] }) {
-  const x = width / 2;
+/**
+ * The band under a chart image, drawn from y to y + FOOTER_HEIGHT: one small line with the caption (what the
+ * picture is and where it comes from) on the left and the site address on the right. Nothing else is printed.
+ */
+export default function ImageFooter({ width, y, caption }: { width: number; y: number; caption: string }) {
+  const baseline = y + FOOTER_HEIGHT / 2 + FOOTER_FONT_SIZE * 0.35;
   return (
-    <g data-image-footer>
-      <line x1={x - 170} y1={y + 12} x2={x + 170} y2={y + 12} stroke={IMAGE_GOLD} strokeOpacity={0.35} strokeWidth={1.5} />
-      <text data-footer-field="url" x={x} y={y + 62} textAnchor="middle" fontSize={34} letterSpacing={1} fill={IMAGE_GOLD}>
+    <g data-image-footer fontSize={FOOTER_FONT_SIZE}>
+      <text data-footer-field="caption" x={FOOTER_INSET} y={baseline} textAnchor="start" fill={IMAGE_INK_SOFT}>
+        {caption}
+      </text>
+      <text data-footer-field="url" x={width - FOOTER_INSET} y={baseline} textAnchor="end" letterSpacing={0.5} fill={IMAGE_GOLD}>
         {SITE_URL}
       </text>
-      {lines.map((line, index) => (
-        <text
-          key={index}
-          data-footer-field="meta"
-          x={x}
-          y={y + 104 + index * 34}
-          textAnchor="middle"
-          fontSize={24}
-          fill={IMAGE_INK_SOFT}
-        >
-          {line}
-        </text>
-      ))}
     </g>
   );
 }

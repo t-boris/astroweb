@@ -18,16 +18,15 @@ import { clickReleasesPinned, keyReleasesPinned } from "./wheelSelection";
 import AspectFilters from "./AspectFilters";
 import { ImageDownloadButton } from "./image/ImageDownloadButton";
 import { buildWheelImage } from "./image/buildImages";
-import { composeFooterLines, type ChartImageContext } from "./image/imageCommon";
 import type { ChartResult } from "@/types";
 
 interface NatalChartProps {
   chart: ChartResult;
-  /** Birth data for the footer of the downloaded image; without it the download button is not shown. */
-  imageContext?: ChartImageContext;
+  /** Offers the download of the wheel image (the profile page); other places show the wheel only. */
+  allowImageDownload?: boolean;
 }
 
-export default function NatalChart({ chart, imageContext }: NatalChartProps) {
+export default function NatalChart({ chart, allowImageDownload = false }: NatalChartProps) {
   const { t, i18n } = useTranslation();
   const { cx, cy, planetRadius, houseInner } = CHART_LAYOUT;
 
@@ -186,18 +185,10 @@ export default function NatalChart({ chart, imageContext }: NatalChartProps) {
           >
             {t("natalWheel.aspectSymbols")}
           </button>
-          {imageContext && (
+          {allowImageDownload && (
             <ImageDownloadButton
               kind="wheel"
-              build={() =>
-                buildWheelImage({
-                  chart,
-                  activeFilters,
-                  showSymbols,
-                  ariaLabel: t("natalWheel.ariaLabel"),
-                  footerLines: composeFooterLines(t, i18n.language, chart, imageContext),
-                })
-              }
+              build={() => buildWheelImage({ chart, activeFilters, showSymbols, i18n })}
             />
           )}
         </div>

@@ -517,13 +517,6 @@ export default function ProfileDetail() {
   }
 
   const chartRelocated = chartData !== null && isRelocatedChart(chartData, profile);
-  // What the downloaded chart images say about the chart: no name and no coordinates.
-  const imageContext = {
-    birthDate: profile.birthDate,
-    birthTime: profile.birthTime,
-    placeName: chartRelocated ? relocationPlace : profile.birthPlace,
-    relocated: chartRelocated,
-  };
 
   return (
     <div className="space-y-6 relative z-10">
@@ -633,7 +626,7 @@ export default function ProfileDetail() {
             <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_0.85fr]">
               <Card className="ds-card">
                 <CardContent className="pt-6">
-                  <NatalChart chart={chartData} imageContext={imageContext} />
+                  <NatalChart chart={chartData} allowImageDownload />
                 </CardContent>
               </Card>
               <div className="space-y-5">
@@ -725,7 +718,7 @@ export default function ProfileDetail() {
               </Card>
               <Card className="ds-card">
                 <CardContent className="pt-6">
-                  <AspectMatrix chart={chartData} imageContext={imageContext} />
+                  <AspectMatrix chart={chartData} allowImageDownload />
                 </CardContent>
               </Card>
             </div>

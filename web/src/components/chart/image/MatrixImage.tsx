@@ -21,7 +21,6 @@ import {
   LEGEND_LINE,
   MINOR_DASH,
   PAD,
-  TITLE_H,
   legendLineChars,
   matrixImageSize,
   type MatrixImageLabels,
@@ -35,21 +34,22 @@ function glyphSize(glyph: string, normal: number): number {
 /**
  * The lower-triangular aspect matrix as an image: the cells of the on-screen table (same model), each with the
  * aspect glyph, the signed orb and the applying or separating mark, in the aspect colour (dashed for minors).
+ * There is no title: the caption in the footer says what the picture is.
  */
 export default function MatrixImage({
   model,
   labels,
-  footerLines,
+  caption,
 }: {
   model: MatrixModel;
   labels: MatrixImageLabels;
-  footerLines: string[];
+  caption: string;
 }) {
   const { columns, rows } = model;
   const legend = wrapText(labels.legend, legendLineChars(columns.length));
   const { width, height } = matrixImageSize(columns.length, rows.length, legend.length);
   const gridX = PAD + LABEL_W;
-  const gridY = PAD + TITLE_H + HEAD_H;
+  const gridY = PAD + HEAD_H;
   const gridBottom = gridY + rows.length * CELL_H;
   const legendY = gridBottom + 36;
   const footerY = height - FOOTER_HEIGHT;
@@ -65,9 +65,6 @@ export default function MatrixImage({
       aria-label={labels.ariaLabel}
     >
       <rect width={width} height={height} fill={IMAGE_BG} />
-      <text data-matrix-title x={PAD} y={PAD + 36} fontSize={38} fill={IMAGE_ACCENT} fontFamily={IMAGE_SERIF}>
-        {labels.title}
-      </text>
 
       {columns.map((point, index) => {
         const glyph = pointGlyph(point.id);
@@ -185,7 +182,7 @@ export default function MatrixImage({
         </text>
       ))}
 
-      <ImageFooter width={width} y={footerY} lines={footerLines} />
+      <ImageFooter width={width} y={footerY} caption={caption} />
     </svg>
   );
 }

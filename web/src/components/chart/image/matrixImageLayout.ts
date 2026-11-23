@@ -5,13 +5,12 @@ export const LABEL_W = 250;
 export const CELL_W = 88;
 export const CELL_H = 64;
 export const HEAD_H = 70;
-export const TITLE_H = 84;
 export const LEGEND_FONT = 19;
 export const LEGEND_LINE = 28;
 export const MINOR_DASH = "6 4";
 
+/** The texts of the matrix image, all in the image language. */
 export interface MatrixImageLabels {
-  title: string;
   /** The "a = applying, s = separating" explanation. */
   legend: string;
   ariaLabel: string;
@@ -23,7 +22,7 @@ export interface MatrixImageLabels {
 /** Size of the matrix image for a matrix of `columns` by `rows` cells and a legend of `legendLines` lines. */
 export function matrixImageSize(columns: number, rows: number, legendLines: number): { width: number; height: number } {
   const width = PAD + LABEL_W + columns * CELL_W + PAD;
-  const gridBottom = PAD + TITLE_H + HEAD_H + rows * CELL_H;
+  const gridBottom = PAD + HEAD_H + rows * CELL_H;
   const height = gridBottom + 36 + legendLines * LEGEND_LINE + 24 + FOOTER_HEIGHT;
   return { width, height };
 }

@@ -245,10 +245,6 @@
       "matrixAria": "Download the aspect matrix as a PNG image with the site address",
       "busy": "Preparing image…",
       "error": "The image could not be created. Please try again."
-    },
-    "footer": {
-      "houses": "{{system}} houses",
-      "timeUnknown": "time unknown, positions for local noon"
     }
   },
   "natalWheel": {

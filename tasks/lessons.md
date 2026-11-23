@@ -402,3 +402,7 @@ I read "maximize" as "fill the picture", did that, and put the full-screen optio
 wanted, so they had to ask again, louder. When a request has a likely reading that is cheap to build, build both readings (here: the
 bigger picture and the full-screen view) and say what was done, instead of finishing one and asking about the other.
 
+
+## A picture made for sharing carries no personal data and has one fixed language
+
+The downloaded chart images first printed the birth date, time, place and house system in the interface language. The owner wanted only a small caption (what the picture is, that it comes from NatalMystic) and the link, and never any Russian in a generated image. Rule: anything that leaves the site as a file to be passed around gets its text from a fixed-language translator (`i18n.getFixedT("en")`), not from `useTranslation()`, and receives no profile data at all, so it cannot print it. Test it by building with the interface in the other language and asserting no character of that script anywhere in the file, attributes included.

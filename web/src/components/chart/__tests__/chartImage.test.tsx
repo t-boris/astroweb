@@ -9,17 +9,16 @@ import { buildWheelModel } from "@/components/chart/wheelModel";
 import { ImageDownloadButton } from "@/components/chart/image/ImageDownloadButton";
 import { buildMatrixImage, buildWheelImage } from "@/components/chart/image/buildImages";
 import {
+  FOOTER_FONT_SIZE,
   FOOTER_HEIGHT,
+  FOOTER_INSET,
   IMAGE_BG,
+  IMAGE_CAPTIONS,
   SITE_URL,
   WHEEL_IMAGE_SIZE,
-  composeFooterLines,
-  cleanText,
   sanitizeSvg,
-  truncate,
   wrapText,
   type ChartImage,
-  type ChartImageContext,
 } from "@/components/chart/image/imageCommon";
 import { matrixImageSize } from "@/components/chart/image/matrixImageLayout";
 import { IMAGE_WHEEL_LOOK, PAGE_WHEEL_LOOK } from "@/components/chart/wheelLook";
@@ -40,89 +39,107 @@ beforeAll(async () => {
   await initI18n("en");
 });
 
-const CONTEXT: ChartImageContext = {
-  birthDate: "1990-01-10",
-  birthTime: "12:30",
-  placeName: "Minneapolis, Minnesota, USA",
-  relocated: false,
-};
-
 const t = () => i18next.getFixedT(i18next.language);
 
-function footerFor(name: FixtureName, context: ChartImageContext = CONTEXT): string[] {
-  return composeFooterLines(t(), i18next.language, charts[name], context);
-}
-
 async function wheelFor(name: FixtureName, filters: ReadonlySet<string> = new Set(DEFAULT_ASPECT_TYPES), showSymbols = true) {
-  return buildWheelImage({
-    chart: charts[name],
-    activeFilters: filters,
-    showSymbols,
-    ariaLabel: t()("natalWheel.ariaLabel"),
-    footerLines: footerFor(name),
-  });
-}
-
-function matrixLabels() {
-  const tt = t();
-  return {
-    title: tt("natalChart.matrix.title"),
-    legend: tt("natalChart.matrix.legend"),
-    ariaLabel: tt("natalChart.matrix.title"),
-    pointLabel: (id: string) => pointLabel(tt, id),
-    applyingShort: tt("natalChart.aspects.applyingShort"),
-    separatingShort: tt("natalChart.aspects.separatingShort"),
-  };
+  return buildWheelImage({ chart: charts[name], activeFilters: filters, showSymbols, i18n: i18next });
 }
 
 async function matrixFor(name: FixtureName, filters: ReadonlySet<string> = new Set(ALL_ASPECT_TYPES)) {
-  return buildMatrixImage({
-    chart: charts[name],
-    activeFilters: filters,
-    labels: matrixLabels(),
-    footerLines: footerFor(name),
-  });
+  return buildMatrixImage({ chart: charts[name], activeFilters: filters, i18n: i18next });
 }
+
+/** The fields of the footer band, in order: [field, text]. */
+function footerOf(svg: string): string[][] {
+  const footer = svg.match(/<g data-image-footer[^>]*>([\s\S]*?)<\/g>/)?.[1] ?? "";
+  return [...footer.matchAll(/<text data-footer-field="(\w+)"[^>]*>([^<]*)<\/text>/g)].map((m) => [m[1], m[2]]);
+}
+
+/** Builds with the interface in Russian and puts English back even when the build fails. */
+async function inRussian<T>(build: () => Promise<T>): Promise<T> {
+  await initI18n("ru");
+  try {
+    return await build();
+  } finally {
+    await initI18n("en");
+  }
+}
+
+const CYRILLIC = /[\u0400-\u04FF]/;
 
 /** The page's own wheel markup, for comparison with the image. */
 const pageWheel = (name: FixtureName) => renderToStaticMarkup(<NatalChart chart={charts[name]} />);
 
-describe("footer lines of the image", () => {
-  it("names the birth date and time, the place and the house system the chart was calculated with", () => {
-    expect(footerFor("C")).toEqual(["January 10, 1990 · 12:30", "Minneapolis, Minnesota, USA · Koch houses"]);
-    expect(footerFor("A")[1]).toBe("Minneapolis, Minnesota, USA · Whole Sign houses");
-    expect(footerFor("D")[1]).toBe("Minneapolis, Minnesota, USA · Placidus houses");
+describe("footer of the images: a small caption and the link, nothing else", () => {
+  it("prints only the caption on the left and the site address on the right", async () => {
+    for (const [kind, image] of [
+      ["wheel", await wheelFor("C")],
+      ["matrix", await matrixFor("C")],
+    ] as const) {
+      expect(footerOf(image.svg), kind).toEqual([
+        ["caption", IMAGE_CAPTIONS[kind]],
+        ["url", SITE_URL],
+      ]);
+      const [caption, url] = tagsWith(image.svg, "text", "data-footer-field");
+      expect(caption["text-anchor"]).toBe("start");
+      expect(Number(caption.x)).toBe(FOOTER_INSET);
+      expect(url["text-anchor"]).toBe("end");
+      expect(Number(url.x)).toBe(image.width - FOOTER_INSET);
+      // Both sit on the one line of the footer band at the bottom of the picture.
+      expect(caption.y).toBe(url.y);
+      expect(Number(caption.y)).toBeGreaterThan(image.height - FOOTER_HEIGHT);
+      expect(Number(caption.y)).toBeLessThan(image.height);
+      expect(image.svg).toContain(`<g data-image-footer="true" font-size="${FOOTER_FONT_SIZE}">`);
+    }
   });
 
-  it("names the system that was actually used when the requested one fell back", () => {
-    const info = charts.fallback.context;
-    expect(info?.requestedHouseSystem).not.toBe(info?.usedHouseSystem);
-    expect(footerFor("fallback")[1]).toContain(`${i18next.t(`houseAreas.houseSystemNames.${info?.usedHouseSystem === "whole-sign" ? "wholeSign" : info?.usedHouseSystem}`)} houses`);
+  it("says what each picture is and that it comes from NatalMystic", () => {
+    expect(IMAGE_CAPTIONS.wheel).toMatch(/^Natal chart wheel\b.*NatalMystic/);
+    expect(IMAGE_CAPTIONS.matrix).toMatch(/^Natal chart aspect matrix\b.*NatalMystic/);
   });
 
-  it("says the time is unknown and names no house system for a noon estimate", () => {
-    const lines = footerFor("unknownTime", { ...CONTEXT, birthTime: null });
-    expect(lines).toEqual(["January 10, 1990 · time unknown, positions for local noon", "Minneapolis, Minnesota, USA"]);
-    expect(lines.join(" ")).not.toMatch(/houses/i);
+  it("keeps the footer small next to the chart", () => {
+    expect(FOOTER_FONT_SIZE).toBeLessThanOrEqual(20);
+    expect(FOOTER_HEIGHT).toBeLessThanOrEqual(3 * FOOTER_FONT_SIZE + 2);
   });
 
-  it("marks a relocation place and leaves the place out when there is none", () => {
-    expect(footerFor("C", { ...CONTEXT, relocated: true })[1]).toContain("(relocated)");
-    expect(footerFor("C", { ...CONTEXT, placeName: "" })).toEqual(["January 10, 1990 · 12:30", "Koch houses"]);
+  it("prints no birth date, time, place, relocation or house system", async () => {
+    for (const name of ["A", "C", "D", "unknownTime", "fallback"] as const) {
+      for (const image of [await wheelFor(name), await matrixFor(name)]) {
+        const text = textOf(image.svg);
+        expect(text, name).not.toMatch(/\b(1[89]|20)\d{2}\b/);
+        expect(text, name).not.toMatch(/\b\d{1,2}:\d{2}\b/);
+        expect(text, name).not.toMatch(/houses|Koch|Placidus|Whole Sign|relocated|noon|unknown/i);
+      }
+    }
+  });
+});
+
+describe("language of the images: always English", () => {
+  it("has no Russian text, not even in a label, when the interface is in Russian", async () => {
+    const images = await inRussian(async () => {
+      // The interface really is Russian while the images are built.
+      expect(i18next.t("natalChart.points.Moon")).toBe("Луна");
+      return [await wheelFor("C"), await matrixFor("C"), await wheelFor("unknownTime"), await matrixFor("unknownTime")];
+    });
+    for (const image of images) expect(image.svg).not.toMatch(CYRILLIC);
+    const matrix = textOf(images[1].svg);
+    expect(matrix).toContain("Moon");
+    expect(matrix).toContain("a = applying, s = separating.");
+    expect(footerOf(images[0].svg)).toEqual([
+      ["caption", IMAGE_CAPTIONS.wheel],
+      ["url", SITE_URL],
+    ]);
   });
 
-  it("cuts a very long place name and carries no coordinates", () => {
-    const long = footerFor("C", { ...CONTEXT, placeName: "A".repeat(120) });
-    expect(long[1].split(" · ")[0].length).toBeLessThanOrEqual(46);
-    expect(long[1]).toContain("…");
-    expect(footerFor("C").join(" ")).not.toMatch(/\d+\.\d{2,}|°\s*[NSEW]\b/);
+  it("would notice Russian text: the page's own matrix in Russian has it", async () => {
+    const page = await inRussian(async () => renderToStaticMarkup(<AspectMatrix chart={charts.C} />));
+    expect(page).toMatch(CYRILLIC);
   });
 
-  it("reads the date in the interface language", async () => {
-    await initI18n("ru");
-    const lines = footerFor("C");
-    await initI18n("en");
-    expect(lines).toEqual(["10 января 1990 г. · 12:30", "Minneapolis, Minnesota, USA · Дома: Кох"]);
+  it("keeps the captions and every image text free of Cyrillic in the English interface too", async () => {
+    for (const caption of Object.values(IMAGE_CAPTIONS)) expect(caption).not.toMatch(CYRILLIC);
+    expect((await matrixFor("D")).svg).not.toMatch(CYRILLIC);
   });
 });
 
@@ -138,12 +155,6 @@ describe("wheel image (the page's wheel, standalone)", () => {
     expect(image.svg).toContain(`width="${image.width}" height="${image.height}"`);
     expect(WHEEL_IMAGE_SIZE.height).toBeGreaterThan(WHEEL_IMAGE_SIZE.width);
     expect(WHEEL_IMAGE_SIZE.height - WHEEL_IMAGE_SIZE.width).toBeGreaterThanOrEqual(FOOTER_HEIGHT);
-  });
-
-  it("prints the footer lines under the wheel", async () => {
-    const image = await wheelFor("C");
-    const meta = [...image.svg.matchAll(/<text data-footer-field="meta"[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]);
-    expect(meta).toEqual(footerFor("C"));
   });
 
   it("draws every glyph, degree and layer of the page's wheel", async () => {
@@ -285,14 +296,13 @@ describe("matrix image (the table's cells, standalone)", () => {
     expect(cellsOfImage((await matrixFor("C", new Set())).svg)).toHaveLength(0);
   });
 
-  it("carries the title, the legend, the site address and the footer lines, and reports its size", async () => {
+  it("carries the legend and the footer, no title, and reports its size", async () => {
     const image = await matrixFor("C");
-    const tt = t();
-    expect(image.svg).toContain(`>${tt("natalChart.matrix.title")}</text>`);
+    expect(image.svg).not.toContain("data-matrix-title");
+    expect(image.svg).not.toContain(`>${t()("natalChart.matrix.title")}</text>`);
     expect(textOf(image.svg)).toContain("a = applying, s = separating.");
     expect(image.svg.match(/https:\/\/natalmystic\.com/g)).toHaveLength(1);
-    const meta = [...image.svg.matchAll(/<text data-footer-field="meta"[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]);
-    expect(meta).toEqual(footerFor("C"));
+    expect(footerOf(image.svg).map(([field]) => field)).toEqual(["caption", "url"]);
     const model = buildMatrixModel(charts.C, new Set(ALL_ASPECT_TYPES));
     const legendLines = [...image.svg.matchAll(/data-matrix-legend/g)].length;
     expect({ width: image.width, height: image.height }).toEqual(matrixImageSize(model.columns.length, model.rows.length, legendLines));
@@ -304,15 +314,6 @@ describe("matrix image (the table's cells, standalone)", () => {
     expect(svg).not.toMatch(/\son[a-z]+=/i);
     expect(svg).not.toMatch(/\sclass=/);
     expect(svg).not.toContain("<script");
-  });
-
-  it("reads in Russian", async () => {
-    await initI18n("ru");
-    const image = await matrixFor("C");
-    await initI18n("en");
-    expect(image.svg).toContain("Матрица аспектов");
-    expect(image.svg).toContain("Луна");
-    expect(image.svg).toContain("https://natalmystic.com");
   });
 });
 
@@ -332,46 +333,6 @@ describe("helpers", () => {
   it("keeps text that looks like a style declaration, and only drops animation and cursor from style attributes", () => {
     const markup = '<text>Hotel cursor: Paris, animation: x</text><g style="cursor:pointer;opacity:1"/>';
     expect(sanitizeSvg(markup)).toBe('<text>Hotel cursor: Paris, animation: x</text><g style="opacity:1"/>');
-  });
-});
-
-describe("free text in the footer", () => {
-  it("cuts a long place by characters, never inside a surrogate pair", () => {
-    const place = `${"a".repeat(44)}😀😀😀`;
-    const cut = truncate(place, 46);
-    expect([...cut]).toHaveLength(46);
-    expect(cut.endsWith("…")).toBe(true);
-    expect(() => encodeURIComponent(cut)).not.toThrow();
-    expect(truncate("short", 46)).toBe("short");
-  });
-
-  it("drops characters XML does not allow and replaces a lone surrogate", () => {
-    expect(cleanText("Par\u0000is\u0008 \u000B\u001F\uFFFE")).toBe("Paris ");
-    expect(cleanText("tab\tline\nbreak")).toBe("tab\tline\nbreak");
-    expect(cleanText("x\uD83Dy")).toBe("x\uFFFDy");
-    expect(() => encodeURIComponent(cleanText("x\uD83Dy\u0001"))).not.toThrow();
-  });
-
-  it("keeps the word relocated when the place name is long", () => {
-    const lines = composeFooterLines(t(), i18next.language, charts.C, { ...CONTEXT, placeName: "P".repeat(80), relocated: true });
-    expect(lines[1]).toContain("relocated");
-    expect(lines[1]).toContain("…");
-  });
-
-  it("escapes markup in the place name in the finished SVG and keeps it a well-formed image", async () => {
-    const place = '<script>alert("x")</script> & O\'Hare';
-    const lines = composeFooterLines(t(), i18next.language, charts.C, { ...CONTEXT, placeName: place });
-    const image = await buildWheelImage({
-      chart: charts.C,
-      activeFilters: new Set(DEFAULT_ASPECT_TYPES),
-      showSymbols: true,
-      ariaLabel: "wheel",
-      footerLines: lines,
-    });
-    expect(image.svg).not.toContain("<script");
-    expect(image.svg).toContain("&lt;script&gt;");
-    expect(image.svg).toContain("&amp;");
-    expect(() => encodeURIComponent(image.svg)).not.toThrow();
   });
 });
 
@@ -517,20 +478,20 @@ describe("download buttons on the page", () => {
     expect(textOf(ru)).toBe("Скачать картинку карты");
   });
 
-  it("is next to the aspect filters of the wheel and above the matrix, only when the page gives the birth data", () => {
-    const withContext = renderToStaticMarkup(<NatalChart chart={charts.C} imageContext={CONTEXT} />);
+  it("is next to the aspect filters of the wheel and above the matrix, only where the page offers the download", () => {
+    const withContext = renderToStaticMarkup(<NatalChart chart={charts.C} allowImageDownload />);
     expect(tagsWith(withContext, "button", "data-image-download")).toHaveLength(1);
     expect(withContext.indexOf("data-aspect-filter")).toBeLessThan(withContext.indexOf("data-image-download"));
     expect(renderToStaticMarkup(<NatalChart chart={charts.C} />)).not.toContain("data-image-download");
 
-    const matrix = renderToStaticMarkup(<AspectMatrix chart={charts.C} imageContext={CONTEXT} />);
+    const matrix = renderToStaticMarkup(<AspectMatrix chart={charts.C} allowImageDownload />);
     expect(tagsWith(matrix, "button", "data-image-download").map((b) => b["data-image-download"])).toEqual(["matrix"]);
     expect(matrix.indexOf("data-image-download")).toBeLessThan(matrix.indexOf("<table"));
     expect(matrix.indexOf("data-aspect-filter")).toBeLessThan(matrix.indexOf("data-image-download"));
     expect(renderToStaticMarkup(<AspectMatrix chart={charts.C} />)).not.toContain("data-image-download");
   });
 
-  it("has English and Russian texts for every key the buttons and the footer use", () => {
+  it("has English and Russian texts for every key the buttons use", () => {
     const keys = [
       "chartImage.download.wheel",
       "chartImage.download.wheelAria",
@@ -538,8 +499,6 @@ describe("download buttons on the page", () => {
       "chartImage.download.matrixAria",
       "chartImage.download.busy",
       "chartImage.download.error",
-      "chartImage.footer.houses",
-      "chartImage.footer.timeUnknown",
     ];
     for (const lng of ["en", "ru"]) {
       const tt = i18next.getFixedT(lng);

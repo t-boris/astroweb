@@ -15,7 +15,6 @@ import { HelpBubble } from "@/components/HelpBubble";
 import AspectFilters from "@/components/chart/AspectFilters";
 import { ImageDownloadButton } from "./image/ImageDownloadButton";
 import { buildMatrixImage } from "./image/buildImages";
-import { composeFooterLines, type ChartImageContext } from "./image/imageCommon";
 
 const CELL = "min-w-[3.75rem] border border-[var(--line-soft)] p-1 text-center align-middle";
 
@@ -28,7 +27,7 @@ function glyphStyle(glyph: string) {
  * an a (applying) or s (separating) marker; the marker is left out when the status does not apply.
  * The matrix opens with every aspect type visible; its filters only hide cells.
  */
-export function AspectMatrix({ chart, imageContext }: { chart: ChartResult; imageContext?: ChartImageContext }) {
+export function AspectMatrix({ chart, allowImageDownload = false }: { chart: ChartResult; allowImageDownload?: boolean }) {
   const { t, i18n } = useTranslation();
   const filters = useAspectFilters(ALL_ASPECT_TYPES);
   const model = useMemo(() => buildMatrixModel(chart, filters.activeFilters), [chart, filters.activeFilters]);
@@ -46,25 +45,11 @@ export function AspectMatrix({ chart, imageContext }: { chart: ChartResult; imag
         onToggle={filters.onToggle}
         onShowAll={filters.onShowAll}
       />
-      {imageContext && (
+      {allowImageDownload && (
         <div className="flex justify-center">
           <ImageDownloadButton
             kind="matrix"
-            build={() =>
-              buildMatrixImage({
-                chart,
-                activeFilters: filters.activeFilters,
-                footerLines: composeFooterLines(t, i18n.language, chart, imageContext),
-                labels: {
-                  title: t("natalChart.matrix.title"),
-                  legend: t("natalChart.matrix.legend"),
-                  ariaLabel: t("natalChart.matrix.title"),
-                  pointLabel: (id) => pointLabel(t, id),
-                  applyingShort: t("natalChart.aspects.applyingShort"),
-                  separatingShort: t("natalChart.aspects.separatingShort"),
-                },
-              })
-            }
+            build={() => buildMatrixImage({ chart, activeFilters: filters.activeFilters, i18n })}
           />
         </div>
       )}

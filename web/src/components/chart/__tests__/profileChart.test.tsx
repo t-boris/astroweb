@@ -221,14 +221,9 @@ describe("profile wiring (REQ-001)", () => {
     expect(source).toContain("<ChartContextLine");
   });
 
-  it("gives the wheel and the matrix the birth data for their image footer, without the name or coordinates", () => {
-    expect(source).toContain("<NatalChart chart={chartData} imageContext={imageContext} />");
-    expect(source).toContain("<AspectMatrix chart={chartData} imageContext={imageContext} />");
-    const block = source.match(/const imageContext = \{([\s\S]*?)\n {2}\};/)?.[1] ?? "";
-    expect(block).toContain("birthDate: profile.birthDate");
-    expect(block).toContain("birthTime: profile.birthTime");
-    expect(block).toContain("placeName: chartRelocated ? relocationPlace : profile.birthPlace");
-    expect(block).toContain("relocated: chartRelocated");
-    expect(block).not.toMatch(/profile\.name|\blat\b|\blng\b/);
+  it("offers the wheel and matrix image downloads and gives the images no birth data", () => {
+    expect(source).toContain("<NatalChart chart={chartData} allowImageDownload />");
+    expect(source).toContain("<AspectMatrix chart={chartData} allowImageDownload />");
+    expect(source).not.toContain("imageContext");
   });
 });

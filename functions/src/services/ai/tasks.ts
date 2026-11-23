@@ -20,7 +20,9 @@ export type AiTaskId =
   | "letterAnalysis"
   | "letterWriting"
   | "newsDigest"
-  | "factExtraction";
+  | "factExtraction"
+  | "chartImageReading"
+  | "chartPortrait";
 
 /** "all": one text for every output language (the task writes the language into the prompt itself). */
 export type TextLanguage = "en" | "ru" | "all";
@@ -550,6 +552,55 @@ export const AI_TASKS: readonly AiTaskSpec[] = [
     },
     generation: { continuation: true, sanitize: false },
     testInputs: ["question"],
+  },
+  {
+    id: "chartImageReading",
+    label: "Chart picture reading",
+    description:
+      "Explain my natal chart: reads the positions printed on an uploaded chart picture, as JSON. The solver then finds the birth moment and place. Needs a model that reads pictures; a test run reads a bundled Astro-Seek sample (30 Mar 2002, Cape Town).",
+    languages: ["all"],
+    parts: [
+      { key: "system", label: SYSTEM, description: `${SYSTEM_HELP} Must ask for the JSON the solver reads.`, placeholders: [] },
+      { key: "user", label: USER, description: "Sent together with the picture.", placeholders: [] },
+    ],
+    defaults: {
+      model: "claude-sonnet-5-5",
+      maxOutputTokens: 2000,
+      temperature: null,
+      texts: { all: { system: P.CHART_IMAGE_READING_SYSTEM, user: P.CHART_IMAGE_READING_USER } },
+    },
+    generation: { continuation: false, sanitize: false, readsImages: true },
+    testInputs: [],
+  },
+  {
+    id: "chartPortrait",
+    label: "Chart portrait",
+    description:
+      "Explain my natal chart: a short story about the person behind a chart recovered from a picture (roughly when born, who they are, main traits). A test run uses the chosen profile's chart.",
+    languages: ["en", "ru"],
+    parts: [
+      { key: "system", label: SYSTEM, description: SYSTEM_HELP, placeholders: [] },
+      {
+        key: "user",
+        label: USER,
+        description: USER_HELP,
+        placeholders: [
+          { name: "birth", description: "The recovered birth, e.g. \"around 30 March 2002, 03:30 local time, near Cape Town\"" },
+          { name: "chart", description: "Planet positions, houses and the strongest aspects of the chart" },
+        ],
+      },
+    ],
+    defaults: {
+      model: "claude-sonnet-4-6",
+      maxOutputTokens: 1500,
+      temperature: null,
+      texts: {
+        en: { system: P.CHART_PORTRAIT_SYSTEM_EN, user: P.CHART_PORTRAIT_USER_EN },
+        ru: { system: P.CHART_PORTRAIT_SYSTEM_RU, user: P.CHART_PORTRAIT_USER_RU },
+      },
+    },
+    generation: { continuation: true, sanitize: true },
+    testInputs: [],
   },
 ];
 

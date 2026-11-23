@@ -1,10 +1,18 @@
 import type { AiModel, AiUsage } from "../models";
 
+/** A picture sent with the user message, base64 without the data-URL prefix. */
+export interface PromptImage {
+  mediaType: "image/jpeg" | "image/png" | "image/webp";
+  data: string;
+}
+
 /** One single-turn request to a provider (system prompt + one user message). */
 export interface ProviderRequest {
   model: AiModel;
   system: string;
   user: string;
+  /** Pictures placed before the user text; only sent to models with `vision`. */
+  images?: readonly PromptImage[];
   /** Output budget to send, already including reasoning headroom (requestOutputTokens). */
   maxOutputTokens: number;
   /** Sent only when set; callers pass it only for models that accept it. */

@@ -47,9 +47,19 @@ export function createFakeFirestore(): FakeFirestore {
     return m;
   };
 
+  const isPlainMap = (v: unknown): v is Doc =>
+    typeof v === "object" && v !== null && !Array.isArray(v) && Object.getPrototypeOf(v) === Object.prototype;
+  /** set(..., { merge: true }) merges nested maps field by field, like Firestore; arrays and other values are replaced. */
+  const deepMerge = (prev: Doc, next: Doc): Doc => {
+    const out: Doc = { ...prev };
+    for (const [key, value] of Object.entries(next)) {
+      out[key] = isPlainMap(value) && isPlainMap(prev[key]) ? deepMerge(prev[key] as Doc, value) : value;
+    }
+    return out;
+  };
   const applySet = (col: string, id: string, value: Doc, opts?: { merge?: boolean }) => {
     const prev = colMap(col).get(id);
-    colMap(col).set(id, opts?.merge && prev ? { ...prev, ...value } : { ...value });
+    colMap(col).set(id, opts?.merge && prev ? deepMerge(prev, value) : { ...value });
   };
   const applyUpdate = (col: string, id: string, value: Doc) => {
     colMap(col).set(id, { ...(colMap(col).get(id) ?? {}), ...value });

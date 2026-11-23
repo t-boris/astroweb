@@ -157,3 +157,80 @@ export interface DossierFact {
   createdAt: string;
   supersededAt: string | null;
 }
+
+// ---- Explain my natal chart -----------------------------------------------------
+
+/** A point the reading of a chart picture can report. */
+export type ReadChartPointId =
+  | "Sun" | "Moon" | "Mercury" | "Venus" | "Mars" | "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto"
+  | "NorthNode" | "Chiron" | "Lilith" | "ASC" | "MC";
+
+/** One position as read from the picture, with the solver's verdict when the solver checks that point. */
+export interface ReadChartPoint {
+  id: ReadChartPointId;
+  /** English sign name. */
+  sign: string;
+  degree: number;
+  /** Printed arcminute; null when only degrees are printed or the position was judged from the glyph. */
+  minute: number | null;
+  retrograde: boolean | null;
+  /** No number printed: placed by eye from the wheel. */
+  estimated: boolean;
+  /** Ecliptic longitude of the read value, degrees. */
+  longitude: number;
+  /** Width of the bin the read value stands for, degrees. */
+  resolution: number;
+  /** Set for the ten bodies, ASC and MC: whether the solved moment puts the point inside its bin. */
+  matched?: boolean;
+  /** Distance outside the bin at the solved moment, arcminutes (0 inside). */
+  deviationArcmin?: number;
+}
+
+/**
+ * The birth moment and place recovered from a chart picture. A picture is read only when it shows the
+ * Moon, ASC and MC, so the time and the place are always known (DEC-004 of explain-my-natal-chart).
+ */
+export interface RecoveredBirth {
+  /** "partial": some points did not fit and are listed as not matched. */
+  status: "matched" | "partial";
+  /** Local YYYY-MM-DD at the place. */
+  birthDate: string;
+  /** Local HH:mm at the place. */
+  birthTime: string;
+  timezone: string;
+  /** The solved moment, ISO 8601 UTC. */
+  utc: string;
+  lat: number;
+  lng: number;
+  /** Half width of the time window, minutes. */
+  timeAccuracyMinutes: number;
+  /** Radius around lat/lng the true place lies in, km. */
+  placeAccuracyKm: number;
+}
+
+export interface ChartPictureReading {
+  zodiac: "tropical" | "sidereal" | "unknown";
+  points: ReadChartPoint[];
+  asc: ReadChartPoint | null;
+  mc: ReadChartPoint | null;
+  /** The model's note on what made the reading uncertain (English), or "". */
+  notes: string;
+}
+
+/** Answer of readChartImage. */
+export interface ChartReadingResult {
+  readingId: string;
+  birth: RecoveredBirth;
+  reading: ChartPictureReading;
+  /** The chart of the recovered birth (houses and angles only when the place is known). */
+  chart: ChartResult;
+  /** True when this call spent the star; false when the same picture had been read before. */
+  charged: boolean;
+}
+
+/** Answer of describeChartReading. */
+export interface ChartPortraitResult {
+  readingId: string;
+  language: "en" | "ru";
+  text: string;
+}

@@ -201,6 +201,68 @@ describe("Gemini transport (DEC-018, REQ-012)", () => {
   });
 });
 
+describe("pictures with the request (Explain my natal chart)", () => {
+  const images = [{ mediaType: "image/webp" as const, data: "UklGRg==" }];
+
+  it("puts the picture before the text on every provider, at full detail for OpenAI", () => {
+    expect(buildAnthropicBody(request("claude-sonnet-5-5", { images })).messages).toEqual([
+      {
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: "image/webp", data: "UklGRg==" } },
+          { type: "text", text: "USER" },
+        ],
+      },
+    ]);
+    expect(buildOpenAiParams(request("gpt-6-astra", { images })).input).toEqual([
+      {
+        role: "user",
+        content: [
+          { type: "input_image", image_url: "data:image/webp;base64,UklGRg==", detail: "high" },
+          { type: "input_text", text: "USER" },
+        ],
+      },
+    ]);
+    expect(buildGeminiParams(request("gemini-4-argon", { images })).contents).toEqual([
+      { role: "user", parts: [{ inlineData: { mimeType: "image/webp", data: "UklGRg==" } }, { text: "USER" }] },
+    ]);
+  });
+
+  it("keeps text-only requests exactly as before", () => {
+    expect(buildAnthropicBody(request("claude-sonnet-5-5", { images: [] })).messages).toEqual([{ role: "user", content: "USER" }]);
+    expect(buildOpenAiParams(request("gpt-6-astra")).input).toBe("USER");
+    expect(buildGeminiParams(request("gemini-4-argon")).contents).toBe("USER");
+  });
+
+  it("sends the picture through generateText and refuses a model that cannot read pictures", async () => {
+    fetchMock.mockResolvedValue(
+      claudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: "{}" }], usage: { input_tokens: 10, output_tokens: 5 } }),
+    );
+    await generateText(
+      { model: "claude-sonnet-5-5", maxOutputTokens: 500, temperature: null },
+      { systemInstruction: "SYS", userPrompt: "Read it", images },
+      { continuation: false, sanitize: false, readsImages: true },
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).messages[0].content[0].type).toBe("image");
+
+    const blind = { ...findModel("claude-sonnet-5-5")!, id: "claude-blind-test", vision: false };
+    const { registerDiscoveredModels, clearDiscoveredModels } = await import("../services/ai/models");
+    registerDiscoveredModels([blind]);
+    try {
+      await expect(
+        generateText(
+          { model: "claude-blind-test", maxOutputTokens: 500, temperature: null },
+          { systemInstruction: "SYS", userPrompt: "Read it", images },
+          { continuation: false, sanitize: false },
+        ),
+      ).rejects.toThrow(/cannot read pictures/);
+    } finally {
+      clearDiscoveredModels();
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("generateText", () => {
   const prompt = { systemInstruction: "SYS", userPrompt: "USER" };
 

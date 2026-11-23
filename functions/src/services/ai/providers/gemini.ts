@@ -37,7 +37,18 @@ export function buildGeminiParams(req: ProviderRequest): GenerateContentParamete
   if (req.model.effort) config.thinkingConfig = { thinkingLevel: req.model.effort as ThinkingLevel };
   if (req.temperature !== undefined) config.temperature = req.temperature;
   if (req.webSearch) config.tools = [{ googleSearch: {} }];
-  return { model: req.model.id, contents: req.user, config };
+  const contents = req.images?.length
+    ? [
+        {
+          role: "user",
+          parts: [
+            ...req.images.map((image) => ({ inlineData: { mimeType: image.mediaType, data: image.data } })),
+            { text: req.user },
+          ],
+        },
+      ]
+    : req.user;
+  return { model: req.model.id, contents, config };
 }
 
 interface Candidate {

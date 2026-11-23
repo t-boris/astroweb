@@ -102,6 +102,8 @@ describe("adminGetAiSettings (REQ-001)", () => {
       "letterWriting",
       "newsDigest",
       "factExtraction",
+      "chartImageReading",
+      "chartPortrait",
     ]);
     const oracle = res.tasks[0];
     expect(oracle.effective).toMatchObject({ model: "claude-opus-4-8", maxOutputTokens: 2400, temperature: null, version: "" });
@@ -110,7 +112,10 @@ describe("adminGetAiSettings (REQ-001)", () => {
     expect(forecast.override).toEqual({ maxOutputTokens: 1500 });
     expect(forecast.updatedBy).toBe("t.boris@gmail.com");
     const gpt = res.models.find((m: { id: string }) => m.id === "gpt-6-astra");
-    expect(gpt).toMatchObject({ provider: "openai", available: false, temperature: false });
+    expect(gpt).toMatchObject({ provider: "openai", available: false, temperature: false, vision: true });
+    const reading = res.tasks.find((t: { id: string }) => t.id === "chartImageReading");
+    expect(reading).toMatchObject({ needsVision: true, needsWebSearch: false, testInputs: [] });
+    expect(res.tasks[0].needsVision).toBe(false);
     expect(JSON.stringify(res)).not.toContain("sk-ant-");
   });
 });
@@ -139,6 +144,39 @@ describe("adminSaveAiSettings and adminResetAiSettings (REQ-002..004)", () => {
     const reset = await call(adminResetAiSettings, admin, { taskId: "deepen" });
     expect(reset.task.effective).toMatchObject({ model: "claude-sonnet-4-6", version: "" });
     expect(h.fake.all("aiSettings").has("deepen")).toBe(false);
+  });
+});
+
+describe("Explain my natal chart tasks in the AI tab", () => {
+  it("refuses a model that cannot read pictures for the picture reading", async () => {
+    const { registerDiscoveredModels, clearDiscoveredModels, findModel } = await import("../services/ai/models");
+    registerDiscoveredModels([{ ...findModel("claude-sonnet-5-5")!, id: "claude-blind-test", label: "Blind", vision: false }]);
+    try {
+      await expect(
+        call(adminSaveAiSettings, admin, { taskId: "chartImageReading", override: { model: "claude-blind-test" } }),
+      ).rejects.toMatchObject({ details: { problems: ["Blind cannot read pictures, which Chart picture reading needs"] } });
+      await expect(
+        call(adminSaveAiSettings, admin, { taskId: "chartPortrait", override: { model: "claude-blind-test" } }),
+      ).resolves.toBeTruthy();
+    } finally {
+      clearDiscoveredModels();
+    }
+  });
+
+  it("tests the picture reading on the bundled sample picture, not on anybody's upload", async () => {
+    const res = await call(adminTestAiTask, admin, { taskId: "chartImageReading", profileId: "p1", override: {}, inputs: {} });
+    expect(res.text).toBe("Test answer");
+    const [, prompt] = h.runTask.mock.calls[0];
+    expect(prompt.images).toHaveLength(1);
+    expect(prompt.images[0].mediaType).toBe("image/webp");
+    expect(Buffer.from(prompt.images[0].data, "base64").toString("ascii", 8, 12)).toBe("WEBP");
+    expect(prompt.systemInstruction).toContain("return ONLY one JSON object");
+  });
+
+  it("tests the portrait on the profile's chart and birth", async () => {
+    h.fake.seed("profiles", "p3", { ownerUid: "u1", name: "Lea", birthDate: "2002-03-30", birthTime: "03:30", timeUnknown: false, lat: -33.93, lng: 18.42, timezone: "Africa/Johannesburg", birthPlace: "Cape Town" });
+    const res = await call(adminTestAiTask, admin, { taskId: "chartPortrait", profileId: "p3", language: "en", override: {}, inputs: {} });
+    expect(res.prompt.user).toContain("born around 30 March 2002, at about 03:30 local time, near Cape Town.");
   });
 });
 

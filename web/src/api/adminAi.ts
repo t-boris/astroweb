@@ -32,6 +32,8 @@ export interface AiModelInfo {
   maxOutputTokens: number;
   temperature: boolean;
   webSearch: boolean;
+  /** Reads pictures sent with the request. */
+  vision: boolean;
   available: boolean;
   live?: boolean;
 }
@@ -58,6 +60,8 @@ export interface AiTask {
   parts: AiPromptPart[];
   testInputs: TestInput[];
   needsWebSearch: boolean;
+  /** The task sends a picture, so only models that read pictures can run it. */
+  needsVision: boolean;
   defaults: AiTaskValues;
   override: AiTaskOverride;
   effective: AiTaskValues & { version: string };

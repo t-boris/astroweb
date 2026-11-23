@@ -1,6 +1,7 @@
 import type { ChartResult, Profile } from "../types";
 import { detectAspect } from "../astro/aspects";
 import type { GenerationPrompt } from "./ai/generate";
+import type { PromptImage } from "./ai/providers/types";
 import { fillTemplate } from "./ai/template";
 import { collapsiblePlaceholders, partSpec, taskSpec, textLanguageFor, type AiTaskId, type TaskTexts } from "./ai/tasks";
 import {
@@ -670,4 +671,33 @@ export function buildFactExtractionPrompt(params: { text: string; texts?: TaskTe
     systemInstruction: render("factExtraction", "system", texts),
     userPrompt: render("factExtraction", "user", texts, { question: params.text.slice(0, 2000) }),
   };
+}
+
+/** Reading the positions printed on a chart picture (task chartImageReading); the picture goes with the user message. */
+export function buildChartImageReadingPrompt(params: { image: PromptImage; texts?: TaskTexts }): GenerationPrompt {
+  const texts = params.texts ?? defaultTexts("chartImageReading", "en");
+  return {
+    systemInstruction: render("chartImageReading", "system", texts),
+    userPrompt: render("chartImageReading", "user", texts),
+    images: [params.image],
+  };
+}
+
+/** A short portrait of the person behind a chart recovered from a picture (task chartPortrait). */
+export function buildChartPortraitPrompt(params: {
+  chart: ChartResult;
+  /** The recovered birth in words, in the output language. */
+  birth: string;
+  language: SupportedLanguage;
+  texts?: TaskTexts;
+}): GenerationPrompt {
+  const { chart, birth, language } = params;
+  const texts = params.texts ?? defaultTexts("chartPortrait", promptLanguage(language));
+  return withOutputLanguage(
+    {
+      systemInstruction: render("chartPortrait", "system", texts),
+      userPrompt: render("chartPortrait", "user", texts, { birth, chart: buildPlanetaryContext(chart) }),
+    },
+    language,
+  );
 }

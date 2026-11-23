@@ -406,3 +406,11 @@ bigger picture and the full-screen view) and say what was done, instead of finis
 ## A picture made for sharing carries no personal data and has one fixed language
 
 The downloaded chart images first printed the birth date, time, place and house system in the interface language. The owner wanted only a small caption (what the picture is, that it comes from NatalMystic) and the link, and never any Russian in a generated image. Rule: anything that leaves the site as a file to be passed around gets its text from a fixed-language translator (`i18n.getFixedT("en")`), not from `useTranslation()`, and receives no profile data at all, so it cannot print it. Test it by building with the interface in the other language and asserting no character of that script anywhere in the file, attributes included.
+
+## A paid call must give up before its function does, and every refund belongs to one attempt
+
+The first version of `readChartImage` had a 180 s function deadline and a 180 s provider timeout, so a slow model answer killed the
+function before the catch block could refund the star; the refund, the failed status and the daily counter were three separate
+writes. Rule for any paid action: the provider timeout is clearly shorter than `timeoutSeconds` (leave a minute), the claim that
+spends the star records an attempt id, and the result or the refund is written in one transaction that first checks the record
+still holds that attempt id. Test a stale takeover and a late attempt, and break each check once to see a test fail.

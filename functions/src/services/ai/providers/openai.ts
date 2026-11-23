@@ -23,11 +23,29 @@ function openAiClient(apiKey: string): OpenAI {
   return client;
 }
 
+/** The user input: plain text, or one message with the pictures (full detail, charts have small print) and the text. */
+function openAiInput(req: ProviderRequest): ResponseCreateParamsNonStreaming["input"] {
+  if (!req.images?.length) return req.user;
+  return [
+    {
+      role: "user",
+      content: [
+        ...req.images.map((image) => ({
+          type: "input_image" as const,
+          image_url: `data:${image.mediaType};base64,${image.data}`,
+          detail: "high" as const,
+        })),
+        { type: "input_text" as const, text: req.user },
+      ],
+    },
+  ];
+}
+
 export function buildOpenAiParams(req: ProviderRequest): ResponseCreateParamsNonStreaming {
   const params: ResponseCreateParamsNonStreaming = {
     model: req.model.id,
     instructions: req.system,
-    input: req.user,
+    input: openAiInput(req),
     max_output_tokens: req.maxOutputTokens,
     store: false,
   };

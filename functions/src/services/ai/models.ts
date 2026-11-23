@@ -36,6 +36,8 @@ export interface AiModel {
   effort?: string;
   /** Whether the provider's own web search can be used with this model (news digest, DEC-016). */
   webSearch: boolean;
+  /** Whether the model reads pictures sent with the request (reading a chart from a picture). */
+  vision: boolean;
   /** Anthropic server-side refusal fallback (`server-side-fallback-2026-07-01` + `fallbacks: "default"`). */
   refusalFallback?: boolean;
   /** True when discovered dynamically from a provider's models endpoint rather than the curated catalog. */
@@ -73,6 +75,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
     refusalFallback: true,
   },
   {
@@ -85,6 +88,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
     refusalFallback: true,
   },
   {
@@ -97,6 +101,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
     refusalFallback: true,
   },
   {
@@ -109,6 +114,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "claude-opus-4-8",
@@ -119,6 +125,7 @@ export const AI_MODELS: readonly AiModel[] = [
     temperature: false,
     thinking: "none",
     webSearch: true,
+    vision: true,
   },
   {
     id: "claude-sonnet-4-6",
@@ -129,6 +136,7 @@ export const AI_MODELS: readonly AiModel[] = [
     temperature: true,
     thinking: "none",
     webSearch: true,
+    vision: true,
   },
   {
     id: "claude-haiku-4-5",
@@ -139,6 +147,7 @@ export const AI_MODELS: readonly AiModel[] = [
     temperature: true,
     thinking: "none",
     webSearch: true,
+    vision: true,
   },
   // OpenAI (official SDK, Responses API with store: false, DEC-015, DEC-018). Checked 2026-11-19.
   {
@@ -151,6 +160,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gpt-6.2-sol",
@@ -162,6 +172,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gpt-6.1-terra",
@@ -173,6 +184,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gpt-6-astra",
@@ -184,6 +196,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gpt-6.1-sol",
@@ -195,6 +208,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "low",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gpt-6-luna",
@@ -207,6 +221,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "none",
     effort: "none",
     webSearch: true,
+    vision: true,
   },
   // Google Gemini (official SDK, generateContent, DEC-015, DEC-018). Checked 2026-11-19.
   {
@@ -222,6 +237,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "LOW",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gemini-4-neon",
@@ -233,6 +249,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "LOW",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gemini-4-hydrogen",
@@ -244,6 +261,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "LOW",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gemini-4-argon",
@@ -258,6 +276,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "LOW",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gemini-3.8-flash",
@@ -272,6 +291,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "LOW",
     webSearch: true,
+    vision: true,
   },
   {
     id: "gemini-3.5-flash-lite",
@@ -284,6 +304,7 @@ export const AI_MODELS: readonly AiModel[] = [
     thinking: "always",
     effort: "MINIMAL",
     webSearch: true,
+    vision: true,
   },
 ];
 

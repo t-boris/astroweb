@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildChartImageReadingPrompt,
+  buildChartPortraitPrompt,
   buildDeepInterpretationPrompt,
   buildFactExtractionPrompt,
   buildForecastPrompt,
@@ -85,6 +87,8 @@ const TASK_OF_CASE: Record<string, AiTaskId> = {
   letterGeneration: "letterWriting",
   newsDigest: "newsDigest",
   factExtraction: "factExtraction",
+  chartImageReading: "chartImageReading",
+  chartPortrait: "chartPortrait",
 };
 
 /** The prompt plus the request parameters the task sends with no admin override. */
@@ -257,6 +261,13 @@ for (const language of languages) {
 }
 cases.push(["factExtraction", () => buildFactExtractionPrompt({ text: "I am a designer and want to move to Spain with my kids." })]);
 cases.push(["factExtraction.long", () => buildFactExtractionPrompt({ text: "x".repeat(2100) })]);
+cases.push(["chartImageReading", () => buildChartImageReadingPrompt({ image: { mediaType: "image/png", data: "AAAA" } })]);
+for (const language of languages) {
+  cases.push([
+    `chartPortrait.${language}`,
+    () => buildChartPortraitPrompt({ chart: chartA, birth: "around 30 March 2002, at about 03:30 local time (± 1 min), near Cape Town (within about 21 km)", language }),
+  ]);
+}
 
 describe("prompt defaults (golden copy)", () => {
   it.each(cases)("%s", (name, build) => {

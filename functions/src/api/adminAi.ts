@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { assertAdmin } from "../services/adminAuth";
@@ -6,6 +8,8 @@ import { getProfileById } from "../services/profile";
 import { getDossierSummaryText } from "../services/dossier";
 import { loadLetterContext, prepareLetterInputs, runLetterAnalysis } from "../services/letterEngine";
 import {
+  buildChartImageReadingPrompt,
+  buildChartPortraitPrompt,
   buildDeepInterpretationPrompt,
   buildFactExtractionPrompt,
   buildForecastPrompt,
@@ -20,6 +24,7 @@ import {
   type PremiumPdfNarrativeSection,
   type SupportedLanguage,
 } from "../services/prompts";
+import { describeRecoveredBirth } from "../services/chartReading";
 import {
   currentCalendarMonthPeriod,
   currentCalendarYearPeriod,
@@ -118,6 +123,7 @@ function taskView(taskId: AiTaskId, stored: StoredTaskSettings | null) {
     parts: task.parts,
     testInputs: task.testInputs,
     needsWebSearch: Boolean(task.generation.webSearch),
+    needsVision: Boolean(task.generation.readsImages),
     defaults: task.defaults,
     override,
     effective: {
@@ -147,6 +153,7 @@ function modelsView() {
       maxOutputTokens: Math.min(ADMIN_MAX_OUTPUT_TOKENS, model.maxOutputTokens),
       temperature: model.temperature,
       webSearch: model.webSearch,
+      vision: model.vision,
       available: providerConfigured(model.provider),
       ...(model.live ? { live: true } : {}),
     };
@@ -393,7 +400,33 @@ async function prepareTest(
     }
     case "factExtraction":
       return prompt(buildFactExtractionPrompt({ text: requiredInput(inputs.question, "question", 2000), texts }));
+    case "chartImageReading":
+      // A bundled Astro-Seek chart with a known answer (30 Mar 2002, 03:30, Cape Town): nobody's upload is used.
+      return prompt(buildChartImageReadingPrompt({ image: sampleChartImage(), texts }));
+    case "chartPortrait": {
+      const { profile, chart } = await chartOf(profileId);
+      const known = !profile.timeUnknown && Boolean(profile.birthTime);
+      const birth = describeRecoveredBirth(
+        {
+          birthDate: profile.birthDate,
+          birthTime: known ? (profile.birthTime as string) : null,
+          lat: known ? profile.lat : null,
+          lng: known ? profile.lng : null,
+          timeAccuracyMinutes: null,
+          placeAccuracyKm: null,
+        },
+        profile.birthPlace ?? null,
+        language,
+      );
+      return prompt(buildChartPortraitPrompt({ chart, birth, language, texts }));
+    }
   }
+}
+
+/** The sample chart picture of the chartImageReading test run (functions/assets/samples). */
+function sampleChartImage() {
+  const file = path.resolve(__dirname, "../../assets/samples/chart-sample-astro-seek.webp");
+  return { mediaType: "image/webp" as const, data: fs.readFileSync(file).toString("base64") };
 }
 
 export const adminTestAiTask = onCall({ secrets: AI_SECRETS, timeoutSeconds: 300 }, async (request) => {

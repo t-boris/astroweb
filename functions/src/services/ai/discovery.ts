@@ -62,6 +62,8 @@ export function buildLiveModelSpec(provider: AiProvider, id: string, displayName
     thinking: "always",
     effort: provider === "gemini" ? "LOW" : "low",
     webSearch: true,
+    // Not every newly released model reads pictures; the admin can only pick a curated one for a picture task.
+    vision: false,
     live: true,
   };
   if (provider === "anthropic" && !id.includes("-haiku-")) {

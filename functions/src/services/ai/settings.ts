@@ -71,6 +71,7 @@ function textProblems(task: AiTaskSpec, language: TextLanguage, key: string, tex
 function modelProblems(task: AiTaskSpec, model: AiModel | undefined, id: unknown): string[] {
   if (!model) return [`Unknown model "${String(id)}"`];
   if (task.generation.webSearch && !model.webSearch) return [`${model.label} has no web search, which ${task.label} needs`];
+  if (task.generation.readsImages && !model.vision) return [`${model.label} cannot read pictures, which ${task.label} needs`];
   return [];
 }
 

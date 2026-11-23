@@ -201,7 +201,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
                   {settings.models
                     .filter((m) => m.provider === provider)
                     .map((m) => (
-                      <option key={m.id} value={m.id} disabled={!m.available || (task.needsWebSearch && !m.webSearch)}>
+                      <option key={m.id} value={m.id} disabled={!m.available || (task.needsWebSearch && !m.webSearch) || (task.needsVision && !m.vision)}>
                         {m.label} — {m.inputPerMTok !== null && m.outputPerMTok !== null ? `$${m.inputPerMTok}/$${m.outputPerMTok}` : "new · live"}
                         {!m.available ? " (no API key)" : ""}
                         {m.id === task.defaults.model ? " · default" : ""}
@@ -253,6 +253,7 @@ export default function AiTaskEditor({ task, draft, settings, saving, serverProb
             )}
             <p>Models that reason before answering get extra room for reasoning on top of the output limit.</p>
             {task.needsWebSearch && <p>This task uses the provider's own web search (billed per search).</p>}
+            {task.needsVision && <p>This task sends a picture, so only models that read pictures can be chosen.</p>}
           </div>
         )}
       </section>

@@ -115,6 +115,7 @@ export function draftIssues(task: AiTask, draft: AiDraft, settings: Pick<AiSetti
   } else {
     if (!model.available) issues.push(`${model.label} is unavailable: the ${model.provider} API key is not configured`);
     if (task.needsWebSearch && !model.webSearch) issues.push(`${model.label} has no web search, which ${task.label} needs`);
+    if (task.needsVision && !model.vision) issues.push(`${model.label} cannot read pictures, which ${task.label} needs`);
     const max = Math.min(settings.limits.maxOutputTokens, model.maxOutputTokens);
     if (!Number.isInteger(draft.maxOutputTokens) || draft.maxOutputTokens < settings.limits.minOutputTokens || draft.maxOutputTokens > max) {
       issues.push(`Output limit must be a whole number from ${settings.limits.minOutputTokens} to ${max}`);

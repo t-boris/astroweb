@@ -92,3 +92,6 @@ export {
 
 // Admin AI settings: models, limits and prompts per AI task (gated to the admin)
 export { adminGetAiSettings, adminSaveAiSettings, adminResetAiSettings, adminTestAiTask } from "./api/adminAi";
+
+// Explain my natal chart: a chart picture -> the birth, the story, a profile
+export { readChartImage, describeChartReading } from "./api/chartReading";

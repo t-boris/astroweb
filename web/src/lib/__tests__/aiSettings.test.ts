@@ -24,6 +24,7 @@ const model = (over: Partial<AiModelInfo>): AiModelInfo => ({
   maxOutputTokens: 32000,
   temperature: true,
   webSearch: true,
+  vision: true,
   available: true,
   ...over,
 });
@@ -55,6 +56,7 @@ const task: AiTask = {
   ],
   testInputs: ["topic", "baseInterpretation"],
   needsWebSearch: false,
+  needsVision: false,
   defaults: {
     model: "claude-sonnet-4-6",
     maxOutputTokens: 2600,
@@ -112,6 +114,15 @@ describe("admin AI draft helpers", () => {
       "User message (RU) uses unknown {{oops}}",
     ]);
     expect(draftIssues(task, draftFromTask(task), { models, limits })).toEqual([]);
+  });
+
+  it("refuses a model that cannot read pictures for a task that sends one", () => {
+    const pictureTask = { ...task, label: "Chart picture reading", needsVision: true };
+    const blind = [...models, model({ id: "blind", label: "Blind", vision: false })];
+    expect(draftIssues(pictureTask, { ...draftFromTask(task), model: "blind" }, { models: blind, limits })).toEqual([
+      "Blind cannot read pictures, which Chart picture reading needs",
+    ]);
+    expect(draftIssues(task, { ...draftFromTask(task), model: "blind" }, { models: blind, limits })).toEqual([]);
   });
 
   it("checks one prompt part: empty, too long, optional placeholders", () => {

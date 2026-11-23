@@ -29,7 +29,8 @@ export type SpendFeature =
   | "relationship"
   | "letter"
   | "monthly_horoscope"
-  | "yearly_horoscope";
+  | "yearly_horoscope"
+  | "chart_reading";
 
 /** Ledger row of one star spend (positive `stars`) or refund (negative `stars`). */
 export interface StarSpendRow {
@@ -191,13 +192,19 @@ export async function spendInTx(
  */
 export async function refundToWallet(key: string, amount: number, feature: SpendFeature): Promise<number> {
   const db = getFirestore();
-  return db.runTransaction(async (tx) => {
-    const balance = await ensureWalletInTx(tx, key);
-    const next = Math.max(0, balance + amount);
-    tx.set(walletRef(key), { tokens: next, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    recordSpendInTx(tx, buildStarSpendRow(key, feature, -amount));
-    return next;
-  });
+  return db.runTransaction((tx) => refundInTx(tx, key, amount, feature));
+}
+
+/**
+ * The refund of refundToWallet inside the caller's transaction, so the refund and the caller's own
+ * state change commit together. All reads in the transaction must precede this call.
+ */
+export async function refundInTx(tx: Transaction, key: string, amount: number, feature: SpendFeature): Promise<number> {
+  const balance = await ensureWalletInTx(tx, key);
+  const next = Math.max(0, balance + amount);
+  tx.set(walletRef(key), { tokens: next, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  recordSpendInTx(tx, buildStarSpendRow(key, feature, -amount));
+  return next;
 }
 
 /** Credit stars (purchase fulfilment or admin). Returns the new balance. */

@@ -3,7 +3,7 @@ import { costUsd, findModel, requestOutputTokens, type AiModel, type AiProvider,
 import { callAnthropic } from "./providers/anthropic";
 import { callGemini } from "./providers/gemini";
 import { callOpenAi } from "./providers/openai";
-import type { ProviderRequest, ProviderResult } from "./providers/types";
+import type { PromptImage, ProviderRequest, ProviderResult } from "./providers/types";
 
 /**
  * Provider-neutral text generation for every AI task: one request shape, the
@@ -21,6 +21,8 @@ export interface GenerationSettings {
 export interface GenerationPrompt {
   systemInstruction: string;
   userPrompt: string;
+  /** Pictures sent with the user message (reading a chart from a picture); needs a model with `vision`. */
+  images?: readonly PromptImage[];
 }
 
 export interface GenerationOptions {
@@ -32,6 +34,8 @@ export interface GenerationOptions {
   requireEndTag?: string;
   /** Use the provider's own web search (news digest, DEC-016). */
   webSearch?: { maxUses: number };
+  /** The task sends pictures, so only models with `vision` may run it. */
+  readsImages?: boolean;
 }
 
 export interface GenerationResult {
@@ -63,6 +67,7 @@ export async function generateText(
   options: GenerationOptions,
 ): Promise<GenerationResult> {
   const model = resolveModel(settings.model);
+  if (prompt.images?.length && !model.vision) throw new Error(`${model.label} cannot read pictures`);
   const transport = TRANSPORTS[model.provider];
   const base: Omit<ProviderRequest, "user"> = {
     model,
@@ -70,6 +75,7 @@ export async function generateText(
     maxOutputTokens: requestOutputTokens(model, settings.maxOutputTokens),
     ...(model.temperature && settings.temperature !== null ? { temperature: settings.temperature } : {}),
     ...(options.webSearch ? { webSearch: options.webSearch } : {}),
+    ...(prompt.images?.length ? { images: prompt.images } : {}),
   };
 
   const usage: AiUsage = { inputTokens: 0, outputTokens: 0, webSearches: 0 };

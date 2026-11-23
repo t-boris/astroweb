@@ -5,6 +5,8 @@ export const TOKEN_COST = {
   oracle: 1,
   compatibility: 2,
   pdf: 4,
+  /** Explain my natal chart: reading one picture, the recovered birth and the story (server: TOKEN_COST.chartReading). */
+  chartReading: 1,
 } as const;
 
 export const STAR = "✦";

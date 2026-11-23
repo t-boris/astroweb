@@ -27,12 +27,24 @@ interface MessagesResponse {
   error?: { message?: string };
 }
 
+/** The user turn: plain text, or the pictures followed by the text. */
+function anthropicContent(req: ProviderRequest): string | Record<string, unknown>[] {
+  if (!req.images?.length) return req.user;
+  return [
+    ...req.images.map((image) => ({
+      type: "image",
+      source: { type: "base64", media_type: image.mediaType, data: image.data },
+    })),
+    { type: "text", text: req.user },
+  ];
+}
+
 export function buildAnthropicBody(req: ProviderRequest): Record<string, unknown> {
   const body: Record<string, unknown> = {
     model: req.model.id,
     max_tokens: req.maxOutputTokens,
     system: req.system,
-    messages: [{ role: "user", content: req.user }],
+    messages: [{ role: "user", content: anthropicContent(req) }],
   };
   if (req.temperature !== undefined) body.temperature = req.temperature;
   if (req.model.thinking === "always" && req.model.effort) body.output_config = { effort: req.model.effort };

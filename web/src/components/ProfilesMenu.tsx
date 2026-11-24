@@ -174,7 +174,7 @@ export default function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive
         <Button
           size="sm"
           variant="outline"
-          className="-mt-2 mb-4 w-full border-primary/40 text-foreground hover:border-primary hover:text-primary"
+          className="-mt-2 mb-4 h-auto min-h-8 w-full whitespace-normal border-primary/40 py-1.5 leading-tight text-foreground hover:border-primary hover:text-primary"
           asChild
         >
           <Link to="/explain-chart" onClick={() => setOpen(false)}>

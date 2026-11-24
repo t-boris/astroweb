@@ -224,6 +224,10 @@ describe("the two ways to start, side by side", () => {
     expect(create).toBeGreaterThan(-1);
     expect(explain).toBeGreaterThan(create);
     expect(textOf(markup)).toContain("Explain my natal chart");
+    // The Russian label is longer than the panel is wide: the button wraps it instead of spilling out.
+    const tag = markup.match(/<a[^>]*href="\/explain-chart"[^>]*>/)?.[0] ?? "";
+    expect(tag).toContain("whitespace-normal");
+    expect(tag).not.toContain("whitespace-nowrap");
   });
 
   it("the home page and the header switcher link to it next to the profile form", () => {

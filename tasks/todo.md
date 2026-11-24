@@ -16,7 +16,7 @@ Page PR:
 - [x] Entry points next to "Create profile": Home hero, profiles panel, profile switcher.
 - [x] EN/RU texts, help bubbles, analytics kind, noindex; tests (web 389: pieces in EN and RU, page, prefill, entry points, failure mapping tied to the server's reason list, picture preparation, places); local end-to-end check in the MarkView browser against a stand-in callable server running the real solver on the live model answer: 30 Mar 2002 03:30 ±1 min near Cape Town (±21 km), story, wheel, table, prefilled form; the no-ASC/MC refusal in Russian.
 - [x] Found on the way: Photon's reverse lookup is `/reverse`, not `/api/reverse` (404). The profile form's map click has always fallen back to "Selected Location" (several live profiles carry it). The shared `lib/places.ts` now asks the right address for the nearest town (`layer=city`, 25 km), then the town of the nearest object; names are given once ("Moscow, Russia").
-- [ ] PR, CI, merge, deploy, read-only live check; a real read only with the owner's go-ahead (1 ✦).
+- [x] PR, CI, merge, deploy, read-only live check. #39 (2.32.0) and #40 (2.32.1: the Russian label in the profiles panel was wider than the panel and spilled out; it now wraps). Live: `/explain-chart` serves `X-Robots-Tag: noindex, nofollow`; signed in as the owner the page shows the preview and "Прочитать карту · ✦1" with the balance (not pressed); the panel label fits on two lines. A real read on the site costs 1 ✦ and waits for the owner's go-ahead.
 
 ---
 

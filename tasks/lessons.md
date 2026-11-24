@@ -414,3 +414,9 @@ function before the catch block could refund the star; the refund, the failed st
 writes. Rule for any paid action: the provider timeout is clearly shorter than `timeoutSeconds` (leave a minute), the claim that
 spends the star records an attempt id, and the result or the refund is written in one transaction that first checks the record
 still holds that attempt id. Test a stale takeover and a late attempt, and break each check once to see a test fail.
+
+## A silent fallback can hide a dead endpoint for months: call the real address when touching such code
+
+The profile form's map click fetched `https://photon.komoot.io/api/reverse`, which answers 404; the catch block named the place
+"Selected Location", so nobody saw an error and live profiles carry that name. Rule: when code has a fallback for a failed external
+call, check the real address once with curl before reusing or refactoring it, and test the URL it builds against the documented one.

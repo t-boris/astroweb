@@ -20,6 +20,10 @@
       {
         "source": "/profile/**",
         "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/explain-chart",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
       }
     ],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Check, Plus } from "lucide-react";
+import { ChevronDown, Check, ImageUp, Plus } from "lucide-react";
 import { SubscriptionSparkle } from "@/components/SubscriptionBadge";
 import type { Profile } from "@/types";
 
@@ -71,6 +71,14 @@ export default function ProfileSwitcher({ profiles }: { profiles: Profile[] }) {
             >
               <Plus className="h-3.5 w-3.5 flex-none" />
               {t("home.createProfile", "New profile")}
+            </Link>
+            <Link
+              to="/explain-chart"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+            >
+              <ImageUp className="h-3.5 w-3.5 flex-none" />
+              {t("explainChart.title")}
             </Link>
           </div>
         </>

@@ -2,14 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Map, Marker } from "pigeon-maps";
-
-interface PhotonProperties {
-  name?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  countrycode?: string;
-}
+import { PHOTON_URL, formatPlaceName, reverseGeocode, type PhotonProperties } from "@/lib/places";
 
 interface PhotonFeature {
   geometry: { coordinates: [number, number] }; // [lon, lat] — NOTE: lon first!
@@ -23,14 +16,9 @@ interface PlaceSearchProps {
   selectedLng?: number | null;
 }
 
-const PHOTON_URL = "https://photon.komoot.io/api";
 const DEBOUNCE_MS = 300;
 const MIN_CHARS = 3;
-
-function formatPlaceName(props: PhotonProperties): string {
-  const parts = [props.name, props.state, props.country].filter(Boolean);
-  return parts.join(", ");
-}
+const UNNAMED_PLACE = "Selected Location";
 
 export default function PlaceSearch({ onSelect, initialValue, selectedLat, selectedLng }: PlaceSearchProps) {
   const { t } = useTranslation();
@@ -129,26 +117,11 @@ export default function PlaceSearch({ onSelect, initialValue, selectedLat, selec
   async function handleMapClick({ latLng }: { latLng: [number, number] }) {
     const [lat, lng] = latLng;
     setMapCenter([lat, lng]);
-    
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({ lat: lat.toString(), lon: lng.toString(), lang: "en" });
-      const response = await fetch(`${PHOTON_URL}/reverse?${params}`);
-      const data = await response.json();
-      
-      let name = "Selected Location";
-      if (data.features && data.features.length > 0) {
-        name = formatPlaceName(data.features[0].properties) || name;
-      }
-      
-      setQuery(name);
-      onSelect({ name, lat, lng });
-    } catch (err) {
-      setQuery("Selected Location");
-      onSelect({ name: "Selected Location", lat, lng });
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const name = (await reverseGeocode(lat, lng)) ?? UNNAMED_PLACE;
+    setLoading(false);
+    setQuery(name);
+    onSelect({ name, lat, lng });
   }
 
   return (

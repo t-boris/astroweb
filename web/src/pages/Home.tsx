@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
-import { Sun, Heart, Compass, Zap, Clock, Sparkles } from "lucide-react";
+import { Sun, Heart, Compass, Zap, Clock, Sparkles, ImageUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { listProfiles, archiveProfile } from "@/api/profiles";
@@ -74,6 +74,17 @@ function HeroSection() {
             asChild
           >
             <Link to="/profile/new">{t("landing.hero.cta")}</Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full border-primary/60 px-7 text-foreground hover:border-primary hover:text-[#8fb6ff]"
+            asChild
+          >
+            <Link to="/explain-chart">
+              <ImageUp className="mr-1.5 h-4 w-4" />
+              {t("explainChart.title")}
+            </Link>
           </Button>
           <Button
             size="lg"

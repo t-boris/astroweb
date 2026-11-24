@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router";
+import { Link, useLocation, useParams, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FirebaseError } from "firebase/app";
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import PlaceSearch from "@/components/PlaceSearch";
 import { HelpBubble } from "@/components/HelpBubble";
 import { trackEvent } from "@/lib/analytics";
+import { readProfilePrefill } from "@/lib/explainChart";
 
 export default function ProfileCreate() {
   const { id } = useParams();
@@ -20,6 +21,9 @@ export default function ProfileCreate() {
   const { t } = useTranslation();
   const deviceId = useDeviceId();
   const isEdit = Boolean(id);
+  // Explain my natal chart opens this form filled in with the birth recovered from a chart picture.
+  const location = useLocation();
+  const [prefill] = useState(() => (isEdit ? null : readProfilePrefill(location.state)));
 
   // Funnel: the visitor opened the profile-creation form (create mode only).
   useEffect(() => {
@@ -28,12 +32,12 @@ export default function ProfileCreate() {
 
   // Form state
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [birthTime, setBirthTime] = useState("");
+  const [birthDate, setBirthDate] = useState(prefill?.birthDate ?? "");
+  const [birthTime, setBirthTime] = useState(prefill?.birthTime ?? "");
   const [timeUnknown, setTimeUnknown] = useState(false);
-  const [birthPlace, setBirthPlace] = useState("");
-  const [lat, setLat] = useState<number | null>(null);
-  const [lng, setLng] = useState<number | null>(null);
+  const [birthPlace, setBirthPlace] = useState(prefill?.birthPlace ?? "");
+  const [lat, setLat] = useState<number | null>(prefill?.lat ?? null);
+  const [lng, setLng] = useState<number | null>(prefill?.lng ?? null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -196,6 +200,11 @@ export default function ProfileCreate() {
         <h1 className="mb-6 font-serif text-4xl text-foreground">
           {isEdit ? t("profile.edit.title") : t("profile.create.title")}
         </h1>
+        {prefill && (
+          <p className="mb-4 text-sm text-muted-foreground" data-prefill-note>
+            {t("explainChart.prefillNote")}
+          </p>
+        )}
         <Card className="ds-card">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -279,7 +288,7 @@ export default function ProfileCreate() {
                 </HelpBubble>
                 <PlaceSearch
                   onSelect={handlePlaceSelect}
-                  initialValue={isEdit ? birthPlace : undefined}
+                  initialValue={isEdit || prefill ? birthPlace : undefined}
                   selectedLat={lat}
                   selectedLng={lng}
                 />

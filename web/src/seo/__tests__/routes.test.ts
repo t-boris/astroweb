@@ -109,13 +109,13 @@ describe("sitemap.xml", () => {
   });
 
   it("never lists private routes", () => {
-    expect(xml).not.toMatch(/\/admin|\/account|\/profile/);
+    expect(xml).not.toMatch(/\/admin|\/account|\/profile|\/explain-chart/);
   });
 });
 
 describe("route helpers", () => {
   it("classifies private routes", () => {
-    for (const p of ["/admin", "/account", "/profile/new", "/profile/abc/edit", "/profile/abc/astrologer", "/admin/"]) {
+    for (const p of ["/admin", "/account", "/profile/new", "/profile/abc/edit", "/profile/abc/astrologer", "/admin/", "/explain-chart"]) {
       expect(isPrivatePath(p), p).toBe(true);
     }
     for (const p of ["/", "/ru", "/privacy", "/ru/privacy", "/profiles-info"]) {
@@ -160,8 +160,8 @@ describe("Hosting config (REQ-008)", () => {
   const firebase = JSON.parse(readFileSync(resolve(__dirname, "../../../../firebase.json"), "utf-8"));
   const headers = firebase.hosting.headers as Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
 
-  it("serves X-Robots-Tag noindex for /admin, /account and /profile/**", () => {
-    for (const source of ["/admin", "/account", "/profile/**"]) {
+  it("serves X-Robots-Tag noindex for /admin, /account, /profile/** and /explain-chart", () => {
+    for (const source of ["/admin", "/account", "/profile/**", "/explain-chart"]) {
       const h = headers.find((x) => x.source === source);
       expect(h, source).toBeTruthy();
       expect(h!.headers).toContainEqual({ key: "X-Robots-Tag", value: expect.stringContaining("noindex") });

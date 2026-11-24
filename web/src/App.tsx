@@ -9,6 +9,7 @@ import AstrologerHub from "@/pages/AstrologerHub";
 import Account from "@/pages/Account";
 import Admin from "@/pages/Admin";
 import Privacy from "@/pages/Privacy";
+import ExplainChart from "@/pages/ExplainChart";
 import PublicLanguageGate from "@/components/PublicLanguageGate";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/privacy" element={<PublicLanguageGate lang="en" kind="privacy"><Privacy /></PublicLanguageGate>} />
           <Route path="/ru/privacy" element={<PublicLanguageGate lang="ru" kind="privacy"><Privacy /></PublicLanguageGate>} />
           <Route path="/profile/new" element={<ProfileCreate />} />
+          <Route path="/explain-chart" element={<ExplainChart />} />
           <Route path="/profile/:id" element={<ProfileDetail />} />
           <Route path="/profile/:id/edit" element={<ProfileCreate />} />
           <Route path="/profile/:id/notes" element={<AstrologerNotes />} />

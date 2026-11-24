@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Archive, ArchiveRestore, Menu, X } from "lucide-react";
+import { Archive, ArchiveRestore, ImageUp, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HelpBubble } from "@/components/HelpBubble";
 import SignInNotice from "@/components/SignInNotice";
@@ -169,6 +169,17 @@ export default function ProfilesMenu({ profiles, deviceId, onDelete, onUnarchive
         >
           <Link to="/profile/new" onClick={() => setOpen(false)}>
             {t("home.createProfile")}
+          </Link>
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="-mt-2 mb-4 w-full border-primary/40 text-foreground hover:border-primary hover:text-primary"
+          asChild
+        >
+          <Link to="/explain-chart" onClick={() => setOpen(false)}>
+            <ImageUp className="mr-1.5 h-3.5 w-3.5" />
+            {t("explainChart.title")}
           </Link>
         </Button>
         <div className="scrollbar-hidden flex flex-col gap-2 overflow-y-auto">

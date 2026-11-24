@@ -31,7 +31,8 @@ export type AiReadingKind =
   | "compatibility"
   | "letter"
   | "monthly_horoscope"
-  | "yearly_horoscope";
+  | "yearly_horoscope"
+  | "chart_image";
 
 export interface FunnelEvents {
   profile_create_start: Record<string, never>;

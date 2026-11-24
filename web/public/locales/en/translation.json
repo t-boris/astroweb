@@ -1049,7 +1049,76 @@
     "text": "Your profiles are stored only in this browser. They may be lost if you switch browser or clear its data.",
     "action": "Sign in to save"
   },
+  "explainChart": {
+    "title": "Explain my natal chart",
+    "intro": "Upload a picture of a natal chart from any site or app. We read the positions on it, work out when and where the person was born, and tell you who they are.",
+    "needs": "The picture must show the planets with their degrees, including the Moon, and the Ascendant (ASC) and the Midheaven (MC). A table of positions with degrees and minutes gives the most exact answer.",
+    "privacy": "The picture is read and not kept.",
+    "prefillNote": "Filled in from the chart picture. Give the person a name and check the details before saving.",
+    "again": "Read another picture",
+    "pick": {
+      "choose": "Choose a picture",
+      "change": "Choose another picture",
+      "preparing": "Opening the picture…",
+      "dropHint": "or drop it here, or paste it (Ctrl+V or ⌘V). PNG, JPEG or WebP.",
+      "previewAlt": "The chart picture to read"
+    },
+    "read": {
+      "button": "Read the chart · ✦{{count}}",
+      "signIn": "Sign in and read · ✦{{count}}",
+      "balance": "You have ✦{{count}}",
+      "reading": "Reading the chart… This usually takes less than a minute.",
+      "price": "One star pays for the reading and the story. If no birth can be found in the picture, the star is returned. The same picture again is free.",
+      "buyNeedsProfile": "Stars are bought on a profile page. Create a profile first:"
+    },
+    "result": {
+      "bornTitle": "When and where the person was born",
+      "time": "At about {{time}} local time (± {{minutes}} min)",
+      "place": "Near {{place}} (within about {{km}} km)",
+      "timezone": "Time zone: {{zone}}",
+      "free": "This picture was read before, so no star was spent.",
+      "storyTitle": "A short story about the person",
+      "storyLoading": "Writing the story…",
+      "storyFailed": "The story could not be written. Try again: it is already paid for.",
+      "readTitle": "What was read from the picture",
+      "partial": "These positions on the picture do not fit the moment found and were probably misread: {{points}}. All the others agree.",
+      "colPoint": "Point",
+      "colPosition": "On the picture",
+      "colCheck": "Fits the moment",
+      "fits": "yes",
+      "off": "off by {{minutes}}′",
+      "notChecked": "not checked"
+    },
+    "save": {
+      "title": "Keep this person as a profile",
+      "text": "Give the person a name to keep the chart and use everything the site offers for it: interpretations, forecasts and compatibility.",
+      "button": "Create a profile"
+    },
+    "failure": {
+      "refunded": "Your star has been returned.",
+      "unreadable": "The chart on this picture could not be read. Try a sharper picture or a screenshot of the table of positions.",
+      "not_a_chart": "This does not look like a natal chart. Upload a picture of a chart wheel or of its table of positions.",
+      "sidereal": "This chart uses the sidereal zodiac. Only tropical charts, the usual Western ones, can be read.",
+      "missing_angles": "The picture must show the Ascendant (ASC) and the Midheaven (MC): without them the place and the time of birth cannot be found. Use a picture where ASC and MC are visible, for example the chart's table of positions and houses.",
+      "missing_moon": "The Moon is not on the picture, and without it the time of birth cannot be found. Use a picture that shows the Moon.",
+      "missing_sun": "The Sun is not on the picture, and without it the day of birth cannot be found. Use a picture that shows the Sun.",
+      "too_few_points": "Too few positions could be read from the picture. Try a sharper picture or a screenshot of the table of positions.",
+      "no_consistent_moment": "The positions on the picture do not belong to any moment between 1800 and 2100. Some of them were probably misread: try a sharper picture or the table of positions.",
+      "no_place": "The Ascendant and the Midheaven on the picture do not give a place on Earth. Check that they are sharp and readable.",
+      "failed": "Something went wrong while reading the chart. Please try again in a minute.",
+      "no_stars": "You need a star to read a chart.",
+      "daily_limit": "Too many pictures today gave no birth. Please try again tomorrow.",
+      "in_progress": "This picture is already being read. Wait a minute and try again.",
+      "too_large": "The picture is too large. Use a smaller picture or a screenshot.",
+      "unsupported": "This file cannot be opened as a picture. Use PNG, JPEG or WebP.",
+      "signed_out": "Sign in to read a chart."
+    }
+  },
   "help": {
+    "explainChart": {
+      "picture": "A picture with a table of positions in degrees and minutes gives the most exact answer. A wheel with degree labels works too. The Moon, the Ascendant and the Midheaven must be on the picture.",
+      "accuracy": "Positions on a chart are printed rounded, so the birth is found within a window: a few minutes of time and some kilometres of place. The more exact the printed positions, the smaller the window."
+    },
     "nav": {
       "stars": "Your star balance. Stars are the app's currency: one wallet for all your profiles, and they never expire. Click to open the Premium tab and buy more.",
       "account": "Your account page: star balance, astrologer subscriptions, notifications and language. When you are signed in, your profiles, stars and readings are available to you on any device.",

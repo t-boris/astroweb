@@ -57,7 +57,7 @@ export const PUBLIC_ROUTES: readonly PublicRoute[] = [
 ];
 
 /** Routes whose pages must never be indexed (REQ-008). */
-export const PRIVATE_PREFIXES = ["/admin", "/account", "/profile"] as const;
+export const PRIVATE_PREFIXES = ["/admin", "/account", "/profile", "/explain-chart"] as const;
 
 const normalize = (pathname: string): string => {
   const p = pathname.split(/[?#]/)[0] || "/";

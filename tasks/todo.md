@@ -425,3 +425,25 @@ Scope (approved): UI + AI-generated content. Static PDF template labels fall bac
   so existing AI caches stay valid; uk gets its own cache entries (language is in every cache key).
 - Not in scope: static PDF labels for uk (English), letters (dossier language is still always "ru").
 - Not deployed yet.
+
+# Forum posts: a git-ignored folder and post 1 "Birth date, time and place"
+
+Topic 1 of the series map in `docs/research/2026-11-24-a-hocu-ctoby-ty-mne-sdelal-primer-ili.md`: show on one sample
+profile how the local time, the time zone and the coordinates of the birth place build the chart. In English, with
+screenshots of the app.
+
+- [x] `docs/posts/` in `.gitignore` (branch + PR: main is protected).
+- [x] A made-up sample profile (3 Oct 1994, 18:20, Chicago) on the local app with the stand-in backend: no production
+  data, no real person.
+- [x] Numbers from the real chart code: the correct chart, daylight saving time forgotten (UTC−6), the same moment in
+  London, a town about 120 km away.
+- [x] Screenshots in the MarkView browser; crops saved next to the post.
+- [x] The post in English, every claim checked against the code.
+
+## Review
+- Post: `docs/posts/01-birth-date-time-place/post.md` with 11 images (diagram, form, place help, profile, "Calculated
+  for", wheel, planets, ASC/MC, two side-by-side comparisons, the London line). Not in git, by design.
+- The stand-in backend served one made-up profile and a copy with UTC−6; the charts come from `functions/lib`, the same
+  code as production. Place search coordinates for Chicago: 41.8756, −87.6244.
+- Found on the way, not changed: the place search lists "Chicago, Illinois, United States" four times; a birth in the
+  repeated hour of a fall-back is always read as standard time (luxon), and the form has no way to pick the first pass.
